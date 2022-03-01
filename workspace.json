@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "deso-react-template": "apps/deso-react-template",
     "deso-sdk": "libs/deso-sdk",
     "deso-types": "libs/deso-types",
     "developer-hub": "apps/developer-hub",
