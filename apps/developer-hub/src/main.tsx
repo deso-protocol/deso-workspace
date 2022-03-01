@@ -1,11 +1,13 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom';
-
-import App from './app/app';
+import { RecoilRoot } from 'recoil';
+import App from './App';
 
 ReactDOM.render(
   <StrictMode>
-    <App />
+    <RecoilRoot>
+      <App />
+    </RecoilRoot>
   </StrictMode>,
   document.getElementById('root')
 );
