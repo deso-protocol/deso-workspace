@@ -1,8 +1,9 @@
 {
   "version": 2,
   "projects": {
+    "deso-sdk": "libs/deso-sdk",
+    "deso-types": "libs/deso-types",
     "developer-hub": "apps/developer-hub",
-
     "developer-hub-e2e": "apps/developer-hub-e2e"
   },
   "options": {}
