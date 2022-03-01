@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "developer-hub": "apps/developer-hub",
+    "developer-hub-e2e": "apps/developer-hub-e2e"
+  }
+}

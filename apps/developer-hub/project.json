@@ -1,0 +1,73 @@
+{
+  "root": "apps/developer-hub",
+  "sourceRoot": "apps/developer-hub/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/developer-hub",
+        "index": "apps/developer-hub/src/index.html",
+        "baseHref": "/",
+        "main": "apps/developer-hub/src/main.tsx",
+        "polyfills": "apps/developer-hub/src/polyfills.ts",
+        "tsConfig": "apps/developer-hub/tsconfig.app.json",
+        "assets": [
+          "apps/developer-hub/src/favicon.ico",
+          "apps/developer-hub/src/assets"
+        ],
+        "styles": ["apps/developer-hub/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/developer-hub/src/environments/environment.ts",
+              "with": "apps/developer-hub/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "developer-hub:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "developer-hub:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/developer-hub/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/developer-hub"],
+      "options": {
+        "jestConfig": "apps/developer-hub/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
