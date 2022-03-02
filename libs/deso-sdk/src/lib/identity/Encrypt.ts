@@ -1,9 +1,9 @@
-export const IdentityEncrypt = () => {
+export const encrypt = () => {
   const iframe: HTMLIFrameElement | null = document.getElementById(
-    "identity"
+    'identity'
   ) as HTMLIFrameElement;
   if (iframe === null) {
-    throw Error("Iframe with id identity does not exist");
+    throw Error('Iframe with id identity does not exist');
   }
   //   iframe.contentWindow?.postMessage(request, "*");
   return new Promise((resolve, reject) => {

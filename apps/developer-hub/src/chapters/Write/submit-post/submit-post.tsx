@@ -1,9 +1,9 @@
-import axios from "axios";
-import { TransactionPost } from "../../Interfaces/Transaction.interface";
-import { getSignerInfo, uuid } from "../../../services/utils";
-import { identitySignTransaction } from "../../Identity/sign-transaction/IdentitySubmitTransaction.service";
-import { User } from "../../Interfaces/User";
-import { BASE_URI } from "../../ChapterHelper/BaseUri";
+import axios from 'axios';
+import { TransactionPost } from '../../Interfaces/Transaction.interface';
+import { getSignerInfo, uuid } from '../../../services/utils';
+import { User } from '../../Interfaces/User';
+import { BASE_URI } from '../../ChapterHelper/BaseUri';
+import { identity } from '@deso-workspace/deso-sdk';
 
 export const submitPost = async (
   publicKey: string,
@@ -14,25 +14,25 @@ export const submitPost = async (
   imageURL?: string[]
 ): Promise<{ response: any; data: any } | undefined> => {
   if (!publicKey) {
-    console.log("publicKey is required");
+    console.log('publicKey is required');
     return;
   }
 
   if (!body) {
-    console.log("body is required");
+    console.log('body is required');
     return;
   }
 
   // 1. verify they have a key and body everything else is optional
   const data = {
     UpdaterPublicKeyBase58Check: publicKey,
-    PostHashHexToModify: "",
+    PostHashHexToModify: '',
     ParentStakeID: ParentStakeID,
-    Title: "",
+    Title: '',
     BodyObj: { Body: body, ImageURLs: imageURL },
-    RecloutedPostHashHex: "",
+    RecloutedPostHashHex: '',
     PostExtraData: postExtraData,
-    Sub: "",
+    Sub: '',
     IsHidden: false,
     MinFeeRateNanosPerKB: 2000,
   };
@@ -45,9 +45,9 @@ export const submitPost = async (
 
   const request = {
     id: uuid(),
-    method: "sign",
+    method: 'sign',
     payload,
-    service: "identity",
+    service: 'identity',
   };
-  return identitySignTransaction(request, data);
+  return identity.sign(request, data);
 };

@@ -1,3 +1,4 @@
+import { identity } from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
@@ -13,8 +14,6 @@ import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-import { IdentityInitialize } from '../../Identity/identity-initialize/IdentityInitialize';
-import { identityLogin } from '../../Identity/identity-login/IdentityLogin';
 import { CreateFollowTxnStateless } from './create-follow-txn-stateless';
 export interface CreateFollowTransactionPageProps {
   selectedChapter: Chapter;
@@ -52,8 +51,8 @@ export const CreateFollowTransactionPage = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 ClickHereSnippet(async () => {
-                  await IdentityInitialize();
-                  const loggedInUser = await identityLogin();
+                  await identity.initialize();
+                  const loggedInUser = await identity.login();
                   CreateFollowTxnStateless(
                     {
                       FollowedPublicKeyBase58Check: DEZO_DOG,

@@ -14,21 +14,21 @@ export interface PayloadHasEncryptedMessages {
   payload: { encryptedMessages: any[] };
 }
 
-export function identityDecrypt(
+export function decrypt(
   request: any,
   response: any
 ): Promise<{ thread: any; response: any }> {
   if (!request?.payload?.encryptedMessages) {
-    throw Error("Encrypted Messages are were not Included");
+    throw Error('Encrypted Messages are were not Included');
   }
 
   const iframe: HTMLIFrameElement | null = document.getElementById(
-    "identity"
+    'identity'
   ) as HTMLIFrameElement;
   if (iframe === null) {
-    throw Error("Iframe with id identity does not exist");
+    throw Error('Iframe with id identity does not exist');
   }
-  iframe.contentWindow?.postMessage(request, "*");
+  iframe.contentWindow?.postMessage(request, '*');
   return new Promise((resolve, reject) => {
     const windowHandler = (event: any) => {
       if (!event?.data?.payload?.decryptedHexes) {
@@ -45,6 +45,6 @@ export function identityDecrypt(
       );
       resolve({ thread, response });
     };
-    window.addEventListener("message", windowHandler);
+    window.addEventListener('message', windowHandler);
   });
 }

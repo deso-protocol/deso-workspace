@@ -1,6 +1,6 @@
-import { submitTransaction } from '../../../services/DesoApiSubmitTransaction';
+import { submit } from '../transaction/SubmitTransaction';
 
-export function identitySignTransaction(request: any, data: any): Promise<any> {
+export function sign(request: any, data: any): Promise<any> {
   const iframe: HTMLIFrameElement | null = document.getElementById(
     'identity'
   ) as HTMLIFrameElement;
@@ -11,8 +11,8 @@ export function identitySignTransaction(request: any, data: any): Promise<any> {
   return new Promise((resolve, reject) => {
     const windowHandler = (event: any) => {
       if (event?.data?.payload?.signedTransactionHex) {
-        return submitTransaction(event?.data?.payload?.signedTransactionHex)
-          .then((response) => {
+        return submit(event?.data?.payload?.signedTransactionHex)
+          .then((response: any) => {
             window.removeEventListener('message', windowHandler);
             resolve({ response, data });
           })

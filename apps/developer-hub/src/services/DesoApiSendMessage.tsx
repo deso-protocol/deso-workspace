@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 import {
   SendIframeMessageRequest,
   SendMessageRequest,
-} from "../chapters/Interfaces/MessageInfo.interface";
-import { submitTransaction } from "./DesoApiSubmitTransaction";
-import { User } from "../chapters/Interfaces/User";
-import { BASE_URI } from "../chapters/ChapterHelper/BaseUri";
+} from '../chapters/Interfaces/MessageInfo.interface';
+import { User } from '../chapters/Interfaces/User';
+import { BASE_URI } from '../chapters/ChapterHelper/BaseUri';
+import { transaction } from '@deso-workspace/deso-sdk';
 
 export const encryptMessage = async (
   request: SendIframeMessageRequest,
@@ -20,7 +20,7 @@ export const encryptMessage = async (
 
   const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
   const iFrameRequest = {
-    method: "encrypt",
+    method: 'encrypt',
     payload: {
       accessLevel,
       accessLevelHmac,
@@ -29,7 +29,7 @@ export const encryptMessage = async (
       recipientPublicKey: req.RecipientMessagingPublicKeyBase58Check,
       message: messageToSend,
     },
-    service: "identity",
+    service: 'identity',
   };
 };
 export const sendMessage = async (request: SendMessageRequest) => {
@@ -38,6 +38,6 @@ export const sendMessage = async (request: SendMessageRequest) => {
   ).data;
   if (response) {
     const TransactionHex = response.TransactionHex as string;
-    submitTransaction(TransactionHex);
+    transaction.submit(TransactionHex);
   }
 };

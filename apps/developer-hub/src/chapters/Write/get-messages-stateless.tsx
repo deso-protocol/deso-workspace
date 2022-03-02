@@ -1,12 +1,12 @@
-import axios from "axios";
+import axios from 'axios';
 import {
   GetMessageRequest,
   OrderedContactsWithMessages,
-} from "../Interfaces/MessageInfo.interface";
-import { uuid } from "../../services/utils";
-import { identityDecrypt } from "../Identity/identity-decrypt/IdentityDecryption.service";
-import { User } from "../Interfaces/User";
-import { BASE_URI } from "../ChapterHelper/BaseUri";
+} from '../Interfaces/MessageInfo.interface';
+import { uuid } from '../../services/utils';
+import { User } from '../Interfaces/User';
+import { BASE_URI } from '../ChapterHelper/BaseUri';
+import { identity } from '@deso-workspace/deso-sdk';
 
 export const getMessages = async (
   request: GetMessageRequest,
@@ -37,14 +37,14 @@ export const getMessages = async (
   const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
   const iFrameRequest = {
     id: uuid(),
-    method: "decrypt",
+    method: 'decrypt',
     payload: {
       accessLevel,
       accessLevelHmac,
       encryptedSeedHex,
       encryptedMessages,
     },
-    service: "identity",
+    service: 'identity',
   };
-  return identityDecrypt(iFrameRequest, response);
+  return identity.decrypt(iFrameRequest, response);
 };

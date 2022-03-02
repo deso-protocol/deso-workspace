@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { PageNavigation } from "../../../components/layout/PageNavigation";
-import { getSourceFromGithub, jsonBlock } from "../../../services/utils";
-import { Chapter, ChapterNavigation } from "../../ChapterHelper/Chapter.models";
-import { ChapterTemplate } from "../../ChapterHelper/ChapterTemplate";
+import { identity } from '@deso-workspace/deso-sdk';
+import { useEffect, useState } from 'react';
+import { PageNavigation } from '../../../components/layout/PageNavigation';
+import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
+import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
+import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
   CommonPageSectionTitles,
   PageSection,
-} from "../../ChapterHelper/PageSections";
-import { IdentityInitialize } from "./IdentityInitialize";
+} from '../../ChapterHelper/PageSections';
 
 export interface IdentityInitializeProps {
   selectedChapter: Chapter;
@@ -46,17 +46,17 @@ export const IdentityInitializePage = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 <div>
-                  Click{" "}
+                  Click{' '}
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      IdentityInitialize().then((response) => {
+                      identity.initialize().then((response) => {
                         setInitializedResponse(response);
                       });
                     }}
                   >
                     here
-                  </span>{" "}
+                  </span>{' '}
                   to initialize an Identity session.
                 </div>
               )}
@@ -72,8 +72,8 @@ export const IdentityInitializePage = ({
                       We Created the Identity Iframe and appended it to our
                       project. (Should be the last element in the body tag).
                       {jsonBlock(
-                        document.getElementById("identity")?.outerHTML,
-                        "html"
+                        document.getElementById('identity')?.outerHTML,
+                        'html'
                       )}
                     </li>
                     <li>
@@ -87,7 +87,7 @@ export const IdentityInitializePage = ({
                       to confirm the connection.
                       {jsonBlock({
                         id: initializedResponse.id,
-                        service: "identity",
+                        service: 'identity',
                         payload: {},
                       })}
                     </li>
@@ -98,11 +98,11 @@ export const IdentityInitializePage = ({
           ),
         },
         {
-          title: "Code",
-          content: PageSection("", code),
+          title: 'Code',
+          content: PageSection('', code),
         },
         {
-          title: "Documentation",
+          title: 'Documentation',
           content: PageSection(
             CommonPageSectionTitles.ADDITIONAL_DOCUMENTATION,
             <>{chapters.documentationToLink(selectedChapter)}</>

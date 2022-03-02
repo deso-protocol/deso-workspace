@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
-import { identityLogin } from './IdentityLogin';
 import { LoginCodeBlocks } from './CodeBlocks';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
 import { useRecoilState } from 'recoil';
@@ -12,7 +11,7 @@ import {
   PageSection,
   CommonPageSectionTitles,
 } from '../../ChapterHelper/PageSections';
-
+import { identity } from '@deso-workspace/deso-sdk';
 // https://github.com/highlightjs/highlight.js/blob/main/src/languages/typescript.js
 export interface IdentityLoginProps {
   selectedChapter: Chapter;
@@ -51,7 +50,7 @@ export const IdentityLoginPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      identityLogin().then((response) => {
+                      identity.login().then((response) => {
                         setLoggedInUser(response.loggedInUser);
                         setPublicKey(response.publicKey);
                       });

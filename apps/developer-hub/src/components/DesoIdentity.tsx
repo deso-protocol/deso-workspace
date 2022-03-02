@@ -1,15 +1,12 @@
-import { Button, Link } from "@mui/material";
-import { useEffect } from "react";
-import { useRecoilState } from "recoil";
-import { PublicKey } from "../chapters/ChapterHelper/Chapter.atom";
-import { IdentityInitialize } from "../chapters/Identity/identity-initialize/IdentityInitialize";
-import { identityLogin } from "../chapters/Identity/identity-login/IdentityLogin";
-import { IdentityLogout } from "../chapters/Identity/identity-logout/IdentityLogout.service";
-import { DesoIdentityEncryptedResponse } from "../chapters/Interfaces/DesoIdentity.interface";
+import { identity } from '@deso-workspace/deso-sdk';
+import { Button, Link } from '@mui/material';
+import { useEffect } from 'react';
+import { useRecoilState } from 'recoil';
+import { PublicKey } from '../chapters/ChapterHelper/Chapter.atom';
 import {
   SampleAppEncryptedMessage,
   SampleAppLoggedInUser,
-} from "../recoil/AppState.atoms";
+} from '../recoil/AppState.atoms';
 const Identity = () => {
   const [loggedInUser, setLoggedInUser] = useRecoilState(SampleAppLoggedInUser);
   const [myPublicKey, setPublicKey] = useRecoilState(PublicKey);
@@ -18,12 +15,12 @@ const Identity = () => {
     SampleAppEncryptedMessage
   );
   useEffect(() => {
-    IdentityInitialize();
-    window.addEventListener("message", (event) => {
+    identity.initialize();
+    window.addEventListener('message', (event) => {
       const execution = determineExecution(event);
       switch (execution) {
-        case "encryptMessage": {
-          const data: DesoIdentityEncryptedResponse = event.data;
+        case 'encryptMessage': {
+          const data: any = event.data;
           setEncryptedMessage(data);
           break;
         }
@@ -35,20 +32,20 @@ const Identity = () => {
   }, []);
 
   const approve = () => {
-    const approve = window.open("https://identity.deso.org/approve");
+    const approve = window.open('https://identity.deso.org/approve');
   };
 
   const determineExecution = (
     event: any
-  ): "dismiss" | "executeWindowCommand" | "encryptMessage" => {
-    if (!(event.origin === "https://identity.deso.org" && event.source)) {
+  ): 'dismiss' | 'executeWindowCommand' | 'encryptMessage' => {
+    if (!(event.origin === 'https://identity.deso.org' && event.source)) {
       // the event is coming from a different Iframe
-      return "dismiss";
+      return 'dismiss';
     }
     if (event?.data?.payload?.encryptedMessage) {
-      return "encryptMessage";
+      return 'encryptMessage';
     }
-    return "executeWindowCommand";
+    return 'executeWindowCommand';
   };
 
   return (
@@ -57,7 +54,7 @@ const Identity = () => {
         <Link
           className="cursor-pointer"
           onClick={() => {
-            identityLogin().then(({ loggedInUser, publicKey }) => {
+            identity.login().then(({ loggedInUser, publicKey }) => {
               setLoggedInUser(loggedInUser);
               setPublicKey(publicKey);
             });
@@ -70,9 +67,9 @@ const Identity = () => {
           className="cursor-pointer"
           variant="contained"
           onClick={() => {
-            IdentityLogout(myPublicKey as string).then(() => {
+            identity.logout(myPublicKey as string).then(() => {
               setLoggedInUser(null);
-              setPublicKey("");
+              setPublicKey('');
             });
           }}
         >
