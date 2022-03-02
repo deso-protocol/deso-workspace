@@ -1,29 +1,22 @@
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardActions from "@mui/material/CardActions";
-import Avatar from "@mui/material/Avatar";
-
-import { ReactElement, useEffect, useState } from "react";
-import {
-  getProfileInfo,
-  getUserPicture,
-  getFollowsStateless,
-  getUserInfoStateless,
-} from "../../services/DesoApiRead";
-import Button from "@mui/material/Button";
-import { useRecoilState } from "recoil";
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import Avatar from '@mui/material/Avatar';
+import { ReactElement, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
 import {
   SampleAppMyUserInfo,
   SampleAppMyFollowersInfo,
   SampleAppMyProfilePicture,
   MyUserInfoType,
-  FollowerInfoType,
-} from "../../recoil/AppState.atoms";
-import CreatePostInput from "./CreatePostInput";
-import { getFollowerCount } from "../../services/utils";
-import UserActions from "../UserActions";
-import { ProfileInfoResponse } from "../../chapters/Read/get-single-profile/GetSingleProfile.service";
-import { FollowerInfoResponse } from "../../chapters/Read/get-follows-stateless/GetFollowsStateless.service";
+} from '../../recoil/AppState.atoms';
+import CreatePostInput from './CreatePostInput';
+import { getFollowerCount } from '../../services/utils';
+import UserActions from '../UserActions';
+import deso from '@deso-workspace/deso-sdk';
+import {
+  GetFollowsResponse,
+  GetSingleProfileResponse,
+} from '@deso-workspace/deso-types';
 export interface DisplayUserProps {
   publicKey: string;
   isMyAccount: boolean;
@@ -34,7 +27,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
     SampleAppMyProfilePicture
   );
   const [userFollowers, setUserFollowers] =
-    useRecoilState<FollowerInfoResponse | null>(SampleAppMyFollowersInfo);
+    useRecoilState<GetFollowsResponse | null>(SampleAppMyFollowersInfo);
   const [profileDescriptionCard, setCard] = useState<ReactElement | null>(null);
 
   useEffect(() => {
@@ -48,16 +41,22 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
   }, [profilePicture, user, userFollowers]);
 
   const getMyInfo = async (publicKey: string) => {
-    let profileInfoResponse: ProfileInfoResponse;
+    let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await getUserInfoStateless([publicKey]);
-      profileInfoResponse = await getProfileInfo(publicKey);
-      const profilePictureSrc = getUserPicture(
-        profileInfoResponse?.Profile?.PublicKeyBase58Check
+      const userInfoResponse = await deso.api.user.getUserStateless([
+        publicKey,
+      ]);
+      profileInfoResponse = await (
+        await deso.api.user.getSingleProfile(publicKey)
+      ).response;
+      const profilePictureSrc = deso.api.user.getSingleProfilePicture(
+        profileInfoResponse?.Profile?.PublicKeyBase58Check as string
       );
       setUser({ profileInfoResponse, userInfoResponse });
       setProfilePicture(profilePictureSrc);
-      const followers = await getFollowsStateless(publicKey);
+      const followers = await (
+        await deso.api.social.getFollowsStateless(publicKey)
+      ).response;
       setUserFollowers(followers);
     }
   };

@@ -1,32 +1,30 @@
-import { Route } from "react-router-dom";
-import SampleApp from "../../components/layout/SampleApp";
-import { getFollowsStateless } from "../Read/get-follows-stateless/GetFollowsStateless.service";
-import { Chapter1Section } from "../Read/ReadSection";
-import { getSingleProfile } from "../Read/get-single-profile/GetSingleProfile.service";
-import { getUserStateless } from "../Read/get-users-stateless/GetUserStateless.service";
-import { IdentityInitializePage } from "../Identity/identity-initialize/IdentityInitializePage";
-import { IdentityLoginPage } from "../Identity/identity-login/IdentitiyLoginPage";
-import { ReactElement } from "react";
-import { IdentityLogoutPage } from "../Identity/identity-logout/IdentityLogoutPage";
-import { DecryptMessagesPage } from "../Write/decrypt/DecryptMessagesPage";
+import { Route } from 'react-router-dom';
+import SampleApp from '../../components/layout/SampleApp';
+import { Chapter1Section } from '../Read/ReadSection';
+import { IdentityInitializePage } from '../Identity/identity-initialize/IdentityInitializePage';
+import { IdentityLoginPage } from '../Identity/identity-login/IdentitiyLoginPage';
+import { ReactElement } from 'react';
+import { IdentityLogoutPage } from '../Identity/identity-logout/IdentityLogoutPage';
+import { DecryptMessagesPage } from '../Write/decrypt/DecryptMessagesPage';
 
-import { Link, Link as MaterialLink } from "@mui/material";
-import { CommonPageSectionTitles, PageSection } from "./PageSections";
-import { ChapterTemplate } from "./ChapterTemplate";
-import { PageNavigation } from "../../components/layout/PageNavigation";
-import { SubmitPostPage } from "../Write/submit-post/submit-post-page";
-import { GetAppStatePage } from "../Read/get-app-state/GetAppStatePage";
-import { CreateFollowTransactionPage } from "../Write/create-follow-txn-stateless/create-follow-transaction-page";
+import { Link, Link as MaterialLink } from '@mui/material';
+import { CommonPageSectionTitles, PageSection } from './PageSections';
+import { ChapterTemplate } from './ChapterTemplate';
+import { PageNavigation } from '../../components/layout/PageNavigation';
+import { SubmitPostPage } from '../Write/submit-post/submit-post-page';
+import { GetAppStatePage } from '../Read/get-app-state/GetAppStatePage';
+import { CreateFollowTransactionPage } from '../Write/create-follow-txn-stateless/create-follow-transaction-page';
+import deso from '@deso-workspace/deso-sdk';
 export const CHAPTERS: Readonly<ChapterNavigation> = {
   ABOUT: {
-    title: "Welcome",
-    route: "*",
-    description: "N/A",
+    title: 'Welcome',
+    route: '*',
+    description: 'N/A',
     documentation: [
-      "https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile",
+      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx',
     ],
     component: function () {
       return (
@@ -40,9 +38,9 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                 {
                   content: (
                     <>
-                      {" "}
+                      {' '}
                       {PageSection(
-                        "Welcome to the DeSo Developer Hub",
+                        'Welcome to the DeSo Developer Hub',
                         <div>
                           DeSo developer hub is rich in resources to help you
                           build your DeSo app. Currently the page supports
@@ -51,17 +49,17 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                         </div>
                       )}
                       {PageSection(
-                        "Tabs",
+                        'Tabs',
                         <div>
                           While navigating through each page you'll see some
                           common tabs such as Overview, Code, and Documentation.
                           <div className="ml-2 my-2">
-                            <span className="font-semibold">Overview:</span>{" "}
+                            <span className="font-semibold">Overview:</span>{' '}
                             Provides context on what the calls does, and briefly
                             describes the steps required to execute the call.
                           </div>
                           <div className="ml-2 my-2">
-                            <span className="font-semibold"> Code:</span>{" "}
+                            <span className="font-semibold"> Code:</span>{' '}
                             Provides the source code to execute call. This means
                             you can easily copy these files into your own app or
                             just inspect them for inspiration.build
@@ -69,24 +67,23 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           <div className="ml-2 mt-2">
                             <span className="font-semibold">
                               Documentation:
-                            </span>{" "}
+                            </span>{' '}
                             Provides links to formal Deso documentation to
                             provide a more in depth explanation.
                           </div>
                         </div>
                       )}
                       {PageSection(
-                        "Starter App",
+                        'Starter App',
                         <div>
-                            Looking for a bare bones react template to get
-                            started on your DeSo app? Open your terminal and run{" "}
-                            <br />
-                            <span className="font-semibold">git clone </span>
-                            https://github.com/DeSoDog/deso-react-template.git
-                          </div>
+                          Looking for a bare bones react template to get started
+                          on your DeSo app? Open your terminal and run <br />
+                          <span className="font-semibold">git clone </span>
+                          https://github.com/DeSoDog/deso-react-template.git
+                        </div>
                       )}
                       {PageSection(
-                        "About",
+                        'About',
                         <>
                           <div>
                             The DeSo Developer Hub is under active development
@@ -97,7 +94,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                             from an onchain comment threads for common issues
                             (similar to stack overflow), more useful utility
                             methods, etc. If you have any recommendations for
-                            improvement or find any bugs, please leave feedback{" "}
+                            improvement or find any bugs, please leave feedback{' '}
                             <Link
                               target="_blank"
                               href="https://github.com/DeSoDog/deso-deep-dive/issues"
@@ -106,17 +103,17 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                             </Link>
                           </div>
                           <div className=" my-16 text-center">
-                            Hit the{" "}
+                            Hit the{' '}
                             <span className="font-semibold">Arrow icon</span> in
-                            the top right or the{" "}
-                            <span className="font-semibold">Sandwich icon</span>{" "}
+                            the top right or the{' '}
+                            <span className="font-semibold">Sandwich icon</span>{' '}
                             in the top left to get started.
                           </div>
                         </>
                       )}
                     </>
                   ),
-                  title: "Welcome",
+                  title: 'Welcome',
                 },
               ]}
               navigation={
@@ -132,14 +129,14 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   READ_GET_SINGLE_PROFILE: {
-    title: "Get Single Profile",
-    route: "/read/get-single-profile",
-    description: "get-single-profile",
+    title: 'Get Single Profile',
+    route: '/read/get-single-profile',
+    description: 'get-single-profile',
     documentation: [
-      "https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile",
+      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx',
     ],
     component: function () {
       return (
@@ -156,12 +153,12 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                 <div>
                   As it sounds get-single-profile, fetches various data around a
                   single profile. This call is useful if you want common display
-                  data for a user.{" "}
+                  data for a user.{' '}
                 </div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={getSingleProfile}
+              apiCall={deso.api.user.getSingleProfile}
             />
           }
         ></Route>
@@ -169,14 +166,14 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   READ_GET_USERS_STATELESS: {
-    title: "Get Users Stateless",
-    route: "/read/get-users-stateless",
-    description: "get-users-stateless",
+    title: 'Get Users Stateless',
+    route: '/read/get-users-stateless',
+    description: 'get-users-stateless',
     documentation: [
-      "https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-users-stateless",
+      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-users-stateless',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-users-stateless/GetUserStateless.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-users-stateless/GetUserStateless.service.tsx',
     ],
     component: function () {
       return (
@@ -197,7 +194,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               tabs={[]}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={getUserStateless}
+              apiCall={deso.api.user.getUserStateless}
             />
           }
         ></Route>
@@ -205,14 +202,14 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   READ_GET_FOLLOWS_STATELESS: {
-    title: "Get Follows Stateless",
-    route: "/read/get-follows-stateless",
-    description: "get-followers-stateless",
+    title: 'Get Follows Stateless',
+    route: '/read/get-follows-stateless',
+    description: 'get-followers-stateless',
     documentation: [
-      "https://docs.deso.org/backend/blockchain-data/api/social-endpoints#get-follows-stateless",
+      'https://docs.deso.org/backend/blockchain-data/api/social-endpoints#get-follows-stateless',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-follows-stateless/GetFollowsStateless.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-follows-stateless/GetFollowsStateless.service.tsx',
     ],
     component: function () {
       return (
@@ -225,7 +222,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>
                   Similar to the get-users-stateless, but Instead it will return
-                  an array of followers for a specific account.{" "}
+                  an array of followers for a specific account.{' '}
                 </div>
               )}
               requestText="Then we provide PublicKeyBase58Check which tell the endpoint who's followers to query. GetEntriesFollowingUsername returns only followers who are also following the public key(s), numToFetch determines how many followers to return per user."
@@ -233,7 +230,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               tabs={[]}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={getFollowsStateless}
+              apiCall={deso.api.user.getUserStateless}
             />
           }
         ></Route>
@@ -241,12 +238,12 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   IDENTITY_INITIALIZE: {
-    title: "Initialize",
-    route: "/identity/identity-initialize",
-    documentation: ["https://docs.deso.org/identity/concepts#initialize"],
+    title: 'Initialize',
+    route: '/identity/identity-initialize',
+    documentation: ['https://docs.deso.org/identity/concepts#initialize'],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/IdentityInitialize.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/IdentityInitialize.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx',
     ],
     component: function () {
       return (
@@ -265,16 +262,16 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   },
 
   IDENTITY_LOGIN: {
-    title: "Login",
-    route: "/identity/identity-login",
+    title: 'Login',
+    route: '/identity/identity-login',
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-login/IdentityLogin.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-login/IdentityLogin.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
     ],
     documentation: [
-      "https://docs.deso.org/identity/window-api/endpoints#log-in",
-      "https://docs.deso.org/identity/identity",
+      'https://docs.deso.org/identity/window-api/endpoints#log-in',
+      'https://docs.deso.org/identity/identity',
     ],
     component: function () {
       return (
@@ -289,12 +286,12 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   IDENTITY_LOGOUT: {
-    title: "Logout",
-    route: "/identity/identity-logout",
+    title: 'Logout',
+    route: '/identity/identity-logout',
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-logout/IdentityLogout.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-logout/IdentityLogout.service.tsx',
     ],
-    documentation: ["https://docs.deso.org/identity/window-api/endpoints"],
+    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
       return (
         <Route
@@ -308,14 +305,14 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   IDENTITY_DECRYPT: {
-    title: "Decrypt",
-    route: "/identity/identity-decrypt",
+    title: 'Decrypt',
+    route: '/identity/identity-decrypt',
     documentation: [
-      "https://docs.deso.org/identity/iframe-api/endpoints#decrypt",
+      'https://docs.deso.org/identity/iframe-api/endpoints#decrypt',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/get-messages-stateless.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-decrypt/IdentityDecryption.service.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/get-messages-stateless.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-decrypt/IdentityDecryption.service.tsx',
     ],
     component: function () {
       return (
@@ -331,18 +328,18 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   },
 
   WRITE_SUBMIT_POST: {
-    title: "Submit Post",
-    route: "/write/submit-post",
+    title: 'Submit Post',
+    route: '/write/submit-post',
     documentation: [
-      "https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#submit-post",
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#submit-post',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/submit-post.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/Transaction.interface.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/submit-post.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/Transaction.interface.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
     ],
     component: function () {
       return (
@@ -358,17 +355,17 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   },
 
   WRITE_CREATE_FOLLOW_TRANSACTION: {
-    title: "Create Follow Transaction",
-    route: "/write/create-follow-transaction",
+    title: 'Create Follow Transaction',
+    route: '/write/create-follow-transaction',
     documentation: [
-      "https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#create-follow-txn-stateless",
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#create-follow-txn-stateless',
     ],
     githubSource: [
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/create-follow-txn-stateless/create-follow-txn-stateless.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx",
-      "https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx",
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/create-follow-txn-stateless/create-follow-txn-stateless.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
     ],
     component: function () {
       return (
@@ -386,10 +383,10 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   NODE_PAGE: {
-    title: "Node Page",
-    route: "/node-page",
-    documentation: [""],
-    githubSource: ["N/A"],
+    title: 'Node Page',
+    route: '/node-page',
+    documentation: [''],
+    githubSource: ['N/A'],
     component: function () {
       return (
         <Route
@@ -401,10 +398,10 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   SAMPLE_APP: {
-    title: "Sample App",
-    route: "/sample-app",
+    title: 'Sample App',
+    route: '/sample-app',
     documentation: [],
-    githubSource: ["N/A"],
+    githubSource: ['N/A'],
     component: function () {
       return (
         <Route
@@ -428,7 +425,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   chaptersToArray: function () {
     const chapterArray: { chapterName: string; chapterContent: Chapter }[] = [];
     for (const [chapterName, chapterContent] of Object.entries(this)) {
-      if ("title" in chapterContent) {
+      if ('title' in chapterContent) {
         chapterArray.push({
           chapterName,
           chapterContent,

@@ -11,7 +11,7 @@ import {
   PageSection,
   CommonPageSectionTitles,
 } from '../../ChapterHelper/PageSections';
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
 // https://github.com/highlightjs/highlight.js/blob/main/src/languages/typescript.js
 export interface IdentityLoginProps {
   selectedChapter: Chapter;
@@ -50,7 +50,7 @@ export const IdentityLoginPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      identity.login().then((response) => {
+                      deso.identity.login().then((response) => {
                         setLoggedInUser(response.loggedInUser);
                         setPublicKey(response.publicKey);
                       });

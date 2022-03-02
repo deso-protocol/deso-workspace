@@ -1,6 +1,3 @@
-// import { User } from "../../Interfaces/User";
-// import { setIdentityFrame } from "../identity-initialize/GetIdentityFrame";
-
 import { setIdentityFrame } from './set-identity-frame';
 
 export const login = (): Promise<{

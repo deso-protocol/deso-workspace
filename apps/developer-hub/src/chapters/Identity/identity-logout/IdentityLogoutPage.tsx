@@ -1,4 +1,4 @@
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
@@ -50,7 +50,7 @@ export const IdentityLogoutPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      identity.logout(myPublicKey).then((response) => {
+                      deso.identity.logout(myPublicKey).then((response) => {
                         setResponse(response);
                       });
                     }}

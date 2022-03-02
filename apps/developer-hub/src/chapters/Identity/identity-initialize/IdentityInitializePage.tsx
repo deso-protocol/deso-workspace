@@ -1,4 +1,4 @@
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
@@ -50,7 +50,7 @@ export const IdentityInitializePage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      identity.initialize().then((response) => {
+                      deso.identity.initialize().then((response) => {
                         setInitializedResponse(response);
                       });
                     }}
@@ -118,6 +118,3 @@ export const IdentityInitializePage = ({
     />
   );
 };
-
-{
-}

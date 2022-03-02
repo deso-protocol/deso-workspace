@@ -1,24 +1,26 @@
 import axios from 'axios';
-import {
-  GetMessageRequest,
-  OrderedContactsWithMessages,
-} from '../../../../../apps/developer-hub/src/chapters/Interfaces/MessageInfo.interface';
-import { identity } from '../..';
+import { decrypt } from '../../lib/identity/';
 import { BASE_URI } from '../state/BaseUri';
 import { uuid } from '../../utils/utils';
+import {
+  GetMessagesResponse,
+  GetMessagesStatelessRequest,
+} from '@deso-workspace/deso-types';
 
 export const getMessages = async (
-  request: GetMessageRequest,
+  request: GetMessagesStatelessRequest,
   user: any
 ): Promise<{ thread: any; response: any }> => {
-  const response = (
+  const response: GetMessagesResponse = (
     await axios.post(`${BASE_URI}/get-messages-stateless`, request)
   ).data;
-  const orderedContactsWithMessages: OrderedContactsWithMessages[] =
-    response.OrderedContactsWithMessages;
-  const encryptedMessages = orderedContactsWithMessages
-    .map((thread) => {
-      return thread.Messages.map((message) => ({
+  // temp any fix for compiler
+  const encryptedMessages = (response.OrderedContactsWithMessages as any[]).map(
+    (thread) => {
+      if (thread.Messages === null) {
+        return [];
+      }
+      return thread.Messages.map((message: any) => ({
         EncryptedHex: message.EncryptedText,
         PublicKey: message.IsSender
           ? message.RecipientPublicKeyBase58Check
@@ -31,8 +33,10 @@ export const getMessages = async (
         RecipientMessagingPublicKey: message.RecipientMessagingPublicKey,
         RecipientMessagingGroupKeyName: message.RecipientMessagingGroupKeyName,
       }));
-    })
-    .flat();
+    }
+  );
+  // TODO reenable this
+  // .flat();
   const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
   const iFrameRequest = {
     id: uuid(),
@@ -45,5 +49,5 @@ export const getMessages = async (
     },
     service: 'identity',
   };
-  return identity.decrypt(iFrameRequest, response);
+  return decrypt(iFrameRequest, response);
 };

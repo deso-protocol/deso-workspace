@@ -1,12 +1,5 @@
-import { atom } from "recoil";
-import { User } from "../chapters/Interfaces/User";
-import { FollowerInfoResponse } from "../chapters/Read/get-follows-stateless/GetFollowsStateless.service";
-import { ProfileInfoResponse } from "../chapters/Read/get-single-profile/GetSingleProfile.service";
-import { UserInfoResponse } from "../chapters/Read/get-users-stateless/GetUserStateless.service";
-import {
-  DesoIdentityDecryptedHexesactionResponse,
-  DesoIdentityEncryptedResponse,
-} from "../chapters/Interfaces/DesoIdentity.interface";
+import { atom } from 'recoil';
+import { User } from '../chapters/Interfaces/User';
 
 export enum AppStateEnum {
   MY_POST,
@@ -14,44 +7,43 @@ export enum AppStateEnum {
   MY_FOLLOWERS_POST,
 }
 
-export const SampleAppDecryptedHexes =
-  atom<DesoIdentityDecryptedHexesactionResponse | null>({
-    key: "decryptedHexes",
-    default: null,
-  });
+export const SampleAppDecryptedHexes = atom<any | null>({
+  key: 'decryptedHexes',
+  default: null,
+});
 
 export const SampleAppMyUserInfo = atom<MyUserInfoType>({
-  key: "myUserInfo",
+  key: 'myUserInfo',
   default: null,
 });
 
 export const SampleAppMyFollowersInfo = atom<FollowerInfoResponse | null>({
-  key: "myFollowersInfo",
+  key: 'myFollowersInfo',
   default: null,
 });
 
 export const SampleAppMyProfilePicture = atom<string | null>({
-  key: "myProfilePicture",
+  key: 'myProfilePicture',
   default: null,
 });
 
 export const SampleAppState = atom<AppStateEnum>({
-  key: "appState",
+  key: 'appState',
   default: AppStateEnum.MY_POST,
 });
 
 export const SampleAppLoggedInUser = atom<User | null>({
-  key: "loggedInUser",
+  key: 'loggedInUser',
   default: null,
 });
 
 export const SampleAppEncryptedMessage =
   atom<DesoIdentityEncryptedResponse | null>({
-    key: "encryptMessage",
+    key: 'encryptMessage',
     default: null,
   });
 export const SampleAppToggleDrawer = atom<boolean>({
-  key: "toggleDrawer",
+  key: 'toggleDrawer',
   default: false,
 });
 

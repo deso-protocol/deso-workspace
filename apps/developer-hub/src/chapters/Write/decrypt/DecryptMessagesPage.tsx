@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
-import { GetMessageRequest } from '../../Interfaces/MessageInfo.interface';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
 import { LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
@@ -11,9 +10,8 @@ import {
   PageSection,
 } from '../../ChapterHelper/PageSections';
 import { User } from '../../Interfaces/User';
-import { getMessages } from '../get-messages-stateless';
-import { BASE_URI } from '../../ChapterHelper/BaseUri';
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
+import { GetMessagesStatelessRequest } from '@deso-workspace/deso-types';
 
 export interface DecryptMessagesProps {
   selectedChapter: Chapter;
@@ -29,7 +27,7 @@ export const DecryptMessagesPage = ({
   );
 
   const [myPublicKey, setPublicKey] = useRecoilState<string>(PublicKey);
-  const [request, setRequest] = useState<GetMessageRequest>({
+  const [request, setRequest] = useState<GetMessagesStatelessRequest>({
     NumToFetch: 25,
     PublicKeyBase58Check: myPublicKey as string,
     FetchAfterPublicKeyBase58Check: '',
@@ -43,15 +41,14 @@ export const DecryptMessagesPage = ({
   const [messageResponse, setMessageResponse] = useState<any>();
   const [finalResponse, setFinalResponse] = useState<any>();
   const loginInit = async () => {
-    await identity.initialize();
-    return await identity.login();
+    await deso.identity.initialize();
+    return await deso.identity.login();
   };
 
   useEffect(() => {
     getSourceFromGithub(selectedChapter.githubSource).then(setCode);
   }, []);
 
-  useEffect(() => {}, [setFinalResponse, setMessageResponse]);
   return (
     <ChapterTemplate
       title={selectedChapter.title}
@@ -78,14 +75,16 @@ export const DecryptMessagesPage = ({
                         user = (await loginInit()).loggedInUser;
                         setLoggedInUser(user);
                       }
-                      getMessages(request, user as User).then((response) => {
-                        response.response.OrderedContactsWithMessages.slice(
-                          0,
-                          4
-                        );
-                        setMessageResponse(response.response);
-                        setFinalResponse(response.thread);
-                      });
+                      deso.api.social
+                        .getMessages(request, user as User)
+                        .then((response: any) => {
+                          response.response.OrderedContactsWithMessages.slice(
+                            0,
+                            4
+                          );
+                          setMessageResponse(response.response);
+                          setFinalResponse(response.thread);
+                        });
                     }}
                   >
                     here
@@ -104,7 +103,7 @@ export const DecryptMessagesPage = ({
                     <div className="list-decimal">
                       <li>
                         First we sent a post request to:
-                        {jsonBlock(`${BASE_URI}/get-messages-stateless`)}
+                        {jsonBlock(`${deso.node.uri}/get-messages-stateless`)}
                       </li>
                       <li>
                         The following payload is included on the post, where

@@ -1,21 +1,24 @@
-import { CoinEntry } from '@deso-workspace/deso-types';
+import {
+  GetFollowsResponse,
+  GetFollowsStatelessRequest,
+} from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { BASE_URI } from '../state';
 
 export const getFollowsStateless = async (
   PublicKeyBase58Check: string
 ): Promise<{
-  response: FollowerInfoResponse;
+  response: GetFollowsResponse;
   endpoint: string;
-  request: FollowerInfoRequest;
+  request: Partial<GetFollowsStatelessRequest>;
 }> => {
   const endpoint = 'get-follows-stateless';
-  const request: FollowerInfoRequest = {
+  const request: Partial<GetFollowsStatelessRequest> = {
     PublicKeyBase58Check,
     GetEntriesFollowingUsername: true,
     NumToFetch: 10,
   };
-  const response: FollowerInfoResponse = (
+  const response: GetFollowsResponse = (
     await axios.post(`${BASE_URI}/${endpoint}`, request)
   ).data;
   if (endpoint) {
@@ -24,34 +27,3 @@ export const getFollowsStateless = async (
     throw new Error('need to add endpoint value');
   }
 };
-
-export interface FollowerInfoRequest {
-  PublicKeyBase58Check?: string;
-  Username?: string;
-  GetEntriesFollowingUsername: boolean;
-  LastPublicKeyBase58Check?: string;
-  NumToFetch?: number;
-}
-
-export interface FollowerInfoResponse {
-  PublicKeyToProfileEntry: {
-    [SomeStringHash: string]: {
-      PublicKeyBase58Check: string;
-      Username: string;
-      Description: string;
-      IsHidden: boolean;
-      IsReserved: boolean;
-      IsVerified: boolean;
-      Comments?: any;
-      Posts?: any;
-      CoinEntry: CoinEntry;
-      DAOCoinEntry: CoinEntry;
-      CoinPriceDeSoNanos: number;
-      CoinPriceBitCloutNanos: number;
-      UsersThatHODL?: any;
-      IsFeaturedTutorialWellKnownCreator: boolean;
-      IsFeaturedTutorialUpAndComingCreator: boolean;
-    };
-  };
-  NumFollowers: number;
-}

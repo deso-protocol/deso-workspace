@@ -1,4 +1,4 @@
-import { identity } from '@deso-workspace/deso-sdk';
+import * as identity from '../identity';
 import axios from 'axios';
 import { getSignerInfo, uuid } from '../../utils/utils';
 import { BASE_URI } from '../state';
@@ -8,7 +8,7 @@ export interface CreateFollowTxnStatelessRequest {
   IsUnfollow: boolean;
   MinFeeRateNanosPerKB?: number;
 }
-export const CreateFollowTxnStateless = async (
+export const createFollowTxnStateless = async (
   request: CreateFollowTxnStatelessRequest,
   user: any
 ) => {

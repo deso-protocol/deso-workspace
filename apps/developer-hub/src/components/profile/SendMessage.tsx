@@ -1,10 +1,11 @@
-import { Button, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { User } from "../../chapters/Interfaces/User";
-import { SampleAppEncryptedMessage } from "../../recoil/AppState.atoms";
-import { encryptMessage, sendMessage } from "../../services/DesoApiSendMessage";
-
+import { Button, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { User } from '../../chapters/Interfaces/User';
+import { SampleAppEncryptedMessage } from '../../recoil/AppState.atoms';
+// import { encryptMessage, sendMessage } from "../../services/DesoApiSendMessage";
+import deso from '@deso-workspace/deso-sdk';
+deso.
 export interface SendMessageProps {
   publicKey: string;
   myPublicKey: string;
@@ -18,7 +19,7 @@ export const SendMessage = ({
   const [encryptedMessage, setEncryptedMessage] = useRecoilState(
     SampleAppEncryptedMessage
   );
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>('');
   useEffect(() => {
     if (encryptedMessage) {
       sendMessage({
@@ -27,8 +28,8 @@ export const SendMessage = ({
         RecipientPublicKeyBase58Check: publicKey,
         SenderPublicKeyBase58Check: myPublicKey,
         MinFeeRateNanosPerKB: 1000,
-        SenderMessagingGroupKeyName: "",
-        RecipientMessagingGroupKeyName: "",
+        SenderMessagingGroupKeyName: '',
+        RecipientMessagingGroupKeyName: '',
       });
     }
   }, [setEncryptedMessage, encryptedMessage]);
@@ -45,10 +46,10 @@ export const SendMessage = ({
         onClick={(event) => {
           encryptMessage(
             {
-              RecipientMessagingKeyName: "default-key",
+              RecipientMessagingKeyName: 'default-key',
               SenderPublicKeyBase58Check: myPublicKey,
               RecipientPublicKeyBase58Check: publicKey,
-              SenderMessagingKeyName: "default-key",
+              SenderMessagingKeyName: 'default-key',
             },
             message,
             loggedInUser

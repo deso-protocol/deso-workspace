@@ -1,19 +1,17 @@
+import deso from '@deso-workspace/deso-sdk';
 import {
-  Paper,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { getAppState } from "./get-app-state";
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 
 export const GetAppStatePage = () => {
   const [nodes, setNodes] = useState<any[]>([]);
   useEffect(() => {
-    getAppState().then((response) => {
+    deso.api.metaData.getAppState().then((response) => {
       setNodes(
         (Object.values(response.Nodes) as any[]).map((node) => {
           return node;
@@ -36,7 +34,7 @@ export const GetAppStatePage = () => {
             {nodes.map((node) => (
               <TableRow
                 key={node.Name}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell align="left">{node.Name}</TableCell>
                 <TableCell align="left">{node.URL}</TableCell>

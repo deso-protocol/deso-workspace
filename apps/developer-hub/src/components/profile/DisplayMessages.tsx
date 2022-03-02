@@ -1,18 +1,17 @@
-import { Button } from "@mui/material";
+import { Button } from '@mui/material';
 
-import Avatar from "@mui/material/Avatar";
-import { ReactElement, useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import Avatar from '@mui/material/Avatar';
+import { ReactElement, useEffect, useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   SampleAppDecryptedHexes,
   SampleAppLoggedInUser,
   SampleAppMyProfilePicture,
-} from "../../recoil/AppState.atoms";
-import { getUserPicture } from "../../services/DesoApiRead";
-import { SendMessage } from "./SendMessage";
-import { getMessages } from "../../chapters/Write/get-messages-stateless";
-import { User } from "../../chapters/Interfaces/User";
-import { PublicKey } from "../../chapters/ChapterHelper/Chapter.atom";
+} from '../../recoil/AppState.atoms';
+import { User } from '../../chapters/Interfaces/User';
+import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
+import deso from '@deso-workspace/deso-sdk';
+import { SendMessage } from './SendMessage';
 
 export interface DisplayMessagesProps {
   publicKey: string;
@@ -32,29 +31,27 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
   );
 
   useEffect(() => {
-    const followerProfilePic = getUserPicture(publicKey);
+    const followerProfilePic = deso.api.user.getSingleProfilePicture(publicKey);
     setFollowerPicture(followerProfilePic);
   }, []);
-
-  useEffect(() => {}, [setDecryptedMessages, decryptedMessages]);
 
   const generateThread = (thread: any[]) => {
     if (thread) {
       return thread.map((x, index) => {
         return (
           <div
-              key={index}
-              className={`flex justify-start ${
-                x.m.IsSender ? "bg-[#484753]" : "bg-[#88869b]"
-              } py-2 px-2 rounded-lg mx-6 mb-3`}
-            >
-              <Avatar
-                src={x.m.IsSender ? profilePicture : followerPicture}
-              ></Avatar>
-              <div className="my-auto px-2 text-[#fff] w-full text-left">
-                {x.decryptedMessage}
-              </div>
+            key={index}
+            className={`flex justify-start ${
+              x.m.IsSender ? 'bg-[#484753]' : 'bg-[#88869b]'
+            } py-2 px-2 rounded-lg mx-6 mb-3`}
+          >
+            <Avatar
+              src={x.m.IsSender ? profilePicture : followerPicture}
+            ></Avatar>
+            <div className="my-auto px-2 text-[#fff] w-full text-left">
+              {x.decryptedMessage}
             </div>
+          </div>
         );
       });
     } else {
@@ -66,16 +63,16 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
     if (loggedInUser === null) {
       return;
     }
-    const response = await getMessages(
+    const response = await deso.api.social.getMessages(
       {
         NumToFetch: 25,
         PublicKeyBase58Check: myPublicKey as string,
-        FetchAfterPublicKeyBase58Check: "",
+        FetchAfterPublicKeyBase58Check: '',
         HoldersOnly: false,
         FollowersOnly: false,
         FollowingOnly: false,
         HoldingsOnly: false,
-        SortAlgorithm: "time",
+        SortAlgorithm: 'time',
       },
       loggedInUser
     );
@@ -93,7 +90,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
             setShowMessages(!showMessages);
           }}
         >
-          {showMessages ? "hide messages" : "show messages"}
+          {showMessages ? 'hide messages' : 'show messages'}
         </Button>
       </div>
 

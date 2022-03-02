@@ -23,6 +23,6 @@
     "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
-    "../../libs/deso-sdk/src/lib/post/submit-post.tsx"
+    "../../libs/deso-sdk/src/lib/post/submit-post.ts"
   ]
 }

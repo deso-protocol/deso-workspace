@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { identity } from '@deso-workspace/deso-sdk';
+import * as identity from '../identity';
 import { BASE_URI } from '../state/BaseUri';
 import { getSignerInfo, uuid } from '../../utils/utils';
 
