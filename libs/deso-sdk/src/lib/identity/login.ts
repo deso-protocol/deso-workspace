@@ -1,7 +1,7 @@
 // import { User } from "../../Interfaces/User";
 // import { setIdentityFrame } from "../identity-initialize/GetIdentityFrame";
 
-import { setIdentityFrame } from './SetIdentityFrame';
+import { setIdentityFrame } from './set-identity-frame';
 
 export const login = (): Promise<{
   publicKey: string;

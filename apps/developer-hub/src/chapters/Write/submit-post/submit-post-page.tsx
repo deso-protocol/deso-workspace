@@ -14,7 +14,7 @@ import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-import { submitPost } from './submit-post';
+import { submitPost } from '../../../../../../libs/deso-sdk/src/lib/post/submit-post';
 
 export interface SubmitPostPageProps {
   chapters: ChapterNavigation;

@@ -2,14 +2,11 @@ import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { User } from '../chapters/Interfaces/User';
-import { UserInfoResponse } from '../chapters/Read/get-users-stateless/GetUserStateless.service';
 import { TransactionPost } from '../chapters/Interfaces/Transaction.interface';
 
 export const DEZO_DOG: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
-export const getFollowerCount = (
-  userInfoResponse: UserInfoResponse
-): number => {
+export const getFollowerCount = (userInfoResponse: any): number => {
   const followers =
     userInfoResponse?.UserList[0]?.PublicKeysBase58CheckFollowedByUser?.length;
   return followers ? followers : 0;

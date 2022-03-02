@@ -2,15 +2,14 @@ import axios from 'axios';
 import {
   GetMessageRequest,
   OrderedContactsWithMessages,
-} from '../Interfaces/MessageInfo.interface';
-import { uuid } from '../../services/utils';
-import { User } from '../Interfaces/User';
-import { BASE_URI } from '../ChapterHelper/BaseUri';
-import { identity } from '@deso-workspace/deso-sdk';
+} from '../../../../../apps/developer-hub/src/chapters/Interfaces/MessageInfo.interface';
+import { identity } from '../..';
+import { BASE_URI } from '../state/BaseUri';
+import { uuid } from '../../utils/utils';
 
 export const getMessages = async (
   request: GetMessageRequest,
-  user: User
+  user: any
 ): Promise<{ thread: any; response: any }> => {
   const response = (
     await axios.post(`${BASE_URI}/get-messages-stateless`, request)

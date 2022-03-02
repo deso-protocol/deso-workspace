@@ -1,13 +1,11 @@
 import axios from 'axios';
-import { TransactionPost } from '../../Interfaces/Transaction.interface';
-import { getSignerInfo, uuid } from '../../../services/utils';
-import { User } from '../../Interfaces/User';
-import { BASE_URI } from '../../ChapterHelper/BaseUri';
 import { identity } from '@deso-workspace/deso-sdk';
+import { BASE_URI } from '../state/BaseUri';
+import { getSignerInfo, uuid } from '../../utils/utils';
 
 export const submitPost = async (
   publicKey: string,
-  user: User,
+  user: any,
   body: string,
   postExtraData?: any,
   ParentStakeID?: string,
@@ -37,9 +35,8 @@ export const submitPost = async (
     MinFeeRateNanosPerKB: 2000,
   };
   // 2. Inform the blockchain that a post is on its way
-  const response: TransactionPost = (
-    await axios.post(`${BASE_URI}/submit-post`, data)
-  ).data;
+  const response: any = (await axios.post(`${BASE_URI}/submit-post`, data))
+    .data;
   // 3. get some info for signing a transaction
   const payload = getSignerInfo(user, response);
 

@@ -1,4 +1,4 @@
-import { setIdentityFrame } from './SetIdentityFrame';
+import { setIdentityFrame } from './set-identity-frame';
 
 export const initialize = (): Promise<any> => {
   return new Promise((resolve) => {

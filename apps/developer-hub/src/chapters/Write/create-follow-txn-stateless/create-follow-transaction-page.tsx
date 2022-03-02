@@ -14,7 +14,7 @@ import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-import { CreateFollowTxnStateless } from './create-follow-txn-stateless';
+import { CreateFollowTxnStateless } from '../../../../../../libs/deso-sdk/src/lib/social/create-follow-txn-stateless';
 export interface CreateFollowTransactionPageProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;

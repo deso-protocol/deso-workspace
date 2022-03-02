@@ -1,6 +1,6 @@
-import axios from "axios";
-import { BASE_URI } from "../../ChapterHelper/BaseUri";
-import { CoinEntry, DAOCoinEntry } from "../../Interfaces/Coin.interface";
+import { CoinEntry } from '@deso-workspace/deso-types';
+import axios from 'axios';
+import { BASE_URI } from '../state';
 
 export const getFollowsStateless = async (
   PublicKeyBase58Check: string
@@ -9,7 +9,7 @@ export const getFollowsStateless = async (
   endpoint: string;
   request: FollowerInfoRequest;
 }> => {
-  const endpoint = "get-follows-stateless";
+  const endpoint = 'get-follows-stateless';
   const request: FollowerInfoRequest = {
     PublicKeyBase58Check,
     GetEntriesFollowingUsername: true,
@@ -21,7 +21,7 @@ export const getFollowsStateless = async (
   if (endpoint) {
     return { request, response, endpoint };
   } else {
-    throw new Error("need to add endpoint value");
+    throw new Error('need to add endpoint value');
   }
 };
 
@@ -45,7 +45,7 @@ export interface FollowerInfoResponse {
       Comments?: any;
       Posts?: any;
       CoinEntry: CoinEntry;
-      DAOCoinEntry: DAOCoinEntry;
+      DAOCoinEntry: CoinEntry;
       CoinPriceDeSoNanos: number;
       CoinPriceBitCloutNanos: number;
       UsersThatHODL?: any;

@@ -1,6 +1,9 @@
-import { CoinEntry, DAOCoinEntry } from "../../Interfaces/Coin.interface";
-import axios from "axios";
-import { BASE_URI } from "../../ChapterHelper/BaseUri";
+import {
+  CoinEntry,
+  DAOCoinEntry,
+} from '../../../../../apps/developer-hub/src/chapters/Interfaces/Coin.interface';
+import axios from 'axios';
+import { BASE_URI } from '../../../../../apps/developer-hub/src/chapters/ChapterHelper/BaseUri';
 export const getSingleProfile = async (
   PublicKeyBase58Check: string
 ): Promise<{
@@ -8,7 +11,7 @@ export const getSingleProfile = async (
   endpoint: string;
   request: ProfileInfoRequest;
 }> => {
-  const endpoint = "get-single-profile";
+  const endpoint = 'get-single-profile';
   const request: ProfileInfoRequest = {
     PublicKeyBase58Check,
   };
@@ -17,7 +20,7 @@ export const getSingleProfile = async (
       .data;
     return { response, endpoint, request };
   } else {
-    throw new Error("need to add endpoint value");
+    throw new Error('need to add endpoint value');
   }
 };
 

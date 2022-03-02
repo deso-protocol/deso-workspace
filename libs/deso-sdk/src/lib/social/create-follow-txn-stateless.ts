@@ -1,8 +1,7 @@
 import { identity } from '@deso-workspace/deso-sdk';
 import axios from 'axios';
-import { getSignerInfo, uuid } from '../../../services/utils';
-import { BASE_URI } from '../../ChapterHelper/BaseUri';
-import { User } from '../../Interfaces/User';
+import { getSignerInfo, uuid } from '../../utils/utils';
+import { BASE_URI } from '../state';
 export interface CreateFollowTxnStatelessRequest {
   FollowerPublicKeyBase58Check: string;
   FollowedPublicKeyBase58Check: string;
@@ -11,7 +10,7 @@ export interface CreateFollowTxnStatelessRequest {
 }
 export const CreateFollowTxnStateless = async (
   request: CreateFollowTxnStatelessRequest,
-  user: User
+  user: any
 ) => {
   if (!request.FollowerPublicKeyBase58Check) {
     throw Error('FollowerPublicKeyBase58Check is undefined');

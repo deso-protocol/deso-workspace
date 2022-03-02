@@ -1,6 +1,9 @@
-import axios from "axios";
-import { BASE_URI } from "../../ChapterHelper/BaseUri";
-import { CoinEntry, DAOCoinEntry } from "../../Interfaces/Coin.interface";
+import axios from 'axios';
+import { BASE_URI } from '../../../../../apps/developer-hub/src/chapters/ChapterHelper/BaseUri';
+import {
+  CoinEntry,
+  DAOCoinEntry,
+} from '../../../../../apps/developer-hub/src/chapters/Interfaces/Coin.interface';
 
 export const getUserStateless = async (
   PublicKeysBase58Check: string
@@ -9,7 +12,7 @@ export const getUserStateless = async (
   endpoint: string;
   response: UserInfoResponse;
 }> => {
-  const endpoint = "get-users-stateless";
+  const endpoint = 'get-users-stateless';
   const request: UserInfoRequest = {
     PublicKeysBase58Check: [PublicKeysBase58Check],
     SkipForLeaderboard: false,
@@ -20,7 +23,7 @@ export const getUserStateless = async (
       .data;
     return { response, endpoint, request };
   } else {
-    throw new Error("need to add endpoint value");
+    throw new Error('need to add endpoint value');
   }
 };
 

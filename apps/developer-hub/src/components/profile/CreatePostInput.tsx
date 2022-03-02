@@ -1,10 +1,10 @@
-import * as React from "react";
-import { Button, TextField, Tooltip } from "@mui/material";
-import { useRecoilValue } from "recoil";
-import { SampleAppLoggedInUser } from "../../recoil/AppState.atoms";
-import { useState } from "react";
-import { submitPost } from "../../chapters/Write/submit-post/submit-post";
-import { PublicKey } from "../../chapters/ChapterHelper/Chapter.atom";
+import * as React from 'react';
+import { Button, TextField, Tooltip } from '@mui/material';
+import { useRecoilValue } from 'recoil';
+import { SampleAppLoggedInUser } from '../../recoil/AppState.atoms';
+import { useState } from 'react';
+import { submitPost } from '../../../../../libs/deso-sdk/src/lib/post/submit-post';
+import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
 export default function CreatePostInput() {
   const myPublicKey = useRecoilValue(PublicKey);
   const [postBody, setPostBody] = useState<string | null>(null);
