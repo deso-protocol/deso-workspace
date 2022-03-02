@@ -1,3 +1,8 @@
+import {
+  GetFollowsResponse,
+  GetSingleProfileResponse,
+  GetUsersResponse,
+} from '@deso-workspace/deso-types';
 import { atom } from 'recoil';
 import { User } from '../chapters/Interfaces/User';
 
@@ -12,12 +17,12 @@ export const SampleAppDecryptedHexes = atom<any | null>({
   default: null,
 });
 
-export const SampleAppMyUserInfo = atom<MyUserInfoType>({
+export const SampleAppMyUserInfo = atom<MyUserInfoType | null>({
   key: 'myUserInfo',
   default: null,
 });
 
-export const SampleAppMyFollowersInfo = atom<FollowerInfoResponse | null>({
+export const SampleAppMyFollowersInfo = atom<GetFollowsResponse | null>({
   key: 'myFollowersInfo',
   default: null,
 });
@@ -37,19 +42,18 @@ export const SampleAppLoggedInUser = atom<User | null>({
   default: null,
 });
 
-export const SampleAppEncryptedMessage =
-  atom<DesoIdentityEncryptedResponse | null>({
-    key: 'encryptMessage',
-    default: null,
-  });
+export const SampleAppEncryptedMessage = atom<any | null>({
+  key: 'encryptMessage',
+  default: null,
+});
 export const SampleAppToggleDrawer = atom<boolean>({
   key: 'toggleDrawer',
   default: false,
 });
 
 export type MyUserInfoType = {
-  profileInfoResponse: ProfileInfoResponse | null;
-  userInfoResponse: UserInfoResponse | null;
-} | null;
+  profileInfoResponse: GetSingleProfileResponse;
+  userInfoResponse: GetUsersResponse;
+};
 
 export type FollowerInfoType = MyUserInfoType;

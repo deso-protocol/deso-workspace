@@ -22,7 +22,9 @@ export interface DisplayUserProps {
   isMyAccount: boolean;
 }
 const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
-  const [user, setUser] = useRecoilState<MyUserInfoType>(SampleAppMyUserInfo);
+  const [user, setUser] = useRecoilState<MyUserInfoType | null>(
+    SampleAppMyUserInfo
+  );
   const [profilePicture, setProfilePicture] = useRecoilState<string | null>(
     SampleAppMyProfilePicture
   );
@@ -46,6 +48,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
       const userInfoResponse = await deso.api.user.getUserStateless([
         publicKey,
       ]);
+
       profileInfoResponse = await (
         await deso.api.user.getSingleProfile(publicKey)
       ).response;
@@ -76,7 +79,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
           avatar={<Avatar src={profilePictureSrc}></Avatar>}
           subheader={
             <div className="flex justify-start">
-              <div className="font-bold">{`@${profileInfoResponse.Profile.Username}`}</div>
+              <div className="font-bold">{`@${profileInfoResponse?.Profile?.Username}`}</div>
               <div className="ml-3 font-semibold">
                 Followers: {userFollowers?.NumFollowers}
               </div>
@@ -88,7 +91,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
         ></CardHeader>
         <div className="flex justify-around mx-3 my-3"></div>
         <div className="mx-4 mb-5">
-          {profileInfoResponse.Profile.Description}
+          {profileInfoResponse?.Profile?.Description}
         </div>
         {isMyAccount && (
           <div className=" ml-4 mr-20">
@@ -103,7 +106,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
     <div className="flex flex-col w-[600px] mx-auto ">
       {isMyAccount && (
         <div className="text-center text-[#fff]  font-bold text-lg mb-2 font-mono">
-          You are viewing {user?.profileInfoResponse?.Profile.Username}'s Page
+          You are viewing {user?.profileInfoResponse?.Profile?.Username}'s Page
         </div>
       )}
       <div className="w">{profileDescriptionCard}</div>

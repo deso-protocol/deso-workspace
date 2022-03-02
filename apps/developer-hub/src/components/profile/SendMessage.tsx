@@ -5,7 +5,6 @@ import { User } from '../../chapters/Interfaces/User';
 import { SampleAppEncryptedMessage } from '../../recoil/AppState.atoms';
 // import { encryptMessage, sendMessage } from "../../services/DesoApiSendMessage";
 import deso from '@deso-workspace/deso-sdk';
-deso.
 export interface SendMessageProps {
   publicKey: string;
   myPublicKey: string;
@@ -22,7 +21,7 @@ export const SendMessage = ({
   const [message, setMessage] = useState<string>('');
   useEffect(() => {
     if (encryptedMessage) {
-      sendMessage({
+      deso.api.social.sendMessage({
         EncryptedMessageText: encryptedMessage?.payload
           .encryptedMessage as string,
         RecipientPublicKeyBase58Check: publicKey,
@@ -44,16 +43,17 @@ export const SendMessage = ({
       />
       <Button
         onClick={(event) => {
-          encryptMessage(
-            {
-              RecipientMessagingKeyName: 'default-key',
-              SenderPublicKeyBase58Check: myPublicKey,
-              RecipientPublicKeyBase58Check: publicKey,
-              SenderMessagingKeyName: 'default-key',
-            },
-            message,
-            loggedInUser
-          );
+          // TODO add
+          //   deso.identity.encrypt(
+          //     {
+          //       RecipientMessagingKeyName: 'default-key',
+          //       SenderPublicKeyBase58Check: myPublicKey,
+          //       RecipientPublicKeyBase58Check: publicKey,
+          //       SenderMessagingKeyName: 'default-key',
+          //     },
+          //     message,
+          //     loggedInUser
+          //   );
         }}
       >
         send message

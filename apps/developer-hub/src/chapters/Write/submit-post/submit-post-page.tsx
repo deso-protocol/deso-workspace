@@ -1,4 +1,4 @@
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
@@ -14,7 +14,6 @@ import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-import { submitPost } from '../../../../../../libs/deso-sdk/src/lib/post/submit-post';
 
 export interface SubmitPostPageProps {
   chapters: ChapterNavigation;
@@ -34,12 +33,13 @@ export const SubmitPostPage = ({
   const [loggedInUser, setLoggedInUser] = useRecoilState(LoggedInUser);
   const createPost = () => {
     if (myPublicKey && loggedInUser) {
-      submitPost(myPublicKey, loggedInUser, postMessage).then((response) => {
-        setResponse(response);
-      });
+      deso.api.post
+        .submitPost(myPublicKey, loggedInUser, postMessage)
+        .then((response) => {
+          setResponse(response);
+        });
     } else {
-      identity.initialize();
-      identity.login().then((response) => {
+      deso.identity.login().then((response) => {
         setMyPublicKey(response.publicKey);
         setLoggedInUser(response.loggedInUser);
       });

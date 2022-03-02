@@ -2,7 +2,9 @@ import { SendMessageStatelessRequest } from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { BASE_URI } from '../state';
 import * as transaction from '../transaction/index';
-export const sendMessage = async (request: SendMessageStatelessRequest) => {
+export const sendMessage = async (
+  request: Partial<SendMessageStatelessRequest>
+) => {
   const response = (
     await axios.post(`${BASE_URI}/send-message-stateless`, request)
   ).data;

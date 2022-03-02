@@ -1,19 +1,16 @@
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import Avatar from "@mui/material/Avatar";
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import Avatar from '@mui/material/Avatar';
 
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from 'react';
+import { MyUserInfoType, FollowerInfoType } from '../../recoil/AppState.atoms';
+import { getFollowerCount } from '../../services/utils';
+import DisplayMessages from './DisplayMessages';
+import deso from '@deso-workspace/deso-sdk';
 import {
-  getProfileInfo,
-  getUserPicture,
-  getFollowsStateless,
-  getUserInfoStateless,
-} from "../../services/DesoApiRead";
-import { MyUserInfoType, FollowerInfoType } from "../../recoil/AppState.atoms";
-import { getFollowerCount } from "../../services/utils";
-import DisplayMessages from "./DisplayMessages";
-import { ProfileInfoResponse } from "../../chapters/Read/get-single-profile/GetSingleProfile.service";
-import { FollowerInfoResponse } from "../../chapters/Read/get-follows-stateless/GetFollowsStateless.service";
+  GetFollowsResponse,
+  GetSingleProfileResponse,
+} from '@deso-workspace/deso-types';
 export interface DisplayUserProps {
   publicKey: string;
 }
@@ -23,7 +20,7 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
   const [follower, setFollower] = useState<FollowerInfoType | null>(null);
   const [followerPicture, setFollowerPicture] = useState<string | null>(null);
   const [followerFollowers, setFollowerFollowers] =
-    useState<FollowerInfoResponse | null>(null);
+    useState<GetFollowsResponse | null>(null);
 
   useEffect(() => {
     getFollowerInfo(publicKey);
@@ -42,16 +39,20 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
   ]);
 
   const getFollowerInfo = async (publicKey: string) => {
-    let profileInfoResponse: ProfileInfoResponse;
+    let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await getUserInfoStateless([publicKey]);
-      profileInfoResponse = await getProfileInfo(publicKey);
-      const profilePictureSrc = getUserPicture(
-        profileInfoResponse?.Profile?.PublicKeyBase58Check
+      const userInfoResponse = await deso.api.user.getUserStateless([
+        publicKey,
+      ]);
+      profileInfoResponse = (await deso.api.user.getSingleProfile(publicKey))
+        .response;
+      const profilePictureSrc = deso.api.user.getSingleProfilePicture(
+        profileInfoResponse?.Profile?.PublicKeyBase58Check as string
       );
       setFollower({ profileInfoResponse, userInfoResponse });
       setFollowerPicture(profilePictureSrc);
-      const followers = await getFollowsStateless(publicKey);
+      const followers = (await deso.api.social.getFollowsStateless(publicKey))
+        .response;
       setFollowerFollowers(followers);
     }
   };
@@ -71,7 +72,7 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
           avatar={<Avatar src={profilePictureSrc}></Avatar>}
           subheader={
             <div className="flex justify-start">
-              <div className="font-bold">{`@${profileInfoResponse.Profile.Username}`}</div>
+              <div className="font-bold">{`@${profileInfoResponse?.Profile?.Username}`}</div>
               <div className="ml-3 font-semibold">
                 Followers: {followerFollowers?.NumFollowers}
               </div>
@@ -83,7 +84,7 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
         ></CardHeader>
         <div className="flex justify-around mx-3 my-3"></div>
         <div className="mx-4 mb-5 font-normal">
-          {profileInfoResponse.Profile.Description}
+          {profileInfoResponse?.Profile?.Description}
         </div>
 
         <DisplayMessages

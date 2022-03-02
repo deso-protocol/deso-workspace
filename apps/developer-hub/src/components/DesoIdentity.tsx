@@ -1,4 +1,4 @@
-import { identity } from '@deso-workspace/deso-sdk';
+import deso from '@deso-workspace/deso-sdk';
 import { Button, Link } from '@mui/material';
 import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
@@ -15,7 +15,7 @@ const Identity = () => {
     SampleAppEncryptedMessage
   );
   useEffect(() => {
-    identity.initialize();
+    deso.identity.initialize();
     window.addEventListener('message', (event) => {
       const execution = determineExecution(event);
       switch (execution) {
@@ -54,7 +54,7 @@ const Identity = () => {
         <Link
           className="cursor-pointer"
           onClick={() => {
-            identity.login().then(({ loggedInUser, publicKey }) => {
+            deso.identity.login().then(({ loggedInUser, publicKey }) => {
               setLoggedInUser(loggedInUser);
               setPublicKey(publicKey);
             });
@@ -67,7 +67,7 @@ const Identity = () => {
           className="cursor-pointer"
           variant="contained"
           onClick={() => {
-            identity.logout(myPublicKey as string).then(() => {
+            deso.identity.logout(myPublicKey as string).then(() => {
               setLoggedInUser(null);
               setPublicKey('');
             });

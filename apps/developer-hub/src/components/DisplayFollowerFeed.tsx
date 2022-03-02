@@ -1,17 +1,12 @@
-import { ReactElement, useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { FollowerInfoResponse } from "../chapters/Read/get-follows-stateless/GetFollowsStateless.service";
-import {
-  SampleAppMyFollowersInfo,
-  SampleAppMyUserInfo,
-  MyUserInfoType,
-} from "../recoil/AppState.atoms";
-import DisplayFollower from "./profile/DisplayFollower";
+import { ReactElement, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { SampleAppMyFollowersInfo } from '../recoil/AppState.atoms';
+import DisplayFollower from './profile/DisplayFollower';
 
 const DisplayFollowerFeed = () => {
-  const [user, setUser] = useRecoilState<MyUserInfoType>(SampleAppMyUserInfo);
-  const [userFollowers, setUserFollowers] =
-    useRecoilState<FollowerInfoResponse | null>(SampleAppMyFollowersInfo);
+  const [userFollowers, setUserFollowers] = useRecoilState<any>(
+    SampleAppMyFollowersInfo
+  );
   const [followerCards, setFollowerCards] = useState<ReactElement[]>([]);
 
   useEffect(() => {
@@ -23,12 +18,12 @@ const DisplayFollowerFeed = () => {
     for (const publicKey in userFollowers?.PublicKeyToProfileEntry) {
       const follower: any | undefined =
         userFollowers?.PublicKeyToProfileEntry[publicKey];
-      if (follower && publicKey !== "data") {
+      if (follower && publicKey !== 'data') {
         followerCards.push(
           <DisplayFollower
-              key={publicKey}
-              publicKey={publicKey}
-            ></DisplayFollower>
+            key={publicKey}
+            publicKey={publicKey}
+          ></DisplayFollower>
         );
       }
     }

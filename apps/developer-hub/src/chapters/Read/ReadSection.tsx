@@ -1,19 +1,15 @@
-import { ReactElement, useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { PageNavigation } from "../../components/layout/PageNavigation";
-import { PublicKey } from "../ChapterHelper/Chapter.atom";
-import { Chapter, ChapterNavigation } from "../ChapterHelper/Chapter.models";
-import { ChapterTemplate, TabItem } from "../ChapterHelper/ChapterTemplate";
-import {
-  ProfileInfoRequest,
-  ProfileInfoResponse,
-} from "./get-single-profile/GetSingleProfile.service";
-import { getSourceFromGithub, jsonBlock } from "../../services/utils";
+import { ReactElement, useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { PageNavigation } from '../../components/layout/PageNavigation';
+import { PublicKey } from '../ChapterHelper/Chapter.atom';
+import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
+import { ChapterTemplate, TabItem } from '../ChapterHelper/ChapterTemplate';
+import { getSourceFromGithub, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
-} from "../ChapterHelper/PageSections";
-import { BASE_URI } from "../ChapterHelper/BaseUri";
+} from '../ChapterHelper/PageSections';
+import deso from '@deso-workspace/deso-sdk';
 export interface Chapter1SectionProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -33,8 +29,8 @@ export const Chapter1Section = ({
   requestText,
 }: Chapter1SectionProps) => {
   const publicKey = useRecoilValue(PublicKey);
-  const [response, setResponse] = useState<ProfileInfoResponse | null>(null);
-  const [request, setRequest] = useState<ProfileInfoRequest | null>(null);
+  const [response, setResponse] = useState<any | null>(null);
+  const [request, setRequest] = useState<any | null>(null);
   const [endpoint, setEndpoint] = useState<string | null>(null);
   const [chapterTitle, setChapterTitle] = useState<null>(null);
   const [code, setCode] = useState<ReactElement[]>([]);
@@ -55,7 +51,7 @@ export const Chapter1Section = ({
     );
     if (apiResponse) {
       setResponse(apiResponse?.response);
-      setEndpoint(`${BASE_URI}/${apiResponse.endpoint}`);
+      setEndpoint(`${deso.node.uri}/${apiResponse.endpoint}`);
       setRequest(apiResponse.request);
     }
   };
@@ -71,13 +67,13 @@ export const Chapter1Section = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 <div>
-                  Click{" "}
+                  Click{' '}
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={executeApiCall}
                   >
                     here
-                  </span>{" "}
+                  </span>{' '}
                   to call {selectedChapter.title}.
                 </div>
               )}
@@ -86,7 +82,7 @@ export const Chapter1Section = ({
                   CommonPageSectionTitles.WHAT_HAPPENED,
                   <div className="list-decimal">
                     <li className="mb-2">
-                      First we pointed our http client to{" "}
+                      First we pointed our http client to{' '}
                       {selectedChapter.description}.
                       {endpoint && jsonBlock(endpoint)}
                     </li>
@@ -106,7 +102,7 @@ export const Chapter1Section = ({
           ),
         },
         {
-          content: PageSection("", <>{code}</>),
+          content: PageSection('', <>{code}</>),
           title: CommonPageSectionTitles.CODE,
         },
         {
