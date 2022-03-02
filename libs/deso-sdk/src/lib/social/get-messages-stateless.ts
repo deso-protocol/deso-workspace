@@ -1,22 +1,22 @@
 import axios from 'axios';
-import { decrypt } from '../../lib/identity/';
 import { BASE_URI } from '../state/BaseUri';
 import { uuid } from '../../utils/utils';
 import {
+  GetDecryptMessagesResponse,
   GetMessagesResponse,
   GetMessagesStatelessRequest,
 } from '@deso-workspace/deso-types';
 
-export const getMessages = async (
+export const getMessagesStateless = async (
   request: GetMessagesStatelessRequest,
   user: any
-): Promise<{ thread: any; response: any }> => {
+): Promise<GetDecryptMessagesResponse[]> => {
   const response: GetMessagesResponse = (
     await axios.post(`${BASE_URI}/get-messages-stateless`, request)
   ).data;
   // temp any fix for compiler
-  const encryptedMessages = (response.OrderedContactsWithMessages as any[]).map(
-    (thread) => {
+  const encryptedMessages = (response.OrderedContactsWithMessages as any[])
+    .map((thread) => {
       if (thread.Messages === null) {
         return [];
       }
@@ -33,10 +33,8 @@ export const getMessages = async (
         RecipientMessagingPublicKey: message.RecipientMessagingPublicKey,
         RecipientMessagingGroupKeyName: message.RecipientMessagingGroupKeyName,
       }));
-    }
-  );
-  // TODO reenable this
-  // .flat();
+    })
+    .flat();
   const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
   const iFrameRequest = {
     id: uuid(),
@@ -49,5 +47,34 @@ export const getMessages = async (
     },
     service: 'identity',
   };
-  return decrypt(iFrameRequest, response);
+  return decrypt(iFrameRequest);
 };
+
+export function decrypt(request: any): Promise<GetDecryptMessagesResponse[]> {
+  if (!request?.payload?.encryptedMessages) {
+    throw Error('Encrypted Messages are were not Included');
+  }
+
+  const iframe: HTMLIFrameElement | null = document.getElementById(
+    'identity'
+  ) as HTMLIFrameElement;
+  if (iframe === null) {
+    throw Error('Iframe with id identity does not exist');
+  }
+  iframe.contentWindow?.postMessage(request, '*');
+  return new Promise((resolve) => {
+    const windowHandler = (event: any) => {
+      if (!event?.data?.payload?.decryptedHexes) {
+        return;
+      }
+      const decryptedHexes = event?.data?.payload?.decryptedHexes;
+      const messages = request.payload?.encryptedMessages;
+      const thread = (messages as GetDecryptMessagesResponse[])?.map((m) => {
+        const DecryptedMessage = decryptedHexes[m.EncryptedHex];
+        return { ...m, DecryptedMessage };
+      });
+      resolve(thread);
+    };
+    window.addEventListener('message', windowHandler);
+  });
+}

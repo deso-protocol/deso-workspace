@@ -50,9 +50,9 @@ export const IdentityInitializePage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      deso.identity.initialize().then((response) => {
-                        setInitializedResponse(response);
-                      });
+                      // deso.identity.initialize().then((response) => {
+                      //   setInitializedResponse(response);
+                      // });
                     }}
                   >
                     here

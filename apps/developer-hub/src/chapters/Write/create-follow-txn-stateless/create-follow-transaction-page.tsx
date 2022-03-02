@@ -7,7 +7,7 @@ import {
   DEZO_DOG,
   getSourceFromGithub,
 } from '../../../services/utils';
-import { LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
+import { PublicKey } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
@@ -50,7 +50,6 @@ export const CreateFollowTransactionPage = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 ClickHereSnippet(async () => {
-                  await deso.identity.initialize();
                   const loggedInUser = await deso.identity.login();
                   deso.api.social.createFollowTxnStateless(
                     {

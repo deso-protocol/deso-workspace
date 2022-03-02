@@ -1,12 +1,10 @@
 import { Route } from 'react-router-dom';
 import SampleApp from '../../components/layout/SampleApp';
 import { Chapter1Section } from '../Read/ReadSection';
-import { IdentityInitializePage } from '../Identity/identity-initialize/IdentityInitializePage';
 import { IdentityLoginPage } from '../Identity/identity-login/IdentitiyLoginPage';
 import { ReactElement } from 'react';
 import { IdentityLogoutPage } from '../Identity/identity-logout/IdentityLogoutPage';
-import { DecryptMessagesPage } from '../Write/decrypt/DecryptMessagesPage';
-
+import { GetMessageStatelessPage } from '../Write/decrypt/DecryptMessagesPage';
 import { Link, Link as MaterialLink } from '@mui/material';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
 import { ChapterTemplate } from './ChapterTemplate';
@@ -20,12 +18,8 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     title: 'Welcome',
     route: '*',
     description: 'N/A',
-    documentation: [
-      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx',
-    ],
+    documentation: [],
+    githubSource: [],
     component: function () {
       return (
         <Route
@@ -128,9 +122,9 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
       );
     },
   },
-  READ_GET_SINGLE_PROFILE: {
+  GET_SINGLE_PROFILE: {
     title: 'Get Single Profile',
-    route: '/read/get-single-profile',
+    route: '/get-single-profile',
     description: 'get-single-profile',
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
@@ -149,7 +143,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               requestText="Then we Assembled our request object. PublicKeyBase58Check is the public key of the user you're requesting."
               responseText=""
               pretext={PageSection(
-                CommonPageSectionTitles.OVERVIEW,
+                this.title,
                 <div>
                   As it sounds get-single-profile, fetches various data around a
                   single profile. This call is useful if you want common display
@@ -183,7 +177,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
           element={
             <Chapter1Section
               pretext={PageSection(
-                CommonPageSectionTitles.OVERVIEW,
+                this.title,
                 <div>
                   get-users-stateless will query all information on a user or
                   users.
@@ -237,13 +231,15 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
       );
     },
   },
-  IDENTITY_INITIALIZE: {
-    title: 'Initialize',
-    route: '/identity/identity-initialize',
-    documentation: ['https://docs.deso.org/identity/concepts#initialize'],
+  GET_MESSAGE_STATELESS: {
+    title: 'Get Message Stateless',
+    route: '/identity/get-message-stateless',
+    documentation: [
+      'https://docs.deso.org/identity/iframe-api/endpoints#decrypt',
+    ],
     githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/IdentityInitialize.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/get-messages-stateless.tsx',
+      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-decrypt/IdentityDecryption.service.tsx',
     ],
     component: function () {
       return (
@@ -251,7 +247,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
           key={this.title}
           path={this.route}
           element={
-            <IdentityInitializePage
+            <GetMessageStatelessPage
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -299,28 +295,6 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
           path={this.route}
           element={
             <IdentityLogoutPage chapters={CHAPTERS} selectedChapter={this} />
-          }
-        ></Route>
-      );
-    },
-  },
-  IDENTITY_DECRYPT: {
-    title: 'Decrypt',
-    route: '/identity/identity-decrypt',
-    documentation: [
-      'https://docs.deso.org/identity/iframe-api/endpoints#decrypt',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/get-messages-stateless.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-decrypt/IdentityDecryption.service.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <DecryptMessagesPage chapters={CHAPTERS} selectedChapter={this} />
           }
         ></Route>
       );
@@ -413,9 +387,9 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   documentationToLink: (chapter: Chapter): ReactElement[] => {
-    return chapter.documentation.map((doc) => {
+    return chapter.documentation.map((doc, i) => {
       return (
-        <div>
+        <div key={i}>
           <MaterialLink href={doc}>{doc}</MaterialLink>
         </div>
       );
@@ -468,14 +442,14 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
 export interface ChapterNavigation {
   // GETTING_STARTED: Chapter;
   ABOUT: Chapter;
-  READ_GET_SINGLE_PROFILE: Chapter;
+  GET_SINGLE_PROFILE: Chapter;
   READ_GET_USERS_STATELESS: Chapter;
   READ_GET_FOLLOWS_STATELESS: Chapter;
   // READ_PROFILE_CARD: Chapter;
-  IDENTITY_INITIALIZE: Chapter;
+  // IDENTITY_INITIALIZE: Chapter;
   IDENTITY_LOGIN: Chapter;
   IDENTITY_LOGOUT: Chapter;
-  IDENTITY_DECRYPT: Chapter;
+  GET_MESSAGE_STATELESS: Chapter;
   WRITE_SUBMIT_POST: Chapter;
   WRITE_CREATE_FOLLOW_TRANSACTION: Chapter;
   NODE_PAGE: Chapter;

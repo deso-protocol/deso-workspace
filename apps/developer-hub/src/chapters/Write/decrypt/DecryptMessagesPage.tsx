@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
@@ -13,21 +13,21 @@ import { User } from '../../Interfaces/User';
 import deso from '@deso-workspace/deso-sdk';
 import { GetMessagesStatelessRequest } from '@deso-workspace/deso-types';
 
-export interface DecryptMessagesProps {
+export interface GetMessageStateless {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-export const DecryptMessagesPage = ({
+
+export const GetMessageStatelessPage = ({
   selectedChapter,
   chapters,
-}: DecryptMessagesProps) => {
-  const [code, setCode] = useState<any | null>(null);
+}: GetMessageStateless) => {
+  const [code, setCode] = useState<ReactElement[]>([]);
   const [loggedInUser, setLoggedInUser] = useRecoilState<User | null>(
     LoggedInUser
   );
-
-  const [myPublicKey, setPublicKey] = useRecoilState<string>(PublicKey);
-  const [request, setRequest] = useState<GetMessagesStatelessRequest>({
+  const myPublicKey = useRecoilValue<string>(PublicKey);
+  const [request] = useState<GetMessagesStatelessRequest>({
     NumToFetch: 25,
     PublicKeyBase58Check: myPublicKey as string,
     FetchAfterPublicKeyBase58Check: '',
@@ -38,10 +38,8 @@ export const DecryptMessagesPage = ({
     SortAlgorithm: 'time',
   });
 
-  const [messageResponse, setMessageResponse] = useState<any>();
   const [finalResponse, setFinalResponse] = useState<any>();
   const loginInit = async () => {
-    await deso.identity.initialize();
     return await deso.identity.login();
   };
 
@@ -58,10 +56,8 @@ export const DecryptMessagesPage = ({
           content: (
             <>
               {PageSection(
-                'Decrypt',
-                `One use case of the DeSo chain is storing private data. Since
-                the chain is public, all data can be read by anyone with an internet connection. Fortunately data can remain
-                private by encrypting it first.`
+                selectedChapter.title,
+                `This call will get messages for a user and decrypt them.`
               )}
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
@@ -76,14 +72,10 @@ export const DecryptMessagesPage = ({
                         setLoggedInUser(user);
                       }
                       deso.api.social
-                        .getMessages(request, user as User)
-                        .then((response: any) => {
-                          response.response.OrderedContactsWithMessages.slice(
-                            0,
-                            4
-                          );
-                          setMessageResponse(response.response);
-                          setFinalResponse(response.thread);
+                        .getMessagesStateless(request, user as User)
+                        .then((response) => {
+                          response.slice(0, 4);
+                          setFinalResponse(response);
                         });
                     }}
                   >
@@ -115,13 +107,6 @@ export const DecryptMessagesPage = ({
                         {jsonBlock(request)}
                       </li>
                       <li>
-                        The Api will respond with our messages, but the content
-                        is still encrypted.{' '}
-                        <div className="overflow-auto max-h-[500px]">
-                          {messageResponse && jsonBlock(messageResponse)}
-                        </div>
-                      </li>
-                      <li>
                         Now we can take our encrypted response and send a
                         request to the IdentityFrame to decrypt it. After
                         decrypting the data and mapping the response to
@@ -137,7 +122,6 @@ export const DecryptMessagesPage = ({
             </>
           ),
         },
-
         {
           title: 'Code',
           content: PageSection('', code),

@@ -63,7 +63,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
     if (loggedInUser === null) {
       return;
     }
-    const response = await deso.api.social.getMessages(
+    const response = await deso.api.social.getMessagesStateless(
       {
         NumToFetch: 25,
         PublicKeyBase58Check: myPublicKey as string,
@@ -76,7 +76,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
       },
       loggedInUser
     );
-    setThreadCard(generateThread(response.thread));
+    setThreadCard(generateThread(response));
   };
 
   return (

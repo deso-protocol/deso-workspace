@@ -1,5 +1,5 @@
 import deso from '@deso-workspace/deso-sdk';
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub } from '../../../services/utils';
@@ -21,16 +21,14 @@ export const IdentityLogoutPage = ({
   selectedChapter,
   chapters,
 }: IdentityLogoutProps) => {
-  const [logoutResponse, setLogoutResponse] = useState<any | null>(null);
-
   const [myPublicKey, setPublicKey] = useRecoilState(PublicKey);
-  const [response, setResponse] = useState<any | null>(null);
-  const [code, setCode] = useState<any | null>(null);
+  const [response, hasLoggedOut] = useState<boolean>(false);
+  const [code, setCode] = useState<ReactElement[]>([]);
   useEffect(() => {
     getSourceFromGithub(selectedChapter.githubSource).then((response) => {
       setCode(response);
     });
-  }, [setLogoutResponse, logoutResponse]);
+  }, [selectedChapter.githubSource]);
   return (
     <ChapterTemplate
       title={selectedChapter.title}
@@ -50,8 +48,8 @@ export const IdentityLogoutPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
-                      deso.identity.logout(myPublicKey).then((response) => {
-                        setResponse(response);
+                      deso.identity.logout(myPublicKey).then((loggedOut) => {
+                        hasLoggedOut(loggedOut);
                       });
                     }}
                   >

@@ -15,7 +15,7 @@ const Identity = () => {
     SampleAppEncryptedMessage
   );
   useEffect(() => {
-    deso.identity.initialize();
+    // deso.identity.initialize();
     window.addEventListener('message', (event) => {
       const execution = determineExecution(event);
       switch (execution) {

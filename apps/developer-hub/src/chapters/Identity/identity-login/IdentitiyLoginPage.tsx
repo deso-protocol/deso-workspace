@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { LoginCodeBlocks } from './CodeBlocks';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
@@ -12,7 +12,6 @@ import {
   CommonPageSectionTitles,
 } from '../../ChapterHelper/PageSections';
 import deso from '@deso-workspace/deso-sdk';
-// https://github.com/highlightjs/highlight.js/blob/main/src/languages/typescript.js
 export interface IdentityLoginProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -21,7 +20,7 @@ export const IdentityLoginPage = ({
   selectedChapter,
   chapters,
 }: IdentityLoginProps) => {
-  const [code, setCode] = useState<any | null>(null);
+  const [code, setCode] = useState<ReactElement[]>([]);
   const [loggedInUser, setLoggedInUser] = useRecoilState<User | null>(
     LoggedInUser
   );
@@ -29,7 +28,7 @@ export const IdentityLoginPage = ({
 
   useEffect(() => {
     getSourceFromGithub(selectedChapter.githubSource).then(setCode);
-  }, [setLoggedInUser, loggedInUser]);
+  }, [setLoggedInUser, loggedInUser, selectedChapter.githubSource]);
   return (
     <ChapterTemplate
       tabs={[

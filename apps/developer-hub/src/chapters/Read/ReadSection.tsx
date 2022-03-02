@@ -33,7 +33,6 @@ export const Chapter1Section = ({
   const [request, setRequest] = useState<any | null>(null);
   const [endpoint, setEndpoint] = useState<string | null>(null);
   const [chapterTitle, setChapterTitle] = useState<null>(null);
-  const [code, setCode] = useState<ReactElement[]>([]);
   useEffect(() => {
     // clear out the page if they hit go to the next section
     if (chapterTitle !== selectedChapter.title) {
@@ -42,8 +41,6 @@ export const Chapter1Section = ({
       setRequest(null);
       setChapterTitle(chapterTitle);
     }
-
-    getSourceFromGithub(selectedChapter.githubSource).then(setCode);
   }, [selectedChapter]);
   const executeApiCall = async () => {
     const apiResponse = await apiCall(publicKey).catch((e: Error) =>
@@ -100,10 +97,6 @@ export const Chapter1Section = ({
                 )}
             </>
           ),
-        },
-        {
-          content: PageSection('', <>{code}</>),
-          title: CommonPageSectionTitles.CODE,
         },
         {
           content: PageSection(

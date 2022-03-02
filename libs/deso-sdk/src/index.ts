@@ -1,5 +1,6 @@
 import * as d from './lib/index';
 import { BASE_URI } from './lib/state';
+import { initialize } from '../src/lib/identity/initialize';
 const { metaData, social, post, transaction, user, identity } = d;
 const deso = {
   api: {
@@ -15,4 +16,5 @@ const deso = {
     uri: BASE_URI,
   },
 };
+initialize();
 export default deso;
