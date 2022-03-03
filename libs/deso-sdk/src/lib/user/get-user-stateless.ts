@@ -12,6 +12,7 @@ export const getUserStateless = async (
     PublicKeysBase58Check,
     SkipForLeaderboard: false,
   };
+
   return (await axios.post(`${BASE_URI}/get-users-stateless`, userInfoRequest))
     .data;
 };

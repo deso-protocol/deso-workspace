@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "CommonJS",
+    "lib": ["es2019", "DOM"],
+    "target": "es6",
+    "module": "es6",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,

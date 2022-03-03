@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "es2019",
     "jsx": "react-jsx",
     "allowJs": true,
     "esModuleInterop": true,

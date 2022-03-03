@@ -5,6 +5,7 @@ import {
   GetDecryptMessagesResponse,
   GetMessagesResponse,
   GetMessagesStatelessRequest,
+  GetApproveResponse,
 } from '@deso-workspace/deso-types';
 
 export const getMessagesStateless = async (
