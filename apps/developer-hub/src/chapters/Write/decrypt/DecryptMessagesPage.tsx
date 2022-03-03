@@ -2,28 +2,33 @@ import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
-import { LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
+import {
+  desoService,
+  LoggedInUser,
+  PublicKey,
+} from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-import { User } from '../../Interfaces/User';
-import deso from '@deso-workspace/deso-sdk';
-import { GetMessagesStatelessRequest } from '@deso-workspace/deso-types';
+import {
+  GetMessagesStatelessRequest,
+  LoginUser,
+} from '@deso-workspace/deso-types';
 
 export interface GetMessageStateless {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-
 export const GetMessageStatelessPage = ({
   selectedChapter,
   chapters,
 }: GetMessageStateless) => {
+  const deso = useRecoilValue(desoService);
   const [code, setCode] = useState<ReactElement[]>([]);
-  const [loggedInUser, setLoggedInUser] = useRecoilState<User | null>(
+  const [loggedInUser, setLoggedInUser] = useRecoilState<LoginUser | null>(
     LoggedInUser
   );
   const myPublicKey = useRecoilValue<string>(PublicKey);
@@ -40,7 +45,10 @@ export const GetMessageStatelessPage = ({
 
   const [finalResponse, setFinalResponse] = useState<any>();
   const loginInit = async () => {
-    return await deso.identity.login();
+    const res = await deso.identity.login();
+    const publicKey = res.payload.publicKeyAdded;
+    const user = res.payload.users[publicKey];
+    return user;
   };
 
   useEffect(() => {
@@ -66,13 +74,11 @@ export const GetMessageStatelessPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={async () => {
-                      let user = loggedInUser;
-                      if (!user) {
-                        user = (await loginInit()).loggedInUser;
-                        setLoggedInUser(user);
-                      }
-                      deso.api.social
-                        .getMessagesStateless(request, user as User)
+                      deso.social
+                        .getMessagesStateless(
+                          request,
+                          loggedInUser as LoginUser
+                        )
                         .then((response) => {
                           response.slice(0, 4);
                           setFinalResponse(response);

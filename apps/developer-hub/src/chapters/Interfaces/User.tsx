@@ -1,4 +1,4 @@
-export interface User {
+export interface LoginUser {
   hasExtraText: boolean;
   btcDepositAddress: string;
   ethDepositAddress: string;
@@ -7,8 +7,4 @@ export interface User {
   network: string;
   accessLevel: number;
   accessLevelHmac: string;
-}
-
-export interface Users {
-  [user: string]: User;
 }

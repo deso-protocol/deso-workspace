@@ -1,9 +1,8 @@
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { PublicKey } from '../../ChapterHelper/Chapter.atom';
+import { desoService, PublicKey } from '../../ChapterHelper/Chapter.atom';
 import { getSourceFromGithub } from '../../../services/utils';
-import deso from '@deso-workspace/deso-sdk';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
@@ -18,6 +17,7 @@ export const ProfileAndFollowerCard = ({
   selectedChapter,
   chapters,
 }: ProfileCardProps) => {
+  const deso = useRecoilValue(desoService);
   const publicKey = useRecoilValue(PublicKey);
   const [profile, setProfile] = useState<GetSingleProfileResponse | null>(null);
   const [user, setUser] = useState<GetUsersResponse | null>(null);
@@ -25,13 +25,12 @@ export const ProfileAndFollowerCard = ({
   const [showSample, toggleSample] = useState<boolean>(false);
   const [code, setCode] = useState<any | null>(null);
   const getData = async () => {
-    setProfile((await deso.api.user.getSingleProfile(publicKey)).response);
-    setUser(await deso.api.user.getUserStateless([publicKey]));
-    setFollows((await deso.api.social.getFollowsStateless(publicKey)).response);
+    setProfile((await deso.user.getSingleProfile(publicKey)).response);
+    setUser(await deso.user.getUserStateless([publicKey]));
+    setFollows((await deso.social.getFollowsStateless(publicKey)).response);
   };
 
   useEffect(() => {
-    deso.api.post.submitPost
     getData();
     getSourceFromGithub(selectedChapter.githubSource).then((response) => {
       setCode(response);

@@ -12,7 +12,8 @@ import { PageNavigation } from '../../components/layout/PageNavigation';
 import { SubmitPostPage } from '../Write/submit-post/submit-post-page';
 import { GetAppStatePage } from '../Read/get-app-state/GetAppStatePage';
 import { CreateFollowTransactionPage } from '../Write/create-follow-txn-stateless/create-follow-transaction-page';
-import deso from '@deso-workspace/deso-sdk';
+import Deso from '@deso-workspace/deso-sdk';
+const deso = new Deso();
 export const CHAPTERS: Readonly<ChapterNavigation> = {
   ABOUT: {
     title: 'Welcome',
@@ -152,7 +153,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={deso.api.user.getSingleProfile}
+              apiCall={'getSingleProfile'}
             />
           }
         ></Route>
@@ -188,7 +189,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               tabs={[]}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={deso.api.user.getUserStateless}
+              apiCall={'getUserStateless'}
             />
           }
         ></Route>
@@ -224,7 +225,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
               tabs={[]}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={deso.api.user.getUserStateless}
+              apiCall={'getFollowsStateless'}
             />
           }
         ></Route>
@@ -257,6 +258,40 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
 
+  // IDENTITY_APPROVE: {
+  //   title: 'Approve',
+  //   route: '/identity/identity-approve',
+  //   githubSource: [],
+  //   documentation: [
+  //     'https://docs.deso.org/identity/window-api/endpoints#approve',
+  //     'https://docs.deso.org/identity/identity',
+  //   ],
+  //   component: function () {
+  //     return (
+  //       <Route
+  //         key={this.title}
+  //         path={this.route}
+  //         element={
+  //           <Chapter1Section
+  //             pretext={PageSection(
+  //               CommonPageSectionTitles.OVERVIEW,
+  //               <div>
+  //                 If a user is not logged in or they do not have the proper
+  //                 permissional level approval is needed
+  //               </div>
+  //             )}
+  //             requestText=""
+  //             responseText=""
+  //             tabs={[]}
+  //             chapters={CHAPTERS}
+  //             selectedChapter={this}
+  //             apiCall={deso.identity.approve.bind(deso)}
+  //           />
+  //         }
+  //       ></Route>
+  //     );
+  //   },
+  // },
   IDENTITY_LOGIN: {
     title: 'Login',
     route: '/identity/identity-login',
@@ -304,11 +339,8 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   WRITE_SUBMIT_POST: {
     title: 'Submit Post',
     route: '/write/submit-post',
-    documentation: [
-      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#submit-post',
-    ],
+    documentation: [],
     githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/submit-post.tsx',
       'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/Transaction.interface.tsx',
       'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
       'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
@@ -448,6 +480,7 @@ export interface ChapterNavigation {
   // READ_PROFILE_CARD: Chapter;
   // IDENTITY_INITIALIZE: Chapter;
   IDENTITY_LOGIN: Chapter;
+  // IDENTITY_APPROVE: Chapter;
   IDENTITY_LOGOUT: Chapter;
   GET_MESSAGE_STATELESS: Chapter;
   WRITE_SUBMIT_POST: Chapter;

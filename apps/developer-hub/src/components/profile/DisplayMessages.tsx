@@ -8,16 +8,19 @@ import {
   SampleAppLoggedInUser,
   SampleAppMyProfilePicture,
 } from '../../recoil/AppState.atoms';
-import { User } from '../../chapters/Interfaces/User';
-import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
-import deso from '@deso-workspace/deso-sdk';
+import {
+  desoService,
+  PublicKey,
+} from '../../chapters/ChapterHelper/Chapter.atom';
 import { SendMessage } from './SendMessage';
+import { LoginUser } from '@deso-workspace/deso-types';
 
 export interface DisplayMessagesProps {
   publicKey: string;
 }
 
 const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
+  const deso = useRecoilValue(desoService);
   const myPublicKey = useRecoilValue(PublicKey);
   const [showMessages, setShowMessages] = useState<boolean>(false);
   const [threadCard, setThreadCard] = useState<ReactElement[] | null>(null);
@@ -31,7 +34,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
   );
 
   useEffect(() => {
-    const followerProfilePic = deso.api.user.getSingleProfilePicture(publicKey);
+    const followerProfilePic = deso.user.getSingleProfilePicture(publicKey);
     setFollowerPicture(followerProfilePic);
   }, []);
 
@@ -63,7 +66,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
     if (loggedInUser === null) {
       return;
     }
-    const response = await deso.api.social.getMessagesStateless(
+    const response = await deso.social.getMessagesStateless(
       {
         NumToFetch: 25,
         PublicKeyBase58Check: myPublicKey as string,
@@ -103,7 +106,7 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
             <SendMessage
               publicKey={publicKey}
               myPublicKey={myPublicKey as string}
-              loggedInUser={loggedInUser as User}
+              loggedInUser={loggedInUser as LoginUser}
             />
           </div>
         </>

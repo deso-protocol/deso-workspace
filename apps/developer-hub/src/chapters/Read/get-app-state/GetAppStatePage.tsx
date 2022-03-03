@@ -1,4 +1,3 @@
-import deso from '@deso-workspace/deso-sdk';
 import {
   Table,
   TableBody,
@@ -7,11 +6,13 @@ import {
   TableRow,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-
+import { useRecoilValue } from 'recoil';
+import { desoService } from '../../ChapterHelper/Chapter.atom';
 export const GetAppStatePage = () => {
+  const deso = useRecoilValue(desoService);
   const [nodes, setNodes] = useState<any[]>([]);
   useEffect(() => {
-    deso.api.metaData.getAppState().then((response) => {
+    deso.metaData.getAppState().then((response) => {
       setNodes(
         (Object.values(response.Nodes) as any[]).map((node) => {
           return node;

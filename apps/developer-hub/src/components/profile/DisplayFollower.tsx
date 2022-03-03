@@ -6,16 +6,18 @@ import { ReactElement, useEffect, useState } from 'react';
 import { MyUserInfoType, FollowerInfoType } from '../../recoil/AppState.atoms';
 import { getFollowerCount } from '../../services/utils';
 import DisplayMessages from './DisplayMessages';
-import deso from '@deso-workspace/deso-sdk';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
 } from '@deso-workspace/deso-types';
+import { useRecoilValue } from 'recoil';
+import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 export interface DisplayUserProps {
   publicKey: string;
 }
 
 const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
+  const deso = useRecoilValue(desoService);
   const [profileDescriptionCard, setCard] = useState<ReactElement | null>(null);
   const [follower, setFollower] = useState<FollowerInfoType | null>(null);
   const [followerPicture, setFollowerPicture] = useState<string | null>(null);
@@ -41,17 +43,15 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
   const getFollowerInfo = async (publicKey: string) => {
     let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await deso.api.user.getUserStateless([
-        publicKey,
-      ]);
-      profileInfoResponse = (await deso.api.user.getSingleProfile(publicKey))
+      const userInfoResponse = await deso.user.getUserStateless([publicKey]);
+      profileInfoResponse = (await deso.user.getSingleProfile(publicKey))
         .response;
-      const profilePictureSrc = deso.api.user.getSingleProfilePicture(
+      const profilePictureSrc = deso.user.getSingleProfilePicture(
         profileInfoResponse?.Profile?.PublicKeyBase58Check as string
       );
       setFollower({ profileInfoResponse, userInfoResponse });
       setFollowerPicture(profilePictureSrc);
-      const followers = (await deso.api.social.getFollowsStateless(publicKey))
+      const followers = (await deso.social.getFollowsStateless(publicKey))
         .response;
       setFollowerFollowers(followers);
     }

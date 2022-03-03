@@ -1,15 +1,14 @@
 import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
-import { PublicKey } from '../ChapterHelper/Chapter.atom';
+import { desoService, PublicKey } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import { ChapterTemplate, TabItem } from '../ChapterHelper/ChapterTemplate';
-import { getSourceFromGithub, jsonBlock } from '../../services/utils';
+import { jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../ChapterHelper/PageSections';
-import deso from '@deso-workspace/deso-sdk';
 export interface Chapter1SectionProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -17,7 +16,7 @@ export interface Chapter1SectionProps {
   pretext?: ReactElement;
   responseText?: string;
   requestText?: string;
-  apiCall: (params: any) => any;
+  apiCall: string;
 }
 export const Chapter1Section = ({
   selectedChapter,
@@ -28,6 +27,7 @@ export const Chapter1Section = ({
   responseText,
   requestText,
 }: Chapter1SectionProps) => {
+  const deso = useRecoilValue(desoService);
   const publicKey = useRecoilValue(PublicKey);
   const [response, setResponse] = useState<any | null>(null);
   const [request, setRequest] = useState<any | null>(null);
@@ -42,14 +42,28 @@ export const Chapter1Section = ({
       setChapterTitle(chapterTitle);
     }
   }, [selectedChapter]);
+
   const executeApiCall = async () => {
-    const apiResponse = await apiCall(publicKey).catch((e: Error) =>
-      alert(e.message)
-    );
+    let apiResponse;
+    if (apiCall === 'getUserStateless') {
+      apiResponse = await deso.user
+        .getUserStateless(publicKey)
+        .catch((e: Error) => alert(e.message));
+    }
+    if (apiCall === 'getFollowsStateless') {
+      apiResponse = await deso.social
+        .getFollowsStateless(publicKey)
+        .catch((e: Error) => alert(e.message));
+    }
+    if (apiCall === 'getSingleProfile') {
+      apiResponse = await deso.user
+        .getSingleProfile(publicKey)
+        .catch((e: Error) => alert(e.message));
+    }
     if (apiResponse) {
-      setResponse(apiResponse?.response);
-      setEndpoint(`${deso.node.uri}/${apiResponse.endpoint}`);
-      setRequest(apiResponse.request);
+      setResponse(apiResponse);
+      setEndpoint(`${deso.node.uri}/${selectedChapter.route}`);
+      // setRequest(apiResponse);
     }
   };
   return (

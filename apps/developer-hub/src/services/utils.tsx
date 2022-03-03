@@ -1,7 +1,7 @@
+import { LoginUser } from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
-import { User } from '../chapters/Interfaces/User';
 import { TransactionPost } from '../chapters/Interfaces/Transaction.interface';
 
 export const DEZO_DOG: Readonly<string> =
@@ -13,13 +13,13 @@ export const getFollowerCount = (userInfoResponse: any): number => {
 };
 
 type UserTransactionInfo = Pick<
-  User,
+  LoginUser,
   'accessLevelHmac' | 'encryptedSeedHex' | 'accessLevel'
 > &
   any;
 
 export const getSignerInfo = (
-  user: User,
+  user: LoginUser,
   transaction: TransactionPost
 ): UserTransactionInfo => {
   const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;

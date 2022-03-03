@@ -1,7 +1,7 @@
-import deso from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
+import { desoService } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {

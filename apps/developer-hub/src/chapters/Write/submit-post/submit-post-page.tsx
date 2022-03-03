@@ -1,20 +1,22 @@
-import deso from '@deso-workspace/deso-sdk';
 import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import {
   ClickHereSnippet,
   getSourceFromGithub,
   jsonBlock,
 } from '../../../services/utils';
-import { LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
+import {
+  desoService,
+  LoggedInUser,
+  PublicKey,
+} from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../../ChapterHelper/PageSections';
-
 export interface SubmitPostPageProps {
   chapters: ChapterNavigation;
   selectedChapter: Chapter;
@@ -24,6 +26,7 @@ export const SubmitPostPage = ({
   chapters,
   selectedChapter,
 }: SubmitPostPageProps) => {
+  const deso = useRecoilValue(desoService);
   const [code, setCode] = useState<any | null>(null);
   useEffect(() => {
     getSourceFromGithub(selectedChapter.githubSource).then(setCode);
@@ -33,15 +36,16 @@ export const SubmitPostPage = ({
   const [loggedInUser, setLoggedInUser] = useRecoilState(LoggedInUser);
   const createPost = () => {
     if (myPublicKey && loggedInUser) {
-      deso.api.post
+      deso.posts
         .submitPost(myPublicKey, loggedInUser, postMessage)
         .then((response) => {
           setResponse(response);
         });
     } else {
       deso.identity.login().then((response) => {
-        setMyPublicKey(response.publicKey);
-        setLoggedInUser(response.loggedInUser);
+        const publicKey = response.payload.publicKeyAdded;
+        setMyPublicKey(publicKey);
+        setLoggedInUser(response.payload.users[publicKey]);
       });
     }
   };

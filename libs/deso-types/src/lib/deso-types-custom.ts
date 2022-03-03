@@ -29,3 +29,28 @@ export interface GetApproveResponse {
     signedTransactionHex: string;
   };
 }
+
+export interface GetLoginResponse {
+  id?: string;
+  service: string;
+  method: string;
+  payload: {
+    users: LoginUsers;
+    publicKeyAdded: string;
+    signedUp: boolean;
+  };
+}
+
+export interface LoginUser {
+  accessLevel: number;
+  accessLevelHmac: string;
+  btcDepositAddress: string;
+  encryptedSeedHex: string;
+  hasExtraText: boolean;
+  ethDepositAddress: string;
+  network: string;
+}
+
+export interface LoginUsers {
+  [user: string]: LoginUser;
+}

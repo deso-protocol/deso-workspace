@@ -3,17 +3,19 @@ import { Button, TextField, Tooltip } from '@mui/material';
 import { useRecoilValue } from 'recoil';
 import { SampleAppLoggedInUser } from '../../recoil/AppState.atoms';
 import { useState } from 'react';
-import { submitPost } from '../../../../../libs/deso-sdk/src/lib/post/submit-post';
-import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
+import {
+  desoService,
+  PublicKey,
+} from '../../chapters/ChapterHelper/Chapter.atom';
 export default function CreatePostInput() {
+  const deso = useRecoilValue(desoService);
   const myPublicKey = useRecoilValue(PublicKey);
   const [postBody, setPostBody] = useState<string | null>(null);
   const loggedInUser = useRecoilValue(SampleAppLoggedInUser);
   const createPost = () => {
     if (myPublicKey && postBody && loggedInUser) {
-      submitPost(myPublicKey, loggedInUser, postBody).then(
-        (response: any) => {}
-      );
+      deso.posts.submitPost(myPublicKey, loggedInUser, postBody);
+      // .then((response: any) => {});
     }
   };
   return (

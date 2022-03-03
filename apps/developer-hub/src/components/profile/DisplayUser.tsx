@@ -2,7 +2,7 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Avatar from '@mui/material/Avatar';
 import { ReactElement, useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   SampleAppMyUserInfo,
   SampleAppMyFollowersInfo,
@@ -12,16 +12,17 @@ import {
 import CreatePostInput from './CreatePostInput';
 import { getFollowerCount } from '../../services/utils';
 import UserActions from '../UserActions';
-import deso from '@deso-workspace/deso-sdk';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
 } from '@deso-workspace/deso-types';
+import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 export interface DisplayUserProps {
   publicKey: string;
   isMyAccount: boolean;
 }
 const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
+  const deso = useRecoilValue(desoService);
   const [user, setUser] = useRecoilState<MyUserInfoType | null>(
     SampleAppMyUserInfo
   );
@@ -45,20 +46,18 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
   const getMyInfo = async (publicKey: string) => {
     let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await deso.api.user.getUserStateless([
-        publicKey,
-      ]);
+      const userInfoResponse = await deso.user.getUserStateless([publicKey]);
 
       profileInfoResponse = await (
-        await deso.api.user.getSingleProfile(publicKey)
+        await deso.user.getSingleProfile(publicKey)
       ).response;
-      const profilePictureSrc = deso.api.user.getSingleProfilePicture(
+      const profilePictureSrc = deso.user.getSingleProfilePicture(
         profileInfoResponse?.Profile?.PublicKeyBase58Check as string
       );
       setUser({ profileInfoResponse, userInfoResponse });
       setProfilePicture(profilePictureSrc);
       const followers = await (
-        await deso.api.social.getFollowsStateless(publicKey)
+        await deso.social.getFollowsStateless(publicKey)
       ).response;
       setUserFollowers(followers);
     }

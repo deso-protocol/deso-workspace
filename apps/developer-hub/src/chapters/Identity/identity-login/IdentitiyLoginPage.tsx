@@ -2,16 +2,19 @@ import { ReactElement, useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { LoginCodeBlocks } from './CodeBlocks';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
-import { useRecoilState } from 'recoil';
-import { User } from '../../Interfaces/User';
-import { LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  desoService,
+  LoggedInUser,
+  PublicKey,
+} from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../../ChapterHelper/ChapterTemplate';
 import {
   PageSection,
   CommonPageSectionTitles,
 } from '../../ChapterHelper/PageSections';
-import deso from '@deso-workspace/deso-sdk';
+import { LoginUser } from '@deso-workspace/deso-types';
 export interface IdentityLoginProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -20,8 +23,9 @@ export const IdentityLoginPage = ({
   selectedChapter,
   chapters,
 }: IdentityLoginProps) => {
+  const deso = useRecoilValue(desoService);
   const [code, setCode] = useState<ReactElement[]>([]);
-  const [loggedInUser, setLoggedInUser] = useRecoilState<User | null>(
+  const [loggedInUser, setLoggedInUser] = useRecoilState<LoginUser | null>(
     LoggedInUser
   );
   const [publicKey, setPublicKey] = useRecoilState<string>(PublicKey);
@@ -49,9 +53,11 @@ export const IdentityLoginPage = ({
                   <span
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={() => {
+                      console.log(deso);
                       deso.identity.login().then((response) => {
-                        setLoggedInUser(response.loggedInUser);
-                        setPublicKey(response.publicKey);
+                        const publicKey = response.payload.publicKeyAdded;
+                        setLoggedInUser(response.payload.users[publicKey]);
+                        setPublicKey(publicKey);
                       });
                     }}
                   >

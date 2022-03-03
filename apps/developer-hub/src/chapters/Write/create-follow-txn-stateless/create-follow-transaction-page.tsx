@@ -1,13 +1,20 @@
-import deso from '@deso-workspace/deso-sdk';
+import {
+  CreateFollowTxnStatelessRequest,
+  LoginUser,
+} from '@deso-workspace/deso-types';
 import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import {
   ClickHereSnippet,
   DEZO_DOG,
   getSourceFromGithub,
 } from '../../../services/utils';
-import { PublicKey } from '../../ChapterHelper/Chapter.atom';
+import {
+  desoService,
+  LoggedInUser,
+  PublicKey,
+} from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
@@ -22,8 +29,12 @@ export const CreateFollowTransactionPage = ({
   chapters,
   selectedChapter,
 }: CreateFollowTransactionPageProps) => {
+  const deso = useRecoilValue(desoService);
   const [code, setCode] = useState<any | null>(null);
   const [follow, setFollow] = useState<boolean>(false);
+  const [loggedInUser, setLoggedInUser] = useRecoilState<LoginUser | null>(
+    LoggedInUser
+  );
   useEffect(() => {
     getSourceFromGithub(selectedChapter.githubSource).then((res) => {
       console.log(selectedChapter.githubSource);
@@ -50,14 +61,13 @@ export const CreateFollowTransactionPage = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 ClickHereSnippet(async () => {
-                  const loggedInUser = await deso.identity.login();
-                  deso.api.social.createFollowTxnStateless(
+                  deso.social.createFollowTxnStateless(
                     {
                       FollowedPublicKeyBase58Check: DEZO_DOG,
                       FollowerPublicKeyBase58Check: myPublicKey,
                       IsUnfollow: follow,
-                    },
-                    loggedInUser.loggedInUser
+                    } as CreateFollowTxnStatelessRequest,
+                    loggedInUser as LoginUser
                   );
                   setFollow(!follow);
                 }, 'to follow/un-follow @DeZoDog')

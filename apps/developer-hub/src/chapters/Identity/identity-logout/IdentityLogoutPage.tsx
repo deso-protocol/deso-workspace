@@ -1,9 +1,8 @@
-import deso from '@deso-workspace/deso-sdk';
 import { ReactElement, useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub } from '../../../services/utils';
-import { PublicKey } from '../../ChapterHelper/Chapter.atom';
+import { desoService, PublicKey } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
 import {
@@ -16,11 +15,11 @@ export interface IdentityLogoutProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-
 export const IdentityLogoutPage = ({
   selectedChapter,
   chapters,
 }: IdentityLogoutProps) => {
+  const deso = useRecoilValue(desoService);
   const [myPublicKey, setPublicKey] = useRecoilState(PublicKey);
   const [response, hasLoggedOut] = useState<boolean>(false);
   const [code, setCode] = useState<ReactElement[]>([]);

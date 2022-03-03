@@ -1,13 +1,13 @@
-import deso from '@deso-workspace/deso-sdk';
 import { Button, Link } from '@mui/material';
 import { useEffect } from 'react';
-import { useRecoilState } from 'recoil';
-import { PublicKey } from '../chapters/ChapterHelper/Chapter.atom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { desoService, PublicKey } from '../chapters/ChapterHelper/Chapter.atom';
 import {
   SampleAppEncryptedMessage,
   SampleAppLoggedInUser,
 } from '../recoil/AppState.atoms';
 const Identity = () => {
+  const deso = useRecoilValue(desoService);
   const [loggedInUser, setLoggedInUser] = useRecoilState(SampleAppLoggedInUser);
   const [myPublicKey, setPublicKey] = useRecoilState(PublicKey);
 
@@ -54,8 +54,9 @@ const Identity = () => {
         <Link
           className="cursor-pointer"
           onClick={() => {
-            deso.identity.login().then(({ loggedInUser, publicKey }) => {
-              setLoggedInUser(loggedInUser);
+            deso.identity.login().then((res) => {
+              const publicKey = res.payload.publicKeyAdded;
+              setLoggedInUser(res.payload.users[publicKey]);
               setPublicKey(publicKey);
             });
           }}

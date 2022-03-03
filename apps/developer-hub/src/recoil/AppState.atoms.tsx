@@ -1,10 +1,10 @@
 import {
+  LoginUser,
   GetFollowsResponse,
   GetSingleProfileResponse,
   GetUsersResponse,
 } from '@deso-workspace/deso-types';
 import { atom } from 'recoil';
-import { User } from '../chapters/Interfaces/User';
 
 export enum AppStateEnum {
   MY_POST,
@@ -37,7 +37,7 @@ export const SampleAppState = atom<AppStateEnum>({
   default: AppStateEnum.MY_POST,
 });
 
-export const SampleAppLoggedInUser = atom<User | null>({
+export const SampleAppLoggedInUser = atom<LoginUser | null>({
   key: 'loggedInUser',
   default: null,
 });
