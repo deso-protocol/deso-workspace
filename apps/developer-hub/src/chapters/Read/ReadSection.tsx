@@ -91,10 +91,10 @@ export const Chapter1Section = ({
                   <div className="list-decimal">
                     <li className="mb-2">
                       First we called
-                      {jsonBlock(
+                      {/* {jsonBlock(
                         JSON.parse(selectedChapter.method as string),
                         'ts'
-                      )}
+                      )} */}
                       .
                     </li>
                     <li className="mb-2">
