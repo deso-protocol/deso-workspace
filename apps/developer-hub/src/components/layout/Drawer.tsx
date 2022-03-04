@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import { Drawer, ListItemButton } from '@mui/material';
+import { Drawer } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { SampleAppToggleDrawer } from '../../recoil/AppState.atoms';
@@ -10,6 +10,7 @@ import { ParentRoutes } from '../../services/utils';
 export interface DesoDrawerProps {
   chapters: ChapterNavigation;
 }
+
 export default function DesoDrawer({ chapters }: DesoDrawerProps) {
   const [toggleState, setToggleDrawer] = useRecoilState(SampleAppToggleDrawer);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
@@ -67,7 +68,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
   );
 
   return (
-    <Drawer open={toggleState} variant="temporary" anchor="left">
+    <Drawer open={toggleState} variant="permanent" anchor="left">
       {list()}
     </Drawer>
   );
