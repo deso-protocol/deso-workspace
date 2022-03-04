@@ -1,4 +1,4 @@
-import { TODOTemplate } from './Chapter.models';
+import { CHAPTERS, TODOTemplate } from './Chapter.models';
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
 
@@ -14,7 +14,7 @@ export const mediaChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -30,7 +30,7 @@ export const mediaChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -46,7 +46,7 @@ export const mediaChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -62,7 +62,7 @@ export const mediaChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

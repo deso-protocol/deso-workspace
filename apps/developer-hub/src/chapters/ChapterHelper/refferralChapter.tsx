@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
-import { TODOTemplate } from './Chapter.models';
+import { CHAPTERS, TODOTemplate } from './Chapter.models';
 
 export const referralChapter = {
   GET_REFERRAL_INFO_FOR_USER: {
@@ -14,7 +14,7 @@ export const referralChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -30,7 +30,7 @@ export const referralChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

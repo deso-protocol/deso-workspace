@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { TODOTemplate } from './Chapter.models';
+import { CHAPTERS, TODOTemplate } from './Chapter.models';
 import { ParentRoutes } from '../../services/utils';
 export const minerChapter = {
   GET_BLOCK_TEMPLATE: {
@@ -13,7 +13,7 @@ export const minerChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -29,7 +29,7 @@ export const minerChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

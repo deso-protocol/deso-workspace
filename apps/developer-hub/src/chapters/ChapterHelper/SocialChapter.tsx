@@ -113,7 +113,7 @@ export const socialChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -129,7 +129,7 @@ export const socialChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -145,7 +145,7 @@ export const socialChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -161,7 +161,7 @@ export const socialChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

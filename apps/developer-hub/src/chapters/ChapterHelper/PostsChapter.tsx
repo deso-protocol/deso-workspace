@@ -57,7 +57,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -73,7 +73,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -89,7 +89,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -105,7 +105,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -121,7 +121,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -137,7 +137,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -153,7 +153,7 @@ export const postChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

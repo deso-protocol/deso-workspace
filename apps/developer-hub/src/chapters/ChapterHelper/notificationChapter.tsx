@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
-import { TODOTemplate } from './Chapter.models';
+import { CHAPTERS, TODOTemplate } from './Chapter.models';
 
 export const notificationChapter = {
   GET_NOTIFICATIONS: {
@@ -14,7 +14,7 @@ export const notificationChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -30,7 +30,7 @@ export const notificationChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },
@@ -46,7 +46,7 @@ export const notificationChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate />}
+          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
         ></Route>
       );
     },

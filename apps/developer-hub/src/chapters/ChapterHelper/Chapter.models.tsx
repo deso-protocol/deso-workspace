@@ -18,10 +18,23 @@ import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
 import { ParentRoutes } from '../../services/utils';
-export const TODOTemplate = () => {
+export interface TODOProps {
+  selectedChapter: any;
+  chapters: ChapterNavigation;
+}
+export const TODOTemplate = ({ selectedChapter, chapters }: TODOProps) => {
   return (
-    <div className="mx-auto mt-20 max-w-[1160px] pb-2 w-full bg-[#fff] min-h-[800px] rounded-lg text-center font-semibold">
-      Coming Soon!
+    <div className="mx-auto mt-20 max-w-[1160px] py-2 w-full bg-[#fff] min-h-[800px] rounded-lg text-center font-semibold ">
+      <div className="flex justify-between">
+        <div> </div>
+        <div>Coming Soon!</div>
+        <div>
+          <PageNavigation
+            previous={chapters.prev(selectedChapter) as Chapter}
+            next={chapters.next(selectedChapter) as Chapter}
+          />
+        </div>
+      </div>
     </div>
   );
 };

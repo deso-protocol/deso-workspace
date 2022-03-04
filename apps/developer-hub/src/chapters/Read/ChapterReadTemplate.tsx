@@ -1,7 +1,7 @@
-import axios from "axios";
-import { ReactElement, useEffect, useState } from "react";
-import { CopyBlock, nord } from "react-code-blocks";
-import { getSourceFromGithub } from "../../services/utils";
+import axios from 'axios';
+import { ReactElement, useEffect, useState } from 'react';
+import { CopyBlock, nord } from 'react-code-blocks';
+import { getSourceFromGithub } from '../../services/utils';
 export interface ChapterApiTemplateProps {
   request: any;
   response: any;
@@ -28,13 +28,13 @@ export const ChapterReadTemplate = ({
     <div>
       <div className=" rounded-lg min-h-[300px] p-2">
         <div className="font-semibold text-lg">
-          Click{" "}
+          Click{' '}
           <span
             onClick={onClick}
             className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
           >
             here
-          </span>{" "}
+          </span>{' '}
           to call {title}
         </div>
         <div className="font-lg font-semibold">EndPoint:</div>

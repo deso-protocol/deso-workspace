@@ -35,7 +35,6 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
     <Box role="presentation" onClick={toggle(false)} onKeyDown={toggle(false)}>
       <div className="min-h-[64px]"></div>
       {Object.keys(ParentRoutes).map((parentRoute) => {
-        <div>{parentRoute} asd</div>;
         return chapters
           .chaptersToArray()
           .filter((c) => c.chapterContent.parentRoute === parentRoute)
@@ -45,7 +44,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
                 {index === 0 ? (
                   <>
                     <div className="py-3 px-4 text-xl bg-[#1976d2] text-[#fff]">
-                      {parentRoute}
+                      {parentRoute.toUpperCase()}
                     </div>
                     <Divider />
                   </>
