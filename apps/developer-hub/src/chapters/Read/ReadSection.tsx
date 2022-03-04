@@ -22,10 +22,7 @@ export const Chapter1Section = ({
   selectedChapter,
   chapters,
   apiCall,
-  tabs,
   pretext,
-  responseText,
-  requestText,
 }: Chapter1SectionProps) => {
   const deso = useRecoilValue(desoService);
   const publicKey = useRecoilValue(PublicKey);
@@ -93,18 +90,19 @@ export const Chapter1Section = ({
                   CommonPageSectionTitles.WHAT_HAPPENED,
                   <div className="list-decimal">
                     <li className="mb-2">
-                      First we pointed our http client to{' '}
-                      {selectedChapter.description}.
-                      {endpoint && jsonBlock(endpoint)}
+                      First we called
+                      {jsonBlock(
+                        JSON.parse(selectedChapter.method as string),
+                        'ts'
+                      )}
+                      .
                     </li>
                     <li className="mb-2">
-                      {requestText}
-
+                      Request:
                       {request && jsonBlock(request)}
                     </li>
                     <li className="mb-2">
-                      Finally we get the response. See below to see what fields
-                      are returned.
+                      Response:
                       {response && jsonBlock(response)}
                     </li>
                   </div>

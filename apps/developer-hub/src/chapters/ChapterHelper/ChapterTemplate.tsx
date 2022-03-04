@@ -1,7 +1,8 @@
-import { ReactElement, useState } from "react";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/system/Box";
+import { ReactElement, useState } from 'react';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/system/Box';
+import { groupBy } from '../../services/utils';
 export interface ChapterTemplateProps {
   title: string;
   tabs: TabItem[];
@@ -22,6 +23,7 @@ const TabPanel = (props: any) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
+      {' '}
       {value === index && <div className="p-3">{children} </div>}
     </div>
   );
@@ -30,7 +32,7 @@ const TabPanel = (props: any) => {
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
   };
 }
 
@@ -54,7 +56,7 @@ export default function DeSoTabs({ tabs, navigation }: TabProps) {
     <div className="mx-auto mt-20 max-w-[1160px] pb-2 w-full bg-[#fff] min-h-[800px] rounded-lg">
       <Box
         className="flex justify-between"
-        sx={{ borderBottom: 1, borderColor: "divider" }}
+        sx={{ borderBottom: 1, borderColor: 'divider' }}
       >
         <Tabs
           value={value}

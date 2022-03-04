@@ -69,6 +69,7 @@ export class Identity {
           return;
         }
         prompt?.close();
+        localStorage.setItem('loginUser', JSON.stringify(data));
         resolve(data);
 
         window.removeEventListener('message', windowHandler);
@@ -90,6 +91,8 @@ export class Identity {
         if (event.data.method === 'login') {
           prompt?.close();
           resolve(true);
+
+          localStorage.setItem('loginUser', '');
         }
       };
       window.addEventListener('message', windowHandler);
@@ -122,7 +125,7 @@ export class Identity {
     }
   }
 
-  public sign(request: any, data: any): Promise<any> {
+  public sign(request: any): Promise<any> {
     const iframe: HTMLIFrameElement | null = document.getElementById(
       'identity'
     ) as HTMLIFrameElement;

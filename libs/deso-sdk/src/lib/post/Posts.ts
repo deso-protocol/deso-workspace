@@ -72,6 +72,6 @@ export class Posts {
       payload,
       service: 'identity',
     };
-    return this.identity.sign(request, data);
+    return this.identity.sign(request);
   }
 }

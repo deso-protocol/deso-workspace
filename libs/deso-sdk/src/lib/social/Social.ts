@@ -6,6 +6,7 @@ import {
   GetMessagesResponse,
   GetMessagesStatelessRequest,
   LoginUser,
+  MessageContactResponse,
   SendMessageStatelessRequest,
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
@@ -20,6 +21,7 @@ export class Social {
     this.node = node;
     this.identity = identity;
   }
+  // needs access
   public async sendMessage(request: Partial<SendMessageStatelessRequest>) {
     const response = (
       await axios.post(`${this.node.uri}/send-message-stateless`, request)
@@ -30,6 +32,7 @@ export class Social {
     }
   }
 
+  // needs
   public async createFollowTxnStateless(
     request: CreateFollowTxnStatelessRequest,
     user: LoginUser
@@ -54,7 +57,7 @@ export class Social {
       payload,
       service: 'identity',
     };
-    await this.identity.sign(requestToBeSigned, user).catch((e) => {
+    await this.identity.sign(requestToBeSigned).catch((e) => {
       throw Error('something went wrong with submitting the transaction');
     });
   }
@@ -88,12 +91,14 @@ export class Social {
       await axios.post(`${this.node.uri}/get-messages-stateless`, request)
     ).data;
     // temp any fix for compiler
-    const encryptedMessages = (response.OrderedContactsWithMessages as any[])
+    const encryptedMessages = (
+      response.OrderedContactsWithMessages as MessageContactResponse[]
+    )
       .map((thread) => {
         if (thread.Messages === null) {
           return [];
         }
-        return thread.Messages.map((message: any) => ({
+        return thread.Messages.map((message) => ({
           EncryptedHex: message.EncryptedText,
           PublicKey: message.IsSender
             ? message.RecipientPublicKeyBase58Check
@@ -110,6 +115,7 @@ export class Social {
       })
       .flat();
     const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
+    const approval = await this.identity.approve(encryptedSeedHex);
     const iFrameRequest = {
       id: uuid(),
       method: 'decrypt',

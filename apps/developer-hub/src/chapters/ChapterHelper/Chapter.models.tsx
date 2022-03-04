@@ -1,24 +1,49 @@
 import { Route } from 'react-router-dom';
 import SampleApp from '../../components/layout/SampleApp';
-import { Chapter1Section } from '../Read/ReadSection';
-import { IdentityLoginPage } from '../Identity/identity-login/IdentitiyLoginPage';
 import { ReactElement } from 'react';
-import { IdentityLogoutPage } from '../Identity/identity-logout/IdentityLogoutPage';
-import { GetMessageStatelessPage } from '../Write/decrypt/DecryptMessagesPage';
 import { Link, Link as MaterialLink } from '@mui/material';
-import { CommonPageSectionTitles, PageSection } from './PageSections';
-import { ChapterTemplate } from './ChapterTemplate';
+import { PageSection } from './PageSections';
 import { PageNavigation } from '../../components/layout/PageNavigation';
-import { SubmitPostPage } from '../Write/submit-post/submit-post-page';
 import { GetAppStatePage } from '../Read/get-app-state/GetAppStatePage';
-import { CreateFollowTransactionPage } from '../Write/create-follow-txn-stateless/create-follow-transaction-page';
-import Deso from '@deso-workspace/deso-sdk';
-const deso = new Deso();
+import { postChapter } from './PostsChapter';
+import { userChapter } from './UserChapter';
+import { identityChapter } from './IdentityChapters';
+import ChapterTemplate from './ChapterTemplate';
+import { socialChapter } from './SocialChapter';
+import { mediaChapter } from './mediaChapter';
+import { notificationChapter } from './notificationChapter';
+import { referralChapter } from './refferralChapter';
+import { minerChapter } from './minerChapter';
+import { adminChapter } from './adminChapter';
+import { metaDataChapter } from './metaDataChapter';
+import { nftChapter } from './nftChapter';
+import { ParentRoutes } from '../../services/utils';
+export const TODOTemplate = () => {
+  return (
+    <div className="mx-auto mt-20 max-w-[1160px] pb-2 w-full bg-[#fff] min-h-[800px] rounded-lg text-center font-semibold">
+      Coming Soon!
+    </div>
+  );
+};
+
 export const CHAPTERS: Readonly<ChapterNavigation> = {
+  ...identityChapter,
+  ...userChapter,
+  ...postChapter,
+  ...nftChapter,
+  ...socialChapter,
+  ...mediaChapter,
+  ...notificationChapter,
+  ...referralChapter,
+  ...minerChapter,
+  ...adminChapter,
+  ...metaDataChapter,
+
   ABOUT: {
+    parentRoute: ParentRoutes.none,
     title: 'Welcome',
     route: '*',
-    description: 'N/A',
+    method: 'N/A',
     documentation: [],
     githubSource: [],
     component: function () {
@@ -28,7 +53,6 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
           path={this.route}
           element={
             <ChapterTemplate
-              title="Welcome"
               tabs={[
                 {
                   content: (
@@ -72,7 +96,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                         'Starter App',
                         <div>
                           Looking for a bare bones react template to get started
-                          on your DeSo app? Open your terminal and run <br />
+                          on your DeSo app?Open your terminal and run <br />
                           <span className="font-semibold">git clone </span>
                           https://github.com/DeSoDog/deso-react-template.git
                         </div>
@@ -123,272 +147,9 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
       );
     },
   },
-  GET_SINGLE_PROFILE: {
-    title: 'Get Single Profile',
-    route: '/get-single-profile',
-    description: 'get-single-profile',
-    documentation: [
-      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-single-profile/GetSingleProfile.service.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <Chapter1Section
-              tabs={[]}
-              requestText="Then we Assembled our request object. PublicKeyBase58Check is the public key of the user you're requesting."
-              responseText=""
-              pretext={PageSection(
-                this.title,
-                <div>
-                  As it sounds get-single-profile, fetches various data around a
-                  single profile. This call is useful if you want common display
-                  data for a user.{' '}
-                </div>
-              )}
-              chapters={CHAPTERS}
-              selectedChapter={this}
-              apiCall={'getSingleProfile'}
-            />
-          }
-        ></Route>
-      );
-    },
-  },
-  READ_GET_USERS_STATELESS: {
-    title: 'Get Users Stateless',
-    route: '/read/get-users-stateless',
-    description: 'get-users-stateless',
-    documentation: [
-      'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-users-stateless',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-users-stateless/GetUserStateless.service.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <Chapter1Section
-              pretext={PageSection(
-                this.title,
-                <div>
-                  get-users-stateless will query all information on a user or
-                  users.
-                </div>
-              )}
-              requestText="Then we assembled our request object where PublicKeysBased58Check is an array of users that we want to query. SkipForLeaderboard is set to false which returns profile info only"
-              responseText=""
-              tabs={[]}
-              chapters={CHAPTERS}
-              selectedChapter={this}
-              apiCall={'getUserStateless'}
-            />
-          }
-        ></Route>
-      );
-    },
-  },
-  READ_GET_FOLLOWS_STATELESS: {
-    title: 'Get Follows Stateless',
-    route: '/read/get-follows-stateless',
-    description: 'get-followers-stateless',
-    documentation: [
-      'https://docs.deso.org/backend/blockchain-data/api/social-endpoints#get-follows-stateless',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-follows-stateless/GetFollowsStateless.service.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <Chapter1Section
-              pretext={PageSection(
-                CommonPageSectionTitles.OVERVIEW,
-                <div>
-                  Similar to the get-users-stateless, but Instead it will return
-                  an array of followers for a specific account.{' '}
-                </div>
-              )}
-              requestText="Then we provide PublicKeyBase58Check which tell the endpoint who's followers to query. GetEntriesFollowingUsername returns only followers who are also following the public key(s), numToFetch determines how many followers to return per user."
-              responseText=""
-              tabs={[]}
-              chapters={CHAPTERS}
-              selectedChapter={this}
-              apiCall={'getFollowsStateless'}
-            />
-          }
-        ></Route>
-      );
-    },
-  },
-  GET_MESSAGE_STATELESS: {
-    title: 'Get Message Stateless',
-    route: '/identity/get-message-stateless',
-    documentation: [
-      'https://docs.deso.org/identity/iframe-api/endpoints#decrypt',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/get-messages-stateless.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-decrypt/IdentityDecryption.service.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <GetMessageStatelessPage
-              chapters={CHAPTERS}
-              selectedChapter={this}
-            />
-          }
-        ></Route>
-      );
-    },
-  },
 
-  // IDENTITY_APPROVE: {
-  //   title: 'Approve',
-  //   route: '/identity/identity-approve',
-  //   githubSource: [],
-  //   documentation: [
-  //     'https://docs.deso.org/identity/window-api/endpoints#approve',
-  //     'https://docs.deso.org/identity/identity',
-  //   ],
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Chapter1Section
-  //             pretext={PageSection(
-  //               CommonPageSectionTitles.OVERVIEW,
-  //               <div>
-  //                 If a user is not logged in or they do not have the proper
-  //                 permissional level approval is needed
-  //               </div>
-  //             )}
-  //             requestText=""
-  //             responseText=""
-  //             tabs={[]}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //             apiCall={deso.identity.approve.bind(deso)}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
-  IDENTITY_LOGIN: {
-    title: 'Login',
-    route: '/identity/identity-login',
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-login/IdentityLogin.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-initialize/GetIdentityFrame.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
-    ],
-    documentation: [
-      'https://docs.deso.org/identity/window-api/endpoints#log-in',
-      'https://docs.deso.org/identity/identity',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <IdentityLoginPage chapters={CHAPTERS} selectedChapter={this} />
-          }
-        ></Route>
-      );
-    },
-  },
-  IDENTITY_LOGOUT: {
-    title: 'Logout',
-    route: '/identity/identity-logout',
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/identity-logout/IdentityLogout.service.tsx',
-    ],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <IdentityLogoutPage chapters={CHAPTERS} selectedChapter={this} />
-          }
-        ></Route>
-      );
-    },
-  },
-
-  WRITE_SUBMIT_POST: {
-    title: 'Submit Post',
-    route: '/write/submit-post',
-    documentation: [],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/Transaction.interface.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <SubmitPostPage chapters={CHAPTERS} selectedChapter={this} />
-          }
-        ></Route>
-      );
-    },
-  },
-
-  WRITE_CREATE_FOLLOW_TRANSACTION: {
-    title: 'Create Follow Transaction',
-    route: '/write/create-follow-transaction',
-    documentation: [
-      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#create-follow-txn-stateless',
-    ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/create-follow-txn-stateless/create-follow-txn-stateless.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <CreateFollowTransactionPage
-              selectedChapter={this}
-              chapters={CHAPTERS}
-            />
-          }
-        ></Route>
-      );
-    },
-  },
   NODE_PAGE: {
+    parentRoute: ParentRoutes.node,
     title: 'Node Page',
     route: '/node-page',
     documentation: [''],
@@ -404,6 +165,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
     },
   },
   SAMPLE_APP: {
+    parentRoute: ParentRoutes.none,
     title: 'Sample App',
     route: '/sample-app',
     documentation: [],
@@ -474,30 +236,100 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
 export interface ChapterNavigation {
   // GETTING_STARTED: Chapter;
   ABOUT: Chapter;
+  //user
+  GET_USERS_STATELESS: Chapter;
+  GET_PROFILES: Chapter;
   GET_SINGLE_PROFILE: Chapter;
-  READ_GET_USERS_STATELESS: Chapter;
-  READ_GET_FOLLOWS_STATELESS: Chapter;
+  GET_SINGLE_PROFILE_PICTURE: Chapter;
+  GET_USER_METADATA: Chapter;
+  DELETE_PII: Chapter;
+  BLOCK_PUBLIC_KEY: Chapter;
+  GET_USER_DERIVED_KEYS: Chapter;
+  DELETE_IDENTITIES: Chapter;
+  // posts
+  GET_POSTS_STATELESS: Chapter;
+  GET_SINGLE_POST: Chapter;
+  GET_HOT_FEED: Chapter;
+  GET_DIAMONDED_POSTS: Chapter;
+  GET_LIKES_FOR_POST: Chapter;
+  GET_DIAMONDS_FOR_POST: Chapter;
+  GET_REPOSTS_FOR_POST: Chapter;
+  GET_QUOTE_REPOSTS_FOR_POST: Chapter;
+  // nft
+  GET_NFTS_FOR_USER: Chapter;
+  GET_NFT_BIDS_FOR_USER: Chapter;
+  GET_NFT_BIDS_FOR_NFT_POST: Chapter;
+  GET_NFT_SHOWCASE: Chapter;
+  GET_NEXT_NFT_SHOWCASE: Chapter;
+  GET_NFT_COLLECTION_SUMMARY: Chapter;
+  GET_NFT_ENTRIES_FOR_POST_HASH: Chapter;
+  // social
+  GET_HODLERS_FOR_PUBLIC_KEY: Chapter;
+  GET_DIAMONDS_FOR_PUBLIC_KEY: Chapter;
+  GET_FOLLOWS_STATELESS: Chapter;
+  IS_FOLLOWING_PUBLIC_KEY: Chapter;
+  IS_HODLING_PUBLIC_KEY: Chapter;
+  //_media
+  UPLOAD_IMAGE: Chapter;
+  UPLOAD_VIDEO: Chapter;
+  GET_VIDEO_STATUS: Chapter;
+  GET_FULL_TIKTOK_URL: Chapter;
+  //_notifications
+  GET_NOTIFICATIONS: Chapter;
+  GET_UNREAD_NOTIFICATION_COUNT: Chapter;
+  SET_NOTIFICATION_METADATA: Chapter;
+  // Referral
+  GET_REFERRAL_INFO_FOR_USER: Chapter;
+  GET_REFERRAL_INFO_FOR_REFERRAL_HASH: Chapter;
+  // Miner
+  GET_BLOCK_TEMPLATE: Chapter;
+  SUBMIT_BLOCK: Chapter;
+  // Admin
+  NODE_CONTROL: Chapter;
+  REPROCESS_BITCOIN_BLOCK: Chapter;
+  GET_MEMPOOL_STATS: Chapter;
+  EVICT_UNMINED_BITCOIN_TXNS: Chapter;
+  GET_GLOBAL_PARAMS: Chapter;
+  UPDATE_GLOBAL_PARAMS: Chapter;
+  SWAP_IDENTITY: Chapter;
+  UPDATE_USER_GLOBAL_METADATA: Chapter;
+  GET_ALL_USER_GLOBAL_METADATA: Chapter;
+  GET_USER_GLOBAL_METADATA: Chapter;
+  GRANT_VERIFICATION_BADGE: Chapter;
+  REMOVE_VERIFICATION_BADGE: Chapter;
+  GET_VERIFIED_USERS: Chapter;
+  GET_USERNAME_VERIFICATION_AUDIT_LOGS: Chapter;
+  UPDATE_GLOBAL_FEED: Chapter;
+  PIN_POST: Chapter;
+  REMOVE_NIL_POSTS: Chapter;
+
+  // BuyDeso
+
+  // MetaData
+  HEALTH_CHECK: Chapter;
+  GET_EXCHANGE_RATE: Chapter;
+  GET_APP_STATE: Chapter;
+
   // READ_PROFILE_CARD: Chapter;
   // IDENTITY_INITIALIZE: Chapter;
   IDENTITY_LOGIN: Chapter;
   // IDENTITY_APPROVE: Chapter;
   IDENTITY_LOGOUT: Chapter;
   GET_MESSAGE_STATELESS: Chapter;
-  WRITE_SUBMIT_POST: Chapter;
-  WRITE_CREATE_FOLLOW_TRANSACTION: Chapter;
+  SUBMIT_POST: Chapter;
+  CREATE_FOLLOW_TRANSACTION: Chapter;
   NODE_PAGE: Chapter;
   SAMPLE_APP: Chapter;
   next: (currentChapter: Chapter) => Chapter | null;
   prev: (currentChapter: Chapter) => Chapter | null;
   chaptersToArray: () => { chapterName: string; chapterContent: Chapter }[];
   documentationToLink: (chapter: Chapter) => ReactElement[];
-  //   CHAPTER_2: Chapter;
-  //   CHAPTER_3: Chapter;
 }
 export interface Chapter {
   title: string;
   route: string;
-  description?: string;
+  parentRoute: ParentRoutes;
+  method?: string;
   documentation: string[];
   githubSource: string[];
   component: () => ReactElement;

@@ -22,12 +22,12 @@ class Deso {
   public user = new User(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
 }
-
 export class Node {
   public uri: string = BASE_URI;
   constructor(uri: string) {
     this.uri = uri;
   }
 }
+// eslint-disable-next-line @typescript-eslint/ban-types
 
 export default Deso;

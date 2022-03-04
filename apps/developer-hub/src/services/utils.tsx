@@ -4,6 +4,22 @@ import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { TransactionPost } from '../chapters/Interfaces/Transaction.interface';
 
+export enum ParentRoutes {
+  user = 'user',
+  posts = 'posts',
+  nft = 'nft',
+  media = 'media',
+  referral = 'referral',
+  buyDeso = 'buy deso',
+  notification = 'notification',
+  miner = 'miner',
+  admin = 'admin',
+  social = 'social',
+  metaData = 'metaData',
+  identity = 'identity',
+  node = 'node',
+  none = 'none',
+}
 export const DEZO_DOG: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
 export const getFollowerCount = (userInfoResponse: any): number => {
@@ -111,3 +127,14 @@ export const ClickHereSnippet = (
     </div>
   );
 };
+
+export function groupBy(array: any[], key: string) {
+  return array.reduce((hash, obj) => {
+    if (obj['chapterContent'][key] === undefined) return hash;
+    return Object.assign(hash, {
+      [obj['chapterContent'][key]]: (
+        hash[obj['chapterContent'][key]] || []
+      ).concat(obj),
+    });
+  }, {});
+}
