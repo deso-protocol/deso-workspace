@@ -138,3 +138,6 @@ export function groupBy(array: any[], key: string) {
     });
   }, {});
 }
+export const IMPORT_CODE: Readonly<string> = `import Deso from '@deso-workspace/deso-sdk';
+const deso = new Deso();
+`;

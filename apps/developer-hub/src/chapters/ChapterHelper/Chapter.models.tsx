@@ -18,15 +18,19 @@ import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
 import { ParentRoutes } from '../../services/utils';
+import DesoDrawer from '../../components/layout/Drawer';
 export interface TODOProps {
   selectedChapter: any;
   chapters: ChapterNavigation;
 }
 export const TODOTemplate = ({ selectedChapter, chapters }: TODOProps) => {
   return (
-    <div className="mx-auto mt-20 max-w-[1160px] py-2 w-full bg-[#fff] min-h-[800px] rounded-lg text-center font-semibold ">
-      <div className="flex justify-between">
-        <div> </div>
+    <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
+      <div className="border-r border-[#00000025]">
+        <DesoDrawer chapters={CHAPTERS} />
+      </div>
+      <div className="flex-grow-1 flex justify-around mx-auto w-full max-w-[1500px] ">
+        <div></div>
         <div>Coming Soon!</div>
         <div>
           <PageNavigation
@@ -196,9 +200,9 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   documentationToLink: (chapter: Chapter): ReactElement[] => {
     return chapter.documentation.map((doc, i) => {
       return (
-        <div key={i}>
-          <MaterialLink href={doc}>{doc}</MaterialLink>
-        </div>
+        <MaterialLink target={'_blank'} key={i} href={doc}>
+          here
+        </MaterialLink>
       );
     });
   },

@@ -43,7 +43,9 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
   const getFollowerInfo = async (publicKey: string) => {
     let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await deso.user.getUserStateless([publicKey]);
+      const userInfoResponse = await deso.user.getUserStateless({
+        PublicKeysBase58Check: [publicKey],
+      });
       profileInfoResponse = (await deso.user.getSingleProfile(publicKey))
         .response;
       const profilePictureSrc = deso.user.getSingleProfilePicture(

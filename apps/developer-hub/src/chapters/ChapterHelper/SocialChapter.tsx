@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
-import Chapter1Section from '../Read/ReadSection';
+import Page from '../Read/Page';
 import { CreateFollowTransactionPage } from '../Write/create-follow-txn-stateless/create-follow-transaction-page';
 import { GetMessageStatelessPage } from '../Write/decrypt/DecryptMessagesPage';
 import { CHAPTERS, TODOTemplate } from './Chapter.models';
@@ -24,7 +24,7 @@ export const socialChapter = {
           key={this.title}
           path={this.route}
           element={
-            <Chapter1Section
+            <Page
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
                 <div>

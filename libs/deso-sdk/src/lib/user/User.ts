@@ -16,19 +16,11 @@ export class User {
     console.log(this);
   }
   public async getUserStateless(
-    PublicKeysBase58Check: string | string[]
+    request: Partial<GetUsersStatelessRequest>
+    // PublicKeysBase58Check: string | string[]
   ): Promise<GetUsersResponse> {
-    if (typeof PublicKeysBase58Check === 'string') {
-      PublicKeysBase58Check = [PublicKeysBase58Check];
-    }
-    const userInfoRequest: Partial<GetUsersStatelessRequest> = {
-      PublicKeysBase58Check: PublicKeysBase58Check,
-      SkipForLeaderboard: false,
-    };
-
-    return (
-      await axios.post(`${this.node.uri}/get-users-stateless`, userInfoRequest)
-    ).data;
+    return (await axios.post(`${this.node.uri}/get-users-stateless`, request))
+      .data;
   }
 
   public getSingleProfilePicture(PublicKeyBase58Check: string) {

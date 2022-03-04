@@ -5,7 +5,7 @@ import { CHAPTERS, TODOTemplate } from './Chapter.models';
 export const referralChapter = {
   GET_REFERRAL_INFO_FOR_USER: {
     parentRoute: ParentRoutes.referral,
-    title: 'get_referral_info_for_user',
+    title: 'Get Referral Info For User',
     route: '/referral/get_referral_info_for_user',
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
@@ -21,7 +21,7 @@ export const referralChapter = {
   },
   GET_REFERRAL_INFO_FOR_REFERRAL_HASH: {
     parentRoute: ParentRoutes.referral,
-    title: 'get_referral_info_for_referral_hash',
+    title: 'Get Referral Info For Referral Hash',
     route: '/referral/get_referral_info_for_referral_hash',
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],

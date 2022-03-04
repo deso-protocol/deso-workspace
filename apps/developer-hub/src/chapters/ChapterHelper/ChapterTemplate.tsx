@@ -2,7 +2,8 @@ import { ReactElement, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/system/Box';
-import { groupBy } from '../../services/utils';
+import DesoDrawer from '../../components/layout/Drawer';
+import { CHAPTERS } from './Chapter.models';
 export interface ChapterTemplateProps {
   title: string;
   tabs: TabItem[];
@@ -53,31 +54,36 @@ export default function DeSoTabs({ tabs, navigation }: TabProps) {
     setValue(newValue);
   };
   return (
-    <div className="mx-auto mt-20 max-w-[1160px] pb-2 w-full bg-[#fff] min-h-[800px] rounded-lg">
-      <Box
-        className="flex justify-between"
-        sx={{ borderBottom: 1, borderColor: 'divider' }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="basic tabs example"
+    <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
+      <div className="border-r border-[#00000025]">
+        <DesoDrawer chapters={CHAPTERS} />
+      </div>
+      <div className="flex-grow-1 mx-auto w-full max-w-[1500px] ">
+        <Box
+          className="flex justify-evenly"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          {tabs.map((tab, index) => {
-            return <Tab label={tab.title} {...a11yProps(index)} />;
-          })}
-        </Tabs>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
+          >
+            {tabs.map((tab, index) => {
+              return <Tab label={tab.title} {...a11yProps(index)} />;
+            })}
+          </Tabs>
 
-        {navigation}
-      </Box>
-      {tabs.map((tab, index) => {
-        return (
-          <TabPanel key={index} value={value} index={index}>
-            {tab.subTitle}
-            {tab.content}
-          </TabPanel>
-        );
-      })}
+          {navigation}
+        </Box>
+        {tabs.map((tab, index) => {
+          return (
+            <TabPanel key={index} value={value} index={index}>
+              {tab.subTitle}
+              {tab.content}
+            </TabPanel>
+          );
+        })}
+      </div>
     </div>
   );
 }

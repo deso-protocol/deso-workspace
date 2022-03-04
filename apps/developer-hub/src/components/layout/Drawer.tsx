@@ -1,10 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import { Drawer } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import { SampleAppToggleDrawer } from '../../recoil/AppState.atoms';
 import { ChapterNavigation } from '../../chapters/ChapterHelper/Chapter.models';
 import { ParentRoutes } from '../../services/utils';
 export interface DesoDrawerProps {
@@ -12,28 +9,8 @@ export interface DesoDrawerProps {
 }
 
 export default function DesoDrawer({ chapters }: DesoDrawerProps) {
-  const [toggleState, setToggleDrawer] = useRecoilState(SampleAppToggleDrawer);
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
-  const toggle =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event.type === 'keydown' &&
-        ((event as React.KeyboardEvent).key === 'Tab' ||
-          (event as React.KeyboardEvent).key === 'Shift')
-      ) {
-        return;
-      }
-
-      setToggleDrawer(open);
-    };
-
-  const handleListItemClick = (event: any, index: number) => {
-    setSelectedIndex(index);
-  };
-
   const list = () => (
-    <Box role="presentation" onClick={toggle(false)} onKeyDown={toggle(false)}>
-      <div className="min-h-[64px]"></div>
+    <Box role="presentation">
       {Object.keys(ParentRoutes).map((parentRoute) => {
         return chapters
           .chaptersToArray()
@@ -53,7 +30,6 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
                 )}
                 <Link
                   to={`${chapter.chapterContent.route}`}
-                  onClick={(event) => handleListItemClick(event, index)}
                   key={chapter.chapterName}
                 >
                   <div className="py-3 px-4 hover:bg-[#c8cddd]">{`${chapter.chapterContent.title}`}</div>
@@ -67,8 +43,8 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
   );
 
   return (
-    <Drawer open={toggleState} variant="permanent" anchor="left">
-      {list()}
-    </Drawer>
+    <div>
+      <div className="bg-[#fff] max-w-[250px] rounded-lg">{list()}</div>
+    </div>
   );
 }

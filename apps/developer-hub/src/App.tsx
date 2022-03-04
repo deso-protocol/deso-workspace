@@ -14,11 +14,13 @@ function App() {
         <div className="flex-grow">
           <Header />
         </div>
-        <div className="flex-grow">
-          <Routes>{routes}</Routes>
+        <div className="flex-grow flex">
+          {/* <DesoDrawer chapters={CHAPTERS} /> */}
+          <div className="flex-grow">
+            <Routes>{routes}</Routes>
+          </div>
         </div>
       </div>
-      <DesoDrawer chapters={CHAPTERS} />
     </HashRouter>
   );
 }

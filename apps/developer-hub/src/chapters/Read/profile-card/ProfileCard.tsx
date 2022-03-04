@@ -26,7 +26,9 @@ export const ProfileAndFollowerCard = ({
   const [code, setCode] = useState<any | null>(null);
   const getData = async () => {
     setProfile((await deso.user.getSingleProfile(publicKey)).response);
-    setUser(await deso.user.getUserStateless([publicKey]));
+    setUser(
+      await deso.user.getUserStateless({ PublicKeysBase58Check: [publicKey] })
+    );
     setFollows((await deso.social.getFollowsStateless(publicKey)).response);
   };
 

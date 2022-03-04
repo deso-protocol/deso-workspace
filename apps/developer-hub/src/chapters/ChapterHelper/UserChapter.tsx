@@ -1,14 +1,22 @@
 import { Route } from 'react-router-dom';
 import { CHAPTERS, TODOTemplate } from './Chapter.models';
-import { Chapter1Section } from '../Read/ReadSection';
+import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
-import { ParentRoutes } from '../../services/utils';
+import { DEZO_DOG, ParentRoutes } from '../../services/utils';
+import Deso from '@deso-workspace/deso-sdk';
+import { GetUsersStatelessRequest } from '@deso-workspace/deso-types';
+const deso = new Deso();
+// deso.user.getSingleProfile;
+// deso.user.getSingleProfilePicture;
 export const userChapter = {
   GET_USERS_STATELESS: {
     parentRoute: ParentRoutes.user,
     title: 'Get Users Stateless',
     route: '/user/get-users-stateless',
     method: 'get-users-stateless',
+    params: {
+      PublicKeysBase58Check: [DEZO_DOG],
+    } as GetUsersStatelessRequest,
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-users-stateless',
     ],
@@ -21,12 +29,24 @@ export const userChapter = {
           key={this.title}
           path={this.route}
           element={
-            <Chapter1Section
+            <Page
+              method={{
+                methodName: `deso.user.getUserStateless(${JSON.stringify(
+                  this.params,
+                  null,
+                  2
+                )});`,
+                params: {
+                  PublicKeysBase58Check: [DEZO_DOG],
+                } as GetUsersStatelessRequest,
+
+                method: deso.user.getUserStateless,
+              }}
               pretext={PageSection(
                 this.title,
                 <div>
-                  get-users-stateless will query all information on a user or
-                  users.
+                  get-users-stateless will query information on an existing user
+                  or users.
                 </div>
               )}
               requestText="Then we assembled our request object where PublicKeysBased58Check is an array of users that we want to query. SkipForLeaderboard is set to false which returns profile info only"
@@ -58,7 +78,7 @@ export const userChapter = {
           key={this.title}
           path={this.route}
           element={
-            <Chapter1Section
+            <Page
               tabs={[]}
               requestText="Then we Assembled our request object. PublicKeyBase58Check is the public key of the user you're requesting."
               responseText=""
