@@ -6,6 +6,11 @@ import {
   GetUsersStatelessRequest,
   GetSingleProfileResponse,
   GetSingleProfileRequest,
+  GetProfilesRequest,
+  GetProfilesResponse,
+  GetUserMetadataRequest,
+  GetUserMetadataResponse,
+  DeletePIIRequest,
 } from '@deso-workspace/deso-types';
 export class User {
   node: Node;
@@ -13,7 +18,6 @@ export class User {
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;
-    console.log(this);
   }
   public async getUserStateless(
     request: Partial<GetUsersStatelessRequest>
@@ -27,24 +31,52 @@ export class User {
     return `${this.node.uri}/get-single-profile-picture/${PublicKeyBase58Check}`;
   }
 
-  public getSingleProfile = async (
-    PublicKeyBase58Check: string
-  ): Promise<{
-    response: GetSingleProfileResponse;
-    endpoint: string;
-    request: Partial<GetSingleProfileRequest>;
-  }> => {
+  public async getSingleProfile(
+    request: Partial<GetSingleProfileRequest>
+  ): Promise<GetSingleProfileResponse> {
     const endpoint = 'get-single-profile';
-    const request: Partial<GetSingleProfileRequest> = {
-      PublicKeyBase58Check,
-    };
     if (endpoint) {
       const response = (
         await axios.post(`${this.node.uri}/${endpoint}`, request)
       ).data;
-      return { response, endpoint, request };
+      return response;
     } else {
       throw new Error('need to add endpoint value');
     }
-  };
+  }
+  public async getProfiles(
+    request: Partial<GetProfilesRequest>
+  ): Promise<GetProfilesResponse> {
+    const endpoint = 'get-profiles';
+    if (endpoint) {
+      const response = (
+        await axios.post(`${this.node.uri}/${endpoint}`, request)
+      ).data;
+      return response;
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getUserMetadata(
+    request: Partial<GetUserMetadataRequest>
+  ): Promise<GetUserMetadataResponse> {
+    const endpoint = `get-user-metadata/${request.PublicKeyBase58Check}`;
+    if (endpoint) {
+      const response = (await axios.get(`${this.node.uri}/${endpoint}`)).data;
+      return response;
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async deletePii(request: DeletePIIRequest): Promise<boolean> {
+    const endpoint = 'get-profiles';
+    if (endpoint) {
+      await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return true;
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
 }

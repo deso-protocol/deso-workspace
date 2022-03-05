@@ -30,7 +30,7 @@ export interface GetApproveResponse {
   };
 }
 
-export interface GetLoginResponse {
+export interface IdentityLoginResponse {
   id?: string;
   service: string;
   method: string;
@@ -53,4 +53,14 @@ export interface LoginUser {
 
 export interface LoginUsers {
   [user: string]: LoginUser;
+}
+
+export interface IdentityApproveResponse {
+  id?: string;
+  service: string;
+  method: string;
+  payload: {
+    users: LoginUser;
+    signedTransactionHex: string;
+  };
 }

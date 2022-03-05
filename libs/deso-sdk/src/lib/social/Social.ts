@@ -47,19 +47,20 @@ export class Social {
       throw Error('IsUnfollow is undefined');
     }
     request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
-    const response = (
+    const apiResponse = (
       await axios.post(`${this.node.uri}/create-follow-txn-stateless`, request)
     ).data;
-    const payload = getSignerInfo(user, response);
-    const requestToBeSigned = {
-      id: uuid(),
-      method: 'sign',
-      payload,
-      service: 'identity',
-    };
-    await this.identity.sign(requestToBeSigned).catch((e) => {
-      throw Error('something went wrong with submitting the transaction');
-    });
+    await this.identity.approve({ apiResponse });
+    // const payload = getSignerInfo(user, response);
+    // const requestToBeSigned = {
+    //   id: uuid(),
+    //   method: 'sign',
+    //   payload,
+    //   service: 'identity',
+    // };
+    // await this.identity.signAndSubmit(requestToBeSigned).catch((e) => {
+    //   throw Error('something went wrong with submitting the transaction');
+    // });
   }
 
   public async getFollowsStateless(PublicKeyBase58Check: string): Promise<{
@@ -115,19 +116,20 @@ export class Social {
       })
       .flat();
     const { encryptedSeedHex, accessLevel, accessLevelHmac } = user;
-    const approval = await this.identity.approve(encryptedSeedHex);
-    const iFrameRequest = {
-      id: uuid(),
-      method: 'decrypt',
-      payload: {
-        accessLevel,
-        accessLevelHmac,
-        encryptedSeedHex,
-        encryptedMessages,
-      },
-      service: 'identity',
-    };
-    return decrypt(iFrameRequest);
+    // const approval = await this.identity({encryptedSeedHex});
+    // const iFrameRequest = {
+    //   id: uuid(),
+    //   method: 'decrypt',
+    //   payload: {
+    //     accessLevel,
+    //     accessLevelHmac,
+    //     encryptedSeedHex,
+    //     encryptedMessages,
+    //   },
+    //   service: 'identity',
+    // };
+    return [];
+    // return decrypt(iFrameRequest);
   }
 }
 

@@ -50,9 +50,9 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
         PublicKeysBase58Check: [publicKey as string],
       });
 
-      profileInfoResponse = await (
-        await deso.user.getSingleProfile(publicKey)
-      ).response;
+      profileInfoResponse = await await deso.user.getSingleProfile({
+        PublicKeyBase58Check: publicKey,
+      });
       const profilePictureSrc = deso.user.getSingleProfilePicture(
         profileInfoResponse?.Profile?.PublicKeyBase58Check as string
       );

@@ -1,9 +1,12 @@
 import {
   GetApproveResponse,
-  GetLoginResponse,
+  IdentityApproveResponse,
+  IdentityLoginResponse,
+  LoginUser,
 } from '@deso-workspace/deso-types';
 import { Transaction } from '../transaction/Transaction';
 import { Node } from '../../index';
+import { getSignerInfo, uuid } from '../../utils/utils';
 export class Identity {
   node: Node;
   transaction: Transaction;
@@ -11,23 +14,38 @@ export class Identity {
     this.node = node;
     this.transaction = transaction;
   }
-  public approve(transactionHex: string): Promise<GetApproveResponse> {
+  public getUser(): LoginUser {
+    const user = localStorage.getItem('loginUser');
+    if (user) {
+      return JSON.parse(user);
+    }
+    throw Error('User is not logged in');
+  }
+  private approveAndSubmit(
+    transactionHex: string
+  ): Promise<IdentityApproveResponse> {
     const prompt = window.open(
       `https://identity.deso.org/approve?tx=${transactionHex}`,
       null as unknown as any,
       'toolbar=no, width=800, height=1000, top=0, left=0'
     );
+    this.setIdentityFrame();
     return new Promise((resolve, reject) => {
-      const windowHandler = (event: any) => {
-        const signedTransaction = event?.data?.payload?.signedTransactionHex;
+      const windowHandler = ({ data }: { data: IdentityApproveResponse }) => {
+        const signedTransaction = data?.payload?.signedTransactionHex;
         if (signedTransaction) {
-          resolve(signedTransaction);
+          return this.handleSubmit(
+            signedTransaction,
+            windowHandler,
+            resolve,
+            reject
+          ).finally(() => {
+            prompt?.close();
+            window.removeEventListener('message', windowHandler);
+          });
         }
-        prompt?.close();
-
-        window.removeEventListener('message', windowHandler);
+        return;
       };
-      this.setIdentityFrame();
       window.addEventListener('message', windowHandler);
     });
   }
@@ -57,19 +75,21 @@ export class Identity {
     });
   }
 
-  public login(accessLevel = '4'): Promise<GetLoginResponse> {
+  public login(accessLevel = '4'): Promise<IdentityLoginResponse> {
     const prompt = window.open(
       `https://identity.deso.org/log-in?accessLevelRequest=${accessLevel}&hideJumio=true`,
       null as unknown as any,
       'toolbar=no, width=800, height=1000, top=0, left=0'
     );
     return new Promise((resolve, reject) => {
-      const windowHandler = ({ data }: { data: GetLoginResponse }) => {
+      const windowHandler = ({ data }: { data: IdentityLoginResponse }) => {
         if (data.method !== 'login') {
           return;
         }
+        const key = data.payload.publicKeyAdded;
+        const user = data.payload.users[key];
         prompt?.close();
-        localStorage.setItem('loginUser', JSON.stringify(data));
+        localStorage.setItem('loginUser', JSON.stringify(user));
         resolve(data);
 
         window.removeEventListener('message', windowHandler);
@@ -85,7 +105,6 @@ export class Identity {
       null as unknown as any,
       'toolbar=no, width=800, height=1000, top=0, left=0'
     );
-
     return new Promise((resolve, reject) => {
       const windowHandler = (event: any) => {
         if (event.data.method === 'login') {
@@ -97,6 +116,34 @@ export class Identity {
       };
       window.addEventListener('message', windowHandler);
     });
+  }
+  public async approve(request: {
+    apiResponse: { TransactionHex: string };
+    user?: LoginUser;
+  }) {
+    // no user needs to be approved
+    if (!request.user && request?.apiResponse?.TransactionHex) {
+      return await this.approveAndSubmit(request?.apiResponse?.TransactionHex)
+        .then(() => request)
+        .catch(() => {
+          throw Error('something went wrong while signing');
+        });
+    }
+    // doesn't have a transaction and no user is provided
+    if (!request.user) {
+      throw Error('No user provided');
+    }
+    const payload = getSignerInfo(request.user, request.apiResponse);
+    return this.signAndSubmit({
+      id: uuid(),
+      method: 'sign',
+      payload,
+      service: 'identity',
+    })
+      .then(() => request.apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   private setIdentityFrame(createNewIdentityFrame = false): void {
@@ -124,8 +171,24 @@ export class Identity {
       root.appendChild(frame);
     }
   }
-
-  public sign(request: any): Promise<any> {
+  private handleSubmit(
+    signedTransactionHex: string,
+    windowHandler: (event: any) => null,
+    resolve: (value: any) => void,
+    reject: (reason?: any) => void
+  ): Promise<any> {
+    return this.transaction
+      .submit(signedTransactionHex, this.node.uri)
+      .then((response: any) => {
+        window.removeEventListener('message', windowHandler);
+        resolve(response);
+      })
+      .catch(() => {
+        window.removeEventListener('message', windowHandler);
+        reject();
+      });
+  }
+  public signAndSubmit(request: any): Promise<any> {
     const iframe: HTMLIFrameElement | null = document.getElementById(
       'identity'
     ) as HTMLIFrameElement;
@@ -136,16 +199,14 @@ export class Identity {
     return new Promise((resolve, reject) => {
       const windowHandler = (event: any) => {
         if (event?.data?.payload?.signedTransactionHex) {
-          return this.transaction
-            .submit(event?.data?.payload?.signedTransactionHex, this.node.uri)
-            .then((response: any) => {
-              window.removeEventListener('message', windowHandler);
-              resolve(response);
-            })
-            .catch(() => {
-              window.removeEventListener('message', windowHandler);
-              reject();
-            });
+          this.handleSubmit(
+            event?.data?.payload?.signedTransactionHex,
+            windowHandler,
+            resolve,
+            reject
+          ).finally(() => {
+            window.removeEventListener('message', windowHandler);
+          });
         }
 
         return null;

@@ -1,19 +1,25 @@
 import { Route } from 'react-router-dom';
 import { CHAPTERS, TODOTemplate } from './Chapter.models';
 import { SubmitPostPage } from '../Write/submit-post/submit-post-page';
-import { ParentRoutes } from '../../services/utils';
+import { DEZO_DOG, ParentRoutes } from '../../services/utils';
+import Page from '../Read/Page';
+import Deso from '@deso-workspace/deso-sdk';
+import {
+  GetProfilesRequest,
+  SubmitPostRequest,
+} from '@deso-workspace/deso-types';
+import { PageSection } from './PageSections';
+const deso = new Deso();
 export const postChapter = {
-  SUBMIT_POST: {
-    parentRoute: ParentRoutes.posts,
-    title: 'Submit Post',
-    route: '/post/submit-post',
-    documentation: [],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/Transaction.interface.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
+  GET_PROFILES: {
+    parentRoute: ParentRoutes.user,
+    title: 'Get Profiles',
+    route: '/user/get-profiles',
+    params: { PublicKeyBase58Check: DEZO_DOG } as GetProfilesRequest,
+    method: deso.user.getProfiles,
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/user-endpoints#get-profiles',
     ],
     component: function () {
       return (
@@ -21,7 +27,69 @@ export const postChapter = {
           key={this.title}
           path={this.route}
           element={
-            <SubmitPostPage chapters={CHAPTERS} selectedChapter={this} />
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.getProfiles(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  As it sounds get-single-profile, fetches various data around a
+                  single profile. This call is useful if you want common display
+                  data for a user.{' '}
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  SUBMIT_POST: {
+    parentRoute: ParentRoutes.posts,
+    title: 'Submit Post',
+    route: '/post/submit-post',
+    documentation: [],
+    githubSource: [],
+    method: deso.posts.submitPost,
+    params: {
+      UpdaterPublicKeyBase58Check: DEZO_DOG,
+      BodyObj: {
+        Body: `Checking out the developer hub`,
+        VideoURLs: [],
+        ImageURLs: [],
+      },
+    } as unknown as Partial<SubmitPostRequest>,
+
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.getProfiles(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  As it sounds get-single-profile, fetches various data around a
+                  single profile. This call is useful if you want common display
+                  data for a user.{' '}
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
           }
         ></Route>
       );

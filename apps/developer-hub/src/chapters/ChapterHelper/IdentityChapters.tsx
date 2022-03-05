@@ -73,12 +73,9 @@ export const identityChapter = {
 //                 permissional level approval is needed
 //               </div>
 //             )}
-//             requestText=""
-//             responseText=""
 //             tabs={[]}
 //             chapters={CHAPTERS}
 //             selectedChapter={this}
-//             apiCall={deso.identity.approve.bind(deso)}
 //           />
 //         }
 //       ></Route>

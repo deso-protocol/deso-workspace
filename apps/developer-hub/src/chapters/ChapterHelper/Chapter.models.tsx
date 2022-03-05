@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { Route } from 'react-router-dom';
 import SampleApp from '../../components/layout/SampleApp';
 import { ReactElement } from 'react';
@@ -19,6 +20,7 @@ import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
 import { ParentRoutes } from '../../services/utils';
 import DesoDrawer from '../../components/layout/Drawer';
+import { PageProps } from '../Read/Page';
 export interface TODOProps {
   selectedChapter: any;
   chapters: ChapterNavigation;
@@ -346,7 +348,7 @@ export interface Chapter {
   title: string;
   route: string;
   parentRoute: ParentRoutes;
-  method?: string;
+  method?: PageProps | any;
   documentation: string[];
   githubSource: string[];
   component: () => ReactElement;

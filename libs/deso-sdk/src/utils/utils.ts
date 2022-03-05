@@ -1,3 +1,5 @@
+import { LoginUser } from '@deso-workspace/deso-types';
+
 export const uuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0,
@@ -6,7 +8,10 @@ export const uuid = () => {
   });
 };
 
-export const getSignerInfo = (user: any, transaction: any): any => {
+export const getSignerInfo = (
+  user: LoginUser,
+  transaction: { TransactionHex: string }
+): any => {
   const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
   const { TransactionHex } = transaction;
   return {

@@ -17,7 +17,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
           .filter((c) => c.chapterContent.parentRoute === parentRoute)
           .map((chapter, index) => {
             return (
-              <>
+              <div key={index}>
                 {index === 0 ? (
                   <>
                     <div className="py-3 px-4 text-xl bg-[#1976d2] text-[#fff]">
@@ -29,13 +29,16 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
                   <></>
                 )}
                 <Link
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' } as any);
+                  }}
                   to={`${chapter.chapterContent.route}`}
                   key={chapter.chapterName}
                 >
                   <div className="py-3 px-4 hover:bg-[#c8cddd]">{`${chapter.chapterContent.title}`}</div>
                   <Divider />
                 </Link>
-              </>
+              </div>
             );
           });
       })}
@@ -44,7 +47,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
 
   return (
     <div>
-      <div className="bg-[#fff] max-w-[250px] rounded-lg">{list()}</div>
+      <div className="bg-[#fff] min-w-[250px] rounded-lg">{list()}</div>
     </div>
   );
 }

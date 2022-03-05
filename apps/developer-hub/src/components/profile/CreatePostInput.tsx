@@ -7,15 +7,24 @@ import {
   desoService,
   PublicKey,
 } from '../../chapters/ChapterHelper/Chapter.atom';
+import { LoginUser } from '@deso-workspace/deso-types';
 export default function CreatePostInput() {
   const deso = useRecoilValue(desoService);
   const myPublicKey = useRecoilValue(PublicKey);
   const [postBody, setPostBody] = useState<string | null>(null);
-  const loggedInUser = useRecoilValue(SampleAppLoggedInUser);
   const createPost = () => {
-    if (myPublicKey && postBody && loggedInUser) {
-      deso.posts.submitPost(myPublicKey, loggedInUser, postBody);
-      // .then((response: any) => {});
+    if (myPublicKey && postBody) {
+      deso.posts.submitPost(
+        {
+          UpdaterPublicKeyBase58Check: myPublicKey,
+          BodyObj: {
+            Body: postBody,
+            ImageURLs: [],
+            VideoURLs: [],
+          },
+        },
+        deso.identity.getUser()
+      );
     }
   };
   return (

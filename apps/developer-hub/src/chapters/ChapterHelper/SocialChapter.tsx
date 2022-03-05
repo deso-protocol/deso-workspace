@@ -32,12 +32,9 @@ export const socialChapter = {
                   an array of followers for a specific account.{' '}
                 </div>
               )}
-              requestText="Then we provide PublicKeyBase58Check which tell the endpoint who's followers to query. GetEntriesFollowingUsername returns only followers who are also following the public key(s), numToFetch determines how many followers to return per user."
-              responseText=""
               tabs={[]}
               chapters={CHAPTERS}
               selectedChapter={this}
-              apiCall={'getFollowsStateless'}
             />
           }
         ></Route>

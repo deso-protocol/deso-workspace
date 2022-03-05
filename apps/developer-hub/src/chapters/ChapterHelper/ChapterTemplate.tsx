@@ -69,7 +69,9 @@ export default function DeSoTabs({ tabs, navigation }: TabProps) {
             aria-label="basic tabs example"
           >
             {tabs.map((tab, index) => {
-              return <Tab label={tab.title} {...a11yProps(index)} />;
+              return (
+                <Tab key={index} label={tab.title} {...a11yProps(index)} />
+              );
             })}
           </Tabs>
 
