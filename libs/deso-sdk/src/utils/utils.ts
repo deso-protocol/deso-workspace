@@ -1,4 +1,5 @@
 import {
+  GetPostsStatelessRequest,
   IdentityJwtRequest,
   IdentitySignRequest,
   LoginUser,
@@ -43,4 +44,15 @@ export const getJwtInfo = (user: LoginUser): IdentityJwtRequest => {
       accessLevel,
     },
   };
+};
+export const throwErrors = (
+  requiredAttributes: string[],
+  request: Partial<GetPostsStatelessRequest>
+): void => {
+  requiredAttributes.forEach((attrName: string) => {
+    const doesExist = (request as any)[attrName];
+    if (!doesExist) {
+      throw Error(`${attrName} is required`);
+    }
+  });
 };

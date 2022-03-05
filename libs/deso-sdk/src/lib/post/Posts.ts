@@ -1,6 +1,21 @@
 import {
+  GetDiamondsForPostRequest,
+  GetDiamondsForPostResponse,
+  GetLikesForPostRequest,
+  GetLikesForPostResponse,
+  GetPostsDiamondedBySenderForReceiverRequest,
+  GetPostsDiamondedBySenderForReceiverResponse,
   GetPostsForPublicKeyRequest,
   GetPostsForPublicKeyResponse,
+  GetPostsStatelessRequest,
+  GetPostsStatelessResponse,
+  GetQuoteRepostsForPostRequest,
+  GetQuoteRepostsForPostResponse,
+  GetRepostsForPostRequest,
+  GetSinglePostRequest,
+  GetSinglePostResponse,
+  HotFeedPageRequest,
+  HotFeedPageResponse,
   LoginUser,
   SubmitPostRequest,
   SubmitPostResponse,
@@ -8,6 +23,7 @@ import {
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { Node } from '../../index';
+import { throwErrors } from '../../utils/utils';
 export class Posts {
   node: Node;
   identity: Identity;
@@ -63,6 +79,95 @@ export class Posts {
         .catch(() => {
           throw Error('something went wrong while signing');
         });
+    }
+  }
+  public async getPostsStateless(
+    request: Partial<GetPostsStatelessRequest>
+  ): Promise<GetPostsStatelessResponse> {
+    // throwErrors(['PublicKeyBase58Check'], request);
+    const endpoint = 'get-posts-stateless';
+    const JWT = await this.identity.getJwt();
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+  public async getSinglePost(
+    request: Partial<GetSinglePostRequest>
+  ): Promise<GetSinglePostResponse> {
+    throwErrors(['PostHashHex'], request);
+    const endpoint = 'get-single-post';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getHotFeed(
+    request: Partial<HotFeedPageRequest>
+  ): Promise<HotFeedPageResponse> {
+    const endpoint = 'get-hot-feed';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getDiamondedPosts(
+    request: Partial<GetPostsDiamondedBySenderForReceiverRequest>
+  ): Promise<GetPostsDiamondedBySenderForReceiverResponse> {
+    const endpoint = 'get-diamonded-posts';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getLikesForPost(
+    request: Partial<GetLikesForPostRequest>
+  ): Promise<GetLikesForPostResponse> {
+    const endpoint = 'get-likes-for-post';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getDiamondsForPost(
+    request: Partial<GetDiamondsForPostRequest>
+  ): Promise<GetDiamondsForPostResponse> {
+    const endpoint = 'get-diamonds-for-post';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getRepostsForPost(
+    request: Partial<GetRepostsForPostRequest>
+  ): Promise<HotFeedPageResponse> {
+    const endpoint = 'get-reposts-for-post';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async getQuoteRepostsForPost(
+    request: Partial<GetQuoteRepostsForPostRequest>
+  ): Promise<GetQuoteRepostsForPostResponse> {
+    const endpoint = 'get-quote-reposts-for-post';
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+    } else {
+      throw new Error('need to add endpoint value');
     }
   }
 }

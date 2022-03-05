@@ -2,7 +2,7 @@ import { Route } from 'react-router-dom';
 import { CHAPTERS, TODOTemplate } from './Chapter.models';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
-import { DEZO_DOG, ParentRoutes } from '../../services/utils';
+import { DEZO_DOG, ParentRoutes, RUSSIA } from '../../services/utils';
 import Deso from '@deso-workspace/deso-sdk';
 import {
   GetSingleProfileRequest,
@@ -10,6 +10,7 @@ import {
   GetProfilesRequest,
   GetUserMetadataRequest,
   DeletePIIRequest,
+  BlockPublicKeyRequest,
 } from '@deso-workspace/deso-types';
 const deso = new Deso();
 // deso.user.getSingleProfile;
@@ -41,10 +42,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  get-users-stateless will query information on an existing user
-                  or users.
-                </div>
+                <div>Will query information on an existing user or users.</div>
               )}
               tabs={[]}
               chapters={CHAPTERS}
@@ -121,7 +119,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>gets the profiles following a specific user</div>
+                <div>Gets the profiles following a specific user.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -231,7 +229,7 @@ export const userChapter = {
             <Page
               tabs={[]}
               method={{
-                methodName: `deso.user.approveAndJwt(request)`,
+                methodName: `deso.user.deletePii(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -255,6 +253,11 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Block Public Key',
     route: '/user/block-public-key',
+    params: {
+      PublicKeyBase58Check: DEZO_DOG,
+      BlockPublicKeyBase58Check: RUSSIA,
+    } as BlockPublicKeyRequest,
+    method: deso.user.blockPublicKey,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/user-endpoints#block-public-key',
@@ -264,7 +267,22 @@ export const userChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.blockPublicKey(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Block a specific account.</div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
         ></Route>
       );
     },
@@ -272,7 +290,11 @@ export const userChapter = {
   GET_USER_DERIVED_KEYS: {
     parentRoute: ParentRoutes.user,
     title: 'Get User Derived Keys',
-    route: '/user/get_user_derived_keys',
+    route: '/user/get-user-derived-keys',
+    params: {
+      PublicKeyBase58Check: DEZO_DOG,
+    } as BlockPublicKeyRequest,
+    method: deso.user.getUserDerivedKeys,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/user-endpoints#get-user-derived-keys',
@@ -282,7 +304,25 @@ export const userChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.getUserDerivedKeys(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Get a map of derived public keys to metadata about that
+                  derived key for a given master public key.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
         ></Route>
       );
     },
@@ -291,6 +331,8 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Delete Identities',
     route: '/user/delete_identities',
+    params: undefined,
+    method: deso.user.getUserDerivedKeys,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/user-endpoints#delete-identities',
@@ -300,7 +342,25 @@ export const userChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.getUserDerivedKeys(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Get a map of derived public keys to metadata about that
+                  derived key for a given master public key.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
         ></Route>
       );
     },

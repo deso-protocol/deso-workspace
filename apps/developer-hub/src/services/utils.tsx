@@ -20,8 +20,13 @@ export enum ParentRoutes {
   node = 'node',
   none = 'none',
 }
+
+export const RUSSIA: Readonly<string> =
+  'BC1YLhxfpQ3SHhoJRbYpYdz1FS2CAxpymkPEGUoDZVYLXH1eGdW2pmY';
 export const DEZO_DOG: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
+export const SAMPLE_POST =
+  'd30d715dfdc59955ae239635833367dd6c367bb52771bc47f507ccfb4060d53a';
 export const getFollowerCount = (userInfoResponse: any): number => {
   const followers =
     userInfoResponse?.UserList[0]?.PublicKeysBase58CheckFollowedByUser?.length;

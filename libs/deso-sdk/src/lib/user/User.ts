@@ -11,6 +11,10 @@ import {
   GetUserMetadataRequest,
   GetUserMetadataResponse,
   DeletePIIRequest,
+  BlockPublicKeyRequest,
+  GetUserDerivedKeysRequest,
+  BlockPublicKeyResponse,
+  GetUserDerivedKeysResponse,
 } from '@deso-workspace/deso-types';
 export class User {
   node: Node;
@@ -79,6 +83,45 @@ export class User {
     if (endpoint) {
       await axios.post(`${this.node.uri}/${endpoint}`, { ...request, JWT });
       return true;
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+
+  public async blockPublicKey(
+    request: Partial<BlockPublicKeyRequest>
+  ): Promise<BlockPublicKeyResponse> {
+    if (!request.PublicKeyBase58Check) {
+      throw Error('PublicKeyBase58Check is undefined');
+    }
+
+    if (!request.BlockPublicKeyBase58Check) {
+      throw Error('BlockPublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'block-public-key';
+    const JWT = await this.identity.getJwt();
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, {
+        ...request,
+        JWT,
+      });
+    } else {
+      throw new Error('need to add endpoint value');
+    }
+  }
+  public async getUserDerivedKeys(
+    request: Partial<GetUserDerivedKeysRequest>
+  ): Promise<GetUserDerivedKeysResponse> {
+    if (!request.PublicKeyBase58Check) {
+      throw Error('PublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'get-user-derived-keys';
+    const JWT = await this.identity.getJwt();
+    if (endpoint) {
+      return await axios.post(`${this.node.uri}/${endpoint}`, {
+        ...request,
+        JWT,
+      });
     } else {
       throw new Error('need to add endpoint value');
     }
