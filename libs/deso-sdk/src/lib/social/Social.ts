@@ -10,9 +10,8 @@ import {
   SendMessageStatelessRequest,
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
-import { getSignerInfo, uuid } from '../../utils/utils';
 import { Identity } from '../identity/Identity';
-import { Node } from '../../index';
+import Deso, { Node } from '../../index';
 
 export class Social {
   node: Node;

@@ -70,10 +70,14 @@ export class User {
     }
   }
 
-  public async deletePii(request: DeletePIIRequest): Promise<boolean> {
-    const endpoint = 'get-profiles';
+  public async deletePii(request: Partial<DeletePIIRequest>): Promise<boolean> {
+    if (!request.PublicKeyBase58Check) {
+      throw Error('PublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'delete-pii';
+    const JWT = await this.identity.getJwt();
     if (endpoint) {
-      await axios.post(`${this.node.uri}/${endpoint}`, request);
+      await axios.post(`${this.node.uri}/${endpoint}`, { ...request, JWT });
       return true;
     } else {
       throw new Error('need to add endpoint value');

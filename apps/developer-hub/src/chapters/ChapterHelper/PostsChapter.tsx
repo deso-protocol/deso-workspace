@@ -79,14 +79,7 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(
-                this.title,
-                <div>
-                  As it sounds get-single-profile, fetches various data around a
-                  single profile. This call is useful if you want common display
-                  data for a user.{' '}
-                </div>
-              )}
+              pretext={PageSection(this.title, <div>Submit a post</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />

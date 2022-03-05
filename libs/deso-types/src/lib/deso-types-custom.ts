@@ -13,7 +13,7 @@ export interface GetDecryptMessagesResponse {
 
 export interface GetApproveResponse {
   id?: string;
-  service: string;
+  service: 'identity';
   method: 'approve';
   payload: {
     users: {
@@ -32,7 +32,7 @@ export interface GetApproveResponse {
 
 export interface IdentityLoginResponse {
   id?: string;
-  service: string;
+  service: 'identity';
   method: string;
   payload: {
     users: LoginUsers;
@@ -57,10 +57,41 @@ export interface LoginUsers {
 
 export interface IdentityApproveResponse {
   id?: string;
-  service: string;
+  service: 'identity';
   method: string;
   payload: {
     users: LoginUser;
     signedTransactionHex: string;
+  };
+}
+
+export interface IdentityJwtResponse {
+  id: string;
+  service: 'identity';
+  payload: {
+    jwt: string;
+  };
+}
+
+export interface IdentityJwtRequest {
+  id: string;
+  service: 'identity';
+  method: 'jwt';
+  payload: {
+    accessLevel: number;
+    accessLevelHmac: string;
+    encryptedSeedHex: string;
+  };
+}
+
+export interface IdentitySignRequest {
+  id: string;
+  service: string;
+  method: string;
+  payload: {
+    accessLevel: number;
+    accessLevelHmac: string;
+    encryptedSeedHex: string;
+    transactionHex: string;
   };
 }

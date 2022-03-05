@@ -9,6 +9,7 @@ import {
   GetUsersStatelessRequest,
   GetProfilesRequest,
   GetUserMetadataRequest,
+  DeletePIIRequest,
 } from '@deso-workspace/deso-types';
 const deso = new Deso();
 // deso.user.getSingleProfile;
@@ -120,11 +121,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  As it sounds get-single-profile, fetches various data around a
-                  single profile. This call is useful if you want common display
-                  data for a user.{' '}
-                </div>
+                <div>gets the profiles following a specific user</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -166,11 +163,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  As it sounds get-single-profile, fetches various data around a
-                  single profile. This call is useful if you want common display
-                  data for a user.{' '}
-                </div>
+                <div>Gets the profile picture for a specific account.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -185,7 +178,10 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get User Metadata',
     route: '/user/get-user-metadata',
-    params: { PublicKeyBase58Check: DEZO_DOG } as GetUserMetadataRequest,
+    params: {
+      PublicKeyBase58Check: DEZO_DOG,
+      jwt: 'jwt',
+    } as GetUserMetadataRequest,
     method: deso.user.getUserMetadata,
     githubSource: [],
     documentation: [
@@ -206,11 +202,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  As it sounds get-single-profile, fetches various data around a
-                  single profile. This call is useful if you want common display
-                  data for a user.{' '}
-                </div>
+                <div>Gets metadata for a specific user.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -223,7 +215,9 @@ export const userChapter = {
   DELETE_PII: {
     parentRoute: ParentRoutes.user,
     title: 'Delete Pii',
-    route: '/user/delete_pii',
+    route: '/user/delete-pii',
+    params: { PublicKeyBase58Check: DEZO_DOG } as DeletePIIRequest,
+    method: deso.user.deletePii,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/user-endpoints#delete-pii-personal-identifiable-information',
@@ -233,7 +227,25 @@ export const userChapter = {
         <Route
           key={this.title}
           path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: `deso.user.approveAndJwt(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Delete personal information such as email and phone number
+                  from the account
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
         ></Route>
       );
     },

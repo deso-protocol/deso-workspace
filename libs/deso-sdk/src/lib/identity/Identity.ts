@@ -1,18 +1,25 @@
 import {
-  GetApproveResponse,
   IdentityApproveResponse,
+  IdentityJwtResponse,
   IdentityLoginResponse,
+  IdentitySignRequest,
   LoginUser,
 } from '@deso-workspace/deso-types';
 import { Transaction } from '../transaction/Transaction';
 import { Node } from '../../index';
-import { getSignerInfo, uuid } from '../../utils/utils';
+import { getJwtInfo, getSignRequest } from '../../utils/utils';
 export class Identity {
   node: Node;
   transaction: Transaction;
   constructor(transaction: Transaction, node: Node) {
     this.node = node;
     this.transaction = transaction;
+  }
+  public getIframe() {
+    const iframe: HTMLIFrameElement | null = document.getElementById(
+      'identity'
+    ) as HTMLIFrameElement;
+    return iframe;
   }
   public getUser(): LoginUser {
     const user = localStorage.getItem('loginUser');
@@ -94,7 +101,6 @@ export class Identity {
 
         window.removeEventListener('message', windowHandler);
       };
-      this.setIdentityFrame();
       window.addEventListener('message', windowHandler);
     });
   }
@@ -133,13 +139,8 @@ export class Identity {
     if (!request.user) {
       throw Error('No user provided');
     }
-    const payload = getSignerInfo(request.user, request.apiResponse);
-    return this.signAndSubmit({
-      id: uuid(),
-      method: 'sign',
-      payload,
-      service: 'identity',
-    })
+    const signRequest = getSignRequest(request.user, request.apiResponse);
+    return this.signAndSubmit(signRequest)
       .then(() => request.apiResponse)
       .catch(() => {
         throw Error('something went wrong while signing');
@@ -188,14 +189,8 @@ export class Identity {
         reject();
       });
   }
-  public signAndSubmit(request: any): Promise<any> {
-    const iframe: HTMLIFrameElement | null = document.getElementById(
-      'identity'
-    ) as HTMLIFrameElement;
-    if (iframe === null) {
-      throw Error('Iframe with id identity does not exist');
-    }
-    iframe.contentWindow?.postMessage(request, '*');
+  public signAndSubmit(request: IdentitySignRequest): Promise<any> {
+    this.getIframe().contentWindow?.postMessage(request, '*');
     return new Promise((resolve, reject) => {
       const windowHandler = (event: any) => {
         if (event?.data?.payload?.signedTransactionHex) {
@@ -210,6 +205,28 @@ export class Identity {
         }
 
         return null;
+      };
+      window.addEventListener('message', windowHandler);
+    });
+  }
+  public async getJwt(): Promise<string> {
+    let user = this.getUser();
+    if (!user) {
+      const response = await this.login().catch((e) => {
+        throw e;
+      });
+      const key = response.payload.publicKeyAdded;
+      user = response.payload.users[key];
+    }
+    const request = getJwtInfo({ ...user });
+    this.getIframe().contentWindow?.postMessage(request, '*');
+    return new Promise((resolve, reject) => {
+      const windowHandler = ({ data }: { data: IdentityJwtResponse }) => {
+        console.log(data);
+        if (data.payload.jwt) {
+          resolve(data.payload.jwt);
+          window.removeEventListener('message', windowHandler);
+        }
       };
       window.addEventListener('message', windowHandler);
     });

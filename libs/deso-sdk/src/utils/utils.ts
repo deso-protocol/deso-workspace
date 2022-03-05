@@ -1,4 +1,8 @@
-import { LoginUser } from '@deso-workspace/deso-types';
+import {
+  IdentityJwtRequest,
+  IdentitySignRequest,
+  LoginUser,
+} from '@deso-workspace/deso-types';
 
 export const uuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -8,16 +12,35 @@ export const uuid = () => {
   });
 };
 
-export const getSignerInfo = (
+export const getSignRequest = (
   user: LoginUser,
   transaction: { TransactionHex: string }
-): any => {
+): IdentitySignRequest => {
   const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
   const { TransactionHex } = transaction;
+
   return {
-    accessLevelHmac,
-    encryptedSeedHex,
-    accessLevel,
-    transactionHex: TransactionHex,
+    id: uuid(),
+    service: 'identity',
+    method: 'jwt',
+    payload: {
+      accessLevelHmac,
+      encryptedSeedHex,
+      accessLevel,
+      transactionHex: TransactionHex,
+    },
+  };
+};
+export const getJwtInfo = (user: LoginUser): IdentityJwtRequest => {
+  const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
+  return {
+    id: uuid(),
+    service: 'identity',
+    method: 'jwt',
+    payload: {
+      accessLevelHmac,
+      encryptedSeedHex,
+      accessLevel,
+    },
   };
 };
