@@ -29,6 +29,13 @@ export class Identity {
     }
     return null;
   }
+  public getUserKey(): string | null {
+    const key = localStorage.getItem('login_key');
+    if (key) {
+      return JSON.parse(key);
+    }
+    return null;
+  }
 
   public async initialize(): Promise<any> {
     if (this.getIframe()) {
@@ -70,6 +77,7 @@ export class Identity {
         const user = data.payload.users[key];
         prompt?.close();
         localStorage.setItem('login_user', JSON.stringify(user));
+        localStorage.setItem('login_key', key);
         resolve(data);
 
         window.removeEventListener('message', windowHandler);
@@ -139,29 +147,6 @@ export class Identity {
       user = this.getUser();
     }
     return await callIdentityMethodAndExecute(encryptedMessages, 'decrypt');
-    // if (!request?.payload?.encryptedMessage) {
-    //   throw Error('Encrypted Messages are were not Included');
-    // }
-    // const iframe = this.getIframe();
-    // if (iframe === null) {
-    //   throw Error('Iframe with id identity does not exist');
-    // }
-    // iframe.contentWindow?.postMessage(request, '*');
-    // return new Promise((resolve) => {
-    //   const windowHandler = (event: any) => {
-    //     if (!event?.data?.payload?.decryptedHexes) {
-    //       return;
-    //     }
-    //     const decryptedHexes = event?.data?.payload?.decryptedHexes;
-    //     const messages = request.payload?.encryptedMessage;
-    //     const thread = (messages as GetDecryptMessagesResponse[])?.map((m) => {
-    //       const DecryptedMessage = decryptedHexes[m.EncryptedHex];
-    //       return { ...m, DecryptedMessage };
-    //     });
-    //     resolve(thread);
-    //   };
-    //   window.addEventListener('message', windowHandler);
-    // });
   }
 
   public async getJwt(): Promise<string> {

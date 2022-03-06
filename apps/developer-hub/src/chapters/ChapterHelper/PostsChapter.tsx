@@ -29,7 +29,7 @@ export const postChapter = {
     githubSource: [],
     method: deso.posts.submitPost,
     params: {
-      UpdaterPublicKeyBase58Check: DEZO_DOG,
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
       BodyObj: {
         Body: `Checking out the developer hub`,
         VideoURLs: [],
