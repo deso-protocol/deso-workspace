@@ -61,14 +61,11 @@ export const CreateFollowTransactionPage = ({
               {PageSection(
                 CommonPageSectionTitles.TRY_IT_OUT,
                 ClickHereSnippet(async () => {
-                  deso.social.createFollowTxnStateless(
-                    {
-                      FollowedPublicKeyBase58Check: DEZO_DOG,
-                      FollowerPublicKeyBase58Check: myPublicKey,
-                      IsUnfollow: follow,
-                    } as CreateFollowTxnStatelessRequest,
-                    loggedInUser as LoginUser
-                  );
+                  deso.social.createFollowTxnStateless({
+                    FollowedPublicKeyBase58Check: DEZO_DOG,
+                    FollowerPublicKeyBase58Check: myPublicKey,
+                    IsUnfollow: follow,
+                  } as CreateFollowTxnStatelessRequest);
                   setFollow(!follow);
                 }, 'to follow/un-follow @DeZoDog')
               )}

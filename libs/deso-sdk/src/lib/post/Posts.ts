@@ -16,7 +16,6 @@ import {
   GetSinglePostResponse,
   HotFeedPageRequest,
   HotFeedPageResponse,
-  LoginUser,
   SubmitPostRequest,
   SubmitPostResponse,
 } from '@deso-workspace/deso-types';
@@ -43,13 +42,15 @@ export class Posts {
       NumToFetch: 10,
     };
     return (
-      await axios.post(`${this.node.uri}/get-posts-for-public-key`, request)
+      await axios.post(
+        `${this.node.getUri()}/get-posts-for-public-key`,
+        request
+      )
     ).data;
   }
 
   public async submitPost(
-    request: Partial<SubmitPostRequest>,
-    user: LoginUser
+    request: Partial<SubmitPostRequest>
   ): Promise<SubmitPostResponse> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
@@ -62,33 +63,23 @@ export class Posts {
     }
 
     const apiResponse: SubmitPostResponse = (
-      await axios.post(`${this.node.uri}/submit-post`, request)
+      await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
 
-    if (!user) {
-      return await this.identity
-        .approve({ apiResponse })
-        .then(() => apiResponse)
-        .catch(() => {
-          throw Error('something went wrong while signing');
-        });
-    } else {
-      return this.identity
-        .approve({ user, apiResponse })
-        .then(() => apiResponse)
-        .catch(() => {
-          throw Error('something went wrong while signing');
-        });
-    }
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
+
   public async getPostsStateless(
     request: Partial<GetPostsStatelessRequest>
   ): Promise<GetPostsStatelessResponse> {
-    // throwErrors(['PublicKeyBase58Check'], request);
     const endpoint = 'get-posts-stateless';
-    const JWT = await this.identity.getJwt();
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -99,7 +90,7 @@ export class Posts {
     throwErrors(['PostHashHex'], request);
     const endpoint = 'get-single-post';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -110,7 +101,7 @@ export class Posts {
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-hot-feed';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -121,7 +112,7 @@ export class Posts {
   ): Promise<GetPostsDiamondedBySenderForReceiverResponse> {
     const endpoint = 'get-diamonded-posts';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -132,7 +123,7 @@ export class Posts {
   ): Promise<GetLikesForPostResponse> {
     const endpoint = 'get-likes-for-post';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -143,7 +134,7 @@ export class Posts {
   ): Promise<GetDiamondsForPostResponse> {
     const endpoint = 'get-diamonds-for-post';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -154,7 +145,7 @@ export class Posts {
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-reposts-for-post';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }
@@ -165,7 +156,7 @@ export class Posts {
   ): Promise<GetQuoteRepostsForPostResponse> {
     const endpoint = 'get-quote-reposts-for-post';
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, request);
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
     } else {
       throw new Error('need to add endpoint value');
     }

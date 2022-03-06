@@ -14,17 +14,14 @@ export default function CreatePostInput() {
   const [postBody, setPostBody] = useState<string | null>(null);
   const createPost = () => {
     if (myPublicKey && postBody) {
-      deso.posts.submitPost(
-        {
-          UpdaterPublicKeyBase58Check: myPublicKey,
-          BodyObj: {
-            Body: postBody,
-            ImageURLs: [],
-            VideoURLs: [],
-          },
+      deso.posts.submitPost({
+        UpdaterPublicKeyBase58Check: myPublicKey,
+        BodyObj: {
+          Body: postBody,
+          ImageURLs: [],
+          VideoURLs: [],
         },
-        deso.identity.getUser()
-      );
+      });
     }
   };
   return (

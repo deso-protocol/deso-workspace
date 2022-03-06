@@ -75,10 +75,7 @@ export const GetMessageStatelessPage = ({
                     className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
                     onClick={async () => {
                       deso.social
-                        .getMessagesStateless(
-                          request,
-                          loggedInUser as LoginUser
-                        )
+                        .getMessagesStateless(request)
                         .then((response) => {
                           response.slice(0, 4);
                           setFinalResponse(response);
@@ -101,7 +98,9 @@ export const GetMessageStatelessPage = ({
                     <div className="list-decimal">
                       <li>
                         First we sent a post request to:
-                        {jsonBlock(`${deso.node.uri}/get-messages-stateless`)}
+                        {jsonBlock(
+                          `${deso.node.getUri()}/get-messages-stateless`
+                        )}
                       </li>
                       <li>
                         The following payload is included on the post, where

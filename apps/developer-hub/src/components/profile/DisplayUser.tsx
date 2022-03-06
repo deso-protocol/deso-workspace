@@ -58,9 +58,9 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
       );
       setUser({ profileInfoResponse, userInfoResponse });
       setProfilePicture(profilePictureSrc);
-      const followers = await (
-        await deso.social.getFollowsStateless(publicKey)
-      ).response;
+      const followers = await deso.social.getFollowsStateless({
+        PublicKeyBase58Check: publicKey,
+      });
       setUserFollowers(followers);
     }
   };

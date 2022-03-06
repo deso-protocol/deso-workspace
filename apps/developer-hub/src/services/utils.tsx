@@ -20,7 +20,8 @@ export enum ParentRoutes {
   node = 'node',
   none = 'none',
 }
-
+export const TYLER: Readonly<string> =
+  'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';
 export const RUSSIA: Readonly<string> =
   'BC1YLhxfpQ3SHhoJRbYpYdz1FS2CAxpymkPEGUoDZVYLXH1eGdW2pmY';
 export const DEZO_DOG: Readonly<string> =

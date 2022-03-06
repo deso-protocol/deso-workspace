@@ -66,19 +66,16 @@ const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
     if (loggedInUser === null) {
       return;
     }
-    const response = await deso.social.getMessagesStateless(
-      {
-        NumToFetch: 25,
-        PublicKeyBase58Check: myPublicKey as string,
-        FetchAfterPublicKeyBase58Check: '',
-        HoldersOnly: false,
-        FollowersOnly: false,
-        FollowingOnly: false,
-        HoldingsOnly: false,
-        SortAlgorithm: 'time',
-      },
-      loggedInUser
-    );
+    const response = await deso.social.getMessagesStateless({
+      NumToFetch: 25,
+      PublicKeyBase58Check: myPublicKey as string,
+      FetchAfterPublicKeyBase58Check: '',
+      HoldersOnly: false,
+      FollowersOnly: false,
+      FollowingOnly: false,
+      HoldingsOnly: false,
+      SortAlgorithm: 'time',
+    });
     setThreadCard(generateThread(response));
   };
 

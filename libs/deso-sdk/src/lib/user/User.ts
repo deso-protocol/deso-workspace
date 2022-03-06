@@ -27,12 +27,13 @@ export class User {
     request: Partial<GetUsersStatelessRequest>
     // PublicKeysBase58Check: string | string[]
   ): Promise<GetUsersResponse> {
-    return (await axios.post(`${this.node.uri}/get-users-stateless`, request))
-      .data;
+    return (
+      await axios.post(`${this.node.getUri()}/get-users-stateless`, request)
+    ).data;
   }
 
   public getSingleProfilePicture(PublicKeyBase58Check: string) {
-    return `${this.node.uri}/get-single-profile-picture/${PublicKeyBase58Check}`;
+    return `${this.node.getUri()}/get-single-profile-picture/${PublicKeyBase58Check}`;
   }
 
   public async getSingleProfile(
@@ -41,7 +42,7 @@ export class User {
     const endpoint = 'get-single-profile';
     if (endpoint) {
       const response = (
-        await axios.post(`${this.node.uri}/${endpoint}`, request)
+        await axios.post(`${this.node.getUri()}/${endpoint}`, request)
       ).data;
       return response;
     } else {
@@ -54,7 +55,7 @@ export class User {
     const endpoint = 'get-profiles';
     if (endpoint) {
       const response = (
-        await axios.post(`${this.node.uri}/${endpoint}`, request)
+        await axios.post(`${this.node.getUri()}/${endpoint}`, request)
       ).data;
       return response;
     } else {
@@ -67,7 +68,8 @@ export class User {
   ): Promise<GetUserMetadataResponse> {
     const endpoint = `get-user-metadata/${request.PublicKeyBase58Check}`;
     if (endpoint) {
-      const response = (await axios.get(`${this.node.uri}/${endpoint}`)).data;
+      const response = (await axios.get(`${this.node.getUri()}/${endpoint}`))
+        .data;
       return response;
     } else {
       throw new Error('need to add endpoint value');
@@ -81,7 +83,10 @@ export class User {
     const endpoint = 'delete-pii';
     const JWT = await this.identity.getJwt();
     if (endpoint) {
-      await axios.post(`${this.node.uri}/${endpoint}`, { ...request, JWT });
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      });
       return true;
     } else {
       throw new Error('need to add endpoint value');
@@ -101,7 +106,7 @@ export class User {
     const endpoint = 'block-public-key';
     const JWT = await this.identity.getJwt();
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, {
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, {
         ...request,
         JWT,
       });
@@ -118,7 +123,7 @@ export class User {
     const endpoint = 'get-user-derived-keys';
     const JWT = await this.identity.getJwt();
     if (endpoint) {
-      return await axios.post(`${this.node.uri}/${endpoint}`, {
+      return await axios.post(`${this.node.getUri()}/${endpoint}`, {
         ...request,
         JWT,
       });

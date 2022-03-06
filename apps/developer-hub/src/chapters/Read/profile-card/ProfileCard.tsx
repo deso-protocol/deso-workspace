@@ -31,7 +31,11 @@ export const ProfileAndFollowerCard = ({
     setUser(
       await deso.user.getUserStateless({ PublicKeysBase58Check: [publicKey] })
     );
-    setFollows((await deso.social.getFollowsStateless(publicKey)).response);
+    setFollows(
+      await deso.social.getFollowsStateless({
+        PublicKeyBase58Check: publicKey,
+      })
+    );
   };
 
   useEffect(() => {

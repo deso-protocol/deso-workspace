@@ -54,8 +54,9 @@ const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
       );
       setFollower({ profileInfoResponse, userInfoResponse });
       setFollowerPicture(profilePictureSrc);
-      const followers = (await deso.social.getFollowsStateless(publicKey))
-        .response;
+      const followers = await deso.social.getFollowsStateless({
+        PublicKeyBase58Check: publicKey,
+      });
       setFollowerFollowers(followers);
     }
   };

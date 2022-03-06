@@ -37,10 +37,9 @@ export const SubmitPostPage = ({
   const createPost = () => {
     if (myPublicKey && loggedInUser) {
       deso.posts
-        .submitPost(
-          { BodyObj: { Body: postMessage, VideoURLs: [], ImageURLs: [] } },
-          loggedInUser
-        )
+        .submitPost({
+          BodyObj: { Body: postMessage, VideoURLs: [], ImageURLs: [] },
+        })
         .then((response) => {
           setResponse(response);
         });

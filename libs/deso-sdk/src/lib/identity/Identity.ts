@@ -1,63 +1,39 @@
 import {
-  IdentityApproveResponse,
+  GetDecryptMessagesResponse,
   IdentityJwtResponse,
   IdentityLoginResponse,
-  IdentitySignRequest,
   LoginUser,
 } from '@deso-workspace/deso-types';
-import { Transaction } from '../transaction/Transaction';
 import { Node } from '../../index';
-import { getJwtInfo, getSignRequest } from '../../utils/utils';
+import {
+  approveSignAndSubmit,
+  callIdentityMethodAndExecute,
+  getIframe,
+} from './IdentityHelper';
+import { requestLogin, requestLogout } from './WindowPrompts';
 export class Identity {
   node: Node;
-  transaction: Transaction;
-  constructor(transaction: Transaction, node: Node) {
+  constructor(node: Node) {
     this.node = node;
-    this.transaction = transaction;
   }
-  public getIframe() {
-    const iframe: HTMLIFrameElement | null = document.getElementById(
-      'identity'
-    ) as HTMLIFrameElement;
-    return iframe;
+  private initialized = false;
+
+  public getIframe(): HTMLIFrameElement {
+    return getIframe();
   }
-  public getUser(): LoginUser {
-    const user = localStorage.getItem('loginUser');
+
+  public getUser(): LoginUser | null {
+    const user = localStorage.getItem('login_user');
     if (user) {
       return JSON.parse(user);
     }
-    throw Error('User is not logged in');
-  }
-  private approveAndSubmit(
-    transactionHex: string
-  ): Promise<IdentityApproveResponse> {
-    const prompt = window.open(
-      `https://identity.deso.org/approve?tx=${transactionHex}`,
-      null as unknown as any,
-      'toolbar=no, width=800, height=1000, top=0, left=0'
-    );
-    this.setIdentityFrame();
-    return new Promise((resolve, reject) => {
-      const windowHandler = ({ data }: { data: IdentityApproveResponse }) => {
-        const signedTransaction = data?.payload?.signedTransactionHex;
-        if (signedTransaction) {
-          return this.handleSubmit(
-            signedTransaction,
-            windowHandler,
-            resolve,
-            reject
-          ).finally(() => {
-            prompt?.close();
-            window.removeEventListener('message', windowHandler);
-          });
-        }
-        return;
-      };
-      window.addEventListener('message', windowHandler);
-    });
+    return null;
   }
 
-  public initialize(): Promise<any> {
+  public async initialize(): Promise<any> {
+    if (this.getIframe()) {
+      return;
+    }
     return new Promise((resolve) => {
       const windowHandler = (event: any) => {
         if (event.origin !== 'https://identity.deso.org') {
@@ -77,17 +53,14 @@ export class Identity {
         }
       };
       window.addEventListener('message', windowHandler);
+      this.initialized = true;
 
       this.setIdentityFrame(true);
     });
   }
 
   public login(accessLevel = '4'): Promise<IdentityLoginResponse> {
-    const prompt = window.open(
-      `https://identity.deso.org/log-in?accessLevelRequest=${accessLevel}&hideJumio=true`,
-      null as unknown as any,
-      'toolbar=no, width=800, height=1000, top=0, left=0'
-    );
+    const prompt = requestLogin();
     return new Promise((resolve, reject) => {
       const windowHandler = ({ data }: { data: IdentityLoginResponse }) => {
         if (data.method !== 'login') {
@@ -96,7 +69,7 @@ export class Identity {
         const key = data.payload.publicKeyAdded;
         const user = data.payload.users[key];
         prompt?.close();
-        localStorage.setItem('loginUser', JSON.stringify(user));
+        localStorage.setItem('login_user', JSON.stringify(user));
         resolve(data);
 
         window.removeEventListener('message', windowHandler);
@@ -105,46 +78,19 @@ export class Identity {
     });
   }
 
-  public logout(myPublicKey: string): Promise<boolean> {
-    const prompt = window.open(
-      `https://identity.deso.org/logout?publicKey=${myPublicKey}`,
-      null as unknown as any,
-      'toolbar=no, width=800, height=1000, top=0, left=0'
-    );
+  public logout(publicKey: string): Promise<boolean> {
+    const prompt = requestLogout(publicKey);
     return new Promise((resolve, reject) => {
       const windowHandler = (event: any) => {
         if (event.data.method === 'login') {
           prompt?.close();
           resolve(true);
 
-          localStorage.setItem('loginUser', '');
+          localStorage.setItem('login_user', '');
         }
       };
       window.addEventListener('message', windowHandler);
     });
-  }
-  public async approve(request: {
-    apiResponse: { TransactionHex: string };
-    user?: LoginUser;
-  }) {
-    // no user needs to be approved
-    if (!request.user && request?.apiResponse?.TransactionHex) {
-      return await this.approveAndSubmit(request?.apiResponse?.TransactionHex)
-        .then(() => request)
-        .catch(() => {
-          throw Error('something went wrong while signing');
-        });
-    }
-    // doesn't have a transaction and no user is provided
-    if (!request.user) {
-      throw Error('No user provided');
-    }
-    const signRequest = getSignRequest(request.user, request.apiResponse);
-    return this.signAndSubmit(signRequest)
-      .then(() => request.apiResponse)
-      .catch(() => {
-        throw Error('something went wrong while signing');
-      });
   }
 
   private setIdentityFrame(createNewIdentityFrame = false): void {
@@ -155,7 +101,6 @@ export class Identity {
     if (!createNewIdentityFrame) {
       return;
     }
-
     frame = document.createElement('iframe');
     frame.setAttribute('src', 'https://identity.deso.org/embed?v=2');
     frame.setAttribute('id', 'identity');
@@ -172,43 +117,53 @@ export class Identity {
       root.appendChild(frame);
     }
   }
-  private handleSubmit(
-    signedTransactionHex: string,
-    windowHandler: (event: any) => null,
-    resolve: (value: any) => void,
-    reject: (reason?: any) => void
-  ): Promise<any> {
-    return this.transaction
-      .submit(signedTransactionHex, this.node.uri)
-      .then((response: any) => {
-        window.removeEventListener('message', windowHandler);
-        resolve(response);
-      })
-      .catch(() => {
-        window.removeEventListener('message', windowHandler);
-        reject();
-      });
-  }
-  public signAndSubmit(request: IdentitySignRequest): Promise<any> {
-    this.getIframe().contentWindow?.postMessage(request, '*');
-    return new Promise((resolve, reject) => {
-      const windowHandler = (event: any) => {
-        if (event?.data?.payload?.signedTransactionHex) {
-          this.handleSubmit(
-            event?.data?.payload?.signedTransactionHex,
-            windowHandler,
-            resolve,
-            reject
-          ).finally(() => {
-            window.removeEventListener('message', windowHandler);
-          });
-        }
 
-        return null;
-      };
-      window.addEventListener('message', windowHandler);
-    });
+  public async submitTransaction(TransactionHex: string) {
+    const user = this.getUser();
+    // user exists no need to approve
+    if (user) {
+      return callIdentityMethodAndExecute(TransactionHex, 'sign');
+    } else {
+      // user does not exist  get approval
+      return approveSignAndSubmit(TransactionHex);
+    }
   }
+
+  public async decrypt(
+    encryptedMessages: any[]
+  ): Promise<GetDecryptMessagesResponse[]> {
+    let user = this.getUser();
+    if (!user) {
+      // throw Error('need to login first');
+      await this.login();
+      user = this.getUser();
+    }
+    return await callIdentityMethodAndExecute(encryptedMessages, 'decrypt');
+    // if (!request?.payload?.encryptedMessage) {
+    //   throw Error('Encrypted Messages are were not Included');
+    // }
+    // const iframe = this.getIframe();
+    // if (iframe === null) {
+    //   throw Error('Iframe with id identity does not exist');
+    // }
+    // iframe.contentWindow?.postMessage(request, '*');
+    // return new Promise((resolve) => {
+    //   const windowHandler = (event: any) => {
+    //     if (!event?.data?.payload?.decryptedHexes) {
+    //       return;
+    //     }
+    //     const decryptedHexes = event?.data?.payload?.decryptedHexes;
+    //     const messages = request.payload?.encryptedMessage;
+    //     const thread = (messages as GetDecryptMessagesResponse[])?.map((m) => {
+    //       const DecryptedMessage = decryptedHexes[m.EncryptedHex];
+    //       return { ...m, DecryptedMessage };
+    //     });
+    //     resolve(thread);
+    //   };
+    //   window.addEventListener('message', windowHandler);
+    // });
+  }
+
   public async getJwt(): Promise<string> {
     let user = this.getUser();
     if (!user) {
@@ -218,8 +173,8 @@ export class Identity {
       const key = response.payload.publicKeyAdded;
       user = response.payload.users[key];
     }
-    const request = getJwtInfo({ ...user });
-    this.getIframe().contentWindow?.postMessage(request, '*');
+    // const request = getJwtInfo({ ...user });
+    // this.getIframe().contentWindow?.postMessage(request, '*');
     return new Promise((resolve, reject) => {
       const windowHandler = ({ data }: { data: IdentityJwtResponse }) => {
         console.log(data);

@@ -1,6 +1,5 @@
 import { Route } from 'react-router-dom';
-import { CHAPTERS, TODOTemplate } from './Chapter.models';
-import { SubmitPostPage } from '../Write/submit-post/submit-post-page';
+import { CHAPTERS } from './Chapter.models';
 import {
   DEZO_DOG,
   ParentRoutes,
@@ -14,9 +13,7 @@ import {
   GetLikesForPostRequest,
   GetPostsDiamondedBySenderForReceiverRequest,
   GetPostsStatelessRequest,
-  GetProfilesRequest,
   GetQuoteRepostsForPostRequest,
-  GetQuoteRepostsForPostResponse,
   GetRepostsForPostRequest,
   HotFeedPageRequest,
   SubmitPostRequest,
@@ -66,7 +63,7 @@ export const postChapter = {
   GET_POSTS_STATELESS: {
     parentRoute: ParentRoutes.posts,
     title: 'Get posts Stateless',
-    route: '/post/get_posts_stateless',
+    route: '/post/get-posts-stateless',
     method: deso.posts.getPostsStateless,
     params: {} as Partial<GetPostsStatelessRequest>,
     documentation: [],
@@ -80,7 +77,7 @@ export const postChapter = {
             <Page
               tabs={[]}
               method={{
-                methodName: `deso.posts.getProfiles(request)`,
+                methodName: `deso.posts.getPostsStateless(request)`,
                 params: this.params,
                 method: this.method,
               }}
