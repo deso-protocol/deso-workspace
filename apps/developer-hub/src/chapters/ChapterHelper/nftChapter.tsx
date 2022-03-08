@@ -220,7 +220,10 @@ export const nftChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div></div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Get information on a NFT collection.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -252,7 +255,13 @@ export const nftChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Submit a post</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Gets an NFT entry response for each serial number of this NFT
+                  post.
+                </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />

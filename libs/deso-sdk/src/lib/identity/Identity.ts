@@ -16,7 +16,6 @@ export class Identity {
   constructor(node: Node) {
     this.node = node;
   }
-  private initialized = false;
 
   public getIframe(): HTMLIFrameElement {
     return getIframe();
@@ -29,6 +28,7 @@ export class Identity {
     }
     return null;
   }
+
   public getUserKey(): string | null {
     const key = localStorage.getItem('login_key');
     if (key) {
@@ -60,8 +60,6 @@ export class Identity {
         }
       };
       window.addEventListener('message', windowHandler);
-      this.initialized = true;
-
       this.setIdentityFrame(true);
     });
   }
