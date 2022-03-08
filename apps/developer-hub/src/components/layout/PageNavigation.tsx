@@ -1,9 +1,9 @@
-import { Button } from "@mui/material";
-import { Link } from "react-router-dom";
-import { Chapter } from "../../chapters/ChapterHelper/Chapter.models";
-import Tooltip from "@mui/material/Tooltip";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Tooltip from '@mui/material/Tooltip';
+import { Button } from '@mui/material';
+import { Chapter } from '../../chapters/ChapterHelper/Chapter.models';
+import { Link } from 'react-router-dom';
 export interface PageNavigationProps {
   previous: Chapter;
   next: Chapter;

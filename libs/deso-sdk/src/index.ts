@@ -4,6 +4,7 @@ import { BASE_URI } from './lib/state';
 import { User } from './lib/user/User';
 import { Posts } from './lib/post/Posts';
 import { MetaData } from './lib/meta-data/MetaData';
+import { Nft } from './lib/nft/Nft';
 class Deso {
   constructor() {
     this.identity.initialize();
@@ -14,6 +15,7 @@ class Deso {
   public posts = new Posts(this.node, this.identity);
   public user = new User(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
+  public nft = new Nft(this.node, this.identity);
 }
 export class Node {
   public getUri(): string {

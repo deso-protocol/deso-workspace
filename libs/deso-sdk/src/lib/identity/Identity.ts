@@ -1,16 +1,16 @@
+import { Node } from '../../index';
+import { requestLogin, requestLogout } from './WindowPrompts';
 import {
   GetDecryptMessagesResponse,
   IdentityJwtResponse,
   IdentityLoginResponse,
   LoginUser,
 } from '@deso-workspace/deso-types';
-import { Node } from '../../index';
 import {
   approveSignAndSubmit,
   callIdentityMethodAndExecute,
   getIframe,
 } from './IdentityHelper';
-import { requestLogin, requestLogout } from './WindowPrompts';
 export class Identity {
   node: Node;
   constructor(node: Node) {

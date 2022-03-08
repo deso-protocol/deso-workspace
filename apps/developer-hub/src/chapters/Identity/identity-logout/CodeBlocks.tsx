@@ -1,4 +1,5 @@
-import { CopyBlock, nord } from "react-code-blocks";
+import { CopyBlock, nord } from 'react-code-blocks';
+
 export const CodeBlocks = {
   section1: (
     <CopyBlock

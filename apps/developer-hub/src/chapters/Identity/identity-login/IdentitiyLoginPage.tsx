@@ -1,20 +1,16 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { PageNavigation } from '../../../components/layout/PageNavigation';
-import { LoginCodeBlocks } from './CodeBlocks';
-import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import {
-  desoService,
-  LoggedInUser,
-  PublicKey,
-} from '../../ChapterHelper/Chapter.atom';
+
+import { LoginUser } from '@deso-workspace/deso-types';
+
+import { PageNavigation } from '../../../components/layout/PageNavigation';
+import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
+import { desoService, LoggedInUser, PublicKey } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../../ChapterHelper/ChapterTemplate';
-import {
-  PageSection,
-  CommonPageSectionTitles,
-} from '../../ChapterHelper/PageSections';
-import { LoginUser } from '@deso-workspace/deso-types';
+import { CommonPageSectionTitles, PageSection } from '../../ChapterHelper/PageSections';
+import { LoginCodeBlocks } from './CodeBlocks';
+
 export interface IdentityLoginProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
