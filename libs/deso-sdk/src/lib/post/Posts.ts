@@ -59,7 +59,7 @@ export class Posts {
       throw Error('BodyObj.Body is required');
     }
     if (!request.MinFeeRateNanosPerKB) {
-      request.MinFeeRateNanosPerKB = 2000;
+      request.MinFeeRateNanosPerKB = 1000;
     }
 
     const apiResponse: SubmitPostResponse = (

@@ -46,17 +46,17 @@ export const TODOTemplate = ({ selectedChapter, chapters }: TODOProps) => {
 };
 
 export const CHAPTERS: Readonly<ChapterNavigation> = {
-  ...identityChapter,
-  ...userChapter,
-  ...postChapter,
-  ...nftChapter,
-  ...socialChapter,
-  ...mediaChapter,
-  ...notificationChapter,
-  ...referralChapter,
-  ...minerChapter,
   ...adminChapter,
+  ...identityChapter,
+  ...mediaChapter,
   ...metaDataChapter,
+  ...minerChapter,
+  ...nftChapter,
+  ...notificationChapter,
+  ...postChapter,
+  ...referralChapter,
+  ...socialChapter,
+  ...userChapter,
 
   ABOUT: {
     parentRoute: ParentRoutes.landing,

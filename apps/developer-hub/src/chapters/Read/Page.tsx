@@ -2,10 +2,10 @@
 import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
-import { desoService, PublicKey } from '../ChapterHelper/Chapter.atom';
+import { desoService } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import ChapterTemplate, { TabItem } from '../ChapterHelper/ChapterTemplate';
-import { DEZO_DOG, IMPORT_CODE, jsonBlock } from '../../services/utils';
+import { IMPORT_CODE, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
@@ -16,18 +16,20 @@ export interface PageProps {
   method?: {
     methodName: string;
     method: Function;
-    params: any;
-    customResponse?: any;
+    params: unknown;
+    customResponse?: unknown;
   };
   chapters: ChapterNavigation;
   tabs: TabItem[];
   pretext?: ReactElement;
+  bind?: string;
 }
 export const Page = ({
   method,
   selectedChapter,
   chapters,
   pretext,
+  bind,
 }: PageProps) => {
   const deso = useRecoilValue(desoService);
   const [response, setResponse] = useState<any | null>(null);
@@ -38,13 +40,17 @@ export const Page = ({
       setResponse(null);
       setChapterTitle(chapterTitle);
     }
-  }, [selectedChapter, setResponse]);
+  }, [chapterTitle, selectedChapter, setResponse]);
 
   const executeApiCall = async () => {
     if (!method) {
       return;
     }
-    const methodToCall = method.method.bind(deso);
+    console.log(bind);
+    console.log(bind === 'identity' ? deso.identity : deso);
+    const methodToCall = method.method.bind(
+      bind === 'identity' ? deso.identity : deso
+    );
     const response = await methodToCall(method.params);
     setResponse(response);
   };
@@ -92,7 +98,7 @@ export const Page = ({
                   </span>{' '}
                   to call {selectedChapter.title}.{' '}
                   {(response &&
-                    method?.customResponse &&
+                    typeof method?.customResponse === 'function' &&
                     method?.customResponse()) ||
                     jsonBlock(response || '')}
                 </div>

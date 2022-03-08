@@ -42,7 +42,7 @@ export class Nft {
   public async getNftBidsForNftPost(
     request: Partial<GetNFTBidsForNFTPostRequest>
   ): Promise<GetNFTBidsForNFTPostResponse> {
-    const endpoint = 'get-nft-bids-for-user';
+    const endpoint = 'get-nft-bids-for-nft-post';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 

@@ -14,7 +14,6 @@ import {
   IsFollowingPublicKeyRequest,
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
-  LoginUser,
   MessageContactResponse,
   SendMessageStatelessRequest,
 } from '@deso-workspace/deso-types';
@@ -29,18 +28,18 @@ export class Social {
     this.node = node;
     this.identity = identity;
   }
-  // needs access
   public async sendMessage(request: Partial<SendMessageStatelessRequest>) {
+    const encryptedMessage = await this.identity.encrypt(request);
+    request.EncryptedMessageText = encryptedMessage;
+    if (!request.MinFeeRateNanosPerKB) {
+      request.MinFeeRateNanosPerKB = 1000;
+    }
     const response = (
       await axios.post(`${this.node.getUri()}/send-message-stateless`, request)
     ).data;
-    if (response) {
-      const TransactionHex = response.TransactionHex as string;
-      // this.identity.transaction.submit(TransactionHex, this.node.uri);
-    }
+    return await this.identity.submitTransaction(response.TransactionHex);
   }
 
-  // needs
   public async createFollowTxnStateless(
     request: CreateFollowTxnStatelessRequest
   ): Promise<CreateFollowTxnStatelessResponse> {
@@ -61,16 +60,6 @@ export class Social {
       )
     ).data;
     return await this.identity.submitTransaction(response.TransactionHex);
-    // const payload = getSignerInfo(user, response);
-    // const requestToBeSigned = {
-    //   id: uuid(),
-    //   method: 'sign',
-    //   payload,
-    //   service: 'identity',
-    // };
-    // await this.identity.signAndSubmit(requestToBeSigned).catch((e) => {
-    //   throw Error('something went wrong with submitting the transaction');
-    // });
   }
 
   public async getFollowsStateless(
@@ -89,7 +78,6 @@ export class Social {
     const response: GetMessagesResponse = (
       await axios.post(`${this.node.getUri()}/get-messages-stateless`, request)
     ).data;
-    // temp any fix for compiler
     const encryptedMessages = (
       response.OrderedContactsWithMessages as MessageContactResponse[]
     )

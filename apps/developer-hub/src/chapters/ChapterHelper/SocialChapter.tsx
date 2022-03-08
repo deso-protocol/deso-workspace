@@ -6,11 +6,12 @@ import {
   GetMessagesStatelessRequest,
   IsFollowingPublicKeyRequest,
   IsHodlingPublicKeyRequest,
+  SendMessageStatelessRequest,
 } from '@deso-workspace/deso-types';
 import { Route } from 'react-router-dom';
 import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
 import Page from '../Read/Page';
-import { CHAPTERS, TODOTemplate } from './Chapter.models';
+import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
 
 const deso = new Deso();
@@ -27,9 +28,7 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/social-endpoints#get-follows-stateless',
     ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Read/get-follows-stateless/GetFollowsStateless.service.tsx',
-    ],
+    githubSource: [],
     component: function () {
       return (
         <Route
@@ -62,14 +61,12 @@ export const socialChapter = {
   GET_MESSAGE_STATELESS: {
     parentRoute: ParentRoutes.social,
     title: 'Get Message Stateless',
-    route: '/identity/get-message-stateless',
-    documentation: [
-      'https://docs.deso.org/identity/iframe-api/endpoints#decrypt',
-    ],
+    route: '/social/get-message-stateless',
+    documentation: [],
     githubSource: [],
     params: {
       NumToFetch: 25,
-      PublicKeyBase58Check: DEZO_DOG,
+      PublicKeyBase58Check: localStorage.getItem('login_key'),
       FetchAfterPublicKeyBase58Check: '',
       HoldersOnly: false,
       FollowersOnly: false,
@@ -110,17 +107,11 @@ export const socialChapter = {
   CREATE_FOLLOW_TRANSACTION: {
     parentRoute: ParentRoutes.social,
     title: 'Create Follow Transaction',
-    route: '/write/create-follow-transaction',
+    route: '/social/create-follow-transaction',
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#create-follow-txn-stateless',
     ],
-    githubSource: [
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Write/create-follow-txn-stateless/create-follow-txn-stateless.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/ChapterHelper/BaseUri.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/services/utils.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Identity/sign-transaction/IdentitySubmitTransaction.service.tsx',
-      'https://raw.githubusercontent.com/DeSoDog/deso-deep-dive/master/src/chapters/Interfaces/User.tsx',
-    ],
+    githubSource: [],
     params: {
       IsUnfollow: true,
       FollowedPublicKeyBase58Check: TYLER,
@@ -156,9 +147,11 @@ export const socialChapter = {
   GET_HODLERS_FOR_PUBLIC_KEY: {
     parentRoute: ParentRoutes.social,
     title: 'Get Hodlers For Public Key',
-    route: '/user/get-hodlers-for-public-key',
+    route: '/social/get-hodlers-for-public-key',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#get-hodlers-for-public-key',
+    ],
     params: {
       NumToFetch: 20,
       PublicKeyBase58Check: TYLER,
@@ -192,9 +185,11 @@ export const socialChapter = {
   GET_DIAMONDS_FOR_PUBLIC_KEY: {
     parentRoute: ParentRoutes.social,
     title: 'Get Diamonds For Public Key',
-    route: '/user/get_diamonds_for_public_key',
+    route: '/social/get_diamonds_for_public_key',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#get-diamonds-for-public-key',
+    ],
     params: {
       NumToFetch: 20,
       PublicKeyBase58Check: TYLER,
@@ -230,7 +225,9 @@ export const socialChapter = {
     title: 'Is Following Public Key',
     route: '/social/is-following-public-key',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#is-following-public-key',
+    ],
     params: {
       PublicKeyBase58Check: TYLER,
       IsFollowingPublicKeyBase58Check: DEZO_DOG,
@@ -269,7 +266,9 @@ export const socialChapter = {
     title: 'Is Hodling Public Key',
     route: '/social/is_hodling_public_key',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#is-hodling-public-key',
+    ],
     params: {
       PublicKeyBase58Check: TYLER,
       IsHodlingPublicKeyBase58Check: DEZO_DOG,
@@ -284,7 +283,7 @@ export const socialChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.social.isHodlingPublicKey,(request)`,
+                methodName: `deso.social.isHodlingPublicKey(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -294,6 +293,45 @@ export const socialChapter = {
                   Similar to the get-users-stateless, but Instead it will return
                   an array of followers for a specific account.{' '}
                 </div>
+              )}
+              tabs={[]}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  SEND_MESSAGE: {
+    parentRoute: ParentRoutes.social,
+    title: 'Send Message',
+    route: '/social/send-message-stateless',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#send-message',
+    ],
+    params: {
+      RecipientPublicKeyBase58Check: TYLER,
+      SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+      MessageText: 'Ogres are like onions.',
+    } as SendMessageStatelessRequest,
+    method: deso.social.sendMessage,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              method={{
+                methodName: `deso.social.sendMessage(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                CommonPageSectionTitles.OVERVIEW,
+                <div>Send a message from your account to another</div>
               )}
               tabs={[]}
               chapters={CHAPTERS}

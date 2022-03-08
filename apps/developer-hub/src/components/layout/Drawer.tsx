@@ -1,9 +1,9 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ChapterNavigation } from '../../chapters/ChapterHelper/Chapter.models';
 import { Link } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
+
 export interface DesoDrawerProps {
   chapters: ChapterNavigation;
 }
@@ -13,9 +13,9 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
     <Box role="presentation">
       {Object.keys(ParentRoutes)
         .filter((p) =>
+          // currently only showing finished sections
           ['social', 'posts', 'identity', 'user', 'nft', 'landing'].includes(p)
         )
-        .sort()
         .map((parentRoute) => {
           return chapters
             .chaptersToArray()
@@ -49,7 +49,6 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
         })}
     </Box>
   );
-
   return (
     <div>
       <div className="bg-[#fff] min-w-[250px] rounded-lg">{list()}</div>

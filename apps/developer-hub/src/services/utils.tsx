@@ -5,21 +5,21 @@ import { CopyBlock, nord } from 'react-code-blocks';
 import { TransactionPost } from '../chapters/Interfaces/Transaction.interface';
 
 export enum ParentRoutes {
-  user = 'user',
-  posts = 'posts',
-  nft = 'nft',
-  media = 'media',
-  referral = 'referral',
-  buyDeso = 'buy deso',
-  notification = 'notification',
-  miner = 'miner',
+  landing = 'landing',
   admin = 'admin',
-  social = 'social',
-  metaData = 'metaData',
+  buyDeso = 'buy deso',
   identity = 'identity',
+  media = 'media',
+  metaData = 'metaData',
+  miner = 'miner',
+  nft = 'nft',
   node = 'node',
   none = 'none',
-  landing = 'landing',
+  notification = 'notification',
+  posts = 'posts',
+  referral = 'referral',
+  social = 'social',
+  user = 'user',
 }
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';

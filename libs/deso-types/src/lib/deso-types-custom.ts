@@ -80,17 +80,6 @@ export interface IdentityJwtResponse {
   };
 }
 
-// export interface IdentityJwtRequest {
-//   id: string;
-//   service: 'identity';
-//   method: 'jwt';
-//   payload: {
-//     accessLevel: number;
-//     accessLevelHmac: string;
-//     encryptedSeedHex: string;
-//   };
-// }
-
 export interface IdentitySignRequest {
   id: string;
   service: string;
@@ -108,6 +97,18 @@ export interface IdentitySignRequest {
       Legacy: boolean;
     }[];
   };
+}
+
+export interface GetDecryptMessagesRequest {
+  EncryptedHex: string;
+  PublicKey: string;
+  IsSender: boolean;
+  Legacy: boolean;
+  Version: number;
+  SenderMessagingPublicKey: string;
+  SenderMessagingGroupKeyName: string;
+  RecipientMessagingPublicKey: string;
+  RecipientMessagingGroupKeyName: string;
 }
 
 export interface GetDecryptMessagesResponse {

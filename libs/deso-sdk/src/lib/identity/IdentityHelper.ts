@@ -1,17 +1,21 @@
-import { LoginUser } from '@deso-workspace/deso-types';
 import { uuid } from '../../utils/utils';
 import { iFrameHandler } from './WindowHandler';
 import { requestApproval } from './WindowPrompts';
 
-export type IframeMethods = 'sign' | 'encrypt' | 'decrypt' | 'jwt';
+export type IframeMethods =
+  | 'sign'
+  | 'encrypt'
+  | 'decrypt'
+  | 'jwt'
+  | 'login'
+  | 'logout';
 
 export const callIdentityMethodAndExecute = (
-  attributeValue: any,
+  attributeValue: unknown,
   method: IframeMethods
 ): Promise<any> => {
   const user = JSON.parse(localStorage.getItem('login_user') as string);
   const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
-  const attribute = (signRequestMapping as any)[method];
   const request = {
     id: uuid(),
     service: 'identity',
@@ -20,13 +24,13 @@ export const callIdentityMethodAndExecute = (
       accessLevelHmac,
       encryptedSeedHex,
       accessLevel,
-      [attribute]: attributeValue,
+      ...getParams(method, attributeValue),
     },
   };
   getIframe().contentWindow?.postMessage(request, '*');
   return iFrameHandler({
     iFrameMethod: method,
-    data: { [attribute]: attributeValue },
+    data: getParams,
   });
 };
 
@@ -42,9 +46,18 @@ export const getIframe = (): HTMLIFrameElement => {
   return iframe;
 };
 
-const signRequestMapping = {
-  sign: 'transactionHex',
-  encrypt: 'message',
-  decrypt: 'encryptedMessages',
-  jwt: undefined,
+const getParams = (method: string, attributeValue: any) => {
+  if (method === 'sign') {
+    return { transactionHex: attributeValue };
+  }
+  if (method === 'encrypt') {
+    return {
+      message: attributeValue.MessageText,
+      recipientPublicKey: attributeValue.RecipientPublicKeyBase58Check,
+    };
+  }
+  if (method === 'decrypt') {
+    return { encryptedMessages: attributeValue };
+  }
+  return undefined;
 };

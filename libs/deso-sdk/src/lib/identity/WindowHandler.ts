@@ -49,5 +49,38 @@ export const handlers = async (
       return { ...m, DecryptedMessage };
     });
     info.data.resolve(thread);
+
+    window.removeEventListener('message', windowHandler);
+  }
+
+  if (info.iFrameMethod === 'login' && event.data.method === 'login') {
+    const key = event?.data?.payload?.publicKeyAdded;
+    const user = JSON.stringify(event.data.payload.users[key]);
+    info.data.prompt?.close();
+    info.data.resolve({ key, user });
+    window.removeEventListener('message', windowHandler);
+  }
+
+  if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
+    info.data.prompt?.close();
+    info.data.resolve(true);
+    localStorage.setItem('login_user', '');
+    localStorage.setItem('login_key', '');
+  }
+
+  if (info.iFrameMethod === 'jwt') {
+    if (event.data.payload.jwt) {
+      info.data.prompt?.close();
+      info.data.resolve(event.data.payload.jwt);
+      window.removeEventListener('message', windowHandler);
+    }
+  }
+
+  if (info.iFrameMethod === 'encrypt') {
+    if (event.data.payload.encryptedMessage) {
+      console.log(event.data);
+      info.data.resolve(event.data.payload.encryptedMessage);
+      window.removeEventListener('message', windowHandler);
+    }
   }
 };

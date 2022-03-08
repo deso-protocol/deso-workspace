@@ -1,16 +1,17 @@
 import { Node } from '../../index';
 import { requestLogin, requestLogout } from './WindowPrompts';
 import {
+  GetDecryptMessagesRequest,
   GetDecryptMessagesResponse,
-  IdentityJwtResponse,
-  IdentityLoginResponse,
   LoginUser,
+  SendMessageStatelessRequest,
 } from '@deso-workspace/deso-types';
 import {
   approveSignAndSubmit,
   callIdentityMethodAndExecute,
   getIframe,
 } from './IdentityHelper';
+import { iFrameHandler } from './WindowHandler';
 export class Identity {
   node: Node;
   constructor(node: Node) {
@@ -64,39 +65,26 @@ export class Identity {
     });
   }
 
-  public login(accessLevel = '4'): Promise<IdentityLoginResponse> {
+  public async login(
+    accessLevel = '4'
+  ): Promise<{ user: LoginUser; key: string }> {
     const prompt = requestLogin();
-    return new Promise((resolve, reject) => {
-      const windowHandler = ({ data }: { data: IdentityLoginResponse }) => {
-        if (data.method !== 'login') {
-          return;
-        }
-        const key = data.payload.publicKeyAdded;
-        const user = data.payload.users[key];
-        prompt?.close();
-        localStorage.setItem('login_user', JSON.stringify(user));
-        localStorage.setItem('login_key', key);
-        resolve(data);
-
-        window.removeEventListener('message', windowHandler);
-      };
-      window.addEventListener('message', windowHandler);
+    const { key, user } = await iFrameHandler({
+      iFrameMethod: 'login',
+      data: { prompt },
     });
+    localStorage.setItem('login_user', user);
+    localStorage.setItem('login_key', key);
+    return { user: JSON.parse(user), key };
   }
 
-  public logout(publicKey: string): Promise<boolean> {
+  public async logout(publicKey: string): Promise<boolean> {
     const prompt = requestLogout(publicKey);
-    return new Promise((resolve, reject) => {
-      const windowHandler = (event: any) => {
-        if (event.data.method === 'login') {
-          prompt?.close();
-          resolve(true);
-
-          localStorage.setItem('login_user', '');
-        }
-      };
-      window.addEventListener('message', windowHandler);
+    const successful = await iFrameHandler({
+      iFrameMethod: 'logout',
+      data: { prompt },
     });
+    return successful;
   }
 
   private setIdentityFrame(createNewIdentityFrame = false): void {
@@ -117,7 +105,6 @@ export class Identity {
     frame.style.display = 'none';
     frame.style.left = '0';
     frame.style.right = '0';
-
     const root = document.getElementsByTagName('body')[0];
     if (root) {
       root.appendChild(frame);
@@ -136,35 +123,32 @@ export class Identity {
   }
 
   public async decrypt(
-    encryptedMessages: any[]
+    encryptedMessages: GetDecryptMessagesRequest[]
   ): Promise<GetDecryptMessagesResponse[]> {
     let user = this.getUser();
     if (!user) {
-      // throw Error('need to login first');
       await this.login();
       user = this.getUser();
     }
     return await callIdentityMethodAndExecute(encryptedMessages, 'decrypt');
   }
+  public async encrypt(
+    request: Partial<SendMessageStatelessRequest>
+  ): Promise<string> {
+    request.RecipientPublicKeyBase58Check;
+    let user = this.getUser();
+    if (!user) {
+      await this.login();
+      user = this.getUser();
+    }
+    return await callIdentityMethodAndExecute(request, 'encrypt');
+  }
 
   public async getJwt(): Promise<string> {
     let user = this.getUser();
     if (!user) {
-      const response = await this.login().catch((e) => {
-        throw e;
-      });
-      const key = response.payload.publicKeyAdded;
-      user = response.payload.users[key];
+      user = (await this.login()).user;
     }
-    return new Promise((resolve, reject) => {
-      const windowHandler = ({ data }: { data: IdentityJwtResponse }) => {
-        console.log(data);
-        if (data.payload.jwt) {
-          resolve(data.payload.jwt);
-          window.removeEventListener('message', windowHandler);
-        }
-      };
-      window.addEventListener('message', windowHandler);
-    });
+    return await callIdentityMethodAndExecute(undefined, 'jwt');
   }
 }
