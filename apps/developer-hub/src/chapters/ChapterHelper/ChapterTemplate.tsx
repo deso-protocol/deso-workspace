@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { ReactElement, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -49,10 +50,11 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
   const handleChange = (event: any, newValue: number) => {
     setValue(newValue);
   };
+
   return (
     <>
       {tabs && (
-        <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
+        <div className="mt-[13px]  pb-2 w-full  flex justify-start ">
           <div className="border-r border-[#00000025]">
             <DesoDrawer chapters={CHAPTERS} />
           </div>

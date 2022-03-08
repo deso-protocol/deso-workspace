@@ -13,7 +13,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
     <Box role="presentation">
       {Object.keys(ParentRoutes)
         .filter((p) =>
-          ['social', 'posts', 'identity', 'user', 'nft'].includes(p)
+          ['social', 'posts', 'identity', 'user', 'nft', 'landing'].includes(p)
         )
         .sort()
         .map((parentRoute) => {
@@ -27,7 +27,6 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
                     <>
                       <div className="py-3 px-4 text-xl bg-[#1976d2] text-[#fff]">
                         {parentRoute.toUpperCase()}{' '}
-                        {parentRoute === 'media' && 'TODO'}
                       </div>
                       <Divider />
                     </>

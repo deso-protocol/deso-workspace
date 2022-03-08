@@ -12,7 +12,6 @@ import DisplayUser from '../profile/DisplayUser';
 
 import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
 import { Card, CardHeader, Link } from '@mui/material';
-import Identity from '../DesoIdentity';
 const SampleApp = () => {
   const [appState, setAppState] = useRecoilState<AppStateEnum>(SampleAppState);
   const [user, setUser] = useRecoilState<MyUserInfoType | null>(
@@ -83,9 +82,7 @@ const SampleApp = () => {
             here
           </Link>
         </div>
-        <div className="ml-4 mb-2">
-          Click here to render your account: <Identity></Identity>
-        </div>
+        <div className="ml-4 mb-2">Click here to render your account:</div>
       </Card>
       <div className="flex flex-col md:flex-row justify-around w-full mt-4  ">
         <div className="flex flex-col flex-grow-1">

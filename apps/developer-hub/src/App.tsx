@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import { Header } from './components/layout/Header';
-import DesoDrawer from './components/layout/Drawer';
 import { CHAPTERS } from './chapters/ChapterHelper/Chapter.models';
 import { HashRouter, Routes } from 'react-router-dom';
 function App() {

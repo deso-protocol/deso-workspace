@@ -4,7 +4,6 @@ import Card from '@mui/material/Card';
 import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
-import { PostInfoResponse } from '../../chapters/Interfaces/Post.interface';
 import {
   SampleAppMyUserInfo,
   MyUserInfoType,
@@ -32,11 +31,11 @@ const DisplayPosts = ({ publicKey }: CreatePostProps) => {
     }
   };
 
-  const generatePosts = (postInfo: PostInfoResponse): ReactElement[] => {
+  const generatePosts = (postInfo: any): ReactElement[] => {
     if (user) {
       let postElements: ReactElement[] = [];
       if (postInfo.Posts) {
-        postElements = postInfo.Posts.map((post, index) => {
+        postElements = postInfo.Posts.map((post: any, index: number) => {
           const profilePictureSrc = deso.user.getSingleProfilePicture(
             post.PosterPublicKeyBase58Check
           );

@@ -59,7 +59,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...metaDataChapter,
 
   ABOUT: {
-    parentRoute: ParentRoutes.none,
+    parentRoute: ParentRoutes.landing,
     title: 'Welcome',
     route: '*',
     method: 'N/A',

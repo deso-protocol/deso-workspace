@@ -19,6 +19,7 @@ export enum ParentRoutes {
   identity = 'identity',
   node = 'node',
   none = 'none',
+  landing = 'landing',
 }
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';
@@ -39,28 +40,6 @@ type UserTransactionInfo = Pick<
   'accessLevelHmac' | 'encryptedSeedHex' | 'accessLevel'
 > &
   any;
-
-export const getSignerInfo = (
-  user: LoginUser,
-  transaction: TransactionPost
-): UserTransactionInfo => {
-  const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
-  const { TransactionHex } = transaction;
-  return {
-    accessLevelHmac,
-    encryptedSeedHex,
-    accessLevel,
-    transactionHex: TransactionHex,
-  };
-};
-
-export const uuid = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
 
 export const getSourceFromGithub = async (
   urls: string[]

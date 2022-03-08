@@ -1,11 +1,9 @@
 import { Route } from 'react-router-dom';
-import { IdentityLoginPage } from '../Identity/identity-login/IdentitiyLoginPage';
-import { IdentityLogoutPage } from '../Identity/identity-logout/IdentityLogoutPage';
-import { CHAPTERS } from './Chapter.models';
 import { ParentRoutes } from '../../services/utils';
 import Page from '../Read/Page';
 import Deso from '@deso-workspace/deso-sdk';
 import { PageSection } from './PageSections';
+import { CHAPTERS } from './Chapter.models';
 const deso = new Deso();
 export const identityChapter = {
   IDENTITY_LOGIN: {
