@@ -40,40 +40,28 @@ export class User {
     request: Partial<GetSingleProfileRequest>
   ): Promise<GetSingleProfileResponse> {
     const endpoint = 'get-single-profile';
-    if (endpoint) {
-      const response = (
-        await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-      ).data;
-      return response;
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    const response = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return response;
   }
   public async getProfiles(
     request: Partial<GetProfilesRequest>
   ): Promise<GetProfilesResponse> {
     const endpoint = 'get-profiles';
-    if (endpoint) {
-      const response = (
-        await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-      ).data;
-      return response;
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    const response = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return response;
   }
 
   public async getUserMetadata(
     request: Partial<GetUserMetadataRequest>
   ): Promise<GetUserMetadataResponse> {
     const endpoint = `get-user-metadata/${request.PublicKeyBase58Check}`;
-    if (endpoint) {
-      const response = (await axios.get(`${this.node.getUri()}/${endpoint}`))
-        .data;
-      return response;
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    const response = (await axios.get(`${this.node.getUri()}/${endpoint}`))
+      .data;
+    return response;
   }
 
   public async deletePii(request: Partial<DeletePIIRequest>): Promise<boolean> {
@@ -82,15 +70,11 @@ export class User {
     }
     const endpoint = 'delete-pii';
     const JWT = await this.identity.getJwt();
-    if (endpoint) {
-      await axios.post(`${this.node.getUri()}/${endpoint}`, {
-        ...request,
-        JWT,
-      });
-      return true;
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    await axios.post(`${this.node.getUri()}/${endpoint}`, {
+      ...request,
+      JWT,
+    });
+    return true;
   }
 
   public async blockPublicKey(
@@ -105,14 +89,10 @@ export class User {
     }
     const endpoint = 'block-public-key';
     const JWT = await this.identity.getJwt();
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-        ...request,
-        JWT,
-      });
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
+      ...request,
+      JWT,
+    });
   }
   public async getUserDerivedKeys(
     request: Partial<GetUserDerivedKeysRequest>
@@ -122,13 +102,9 @@ export class User {
     }
     const endpoint = 'get-user-derived-keys';
     const JWT = await this.identity.getJwt();
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-        ...request,
-        JWT,
-      });
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
+      ...request,
+      JWT,
+    });
   }
 }

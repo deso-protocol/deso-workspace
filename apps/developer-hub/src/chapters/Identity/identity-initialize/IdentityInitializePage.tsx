@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { PageNavigation } from '../../../components/layout/PageNavigation';
 import { getSourceFromGithub, jsonBlock } from '../../../services/utils';
-import { desoService } from '../../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../../ChapterHelper/Chapter.models';
-import { ChapterTemplate } from '../../ChapterHelper/ChapterTemplate';
+import ChapterTemplate from '../../ChapterHelper/ChapterTemplate';
 import {
   CommonPageSectionTitles,
   PageSection,
@@ -30,7 +29,6 @@ export const IdentityInitializePage = ({
   }, [setInitializedResponse, initializedResponse]);
   return (
     <ChapterTemplate
-      title={selectedChapter.title}
       tabs={[
         {
           title: CommonPageSectionTitles.OVERVIEW,

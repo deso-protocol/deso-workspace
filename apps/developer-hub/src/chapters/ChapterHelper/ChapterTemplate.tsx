@@ -10,10 +10,6 @@ export interface ChapterTemplateProps {
   navigation: ReactElement;
 }
 
-export const ChapterTemplate = ({ tabs, navigation }: ChapterTemplateProps) => {
-  return <div>{tabs && <DeSoTabs tabs={tabs} navigation={navigation} />}</div>;
-};
-
 const TabPanel = (props: any) => {
   const { children, value, index, ...other } = props;
   return (
@@ -48,44 +44,48 @@ export interface TabProps {
   navigation: ReactElement;
 }
 
-export default function DeSoTabs({ tabs, navigation }: TabProps) {
+export default function ChapterTemplate({ tabs, navigation }: TabProps) {
   const [value, setValue] = useState(0);
   const handleChange = (event: any, newValue: number) => {
     setValue(newValue);
   };
   return (
-    <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
-      <div className="border-r border-[#00000025]">
-        <DesoDrawer chapters={CHAPTERS} />
-      </div>
-      <div className="flex-grow-1 mx-auto w-full max-w-[1500px] ">
-        <Box
-          className="flex justify-evenly"
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="basic tabs example"
-          >
+    <>
+      {tabs && (
+        <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
+          <div className="border-r border-[#00000025]">
+            <DesoDrawer chapters={CHAPTERS} />
+          </div>
+          <div className="flex-grow-1 mx-auto w-full max-w-[1500px] ">
+            <Box
+              className="flex justify-evenly"
+              sx={{ borderBottom: 1, borderColor: 'divider' }}
+            >
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+              >
+                {tabs.map((tab, index) => {
+                  return (
+                    <Tab key={index} label={tab.title} {...a11yProps(index)} />
+                  );
+                })}
+              </Tabs>
+
+              {navigation}
+            </Box>
             {tabs.map((tab, index) => {
               return (
-                <Tab key={index} label={tab.title} {...a11yProps(index)} />
+                <TabPanel key={index} value={value} index={index}>
+                  {tab.subTitle}
+                  {tab.content}
+                </TabPanel>
               );
             })}
-          </Tabs>
-
-          {navigation}
-        </Box>
-        {tabs.map((tab, index) => {
-          return (
-            <TabPanel key={index} value={value} index={index}>
-              {tab.subTitle}
-              {tab.content}
-            </TabPanel>
-          );
-        })}
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

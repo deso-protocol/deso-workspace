@@ -15,7 +15,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
         .filter((p) =>
           ['social', 'posts', 'identity', 'user', 'nft'].includes(p)
         )
-        .filter((p) => p === 'nft')
+        .sort()
         .map((parentRoute) => {
           return chapters
             .chaptersToArray()
@@ -26,7 +26,8 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
                   {index === 0 ? (
                     <>
                       <div className="py-3 px-4 text-xl bg-[#1976d2] text-[#fff]">
-                        {parentRoute.toUpperCase()}
+                        {parentRoute.toUpperCase()}{' '}
+                        {parentRoute === 'media' && 'TODO'}
                       </div>
                       <Divider />
                     </>

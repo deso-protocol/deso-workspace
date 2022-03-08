@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
 import { desoService, PublicKey } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
-import { ChapterTemplate, TabItem } from '../ChapterHelper/ChapterTemplate';
+import ChapterTemplate, { TabItem } from '../ChapterHelper/ChapterTemplate';
 import { DEZO_DOG, IMPORT_CODE, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
@@ -50,7 +50,6 @@ export const Page = ({
   };
   return (
     <ChapterTemplate
-      title={selectedChapter.title}
       tabs={[
         {
           title: `${CommonPageSectionTitles.OVERVIEW} ${selectedChapter.title}`,

@@ -28,6 +28,26 @@ export interface IdentityLoginResponse {
   };
 }
 
+export interface UploadImageRequest {
+  UserPublicKeyBase58Check: string;
+  JWT: string;
+  file: File;
+}
+
+export interface UploadVideoRequest {
+  uploadLength: any;
+  uploadMetaData: any;
+  file: File;
+}
+
+export interface GetVideoStatusRequest {
+  videoId: string;
+}
+
+export interface UploadVideoResponse {
+  streamMediaId: string;
+}
+
 export interface LoginUser {
   accessLevel: number;
   accessLevelHmac: string;

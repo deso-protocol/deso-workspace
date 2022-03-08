@@ -4,19 +4,19 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import Logo from "../../assets/deso-logo.png";
-import { useRecoilState } from "recoil";
-import { SampleAppToggleDrawer } from "../../recoil/AppState.atoms";
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import Logo from '../../assets/deso-logo.png';
+import { useRecoilState } from 'recoil';
+import { SampleAppToggleDrawer } from '../../recoil/AppState.atoms';
 
 export const Header = () => {
   const [toggle, setToggleDrawer] = useRecoilState(SampleAppToggleDrawer);
   return (
-    <div className="oy" style={{ position: "relative", zIndex: 1301 }}>
+    <div className="oy" style={{ position: 'relative', zIndex: 1301 }}>
       <AppBar position="fixed" className="bg-primary">
         <Toolbar className="">
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -27,7 +27,7 @@ export const Header = () => {
             }}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
           <Typography variant="h6" component="div">
             <img className="max-h-[25px] mr-2 inline" src={Logo} />
             <div className="inline mt-4 max-h-[32px] font-bold text-2xl">

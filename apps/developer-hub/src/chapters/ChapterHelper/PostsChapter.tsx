@@ -1,13 +1,21 @@
-import { Route } from 'react-router-dom';
-
 import Deso from '@deso-workspace/deso-sdk';
 import {
-    GetDiamondsForPostRequest, GetLikesForPostRequest, GetPostsDiamondedBySenderForReceiverRequest,
-    GetPostsStatelessRequest, GetQuoteRepostsForPostRequest, GetRepostsForPostRequest,
-    HotFeedPageRequest, SubmitPostRequest
+  GetDiamondsForPostRequest,
+  GetLikesForPostRequest,
+  GetPostsDiamondedBySenderForReceiverRequest,
+  GetPostsStatelessRequest,
+  GetQuoteRepostsForPostRequest,
+  GetRepostsForPostRequest,
+  HotFeedPageRequest,
+  SubmitPostRequest,
 } from '@deso-workspace/deso-types';
-
-import { DEZO_DOG, ParentRoutes, RUSSIA, SAMPLE_POST } from '../../services/utils';
+import { Route } from 'react-router-dom';
+import {
+  DEZO_DOG,
+  ParentRoutes,
+  RUSSIA,
+  SAMPLE_POST,
+} from '../../services/utils';
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';

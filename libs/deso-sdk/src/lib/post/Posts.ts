@@ -78,87 +78,55 @@ export class Posts {
     request: Partial<GetPostsStatelessRequest>
   ): Promise<GetPostsStatelessResponse> {
     const endpoint = 'get-posts-stateless';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
   public async getSinglePost(
     request: Partial<GetSinglePostRequest>
   ): Promise<GetSinglePostResponse> {
     throwErrors(['PostHashHex'], request);
     const endpoint = 'get-single-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getHotFeed(
     request: Partial<HotFeedPageRequest>
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-hot-feed';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getDiamondedPosts(
     request: Partial<GetPostsDiamondedBySenderForReceiverRequest>
   ): Promise<GetPostsDiamondedBySenderForReceiverResponse> {
     const endpoint = 'get-diamonded-posts';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getLikesForPost(
     request: Partial<GetLikesForPostRequest>
   ): Promise<GetLikesForPostResponse> {
     const endpoint = 'get-likes-for-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getDiamondsForPost(
     request: Partial<GetDiamondsForPostRequest>
   ): Promise<GetDiamondsForPostResponse> {
     const endpoint = 'get-diamonds-for-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getRepostsForPost(
     request: Partial<GetRepostsForPostRequest>
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-reposts-for-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getQuoteRepostsForPost(
     request: Partial<GetQuoteRepostsForPostRequest>
   ): Promise<GetQuoteRepostsForPostResponse> {
     const endpoint = 'get-quote-reposts-for-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 }

@@ -158,8 +158,6 @@ export class Identity {
       const key = response.payload.publicKeyAdded;
       user = response.payload.users[key];
     }
-    // const request = getJwtInfo({ ...user });
-    // this.getIframe().contentWindow?.postMessage(request, '*');
     return new Promise((resolve, reject) => {
       const windowHandler = ({ data }: { data: IdentityJwtResponse }) => {
         console.log(data);

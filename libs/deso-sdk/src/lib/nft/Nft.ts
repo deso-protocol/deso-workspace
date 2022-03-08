@@ -29,76 +29,48 @@ export class Nft {
     request: Partial<GetNFTsForUserRequest>
   ): Promise<GetNFTsForUserResponse> {
     const endpoint = 'get-nfts-for-user';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNftBidsForUser(
     request: Partial<GetNFTBidsForUserRequest>
   ): Promise<GetNFTBidsForUserResponse> {
     const endpoint = 'get-nft-bids-for-user';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNftBidsForNftPost(
     request: Partial<GetNFTBidsForNFTPostRequest>
   ): Promise<GetNFTBidsForNFTPostResponse> {
     const endpoint = 'get-nft-bids-for-user';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNftShowcase(
     request: Partial<GetNFTShowcaseRequest>
   ): Promise<GetNFTShowcaseResponse> {
     const endpoint = 'get-nft-showcase';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNextNftShowCase(
     request: Partial<GetNFTShowcaseRequest>
   ): Promise<GetNextNFTShowcaseResponse> {
     const endpoint = 'get-next-nft-showcase';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNftCollectionSummary(
     request: Partial<GetNFTCollectionSummaryRequest>
   ): Promise<GetNFTCollectionSummaryResponse> {
     const endpoint = 'get-nft-collection-summary';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 
   public async getNftEntriesForPostHash(
     request: Partial<GetNFTEntriesForPostHashRequest>
   ): Promise<GetNFTEntriesForPostHashResponse> {
     const endpoint = 'get-nft-entries-for-nft-post';
-    if (endpoint) {
-      return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
-    } else {
-      throw new Error('need to add endpoint value');
-    }
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 }

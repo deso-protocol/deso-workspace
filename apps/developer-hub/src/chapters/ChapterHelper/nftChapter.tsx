@@ -18,6 +18,7 @@ import {
 import Page from '../Read/Page';
 import { PageSection } from './PageSections';
 const deso = new Deso();
+
 export const nftChapter = {
   GET_NFTS_FOR_USER: {
     parentRoute: ParentRoutes.nft,
