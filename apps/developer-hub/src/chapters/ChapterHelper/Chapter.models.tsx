@@ -22,9 +22,10 @@ import { jsonBlock, ParentRoutes } from '../../services/utils';
 import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
 export interface TODOProps {
-  selectedChapter: any;
+  selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
+
 export const TODOTemplate = ({ selectedChapter, chapters }: TODOProps) => {
   return (
     <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
@@ -57,7 +58,6 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...referralChapter,
   ...socialChapter,
   ...userChapter,
-
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',
@@ -92,7 +92,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           feedback{' '}
                           <Link
                             target="_blank"
-                            href="https://github.com/DeSoDog/deso-deep-dive/issues"
+                            href="https://github.com/deso-protocol/deso-workspace/issues"
                           >
                             here
                           </Link>

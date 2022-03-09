@@ -284,9 +284,9 @@ export const nftChapter = {
     params: {
       // UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
       // NFTPostHashHex: '',
-      // NumCopies: 1
-      // NFTRoyaltyToCreatorBasisPoints: '',
-      // NFTRoyaltyToCoinBasisPoints: '',
+      // NumCopies: 1,
+      // NFTRoyaltyToCreatorBasisPoints: 100,
+      // NFTRoyaltyToCoinBasisPoints: 100,
       // HasUnlockable: '',
       // IsForSale: true,
       // MinBidAmountNanos: '' ,

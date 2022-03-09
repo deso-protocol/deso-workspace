@@ -68,7 +68,7 @@ export class Identity {
   public async login(
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
-    const prompt = requestLogin();
+    const prompt = requestLogin(accessLevel);
     const { key, user } = await iFrameHandler({
       iFrameMethod: 'login',
       data: { prompt },
