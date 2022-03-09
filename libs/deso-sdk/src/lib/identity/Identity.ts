@@ -12,6 +12,7 @@ import {
   getIframe,
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
+
 export class Identity {
   node: Node;
   constructor(node: Node) {
@@ -56,7 +57,6 @@ export class Identity {
             },
             'https://identity.deso.org' as WindowPostMessageOptions
           );
-
           resolve(event.data);
         }
       };
@@ -132,6 +132,7 @@ export class Identity {
     }
     return await callIdentityMethodAndExecute(encryptedMessages, 'decrypt');
   }
+
   public async encrypt(
     request: Partial<SendMessageStatelessRequest>
   ): Promise<string> {

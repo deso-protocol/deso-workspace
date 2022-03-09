@@ -112,40 +112,4 @@ export const identityChapter = {
       );
     },
   },
-  ENCRYPT: {
-    parentRoute: ParentRoutes.identity,
-    title: 'JWT',
-    route: '/identity/jwt',
-    method: deso.identity.getJwt,
-    params: {},
-    githubSource: [],
-    documentation: [
-      'https://docs.deso.org/for-developers/identity/iframe-api/endpoints#jwt',
-    ],
-    component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={
-            <Page
-              method={{
-                methodName: `deso.identity.getJwt(request)`,
-                params: this.params,
-                method: this.method,
-              }}
-              pretext={PageSection(
-                this.title,
-                <div>Trigger a window prompt to let a user logout.</div>
-              )}
-              tabs={[]}
-              chapters={CHAPTERS}
-              selectedChapter={this}
-              bind="identity"
-            />
-          }
-        ></Route>
-      );
-    },
-  },
 };

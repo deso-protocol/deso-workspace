@@ -14,7 +14,15 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
       {Object.keys(ParentRoutes)
         .filter((p) =>
           // currently only showing finished sections
-          ['social', 'posts', 'identity', 'user', 'nft', 'landing'].includes(p)
+          [
+            'social',
+            'posts',
+            'identity',
+            'user',
+            'nft',
+            'landing',
+            'notification',
+          ].includes(p)
         )
         .map((parentRoute) => {
           return chapters

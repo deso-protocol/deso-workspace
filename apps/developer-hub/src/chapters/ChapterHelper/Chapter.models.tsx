@@ -18,7 +18,7 @@ import { minerChapter } from './minerChapter';
 import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
-import { ParentRoutes } from '../../services/utils';
+import { jsonBlock, ParentRoutes } from '../../services/utils';
 import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
 export interface TODOProps {
@@ -81,73 +81,26 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                         'Welcome to the DeSo Developer Hub',
                         <div>
                           DeSo developer hub is rich in resources to help you
-                          build your DeSo app. Currently the page supports
-                          interactive endpoints that help you connect, read, and
-                          write to the DeSo chain.
+                          build your DeSo app. Currently the app can be used a
+                          reference when implementing the deso sdk into your
+                          application. We are also open to community suggestions
+                          on what additional functionality could be built which
+                          could be anything from an onchain comment threads for
+                          common issues (similar to stack overflow), more useful
+                          utility methods, etc. If you have any recommendations
+                          for improvement or find any bugs, please leave
+                          feedback{' '}
+                          <Link
+                            target="_blank"
+                            href="https://github.com/DeSoDog/deso-deep-dive/issues"
+                          >
+                            here
+                          </Link>
                         </div>
                       )}
                       {PageSection(
-                        'Tabs',
-                        <div>
-                          While navigating through each page you'll see some
-                          common tabs such as Overview, Code, and Documentation.
-                          <div className="ml-2 my-2">
-                            <span className="font-semibold">Overview:</span>{' '}
-                            Provides context on what the calls does, and briefly
-                            describes the steps required to execute the call.
-                          </div>
-                          <div className="ml-2 my-2">
-                            <span className="font-semibold"> Code:</span>{' '}
-                            Provides the source code to execute call. This means
-                            you can easily copy these files into your own app or
-                            just inspect them for inspiration.build
-                          </div>
-                          <div className="ml-2 mt-2">
-                            <span className="font-semibold">
-                              Documentation:
-                            </span>{' '}
-                            Provides links to formal Deso documentation to
-                            provide a more in depth explanation.
-                          </div>
-                        </div>
-                      )}
-                      {PageSection(
-                        'Starter App',
-                        <div>
-                          Looking for a bare bones react template to get started
-                          on your DeSo app?Open your terminal and run <br />
-                          <span className="font-semibold">git clone </span>
-                          https://github.com/DeSoDog/deso-react-template.git
-                        </div>
-                      )}
-                      {PageSection(
-                        'About',
-                        <>
-                          <div>
-                            The DeSo Developer Hub is under active development
-                            so endpoints and other features will continue to be
-                            added on a weekly basis. We are also open to
-                            community suggestions on what additional
-                            functionality could be built which could be anything
-                            from an onchain comment threads for common issues
-                            (similar to stack overflow), more useful utility
-                            methods, etc. If you have any recommendations for
-                            improvement or find any bugs, please leave feedback{' '}
-                            <Link
-                              target="_blank"
-                              href="https://github.com/DeSoDog/deso-deep-dive/issues"
-                            >
-                              here
-                            </Link>
-                          </div>
-                          <div className=" my-16 text-center">
-                            Hit the{' '}
-                            <span className="font-semibold">Arrow icon</span> in
-                            the top right or the{' '}
-                            <span className="font-semibold">Sandwich icon</span>{' '}
-                            in the top left to get started.
-                          </div>
-                        </>
+                        'Download',
+                        jsonBlock('npm i deso-sdk deso-types')
                       )}
                     </>
                   ),
@@ -166,7 +119,6 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
       );
     },
   },
-
   NODE_PAGE: {
     parentRoute: ParentRoutes.node,
     title: 'Node Page',

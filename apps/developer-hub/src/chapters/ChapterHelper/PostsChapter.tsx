@@ -47,7 +47,7 @@ export const postChapter = {
             <Page
               tabs={[]}
               method={{
-                methodName: `deso.posts.getProfiles(request)`,
+                methodName: `deso.posts.submitPost(request)`,
                 params: this.params,
                 method: this.method,
               }}

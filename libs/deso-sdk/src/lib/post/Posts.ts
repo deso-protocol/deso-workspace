@@ -61,7 +61,6 @@ export class Posts {
     if (!request.MinFeeRateNanosPerKB) {
       request.MinFeeRateNanosPerKB = 1000;
     }
-
     const apiResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
@@ -80,6 +79,7 @@ export class Posts {
     const endpoint = 'get-posts-stateless';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
+
   public async getSinglePost(
     request: Partial<GetSinglePostRequest>
   ): Promise<GetSinglePostResponse> {

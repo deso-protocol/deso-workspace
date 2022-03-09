@@ -1,6 +1,8 @@
 import {
   CreateFollowTxnStatelessRequest,
   CreateFollowTxnStatelessResponse,
+  CreateLikeStatelessRequest,
+  CreateLikeStatelessResponse,
   GetDecryptMessagesResponse,
   GetDiamondsForPublicKeyRequest,
   GetDiamondsForPublicKeyResponse,
@@ -16,6 +18,8 @@ import {
   IsHodlingPublicKeyResponse,
   MessageContactResponse,
   SendMessageStatelessRequest,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
@@ -28,6 +32,7 @@ export class Social {
     this.node = node;
     this.identity = identity;
   }
+
   public async sendMessage(request: Partial<SendMessageStatelessRequest>) {
     const encryptedMessage = await this.identity.encrypt(request);
     request.EncryptedMessageText = encryptedMessage;
@@ -130,5 +135,43 @@ export class Social {
   ): Promise<IsHodlingPublicKeyResponse> {
     const endpoint = 'is-hodling-public-key';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async updateProfile(
+    request: Partial<UpdateProfileRequest>
+  ): Promise<UpdateProfileResponse> {
+    const endpoint = 'update-profile';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async sendDiamonds(
+    request: Partial<UpdateProfileRequest>
+  ): Promise<UpdateProfileResponse | any> {
+    const endpoint = 'send-diamonds';
+    const response = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return await this.identity
+      .submitTransaction(response.TransactionHex)
+      .then(() => response)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
+  }
+
+  public async createLikeStateless(
+    request: Partial<CreateLikeStatelessRequest>
+  ): Promise<CreateLikeStatelessResponse> {
+    const endpoint = 'create-like-stateless';
+    const response = await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(response.TransactionHex)
+      .then(() => response)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 }

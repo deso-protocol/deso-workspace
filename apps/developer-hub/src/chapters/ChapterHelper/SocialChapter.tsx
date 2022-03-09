@@ -1,19 +1,26 @@
 import Deso from '@deso-workspace/deso-sdk';
 import {
   CreateFollowTxnStatelessRequest,
+  CreateLikeStatelessRequest,
   GetFollowsStatelessRequest,
   GetHodlersForPublicKeyRequest,
   GetMessagesStatelessRequest,
   IsFollowingPublicKeyRequest,
   IsHodlingPublicKeyRequest,
+  SendDiamondsRequest,
   SendMessageStatelessRequest,
+  UpdateProfileRequest,
 } from '@deso-workspace/deso-types';
 import { Route } from 'react-router-dom';
-import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
+import {
+  DEZO_DOG,
+  DOGS_LOVE_DIAMONDS_POST,
+  ParentRoutes,
+  TYLER,
+} from '../../services/utils';
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
-
 const deso = new Deso();
 export const socialChapter = {
   GET_FOLLOWS_STATELESS: {
@@ -57,7 +64,6 @@ export const socialChapter = {
       );
     },
   },
-
   GET_MESSAGE_STATELESS: {
     parentRoute: ParentRoutes.social,
     title: 'Get Message Stateless',
@@ -103,7 +109,6 @@ export const socialChapter = {
       );
     },
   },
-
   CREATE_FOLLOW_TRANSACTION: {
     parentRoute: ParentRoutes.social,
     title: 'Create Follow Transaction',
@@ -143,7 +148,6 @@ export const socialChapter = {
       );
     },
   },
-
   GET_HODLERS_FOR_PUBLIC_KEY: {
     parentRoute: ParentRoutes.social,
     title: 'Get Hodlers For Public Key',
@@ -188,7 +192,7 @@ export const socialChapter = {
     route: '/social/get_diamonds_for_public_key',
     githubSource: [],
     documentation: [
-      'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#get-diamonds-for-public-key',
+      'Get a list of objects representing all the diamonds a user has given or received.',
     ],
     params: {
       NumToFetch: 20,
@@ -209,7 +213,7 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div></div>
+                <div>Gets diamonds that </div>
               )}
               tabs={[]}
               chapters={CHAPTERS}
@@ -247,10 +251,7 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div>
-                  Similar to the get-users-stateless, but Instead it will return
-                  an array of followers for a specific account.{' '}
-                </div>
+                <div> Determines if a user is following another.</div>
               )}
               tabs={[]}
               chapters={CHAPTERS}
@@ -290,8 +291,9 @@ export const socialChapter = {
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
                 <div>
-                  Similar to the get-users-stateless, but Instead it will return
-                  an array of followers for a specific account.{' '}
+                  Check if the user holds the creator coin of a public key. If
+                  user is holding some amount of creator coin, we return the
+                  BalanceEntryResponse representing how much the user holds.
                 </div>
               )}
               tabs={[]}
@@ -332,6 +334,128 @@ export const socialChapter = {
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Send a message from your account to another</div>
+              )}
+              tabs={[]}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  UPDATE_PROFILE: {
+    parentRoute: ParentRoutes.social,
+    title: 'Update Profile',
+    route: '/social/update-profile',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api',
+    ],
+    params: {
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+      MinFeeRateNanosPerKB: 1000,
+      NewDescription: 'WOOF WOOF',
+    } as UpdateProfileRequest,
+    method: deso.social.updateProfile,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              method={{
+                methodName: `deso.social.updateProfile(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                CommonPageSectionTitles.OVERVIEW,
+                <div>Modify an accounts profile data</div>
+              )}
+              tabs={[]}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  SEND_DIAMONDS: {
+    parentRoute: ParentRoutes.social,
+    title: 'Send Diamonds',
+    route: '/social/send-diamond',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#send-diamonds',
+    ],
+    params: {
+      ReceiverPublicKeyBase58Check: DEZO_DOG,
+      SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+      DiamondPostHashHex: DOGS_LOVE_DIAMONDS_POST,
+      DiamondLevel: 1,
+      MinFeeRateNanosPerKB: 1000,
+      InTutorial: false,
+    } as SendDiamondsRequest,
+    method: deso.social.sendDiamonds,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              method={{
+                methodName: `deso.social.sendDiamonds(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                CommonPageSectionTitles.OVERVIEW,
+                <div>diamond a post.</div>
+              )}
+              tabs={[]}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  CREATE_LIKE_STATELESS: {
+    parentRoute: ParentRoutes.social,
+    title: 'Create Like Stateless',
+    route: '/social/like',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#like',
+    ],
+    params: {
+      ReaderPublicKeyBase58Check: localStorage.getItem('login_key'),
+      LikedPostHashHex:
+        'f7ea512c2435f233c948f761f7596d95190ed3c3c908fc21609535eca33e3a14',
+      MinFeeRateNanosPerKB: 1000,
+      IsUnlike: false,
+    } as CreateLikeStatelessRequest,
+    method: deso.social.createLikeStateless,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              method={{
+                methodName: `deso.social.createLikeStateless(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                CommonPageSectionTitles.OVERVIEW,
+                <div>Like a post.</div>
               )}
               tabs={[]}
               chapters={CHAPTERS}

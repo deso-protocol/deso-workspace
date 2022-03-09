@@ -8,6 +8,7 @@ import {
   SAMPLE_POST,
 } from '../../services/utils';
 import {
+  CreateNFTRequest,
   GetNFTBidsForNFTPostRequest,
   GetNFTBidsForUserRequest,
   GetNFTCollectionSummaryRequest,
@@ -109,7 +110,7 @@ export const nftChapter = {
             <Page
               tabs={[]}
               method={{
-                methodName: 'deso.nft.getNftsForUserostquest)',
+                methodName: 'deso.nft.getNftBidsForNftPost(request)',
                 params: this.params,
                 method: this.method,
               }}
@@ -242,6 +243,59 @@ export const nftChapter = {
     ],
     method: deso.nft.getNftEntriesForPostHash,
     params: { PostHashHex: SAMPLE_POST } as GetNFTEntriesForPostHashRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              tabs={[]}
+              method={{
+                methodName: 'deso.nft.getNftEntriesForPostHash(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Gets an NFT entry response for each serial number of this NFT
+                  post.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
+  CREATE_NFT: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Create Nft',
+    route: '/nft/',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft',
+    ],
+    method: deso.nft.getNftEntriesForPostHash,
+    params: {
+      // UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+      // NFTPostHashHex: '',
+      // NumCopies: 1
+      // NFTRoyaltyToCreatorBasisPoints: '',
+      // NFTRoyaltyToCoinBasisPoints: '',
+      // HasUnlockable: '',
+      // IsForSale: true,
+      // MinBidAmountNanos: '' ,
+      // IsBuyNow:''
+      // BuyNowPriceNanos: ''
+      // AdditionalDESORoyaltiesMap: {''},
+      // AdditionalCoinRoyaltiesMap: {},
+      // MinFeeRateNanosPerKB: 1000
+    } as CreateNFTRequest,
     component: function () {
       return (
         <Route

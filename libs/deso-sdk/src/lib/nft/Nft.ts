@@ -1,5 +1,14 @@
 import axios from 'axios';
 import {
+  AcceptNFTBidRequest,
+  AcceptNFTBidResponse,
+  AcceptNFTTransferRequest,
+  BurnNFTRequest,
+  BurnNFTResponse,
+  CreateNFTBidRequest,
+  CreateNFTBidResponse,
+  CreateNFTRequest,
+  CreateNFTResponse,
   GetNextNFTShowcaseResponse,
   GetNFTBidsForNFTPostRequest,
   GetNFTBidsForNFTPostResponse,
@@ -13,6 +22,10 @@ import {
   GetNFTsForUserResponse,
   GetNFTShowcaseRequest,
   GetNFTShowcaseResponse,
+  TransferNFTRequest,
+  TransferNFTResponse,
+  UpdateNFTRequest,
+  UpdateNFTResponse,
 } from '@deso-workspace/deso-types';
 import { Node } from '../../index';
 import { Identity } from '../identity/Identity';
@@ -71,6 +84,55 @@ export class Nft {
     request: Partial<GetNFTEntriesForPostHashRequest>
   ): Promise<GetNFTEntriesForPostHashResponse> {
     const endpoint = 'get-nft-entries-for-nft-post';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async createNft(
+    request: Partial<CreateNFTRequest>
+  ): Promise<CreateNFTResponse> {
+    const endpoint = 'create-nft';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async updateNft(
+    request: Partial<UpdateNFTRequest>
+  ): Promise<UpdateNFTResponse> {
+    const endpoint = 'update-nft';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async createNftBid(
+    request: Partial<CreateNFTBidRequest>
+  ): Promise<CreateNFTBidResponse> {
+    const endpoint = 'create-nft-request';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async acceptNftBid(
+    request: Partial<AcceptNFTBidRequest>
+  ): Promise<AcceptNFTBidResponse> {
+    const endpoint = 'create-nft-request';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async transferNft(
+    request: Partial<TransferNFTRequest>
+  ): Promise<TransferNFTResponse> {
+    const endpoint = 'transfer-nft';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async acceptNftTransfer(
+    request: Partial<AcceptNFTTransferRequest>
+  ): Promise<TransferNFTResponse> {
+    const endpoint = 'accept-nft-transfer';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async burnNft(
+    request: Partial<BurnNFTRequest>
+  ): Promise<BurnNFTResponse> {
+    const endpoint = 'burn-nft';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 }

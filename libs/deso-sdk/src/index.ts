@@ -20,9 +20,9 @@ class Deso {
   public Admin = new Admin(this.node, this.identity);
   public media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
-  public Miner = new Miner(this.node, this.identity);
+  public miner = new Miner(this.node, this.identity);
   public nft = new Nft(this.node, this.identity);
-  public notifications = new Notification(this.node, this.identity);
+  public notification = new Notification(this.node, this.identity);
   public posts = new Posts(this.node, this.identity);
   public social = new Social(this.node, this.identity);
   public user = new User(this.node, this.identity);

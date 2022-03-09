@@ -106,13 +106,6 @@ export const Page = ({
             </>
           ),
         },
-        // {
-        //   content: PageSection(
-        //     CommonPageSectionTitles.ADDITIONAL_DOCUMENTATION,
-        //     <>{chapters.documentationToLink(selectedChapter)}</>
-        //   ),
-        //   title: CommonPageSectionTitles.DOCUMENTATION,
-        // },
       ]}
       navigation={
         <PageNavigation

@@ -27,6 +27,8 @@ export const RUSSIA: Readonly<string> =
   'BC1YLhxfpQ3SHhoJRbYpYdz1FS2CAxpymkPEGUoDZVYLXH1eGdW2pmY';
 export const DEZO_DOG: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
+export const DOGS_LOVE_DIAMONDS_POST =
+  '6a30911a948dce54c00523daaa81a8b3c6323ed873880e8ff3e42bee5543c49a';
 export const SAMPLE_POST =
   'd30d715dfdc59955ae239635833367dd6c367bb52771bc47f507ccfb4060d53a';
 export const getFollowerCount = (userInfoResponse: any): number => {
