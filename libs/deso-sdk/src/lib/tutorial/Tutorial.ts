@@ -1,10 +1,10 @@
-import axios from 'axios';
 import {
   GetTutorialCreatorResponse,
   GetTutorialCreatorsRequest,
   StartOrSkipTutorialRequest,
   UpdateTutorialStatusRequest,
-} from '../../../../deso-types/src';
+} from '@deso-workspace/deso-types';
+import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 export class Tutorial {

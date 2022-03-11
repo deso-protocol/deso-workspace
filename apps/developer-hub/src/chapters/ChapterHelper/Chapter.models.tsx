@@ -247,17 +247,17 @@ export interface ChapterNavigation {
   IS_FOLLOWING_PUBLIC_KEY: Chapter;
   IS_HODLING_PUBLIC_KEY: Chapter;
   //_media
-  UPLOAD_IMAGE: Chapter;
-  UPLOAD_VIDEO: Chapter;
-  GET_VIDEO_STATUS: Chapter;
-  GET_FULL_TIKTOK_URL: Chapter;
+  // UPLOAD_IMAGE: Chapter;
+  // UPLOAD_VIDEO: Chapter;
+  // GET_VIDEO_STATUS: Chapter;
+  // GET_FULL_TIKTOK_URL: Chapter;
   //_notifications
   GET_NOTIFICATIONS: Chapter;
   GET_UNREAD_NOTIFICATION_COUNT: Chapter;
   SET_NOTIFICATION_METADATA: Chapter;
   // Referral
-  GET_REFERRAL_INFO_FOR_USER: Chapter;
-  GET_REFERRAL_INFO_FOR_REFERRAL_HASH: Chapter;
+  // GET_REFERRAL_INFO_FOR_USER: Chapter;
+  // GET_REFERRAL_INFO_FOR_REFERRAL_HASH: Chapter;
   // Miner
   GET_BLOCK_TEMPLATE: Chapter;
   SUBMIT_BLOCK: Chapter;

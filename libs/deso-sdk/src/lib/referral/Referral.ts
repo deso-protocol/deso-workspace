@@ -1,12 +1,12 @@
 import axios from 'axios';
+import { Node } from '../Node/Node';
+import { Identity } from '../identity/Identity';
 import {
   GetReferralInfoForReferralHashRequest,
   GetReferralInfoForReferralHashResponse,
   GetReferralInfoForUserRequest,
   GetReferralInfoForUserResponse,
-} from '../../../../deso-types/src';
-import { Node } from '../Node/Node';
-import { Identity } from '../identity/Identity';
+} from '@deso-workspace/deso-types';
 export class Referral {
   node: Node;
   identity: Identity;

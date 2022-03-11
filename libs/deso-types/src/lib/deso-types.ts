@@ -1260,13 +1260,6 @@ export interface MessagingGroupMetadata {
   MessagingGroupMembers: MessagingGroupMember[] | null;
 }
 
-// struct2ts:types/dist/generated.DeSoNode
-export interface DeSoNode {
-  Name: string;
-  URL: string;
-  Owner: string;
-}
-
 // struct2ts:types/dist/generated.Notifier
 export interface Notifier {}
 

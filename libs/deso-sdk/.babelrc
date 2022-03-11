@@ -1,5 +1,6 @@
 {
   "presets": [
+    "@babel/preset-flow",
     [
       "@nrwl/react/babel",
       {
