@@ -34,7 +34,7 @@ export class Identity {
   public getUserKey(): string | null {
     const key = localStorage.getItem('login_key');
     if (key) {
-      return JSON.parse(key);
+      return key;
     }
     return null;
   }
