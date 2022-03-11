@@ -1,9 +1,9 @@
-import Deso from '@deso-workspace/deso-sdk';
+import Deso from 'deso-protocol';
 import {
   GetNotificationsCountRequest,
   GetNotificationsRequest,
   SetNotificationMetadataRequest,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
 import Page from '../Read/Page';

@@ -15,8 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@deso-workspace/deso-sdk": ["libs/deso-sdk/src/index.ts"],
-      "@deso-workspace/deso-types": ["libs/deso-types/src/index.ts"]
+      "deso-protocol": ["libs/deso-protocol/src/index.ts"],
+      "deso-protocol-types": ["libs/deso-protocol-types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

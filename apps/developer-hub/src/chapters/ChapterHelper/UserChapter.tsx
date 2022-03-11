@@ -3,7 +3,7 @@ import { CHAPTERS, TODOTemplate } from './Chapter.models';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
 import { DEZO_DOG, ParentRoutes, RUSSIA } from '../../services/utils';
-import Deso from '@deso-workspace/deso-sdk';
+import Deso from 'deso-protocol';
 import {
   GetSingleProfileRequest,
   GetUsersStatelessRequest,
@@ -11,7 +11,7 @@ import {
   GetUserMetadataRequest,
   DeletePIIRequest,
   BlockPublicKeyRequest,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 const deso = new Deso();
 // deso.user.getSingleProfile;
 // deso.user.getSingleProfilePicture;

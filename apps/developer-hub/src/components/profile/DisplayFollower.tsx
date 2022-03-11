@@ -9,7 +9,7 @@ import DisplayMessages from './DisplayMessages';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import { useRecoilValue } from 'recoil';
 import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 export interface DisplayUserProps {

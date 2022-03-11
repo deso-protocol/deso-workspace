@@ -15,7 +15,7 @@ import UserActions from '../UserActions';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 export interface DisplayUserProps {
   publicKey: string;

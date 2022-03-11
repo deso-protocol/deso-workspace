@@ -7,7 +7,7 @@ import {
   GetFollowsResponse,
   GetSingleProfileResponse,
   GetUsersResponse,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 
 export interface ProfileCardProps {
   selectedChapter: Chapter;

@@ -1,4 +1,4 @@
-import Deso from '@deso-workspace/deso-sdk';
+import Deso from 'deso-protocol';
 import {
   GetDiamondsForPostRequest,
   GetLikesForPostRequest,
@@ -8,7 +8,7 @@ import {
   GetRepostsForPostRequest,
   HotFeedPageRequest,
   SubmitPostRequest,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import {
   DEZO_DOG,

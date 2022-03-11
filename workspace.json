@@ -1,9 +1,8 @@
 {
   "version": 2,
   "projects": {
-    "deso-react-template": "apps/deso-react-template",
-    "deso-sdk": "libs/deso-sdk",
-    "deso-types": "libs/deso-types",
+    "deso-protocol": "libs/deso-protocol",
+    "deso-protocol-types": "libs/deso-protocol-types",
     "developer-hub": "apps/developer-hub",
     "developer-hub-e2e": "apps/developer-hub-e2e"
   },

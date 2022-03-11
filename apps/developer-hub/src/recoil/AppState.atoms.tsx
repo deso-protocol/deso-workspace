@@ -3,7 +3,7 @@ import {
   GetFollowsResponse,
   GetSingleProfileResponse,
   GetUsersResponse,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import { atom } from 'recoil';
 
 export enum AppStateEnum {

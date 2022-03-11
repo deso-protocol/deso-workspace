@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, TextField, Tooltip } from '@mui/material';
-import { LoginUser } from '@deso-workspace/deso-types';
+import { LoginUser } from 'deso-protocol-types';
 import { SampleAppLoggedInUser } from '../../recoil/AppState.atoms';
 import { useRecoilValue } from 'recoil';
 import { useState } from 'react';

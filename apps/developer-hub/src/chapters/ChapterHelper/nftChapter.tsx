@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { CHAPTERS } from './Chapter.models';
-import Deso from '@deso-workspace/deso-sdk';
+import Deso from 'deso-protocol';
 import {
   ParentRoutes,
   TYLER,
@@ -15,7 +15,7 @@ import {
   GetNFTEntriesForPostHashRequest,
   GetNFTsForUserRequest,
   GetNFTShowcaseRequest,
-} from '@deso-workspace/deso-types';
+} from 'deso-protocol-types';
 import Page from '../Read/Page';
 import { PageSection } from './PageSections';
 const deso = new Deso();

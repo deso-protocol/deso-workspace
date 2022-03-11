@@ -13,7 +13,7 @@ import {
   PublicKey,
 } from '../../chapters/ChapterHelper/Chapter.atom';
 import { SendMessage } from './SendMessage';
-import { LoginUser } from '@deso-workspace/deso-types';
+import { LoginUser } from 'deso-protocol-types';
 
 export interface DisplayMessagesProps {
   publicKey: string;

@@ -1,5 +1,5 @@
-import Deso from '@deso-workspace/deso-sdk';
-import { LoginUser } from '@deso-workspace/deso-types';
+import Deso from 'deso-protocol';
+import { LoginUser } from 'deso-protocol-types';
 import { atom } from 'recoil';
 import { recoilPersist } from 'recoil-persist';
 import { DEZO_DOG } from '../../services/utils';

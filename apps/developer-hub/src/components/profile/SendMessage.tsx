@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { SampleAppEncryptedMessage } from '../../recoil/AppState.atoms';
 // import { encryptMessage, sendMessage } from "../../services/DesoApiSendMessage";
-import { LoginUser } from '@deso-workspace/deso-types';
+import { LoginUser } from 'deso-protocol-types';
 import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 export interface SendMessageProps {
   publicKey: string;

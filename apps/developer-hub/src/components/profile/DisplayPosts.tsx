@@ -1,4 +1,4 @@
-import { GetPostsForPublicKeyResponse } from '@deso-workspace/deso-types';
+import { GetPostsForPublicKeyResponse } from 'deso-protocol-types';
 import { Avatar, CardHeader } from '@mui/material';
 import Card from '@mui/material/Card';
 import { ReactElement, useEffect, useState } from 'react';

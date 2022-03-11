@@ -1,7 +1,7 @@
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
 import Page from '../Read/Page';
-import Deso from '@deso-workspace/deso-sdk';
+import Deso from 'deso-protocol';
 import { PageSection } from './PageSections';
 import { CHAPTERS } from './Chapter.models';
 const deso = new Deso();

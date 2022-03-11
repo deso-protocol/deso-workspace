@@ -1,4 +1,4 @@
-import { LoginUser } from '@deso-workspace/deso-types';
+import { LoginUser } from 'deso-protocol-types';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
