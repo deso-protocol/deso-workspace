@@ -6,7 +6,7 @@ import {
   SetNotificationMetadataRequest,
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
 // remove this later and figure out a better solution for the this binding issue
 let Notifications: Notification;

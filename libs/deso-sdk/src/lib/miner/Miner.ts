@@ -1,4 +1,4 @@
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
 
 export class Miner {

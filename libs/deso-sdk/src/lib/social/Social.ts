@@ -17,18 +17,24 @@ import {
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
   MessageContactResponse,
+  SendDiamondsRequest,
+  SendDiamondsResponse,
   SendMessageStatelessRequest,
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
+import { User } from '../user/User';
 
 export class Social {
   node: Node;
   identity: Identity;
-  constructor(node: Node, identity: Identity) {
+  user: User;
+
+  constructor(node: Node, identity: Identity, user: User) {
+    this.user = user;
     this.node = node;
     this.identity = identity;
   }
@@ -141,12 +147,31 @@ export class Social {
     request: Partial<UpdateProfileRequest>
   ): Promise<UpdateProfileResponse> {
     const endpoint = 'update-profile';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const response: UpdateProfileResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    // const profile = (await this.user.getSingleProfile({
+    //   PublicKeyBase58Check: request.ProfilePublicKeyBase58Check,
+    // })).Profile;
+    //   const oy = {
+    // NewUsername: profile?.Username,
+    // NewDescription: profile?.Description,
+    // // NewProfilePic: profile.,
+    // NewCreatorBasisPoints: profile.,
+    // MinFeeRateNanosPerKB: 1000
+    //   }
+    response.TransactionHex;
+    return await this.identity
+      .submitTransaction(response.TransactionHex)
+      .then(() => response)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async sendDiamonds(
-    request: Partial<UpdateProfileRequest>
-  ): Promise<UpdateProfileResponse | any> {
+    request: Partial<SendDiamondsRequest>
+  ): Promise<SendDiamondsResponse> {
     const endpoint = 'send-diamonds';
     const response = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
@@ -166,7 +191,6 @@ export class Social {
     const response = await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-
     return await this.identity
       .submitTransaction(response.TransactionHex)
       .then(() => response)

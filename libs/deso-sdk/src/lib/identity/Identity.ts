@@ -1,4 +1,4 @@
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 import { requestLogin, requestLogout } from './WindowPrompts';
 import {
   GetDecryptMessagesRequest,

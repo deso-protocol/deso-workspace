@@ -15,7 +15,7 @@ export const identityChapter = {
       'https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in',
     ],
     method: deso.identity.login,
-    params: { accessLevel: 3 },
+    params: '3',
     component: function () {
       return (
         <Route

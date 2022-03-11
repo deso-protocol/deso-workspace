@@ -9,8 +9,8 @@ import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-
 const deso = new Deso();
+
 export const notificationChapter = {
   GET_NOTIFICATIONS: {
     parentRoute: ParentRoutes.notification,

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { BASE_URI } from '../state/BaseUri';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 export class MetaData {
   node: Node;
   identity: Identity;

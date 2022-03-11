@@ -119,8 +119,8 @@ export const socialChapter = {
     githubSource: [],
     params: {
       IsUnfollow: true,
-      FollowedPublicKeyBase58Check: TYLER,
-      FollowerPublicKeyBase58Check: DEZO_DOG,
+      FollowedPublicKeyBase58Check: localStorage.getItem('login_key'),
+      FollowerPublicKeyBase58Check: TYLER,
     } as CreateFollowTxnStatelessRequest,
     method: deso.social.createFollowTxnStateless,
     component: function () {
@@ -314,7 +314,7 @@ export const socialChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#send-message',
     ],
     params: {
-      RecipientPublicKeyBase58Check: TYLER,
+      RecipientPublicKeyBase58Check: DEZO_DOG,
       SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
       MessageText: 'Ogres are like onions.',
     } as SendMessageStatelessRequest,

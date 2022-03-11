@@ -46,14 +46,13 @@ export const Page = ({
     if (!method) {
       return;
     }
-    console.log(bind);
-    console.log(bind === 'identity' ? deso.identity : deso);
     const methodToCall = method.method.bind(
       bind === 'identity' ? deso.identity : deso
     );
     const response = await methodToCall(method.params);
     setResponse(response);
   };
+
   return (
     <ChapterTemplate
       tabs={[
@@ -72,11 +71,11 @@ export const Page = ({
                   </div>
                   <CopyBlock
                     codeBlock
-                    text={`${IMPORT_CODE}const request = ${JSON.stringify(
-                      method?.params,
-                      null,
-                      2
-                    )};\n const response = await ${
+                    text={`${IMPORT_CODE}const request = ${
+                      typeof method?.params === 'string'
+                        ? method.params
+                        : JSON.stringify(method?.params, null, 2)
+                    };\n const response = await ${
                       method?.methodName as string
                     };`}
                     language={'tsx'}

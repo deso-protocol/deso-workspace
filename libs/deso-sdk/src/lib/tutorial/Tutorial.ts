@@ -6,7 +6,7 @@ import {
   UpdateTutorialStatusRequest,
 } from '../../../../deso-types/src';
 import { Identity } from '../identity/Identity';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 export class Tutorial {
   node: Node;
   identity: Identity;

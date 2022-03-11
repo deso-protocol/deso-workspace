@@ -21,7 +21,7 @@ import {
 } from '@deso-workspace/deso-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 import { throwErrors } from '../../utils/utils';
 export class Posts {
   node: Node;
@@ -64,7 +64,6 @@ export class Posts {
     const apiResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
-
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex)
       .then(() => apiResponse)

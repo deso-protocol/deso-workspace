@@ -96,6 +96,12 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           >
                             here
                           </Link>
+                          <div className="pt-4">
+                            <span className="font-semibold">Disclaimer:</span>{' '}
+                            The library is still under development meaning not
+                            all functionality has been added AND future updates
+                            may have breaking changes.
+                          </div>
                         </div>
                       )}
                       {PageSection(

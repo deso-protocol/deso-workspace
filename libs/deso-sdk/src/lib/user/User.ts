@@ -1,5 +1,5 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../../index';
+import { Node } from '../Node/Node';
 import axios from 'axios';
 import {
   GetUsersResponse,
@@ -83,7 +83,6 @@ export class User {
     if (!request.PublicKeyBase58Check) {
       throw Error('PublicKeyBase58Check is undefined');
     }
-
     if (!request.BlockPublicKeyBase58Check) {
       throw Error('BlockPublicKeyBase58Check is undefined');
     }
