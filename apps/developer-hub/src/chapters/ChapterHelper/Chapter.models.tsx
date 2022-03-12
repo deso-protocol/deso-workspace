@@ -81,15 +81,15 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                         'Welcome to the DeSo Developer Hub',
                         <div>
                           DeSo developer hub is rich in resources to help you
-                          build your DeSo app. Currently the app can be used a
-                          reference when implementing the deso sdk into your
-                          application. We are also open to community suggestions
-                          on what additional functionality could be built which
-                          could be anything from an onchain comment threads for
-                          common issues (similar to stack overflow), more useful
-                          utility methods, etc. If you have any recommendations
-                          for improvement or find any bugs, please leave
-                          feedback{' '}
+                          build your DeSo app. Currently the app can be used as
+                          a reference when implementing the deso library into
+                          your application. We are also open to community
+                          suggestions on what additional functionality could be
+                          built which could be anything from an onchain comment
+                          threads for common issues (similar to stack overflow),
+                          more useful utility methods, etc. If you have any
+                          recommendations for improvement or find any bugs,
+                          please leave feedback{' '}
                           <Link
                             target="_blank"
                             href="https://github.com/deso-protocol/deso-workspace/issues"
@@ -98,15 +98,17 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           </Link>
                           <div className="pt-4">
                             <span className="font-semibold">Disclaimer:</span>{' '}
-                            The library is still under development meaning not
-                            all functionality has been added AND future updates
-                            may have breaking changes.
+                            The library is still under development so not all
+                            functionality is available yet. Future updates may
+                            also have breaking changes.
                           </div>
                         </div>
                       )}
                       {PageSection(
                         'Download',
-                        jsonBlock('npm i deso-sdk deso-types')
+                        <div className="max-w-[450px]">
+                          {jsonBlock('npm i deso-protocol-experimental')}
+                        </div>
                       )}
                     </>
                   ),
