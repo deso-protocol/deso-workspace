@@ -1,0 +1,11 @@
+{
+  "name": "deso-protocol",
+  "version": "0.0.7",
+  "type": "commonjs",
+  "dependencies": {
+    "deso-protocol-types": "^0.0.1",
+    "axios": "^0.25.0"
+  },
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
+}
