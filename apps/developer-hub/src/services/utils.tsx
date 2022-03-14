@@ -125,6 +125,6 @@ export function groupBy(array: any[], key: string) {
     });
   }, {});
 }
-export const IMPORT_CODE: Readonly<string> = `import Deso from '@deso-workspace/deso-sdk';
+export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
 const deso = new Deso();
 `;
