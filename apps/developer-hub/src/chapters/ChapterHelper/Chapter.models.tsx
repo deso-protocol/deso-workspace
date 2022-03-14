@@ -84,19 +84,15 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           DeSo developer hub is rich in resources to help you
                           build your DeSo app. Currently the app can be used as
                           a reference when implementing the deso library into
-                          your application. We are also open to community
-                          suggestions on what additional functionality could be
-                          built which could be anything from an onchain comment
-                          thread for common issues (similar to stack overflow),
-                          more useful utility methods, etc. If you have any
-                          recommendations for improvement or find any bugs,
-                          please leave feedback{' '}
+                          your project. If you have any recommendations for new
+                          features or find any bugs, please leave feedback{' '}
                           <Link
                             target="_blank"
                             href="https://github.com/deso-protocol/deso-workspace/issues"
                           >
                             here
                           </Link>
+                          .
                           <div className="pt-4">
                             <span className="font-semibold">Disclaimer:</span>{' '}
                             The library is still under development so not all
