@@ -6,8 +6,12 @@ import {
   TYLER,
   DEZO_DOG,
   SAMPLE_POST,
+  SAMPLE_NFT_POST,
 } from '../../services/utils';
 import {
+  AcceptNFTBidRequest,
+  AcceptNFTTransferRequest,
+  BurnNFTRequest,
   CreateNFTBidRequest,
   CreateNFTRequest,
   GetNFTBidsForNFTPostRequest,
@@ -16,6 +20,7 @@ import {
   GetNFTEntriesForPostHashRequest,
   GetNFTsForUserRequest,
   GetNFTShowcaseRequest,
+  TransferNFTRequest,
   UpdateNFTRequest,
 } from 'deso-protocol-types';
 import Page from '../Read/Page';
@@ -288,8 +293,7 @@ export const nftChapter = {
     method: deso.nft.createNft,
     params: {
       UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex:
-        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      NFTPostHashHex: SAMPLE_NFT_POST,
       NumCopies: 1,
       NFTRoyaltyToCreatorBasisPoints: 100,
       NFTRoyaltyToCoinBasisPoints: 100,
@@ -310,13 +314,7 @@ export const nftChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(
-                this.title,
-                <div>
-                  Get an NFT entry response for each serial number of this NFT
-                  post.
-                </div>
-              )}
+              pretext={PageSection(this.title, <div>Create an NFT.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -337,8 +335,7 @@ export const nftChapter = {
     method: deso.nft.updateNft,
     params: {
       UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex:
-        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      NFTPostHashHex: SAMPLE_NFT_POST,
       SerialNumber: 1,
       IsForSale: true,
       MinBidAmountNanos: 100,
@@ -351,19 +348,13 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              demo={true}
+              demo={false}
               method={{
                 methodName: 'deso.nft.updateNft(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(
-                this.title,
-                <div>
-                  Get an NFT entry response for each serial number of this NFT
-                  post.
-                </div>
-              )}
+              pretext={PageSection(this.title, <div>Update an NFT.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -383,10 +374,9 @@ export const nftChapter = {
     method: deso.nft.createNftBid,
     params: {
       UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex:
-        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      NFTPostHashHex: SAMPLE_NFT_POST,
       SerialNumber: 1,
-      BidAmountNanos: 1,
+      BidAmountNanos: 100,
       MinFeeRateNanosPerKB: 1000,
     } as CreateNFTBidRequest,
     component: function () {
@@ -396,7 +386,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              demo={true}
+              demo={false}
               method={{
                 methodName: 'deso.nft.createNftBid(request)',
                 params: this.params,
@@ -404,11 +394,164 @@ export const nftChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  get an NFT entry response for each serial number of this NFT
-                  post.
-                </div>
+                <div>Make a bid on an existing NFT.</div>
               )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  ACCEPT_NFT_BID: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Accept Nft Bid',
+    route: '/nft/accept-nft-bid',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#accept-nft-bid',
+    ],
+    method: deso.nft.acceptNftBid,
+    params: {
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      BidderPublicKeyBase58Check: DEZO_DOG,
+      NFTPostHashHex: SAMPLE_NFT_POST,
+      SerialNumber: 1,
+      BidAmountNanos: 100,
+      MinFeeRateNanosPerKB: 1000,
+    } as AcceptNFTBidRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.acceptNftBid(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(this.title, <div>Accept an NFT bid.</div>)}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
+  TRANSFER_NFT: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Transfer Nft',
+    route: '/nft/transfer-nft',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#transfer-nft',
+    ],
+    method: deso.nft.transferNft,
+    params: {
+      SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      ReceiverPublicKeyBase58Check: TYLER,
+      NFTPostHashHex: SAMPLE_NFT_POST,
+      SerialNumber: 1,
+      MinFeeRateNanosPerKB: 1000,
+    } as TransferNFTRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.transferNft(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(this.title, <div>Transfer an NFT.</div>)}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  ACCEPT_NFT_TRANSFER: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Accept Transfer Nft',
+    route: '/nft/accept-nft-transfer',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#accept-nft-transfer',
+    ],
+    method: deso.nft.acceptNftTransfer,
+    params: {
+      MinFeeRateNanosPerKB: 1000,
+      NFTPostHashHex: SAMPLE_NFT_POST,
+      SerialNumber: 1,
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+    } as AcceptNFTTransferRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.acceptNftTransfer(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Accept a transfer NFT.</div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
+  BURN_NFT: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Burn Nft',
+    route: '/nft/burn-nft',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#burn-nft',
+    ],
+    method: deso.nft.burnNft,
+    params: {
+      MinFeeRateNanosPerKB: 1000,
+      NFTPostHashHex: SAMPLE_NFT_POST,
+      SerialNumber: 1,
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+    } as BurnNFTRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.burnNft(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />

@@ -125,34 +125,74 @@ export class Nft {
     const apiResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-    return apiResponse;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async acceptNftBid(
     request: Partial<AcceptNFTBidRequest>
   ): Promise<AcceptNFTBidResponse> {
-    const endpoint = 'create-nft-request';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const endpoint = 'accept-nft-bid';
+    const apiResponse = await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async transferNft(
     request: Partial<TransferNFTRequest>
   ): Promise<TransferNFTResponse> {
     const endpoint = 'transfer-nft';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async acceptNftTransfer(
     request: Partial<AcceptNFTTransferRequest>
   ): Promise<TransferNFTResponse> {
     const endpoint = 'accept-nft-transfer';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async burnNft(
     request: Partial<BurnNFTRequest>
   ): Promise<BurnNFTResponse> {
     const endpoint = 'burn-nft';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 }

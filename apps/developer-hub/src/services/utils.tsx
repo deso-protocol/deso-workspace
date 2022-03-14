@@ -30,6 +30,8 @@ export const DOGS_LOVE_DIAMONDS_POST =
   '6a30911a948dce54c00523daaa81a8b3c6323ed873880e8ff3e42bee5543c49a';
 export const SAMPLE_POST =
   'd30d715dfdc59955ae239635833367dd6c367bb52771bc47f507ccfb4060d53a';
+export const SAMPLE_NFT_POST =
+  'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6';
 export const getFollowerCount = (userInfoResponse: any): number => {
   const followers =
     userInfoResponse?.UserList[0]?.PublicKeysBase58CheckFollowedByUser?.length;
