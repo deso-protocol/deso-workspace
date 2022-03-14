@@ -119,7 +119,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets the profiles following a specific user.</div>
+                <div>Get the profiles following a specific user.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -161,7 +161,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets the profile picture for a specific account.</div>
+                <div>Get the profile picture for a specific account.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -200,7 +200,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets metadata for a specific user.</div>
+                <div>Get metadata for a specific user.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}

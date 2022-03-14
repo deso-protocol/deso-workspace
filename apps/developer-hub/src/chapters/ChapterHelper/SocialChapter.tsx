@@ -175,7 +175,9 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div></div>
+                <div>
+                  Get Users who are or who have had held a certain public key.
+                </div>
               )}
               demo={true}
               chapters={CHAPTERS}
@@ -213,7 +215,10 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div>Gets diamonds that </div>
+                <div>
+                  Get a list of objects representing all the diamonds a user has
+                  given or received.
+                </div>
               )}
               demo={true}
               chapters={CHAPTERS}

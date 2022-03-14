@@ -106,14 +106,26 @@ export class Nft {
     request: Partial<UpdateNFTRequest>
   ): Promise<UpdateNFTResponse> {
     const endpoint = 'update-nft';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async createNftBid(
     request: Partial<CreateNFTBidRequest>
   ): Promise<CreateNFTBidResponse> {
-    const endpoint = 'create-nft-request';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const endpoint = 'create-nft-bid';
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
   }
 
   public async acceptNftBid(

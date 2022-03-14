@@ -41,7 +41,7 @@ export const notificationChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Fetches notifications for an account</div>
+                <div>Fetches notifications for an account.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -78,7 +78,7 @@ export const notificationChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets the number of unread notifications</div>
+                <div>Get the number of unread notifications.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}

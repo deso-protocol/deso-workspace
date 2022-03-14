@@ -264,7 +264,7 @@ export const nftChapter = {
               pretext={PageSection(
                 this.title,
                 <div>
-                  Gets an NFT entry response for each serial number of this NFT
+                  Get an NFT entry response for each serial number of this NFT
                   post.
                 </div>
               )}
@@ -313,7 +313,7 @@ export const nftChapter = {
               pretext={PageSection(
                 this.title,
                 <div>
-                  Gets an NFT entry response for each serial number of this NFT
+                  Get an NFT entry response for each serial number of this NFT
                   post.
                 </div>
               )}
@@ -351,7 +351,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              demo={false}
+              demo={true}
               method={{
                 methodName: 'deso.nft.updateNft(request)',
                 params: this.params,
@@ -360,7 +360,7 @@ export const nftChapter = {
               pretext={PageSection(
                 this.title,
                 <div>
-                  Gets an NFT entry response for each serial number of this NFT
+                  Get an NFT entry response for each serial number of this NFT
                   post.
                 </div>
               )}
@@ -372,7 +372,6 @@ export const nftChapter = {
       );
     },
   },
-
   CREATE_NFT_BID: {
     parentRoute: ParentRoutes.nft,
     title: 'Create Nft Bid',
@@ -384,6 +383,11 @@ export const nftChapter = {
     method: deso.nft.createNftBid,
     params: {
       UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      NFTPostHashHex:
+        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      SerialNumber: 1,
+      BidAmountNanos: 1,
+      MinFeeRateNanosPerKB: 1000,
     } as CreateNFTBidRequest,
     component: function () {
       return (
@@ -394,14 +398,14 @@ export const nftChapter = {
             <Page
               demo={true}
               method={{
-                methodName: 'deso.nft.updateNft(request)',
+                methodName: 'deso.nft.createNftBid(request)',
                 params: this.params,
                 method: this.method,
               }}
               pretext={PageSection(
                 this.title,
                 <div>
-                  Gets an NFT entry response for each serial number of this NFT
+                  get an NFT entry response for each serial number of this NFT
                   post.
                 </div>
               )}

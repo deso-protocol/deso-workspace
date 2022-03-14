@@ -82,7 +82,10 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Submit a post</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Create a submit post transaction and submit it.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -145,7 +148,15 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Get Hot Feed</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Get Hot Feed returns a page of Posts that are currently "hot".
+                  A post's hotness is determined by the time since the post was
+                  created and the number of likes, diamonds, comments, reposts,
+                  and quote reposts.
+                </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -182,7 +193,14 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Get diamonded posts.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Get all posts on which sender sent diamonds to the receiver.
+                  Posts are sorted by the number of diamonds given from the
+                  sender to the receiver and then by timestamp.
+                </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -216,7 +234,10 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Get diamonded posts.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Get Profiles of users who liked a given post.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -293,8 +314,8 @@ export const postChapter = {
               pretext={PageSection(
                 this.title,
                 <div>
-                  Get Profiles and number of diamonds for users who gave
-                  diamonds to a given post.
+                  Get Profiles of users who reposted (without a quote) a given
+                  post.
                 </div>
               )}
               chapters={CHAPTERS}
