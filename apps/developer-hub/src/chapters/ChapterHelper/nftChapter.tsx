@@ -8,6 +8,7 @@ import {
   SAMPLE_POST,
 } from '../../services/utils';
 import {
+  CreateNFTBidRequest,
   CreateNFTRequest,
   GetNFTBidsForNFTPostRequest,
   GetNFTBidsForUserRequest,
@@ -15,6 +16,7 @@ import {
   GetNFTEntriesForPostHashRequest,
   GetNFTsForUserRequest,
   GetNFTShowcaseRequest,
+  UpdateNFTRequest,
 } from 'deso-protocol-types';
 import Page from '../Read/Page';
 import { PageSection } from './PageSections';
@@ -26,7 +28,10 @@ export const nftChapter = {
     title: 'Get Nfts For User',
     route: '/nft/get-nfts-for-user',
     method: deso.nft.getNftsForUser,
-    params: { UserPublicKeyBase58Check: TYLER } as GetNFTsForUserRequest,
+    params: {
+      UserPublicKeyBase58Check:
+        (localStorage.getItem('login_key') as string) || DEZO_DOG,
+    } as GetNFTsForUserRequest,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nfts-for-user',
@@ -38,7 +43,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftsForUser(request)',
                 params: this.params,
@@ -73,7 +78,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftBidsForUser(request)',
                 params: this.params,
@@ -108,7 +113,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftBidsForNftPost(request)',
                 params: this.params,
@@ -143,7 +148,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftShowcase(request)',
                 params: this.params,
@@ -180,7 +185,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNextNftShowCase(request)',
                 params: this.params,
@@ -215,7 +220,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftCollectionSummary(request)',
                 params: this.params,
@@ -250,7 +255,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.nft.getNftEntriesForPostHash(request)',
                 params: this.params,
@@ -272,56 +277,140 @@ export const nftChapter = {
     },
   },
 
-  // CREATE_NFT: {
-  //   parentRoute: ParentRoutes.nft,
-  //   title: 'Create Nft',
-  //   route: '/nft/',
-  //   githubSource: [],
-  //   documentation: [
-  //     'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft',
-  //   ],
-  //   method: deso.nft.getNftEntriesForPostHash,
-  //   params: {
-  //     // UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
-  //     // NFTPostHashHex: '',
-  //     // NumCopies: 1,
-  //     // NFTRoyaltyToCreatorBasisPoints: 100,
-  //     // NFTRoyaltyToCoinBasisPoints: 100,
-  //     // HasUnlockable: '',
-  //     // IsForSale: true,
-  //     // MinBidAmountNanos: '' ,
-  //     // IsBuyNow:''
-  //     // BuyNowPriceNanos: ''
-  //     // AdditionalDESORoyaltiesMap: {''},
-  //     // AdditionalCoinRoyaltiesMap: {},
-  //     // MinFeeRateNanosPerKB: 1000
-  //   } as CreateNFTRequest,
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Page
-  //             tabs={[]}
-  //             method={{
-  //               methodName: 'deso.nft.getNftEntriesForPostHash(request)',
-  //               params: this.params,
-  //               method: this.method,
-  //             }}
-  //             pretext={PageSection(
-  //               this.title,
-  //               <div>
-  //                 Gets an NFT entry response for each serial number of this NFT
-  //                 post.
-  //               </div>
-  //             )}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
+  CREATE_NFT: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Create Nft',
+    route: '/nft/create-nft',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft',
+    ],
+    method: deso.nft.createNft,
+    params: {
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      NFTPostHashHex:
+        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      NumCopies: 1,
+      NFTRoyaltyToCreatorBasisPoints: 100,
+      NFTRoyaltyToCoinBasisPoints: 100,
+      HasUnlockable: false,
+      IsForSale: false,
+      MinFeeRateNanosPerKB: 1000,
+    } as Partial<CreateNFTRequest>,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.createNft(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Gets an NFT entry response for each serial number of this NFT
+                  post.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
+  UPDATE_NFT: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Update Nft',
+    route: '/nft/update-nft',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#update-nft',
+    ],
+    method: deso.nft.updateNft,
+    params: {
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      NFTPostHashHex:
+        'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6',
+      SerialNumber: 1,
+      IsForSale: true,
+      MinBidAmountNanos: 100,
+      MinFeeRateNanosPerKB: 1000,
+    } as UpdateNFTRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.nft.updateNft(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Gets an NFT entry response for each serial number of this NFT
+                  post.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
+  CREATE_NFT_BID: {
+    parentRoute: ParentRoutes.nft,
+    title: 'Create Nft Bid',
+    route: '/nft/create-nft-bid',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft-bid',
+    ],
+    method: deso.nft.createNftBid,
+    params: {
+      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+    } as CreateNFTBidRequest,
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: 'deso.nft.updateNft(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Gets an NFT entry response for each serial number of this NFT
+                  post.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
 };

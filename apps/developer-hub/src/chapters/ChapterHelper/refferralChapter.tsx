@@ -43,7 +43,7 @@ export const referralChapter = {
   //                 an array of followers for a specific account.{' '}
   //               </div>
   //             )}
-  //             tabs={[]}
+  //             demo={true}
   //             chapters={CHAPTERS}
   //             selectedChapter={this}
   //           />
@@ -81,7 +81,7 @@ export const referralChapter = {
   //   //               an array of followers for a specific account.{' '}
   //   //             </div>
   //   //           )}
-  //   //           tabs={[]}
+  //   //           demo={true}
   //   //           chapters={CHAPTERS}
   //   //           selectedChapter={this}
   //   //         />

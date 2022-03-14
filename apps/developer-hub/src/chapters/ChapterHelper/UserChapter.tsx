@@ -44,7 +44,7 @@ export const userChapter = {
                 this.title,
                 <div>Will query information on an existing user or users.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -72,7 +72,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getSingleProfile(request)`,
                 params: this.params,
@@ -111,7 +111,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getProfiles(request)`,
                 params: this.params,
@@ -147,7 +147,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getSingleProfilePicture(request)`,
                 params: this.params,
@@ -192,7 +192,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getUserMetadata(request)`,
                 params: this.params,
@@ -227,7 +227,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.deletePii(request)`,
                 params: this.params,
@@ -269,7 +269,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.blockPublicKey(request)`,
                 params: this.params,
@@ -306,7 +306,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getUserDerivedKeys(request)`,
                 params: this.params,
@@ -344,7 +344,7 @@ export const userChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.user.getUserDerivedKeys(request)`,
                 params: this.params,

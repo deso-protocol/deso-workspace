@@ -33,7 +33,7 @@ export const notificationChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: 'deso.notifications.getNotifications(request)',
                 params: this.params,
@@ -70,7 +70,7 @@ export const notificationChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.notification.getUnreadNotificationsCount(request)`,
                 params: this.params,
@@ -107,7 +107,7 @@ export const notificationChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.notification.setNotificationMetadata(request)`,
                 params: this.params,

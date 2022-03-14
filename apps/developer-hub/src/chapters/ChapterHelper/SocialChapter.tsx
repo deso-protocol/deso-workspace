@@ -55,7 +55,7 @@ export const socialChapter = {
                   an array of followers for a specific account.{' '}
                 </div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -100,7 +100,7 @@ export const socialChapter = {
                   an array of followers for a specific account.{' '}
                 </div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -139,7 +139,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Follow or unfollow a specific user</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -177,7 +177,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div></div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -215,7 +215,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Gets diamonds that </div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -253,7 +253,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div> Determines if a user is following another.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -296,7 +296,7 @@ export const socialChapter = {
                   BalanceEntryResponse representing how much the user holds.
                 </div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -335,7 +335,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Send a message from your account to another</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -374,7 +374,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Modify an accounts profile data</div>
               )}
-              tabs={[]}
+              demo={false}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -416,7 +416,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>diamond a post.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -457,7 +457,7 @@ export const socialChapter = {
                 CommonPageSectionTitles.OVERVIEW,
                 <div>Like a post.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />

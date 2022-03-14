@@ -2,7 +2,6 @@ import { LoginUser } from 'deso-protocol-types';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
-import { TransactionPost } from '../chapters/Interfaces/Transaction.interface';
 
 export enum ParentRoutes {
   landing = 'landing',
@@ -125,6 +124,7 @@ export function groupBy(array: any[], key: string) {
     });
   }, {});
 }
+
 export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
 const deso = new Deso();
 `;

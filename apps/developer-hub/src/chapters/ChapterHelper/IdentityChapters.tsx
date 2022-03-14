@@ -32,7 +32,7 @@ export const identityChapter = {
                 this.title,
                 <div>Trigger a window prompt to let a user login.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -67,7 +67,7 @@ export const identityChapter = {
                 this.title,
                 <div>Trigger a window prompt to let a user logout.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -102,7 +102,7 @@ export const identityChapter = {
                 this.title,
                 <div>Trigger a window prompt to let a user logout.</div>
               )}
-              tabs={[]}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
               bind="identity"

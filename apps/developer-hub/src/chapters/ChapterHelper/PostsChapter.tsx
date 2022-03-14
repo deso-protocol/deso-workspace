@@ -45,7 +45,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.submitPost(request)`,
                 params: this.params,
@@ -76,7 +76,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getPostsStateless(request)`,
                 params: this.params,
@@ -109,7 +109,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getSinglePost(request)`,
                 params: this.params,
@@ -139,7 +139,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getHotFeed(request)`,
                 params: this.params,
@@ -176,7 +176,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getDiamondedPosts(request)`,
                 params: this.params,
@@ -210,7 +210,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getDiamondedPosts(request)`,
                 params: this.params,
@@ -244,7 +244,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getDiamondsForPost(request)`,
                 params: this.params,
@@ -284,7 +284,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getRepostsForPost(request)`,
                 params: this.params,
@@ -324,7 +324,7 @@ export const postChapter = {
           path={this.route}
           element={
             <Page
-              tabs={[]}
+              demo={true}
               method={{
                 methodName: `deso.posts.getQuoteRepostsForPost(request)`,
                 params: this.params,

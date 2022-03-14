@@ -30,7 +30,7 @@ export const callIdentityMethodAndExecute = (
   getIframe().contentWindow?.postMessage(request, '*');
   return iFrameHandler({
     iFrameMethod: method,
-    data: getParams,
+    data: getParams(method, attributeValue),
   });
 };
 

@@ -20,9 +20,9 @@ export interface PageProps {
     customResponse?: unknown;
   };
   chapters: ChapterNavigation;
-  tabs: TabItem[];
   pretext?: ReactElement;
   bind?: string;
+  demo: boolean;
 }
 export const Page = ({
   method,
@@ -30,6 +30,7 @@ export const Page = ({
   chapters,
   pretext,
   bind,
+  demo = true,
 }: PageProps) => {
   const deso = useRecoilValue(desoService);
   const [response, setResponse] = useState<any | null>(null);
@@ -61,7 +62,6 @@ export const Page = ({
           content: (
             <>
               {pretext}
-
               {PageSection(
                 `Using ${selectedChapter.title}`,
                 <>
@@ -85,23 +85,25 @@ export const Page = ({
                 </>
               )}
 
-              {PageSection(
-                CommonPageSectionTitles.TRY_IT_OUT,
-                <div>
-                  Click{' '}
-                  <span
-                    className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
-                    onClick={executeApiCall}
-                  >
-                    here
-                  </span>{' '}
-                  to call {selectedChapter.title}.{' '}
-                  {(response &&
-                    typeof method?.customResponse === 'function' &&
-                    method?.customResponse()) ||
-                    jsonBlock(response || '')}
-                </div>
-              )}
+              {(demo &&
+                PageSection(
+                  CommonPageSectionTitles.TRY_IT_OUT,
+                  <div>
+                    Click{' '}
+                    <span
+                      className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
+                      onClick={executeApiCall}
+                    >
+                      here
+                    </span>{' '}
+                    to call {selectedChapter.title}.{' '}
+                    {(response &&
+                      typeof method?.customResponse === 'function' &&
+                      method?.customResponse()) ||
+                      jsonBlock(response || '')}
+                  </div>
+                )) ||
+                'Demo coming soon'}
             </>
           ),
         },

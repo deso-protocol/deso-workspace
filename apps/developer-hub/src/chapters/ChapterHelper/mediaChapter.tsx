@@ -33,7 +33,7 @@ export const mediaChapter = {
   //         path={this.route}
   //         element={
   //           <Page
-  //             tabs={[]}
+  //             demo={true}
   //             method={{
   //               methodName: 'deso.media.uploadImage(request)',
   //               params: this.params,
@@ -68,7 +68,7 @@ export const mediaChapter = {
   //         path={this.route}
   //         element={
   //           <Page
-  //             tabs={[]}
+  //             demo={true}
   //             method={{
   //               methodName: 'deso.media.uploadVideo(request)',
   //               params: this.params,
@@ -103,7 +103,7 @@ export const mediaChapter = {
   //         path={this.route}
   //         element={
   //           <Page
-  //             tabs={[]}
+  //             demo={true}
   //             method={{
   //               methodName: 'deso.media.getVideoStatus(request)',
   //               params: this.params,
@@ -138,7 +138,7 @@ export const mediaChapter = {
   //         path={this.route}
   //         element={
   //           <Page
-  //             tabs={[]}
+  //             demo={true}
   //             method={{
   //               methodName: 'deso.media.getVideoStatus(request)',
   //               params: this.params,
