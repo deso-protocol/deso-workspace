@@ -95,10 +95,7 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div>
-                  Similar to the get-users-stateless, but Instead it will return
-                  an array of followers for a specific account.{' '}
-                </div>
+                <div>Get private messages for a user account.</div>
               )}
               demo={true}
               chapters={CHAPTERS}
@@ -137,7 +134,7 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div>Follow or unfollow a specific user</div>
+                <div>Follow or unfollow a specific user.</div>
               )}
               demo={true}
               chapters={CHAPTERS}
@@ -176,7 +173,7 @@ export const socialChapter = {
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
                 <div>
-                  Get Users who are or who have had held a certain public key.
+                  Get users who are or who have had held a certain creator coin.
                 </div>
               )}
               demo={true}

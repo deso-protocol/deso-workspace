@@ -47,11 +47,18 @@ class Nft {
     }
     async updateNft(request) {
         const endpoint = 'update-nft';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
+        return await this.identity
+            .submitTransaction(apiResponse.TransactionHex)
+            .then(() => apiResponse)
+            .catch(() => {
+            throw Error('something went wrong while signing');
+        });
     }
     async createNftBid(request) {
-        const endpoint = 'create-nft-request';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        const endpoint = 'create-nft-bid';
+        const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
+        return apiResponse;
     }
     async acceptNftBid(request) {
         const endpoint = 'create-nft-request';
