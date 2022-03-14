@@ -107,7 +107,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                       {PageSection(
                         'Download',
                         <div className="max-w-[450px]">
-                          {jsonBlock('npm i deso-protocol')}
+                          {jsonBlock('npm i deso-protocol', 'text')}
                         </div>
                       )}
                     </>
