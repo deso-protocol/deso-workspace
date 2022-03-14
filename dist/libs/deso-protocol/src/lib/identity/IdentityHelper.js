@@ -22,7 +22,7 @@ const callIdentityMethodAndExecute = (attributeValue, method) => {
     (_a = (0, exports.getIframe)().contentWindow) === null || _a === void 0 ? void 0 : _a.postMessage(request, '*');
     return (0, WindowHandler_1.iFrameHandler)({
         iFrameMethod: method,
-        data: getParams,
+        data: getParams(method, attributeValue),
     });
 };
 exports.callIdentityMethodAndExecute = callIdentityMethodAndExecute;

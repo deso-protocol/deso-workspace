@@ -21,6 +21,7 @@ import { nftChapter } from './nftChapter';
 import { jsonBlock, ParentRoutes } from '../../services/utils';
 import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
+import { CopyBlock, nord } from 'react-code-blocks';
 export interface TODOProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -86,7 +87,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           your application. We are also open to community
                           suggestions on what additional functionality could be
                           built which could be anything from an onchain comment
-                          threads for common issues (similar to stack overflow),
+                          thread for common issues (similar to stack overflow),
                           more useful utility methods, etc. If you have any
                           recommendations for improvement or find any bugs,
                           please leave feedback{' '}
@@ -106,8 +107,12 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                       )}
                       {PageSection(
                         'Download',
-                        <div className="max-w-[450px]">
-                          {jsonBlock('npm i deso-protocol', 'text')}
+                        <div className="max-w-[450px] ">
+                          <CopyBlock
+                            text={`\n npm i deso-protocol \n `}
+                            theme={nord}
+                            language={'text'}
+                          />
                         </div>
                       )}
                     </>
