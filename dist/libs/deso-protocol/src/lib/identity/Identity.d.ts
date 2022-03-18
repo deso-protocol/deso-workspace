@@ -1,5 +1,5 @@
 import { Node } from '../Node/Node';
-import { GetDecryptMessagesRequest, GetDecryptMessagesResponse, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
+import { AppendExtraDataRequest, GetDecryptMessagesRequest, GetDecryptMessagesResponse, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
 export declare class Identity {
     node: Node;
     constructor(node: Node);
@@ -13,7 +13,7 @@ export declare class Identity {
     }>;
     logout(publicKey: string): Promise<boolean>;
     private setIdentityFrame;
-    submitTransaction(TransactionHex: string): Promise<any>;
+    submitTransaction(TransactionHex: string, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<any>;
     decrypt(encryptedMessages: GetDecryptMessagesRequest[]): Promise<GetDecryptMessagesResponse[]>;
     encrypt(request: Partial<SendMessageStatelessRequest>): Promise<string>;
     getJwt(): Promise<string>;

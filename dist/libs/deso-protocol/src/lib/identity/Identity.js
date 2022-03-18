@@ -4,6 +4,8 @@ exports.Identity = void 0;
 const WindowPrompts_1 = require("./WindowPrompts");
 const IdentityHelper_1 = require("./IdentityHelper");
 const WindowHandler_1 = require("./WindowHandler");
+const Transaction_1 = require("../transaction/Transaction");
+const utils_1 = require("../../utils/utils");
 class Identity {
     constructor(node) {
         this.node = node;
@@ -91,7 +93,13 @@ class Identity {
             root.appendChild(frame);
         }
     }
-    async submitTransaction(TransactionHex) {
+    async submitTransaction(TransactionHex, extraData) {
+        if ((extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData) && Object.keys(extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData).length > 0) {
+            TransactionHex = (await Transaction_1.Transactions.appendExtraData({
+                TransactionHex: TransactionHex,
+                ExtraData: (0, utils_1.convertExtraDataToHex)(extraData).ExtraData,
+            })).TransactionHex;
+        }
         const user = this.getUser();
         // user exists no need to approve
         if (user) {

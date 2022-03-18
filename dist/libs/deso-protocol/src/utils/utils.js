@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.throwErrors = exports.uuid = void 0;
+exports.throwErrors = exports.convertExtraDataToHex = exports.convertToHex = exports.uuid = void 0;
 const uuid = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0, v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -8,19 +8,21 @@ const uuid = () => {
     });
 };
 exports.uuid = uuid;
-// export const getJwtInfo = (user: LoginUser): IdentityJwtRequest => {
-//   const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
-//   return {
-//     id: uuid(),
-//     service: 'identity',
-//     method: 'jwt',
-//     payload: {
-//       accessLevelHmac,
-//       encryptedSeedHex,
-//       accessLevel,
-//     },
-//   };
-// };
+const convertToHex = (str) => {
+    return str
+        .split('')
+        .map((c) => c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join('');
+};
+exports.convertToHex = convertToHex;
+const convertExtraDataToHex = (extraData) => {
+    Object.keys(extraData.ExtraData).forEach((key) => {
+        const dataToConvert = extraData.ExtraData[key];
+        extraData.ExtraData[key] = (0, exports.convertToHex)(dataToConvert);
+    });
+    return extraData;
+};
+exports.convertExtraDataToHex = convertExtraDataToHex;
 const throwErrors = (requiredAttributes, request) => {
     requiredAttributes.forEach((attrName) => {
         const doesExist = request[attrName];

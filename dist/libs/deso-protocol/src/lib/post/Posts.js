@@ -17,7 +17,7 @@ class Posts {
         };
         return (await axios_1.default.post(`${this.node.getUri()}/get-posts-for-public-key`, request)).data;
     }
-    async submitPost(request) {
+    async submitPost(request, extraData) {
         var _a;
         if (!request.UpdaterPublicKeyBase58Check) {
             throw Error('UpdaterPublicKeyBase58Check is required');
@@ -26,11 +26,11 @@ class Posts {
             throw Error('BodyObj.Body is required');
         }
         if (!request.MinFeeRateNanosPerKB) {
-            request.MinFeeRateNanosPerKB = 1000;
+            request.MinFeeRateNanosPerKB = 1500;
         }
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
         return await this.identity
-            .submitTransaction(apiResponse.TransactionHex)
+            .submitTransaction(apiResponse.TransactionHex, extraData)
             .then(() => apiResponse)
             .catch(() => {
             throw Error('something went wrong while signing');

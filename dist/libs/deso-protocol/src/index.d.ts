@@ -7,6 +7,7 @@ import { Posts } from './lib/post/Posts';
 import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
 import { Node } from './lib/Node/Node';
+import { Transactions } from './lib/transaction/Transaction';
 export declare class Deso {
     constructor();
     node: Node;
@@ -20,6 +21,7 @@ export declare class Deso {
     user: User;
     social: Social;
     posts: Posts;
+    transaction: typeof Transactions;
     private referral;
     private tutorial;
 }

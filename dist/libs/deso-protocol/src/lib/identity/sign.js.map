@@ -1,1 +1,0 @@
-{"version":3,"file":"sign.js","sourceRoot":"","sources":["../../../../../../libs/deso-protocol/src/lib/identity/sign.ts"],"names":[],"mappings":";;;AAAA,iCAA0B;AAEnB,MAAM,iBAAiB,GAAG,CAAC,cAAsB,EAAgB,EAAE;IACxE,MAAM,GAAG,GAAG,YAAY,CAAC,OAAO,CAAC,UAAU,CAAC,CAAC;IAC7C,OAAO,eAAK,CAAC,IAAI,CAAC,GAAG,GAAG,qBAAqB,EAAE,EAAE,cAAc,EAAE,CAAC,CAAC;AACrE,CAAC,CAAC;AAHW,QAAA,iBAAiB,qBAG5B"}
