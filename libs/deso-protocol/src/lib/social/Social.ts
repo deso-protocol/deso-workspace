@@ -146,6 +146,7 @@ export class Social {
   public async updateProfile(
     request: Partial<UpdateProfileRequest>
   ): Promise<UpdateProfileResponse> {
+    throw Error('todo');
     const endpoint = 'update-profile';
     const response: UpdateProfileResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)

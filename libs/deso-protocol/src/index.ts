@@ -11,6 +11,7 @@ import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
 import { Node } from './lib/Node/Node';
 import { Tutorial } from './lib/tutorial/Tutorial';
+import { Transactions } from './lib/transaction/Transaction';
 export class Deso {
   constructor() {
     this.identity.initialize();
@@ -26,6 +27,7 @@ export class Deso {
   public user = new User(this.node, this.identity);
   public social = new Social(this.node, this.identity, this.user);
   public posts = new Posts(this.node, this.identity);
+  public transaction = Transactions;
   private referral = new Referral(this.node, this.identity);
   private tutorial = new Tutorial(this.node, this.identity);
 }

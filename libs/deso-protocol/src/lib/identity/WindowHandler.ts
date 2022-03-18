@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { submitTransaction } from './sign';
+import { Transactions } from '../transaction/Transaction';
 import { IframeMethods } from './IdentityHelper';
 import { GetDecryptMessagesResponse } from 'deso-protocol-types';
 
@@ -24,7 +24,9 @@ export const handlers = async (
 ): Promise<any> => {
   if (info.iFrameMethod === 'sign') {
     if (event?.data?.payload?.signedTransactionHex) {
-      return submitTransaction(event?.data?.payload?.signedTransactionHex)
+      return Transactions.submitTransaction(
+        event?.data?.payload?.signedTransactionHex
+      )
         .then((res) => {
           if (info?.data?.prompt?.close) {
             info.data.prompt.close();

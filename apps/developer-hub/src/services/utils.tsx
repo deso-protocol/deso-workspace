@@ -18,6 +18,7 @@ export enum ParentRoutes {
   posts = 'posts',
   referral = 'referral',
   social = 'social',
+  transactions = 'transactions',
   user = 'user',
 }
 export const TYLER: Readonly<string> =

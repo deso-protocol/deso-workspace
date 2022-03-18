@@ -22,6 +22,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
             'nft',
             'landing',
             'notification',
+            'transactions',
           ].includes(p)
         )
         .map((parentRoute) => {

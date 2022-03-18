@@ -1,6 +1,7 @@
 import { Node } from '../Node/Node';
 import { requestLogin, requestLogout } from './WindowPrompts';
 import {
+  AppendExtraDataRequest,
   GetDecryptMessagesRequest,
   GetDecryptMessagesResponse,
   LoginUser,
@@ -12,6 +13,8 @@ import {
   getIframe,
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
+import { Transactions } from '../transaction/Transaction';
+import { convertExtraDataToHex } from '../../utils/utils';
 
 export class Identity {
   node: Node;
@@ -114,7 +117,18 @@ export class Identity {
     }
   }
 
-  public async submitTransaction(TransactionHex: string) {
+  public async submitTransaction(
+    TransactionHex: string,
+    extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
+  ) {
+    if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
+      TransactionHex = (
+        await Transactions.appendExtraData({
+          TransactionHex: TransactionHex,
+          ExtraData: convertExtraDataToHex(extraData).ExtraData,
+        })
+      ).TransactionHex;
+    }
     const user = this.getUser();
     // user exists no need to approve
     if (user) {

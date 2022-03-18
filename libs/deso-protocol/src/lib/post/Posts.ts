@@ -1,4 +1,5 @@
 import {
+  AppendExtraDataRequest,
   GetDiamondsForPostRequest,
   GetDiamondsForPostResponse,
   GetLikesForPostRequest,
@@ -22,8 +23,10 @@ import {
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
-import { throwErrors } from '../../utils/utils';
+import { Transactions } from '../transaction/Transaction';
+import { convertExtraDataToHex, throwErrors } from '../../utils/utils';
 export class Posts {
+  static transaction: Transactions;
   node: Node;
   identity: Identity;
   constructor(node: Node, identity: Identity) {
@@ -50,7 +53,8 @@ export class Posts {
   }
 
   public async submitPost(
-    request: Partial<SubmitPostRequest>
+    request: Partial<SubmitPostRequest>,
+    extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ): Promise<SubmitPostResponse> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
@@ -59,13 +63,14 @@ export class Posts {
       throw Error('BodyObj.Body is required');
     }
     if (!request.MinFeeRateNanosPerKB) {
-      request.MinFeeRateNanosPerKB = 1000;
+      request.MinFeeRateNanosPerKB = 1500;
     }
     const apiResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
+
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex)
+      .submitTransaction(apiResponse.TransactionHex, extraData)
       .then(() => apiResponse)
       .catch(() => {
         throw Error('something went wrong while signing');
