@@ -1,9 +1,9 @@
 {
-  "name": "deso-protocol-experimental",
-  "version": "0.0.3",
+  "name": "deso-protocol",
+  "version": "0.0.5",
   "type": "commonjs",
   "dependencies": {
-    "deso-protocol-types": "^0.0.2",
+    "deso-protocol-types": "^0.0.1",
     "axios": "^0.25.0"
   }
 }

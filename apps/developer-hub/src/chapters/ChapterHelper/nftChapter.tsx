@@ -33,10 +33,12 @@ export const nftChapter = {
     title: 'Get Nfts For User',
     route: '/nft/get-nfts-for-user',
     method: deso.nft.getNftsForUser,
-    params: {
-      UserPublicKeyBase58Check:
-        (localStorage.getItem('login_key') as string) || DEZO_DOG,
-    } as GetNFTsForUserRequest,
+    params: () => {
+      return {
+        UserPublicKeyBase58Check:
+          (localStorage.getItem('login_key') as string) || DEZO_DOG,
+      } as GetNFTsForUserRequest;
+    },
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nfts-for-user',
@@ -71,7 +73,9 @@ export const nftChapter = {
     title: 'Get Nft Bids For User',
     route: '/nft/get-nft-bids-for-user',
     method: deso.nft.getNftBidsForUser,
-    params: { UserPublicKeyBase58Check: DEZO_DOG } as GetNFTBidsForUserRequest,
+    params: () => {
+      return { UserPublicKeyBase58Check: DEZO_DOG } as GetNFTBidsForUserRequest;
+    },
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nft-bids-for-user',
@@ -107,7 +111,9 @@ export const nftChapter = {
     route: '/nft/get-nft-bids-for-nft-post',
     githubSource: [],
     method: deso.nft.getNftBidsForNftPost,
-    params: { PostHashHex: SAMPLE_POST } as GetNFTBidsForNFTPostRequest,
+    params: () => {
+      return { PostHashHex: SAMPLE_POST } as GetNFTBidsForNFTPostRequest;
+    },
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nft-bids-for-nft-post',
     ],
@@ -145,7 +151,9 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nft-showcase',
     ],
     method: deso.nft.getNftShowcase,
-    params: { ReaderPublicKeyBase58Check: DEZO_DOG } as GetNFTShowcaseRequest,
+    params: () => {
+      return { ReaderPublicKeyBase58Check: DEZO_DOG } as GetNFTShowcaseRequest;
+    },
     component: function () {
       return (
         <Route
@@ -182,7 +190,9 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-next-nft-showcase',
     ],
     method: deso.nft.getNextNftShowCase,
-    params: { ReaderPublicKeyBase58Check: TYLER } as GetNFTShowcaseRequest,
+    params: () => {
+      return { ReaderPublicKeyBase58Check: TYLER } as GetNFTShowcaseRequest;
+    },
     component: function () {
       return (
         <Route
@@ -217,7 +227,9 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nft-collection-summary',
     ],
     method: deso.nft.getNftCollectionSummary,
-    params: { PostHashHex: SAMPLE_POST } as GetNFTCollectionSummaryRequest,
+    params: () => {
+      return { PostHashHex: SAMPLE_POST } as GetNFTCollectionSummaryRequest;
+    },
     component: function () {
       return (
         <Route
@@ -252,7 +264,9 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/nft-endpoints#get-nft-entries-for-post-hash',
     ],
     method: deso.nft.getNftEntriesForPostHash,
-    params: { PostHashHex: SAMPLE_POST } as GetNFTEntriesForPostHashRequest,
+    params: () => {
+      return { PostHashHex: SAMPLE_POST } as GetNFTEntriesForPostHashRequest;
+    },
     component: function () {
       return (
         <Route
@@ -291,16 +305,20 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft',
     ],
     method: deso.nft.createNft,
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      NumCopies: 1,
-      NFTRoyaltyToCreatorBasisPoints: 100,
-      NFTRoyaltyToCoinBasisPoints: 100,
-      HasUnlockable: false,
-      IsForSale: false,
-      MinFeeRateNanosPerKB: 1000,
-    } as Partial<CreateNFTRequest>,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        NumCopies: 1,
+        NFTRoyaltyToCreatorBasisPoints: 100,
+        NFTRoyaltyToCoinBasisPoints: 100,
+        HasUnlockable: false,
+        IsForSale: false,
+        MinFeeRateNanosPerKB: 1000,
+      } as Partial<CreateNFTRequest>;
+    },
     component: function () {
       return (
         <Route
@@ -333,14 +351,18 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#update-nft',
     ],
     method: deso.nft.updateNft,
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      IsForSale: true,
-      MinBidAmountNanos: 100,
-      MinFeeRateNanosPerKB: 1000,
-    } as UpdateNFTRequest,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        IsForSale: true,
+        MinBidAmountNanos: 100,
+        MinFeeRateNanosPerKB: 1000,
+      } as UpdateNFTRequest;
+    },
     component: function () {
       return (
         <Route
@@ -372,13 +394,17 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#create-nft-bid',
     ],
     method: deso.nft.createNftBid,
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      BidAmountNanos: 100,
-      MinFeeRateNanosPerKB: 1000,
-    } as CreateNFTBidRequest,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        BidAmountNanos: 100,
+        MinFeeRateNanosPerKB: 1000,
+      } as CreateNFTBidRequest;
+    },
     component: function () {
       return (
         <Route
@@ -413,14 +439,18 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#accept-nft-bid',
     ],
     method: deso.nft.acceptNftBid,
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      BidderPublicKeyBase58Check: DEZO_DOG,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      BidAmountNanos: 100,
-      MinFeeRateNanosPerKB: 1000,
-    } as AcceptNFTBidRequest,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+        BidderPublicKeyBase58Check: DEZO_DOG,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        BidAmountNanos: 100,
+        MinFeeRateNanosPerKB: 1000,
+      } as AcceptNFTBidRequest;
+    },
     component: function () {
       return (
         <Route
@@ -453,13 +483,15 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#transfer-nft',
     ],
     method: deso.nft.transferNft,
-    params: {
-      SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-      ReceiverPublicKeyBase58Check: TYLER,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      MinFeeRateNanosPerKB: 1000,
-    } as TransferNFTRequest,
+    params: () => {
+      return {
+        SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        ReceiverPublicKeyBase58Check: TYLER,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        MinFeeRateNanosPerKB: 1000,
+      } as TransferNFTRequest;
+    },
     component: function () {
       return (
         <Route
@@ -491,12 +523,16 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#accept-nft-transfer',
     ],
     method: deso.nft.acceptNftTransfer,
-    params: {
-      MinFeeRateNanosPerKB: 1000,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-    } as AcceptNFTTransferRequest,
+    params: () => {
+      return {
+        MinFeeRateNanosPerKB: 1000,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+      } as AcceptNFTTransferRequest;
+    },
     component: function () {
       return (
         <Route
@@ -532,12 +568,16 @@ export const nftChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/nft-transactions-api#burn-nft',
     ],
     method: deso.nft.burnNft,
-    params: {
-      MinFeeRateNanosPerKB: 1000,
-      NFTPostHashHex: SAMPLE_NFT_POST,
-      SerialNumber: 1,
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key') as string,
-    } as BurnNFTRequest,
+    params: () => {
+      return {
+        MinFeeRateNanosPerKB: 1000,
+        NFTPostHashHex: SAMPLE_NFT_POST,
+        SerialNumber: 1,
+        UpdaterPublicKeyBase58Check: localStorage.getItem(
+          'login_key'
+        ) as string,
+      } as BurnNFTRequest;
+    },
     component: function () {
       return (
         <Route

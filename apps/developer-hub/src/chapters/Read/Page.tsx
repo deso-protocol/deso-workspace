@@ -4,19 +4,23 @@ import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
 import { desoService } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
-import ChapterTemplate, { TabItem } from '../ChapterHelper/ChapterTemplate';
+import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
 import { IMPORT_CODE, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
+
+import { createBrowserHistory } from 'history';
+
+const appHistory = createBrowserHistory();
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
     methodName: string;
     method: Function;
-    params: unknown;
+    params: Function;
     customResponse?: unknown;
   };
   chapters: ChapterNavigation;
@@ -24,6 +28,7 @@ export interface PageProps {
   bind?: string;
   demo: boolean;
 }
+
 export const Page = ({
   method,
   selectedChapter,
@@ -34,12 +39,11 @@ export const Page = ({
 }: PageProps) => {
   const deso = useRecoilValue(desoService);
   const [response, setResponse] = useState<any | null>(null);
-  const [chapterTitle, setChapterTitle] = useState<null>(null);
+  const [chapterTitle, setChapterTitle] = useState<string>('');
   useEffect(() => {
-    // clear out the page if they hit go to the next section
     if (chapterTitle !== selectedChapter.title) {
       setResponse(null);
-      setChapterTitle(chapterTitle);
+      setChapterTitle(selectedChapter.title);
     }
   }, [chapterTitle, selectedChapter, setResponse]);
 
@@ -50,7 +54,7 @@ export const Page = ({
     const methodToCall = method.method.bind(
       bind === 'identity' ? deso.identity : deso
     );
-    const response = await methodToCall(method.params);
+    const response = await methodToCall(method.params());
     setResponse(response);
   };
 
@@ -72,9 +76,9 @@ export const Page = ({
                   <CopyBlock
                     codeBlock
                     text={`${IMPORT_CODE}const request = ${
-                      typeof method?.params === 'string'
+                      typeof method?.params() === 'string'
                         ? method.params
-                        : JSON.stringify(method?.params, null, 2)
+                        : JSON.stringify(method?.params(), null, 2)
                     };\n const response = await ${
                       method?.methodName as string
                     };`}

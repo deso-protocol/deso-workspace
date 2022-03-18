@@ -58,6 +58,9 @@ class Identity {
         return { user: JSON.parse(user), key };
     }
     async logout(publicKey) {
+        if (typeof publicKey !== 'string') {
+            throw Error('publicKey needs to be type of string');
+        }
         const prompt = (0, WindowPrompts_1.requestLogout)(publicKey);
         const successful = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'logout',

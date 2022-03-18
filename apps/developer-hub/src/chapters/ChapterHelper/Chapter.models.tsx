@@ -18,10 +18,11 @@ import { minerChapter } from './minerChapter';
 import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
-import { jsonBlock, ParentRoutes } from '../../services/utils';
+import { ParentRoutes } from '../../services/utils';
 import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
 import { CopyBlock, nord } from 'react-code-blocks';
+
 export interface TODOProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
@@ -183,6 +184,10 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
 
     return chapterArray;
   },
+
+  reload: () => {
+    console.log('adf');
+  },
   prev: function (currentChapter: Chapter) {
     const currentChapterIndex = this.chaptersToArray()
       .map((chapter, index) => {
@@ -304,6 +309,7 @@ export interface ChapterNavigation {
   prev: (currentChapter: Chapter) => Chapter | null;
   chaptersToArray: () => { chapterName: string; chapterContent: Chapter }[];
   documentationToLink: (chapter: Chapter) => ReactElement[];
+  reload: () => void;
 }
 export interface Chapter {
   title: string;

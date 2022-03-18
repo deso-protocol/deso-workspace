@@ -21,11 +21,13 @@ export const notificationChapter = {
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/notification-endpoints#get-notifications',
     ],
     method: deso.notification.getNotifications,
-    params: {
-      NumToFetch: 50,
-      PublicKeyBase58Check: TYLER,
-      FetchStartIndex: 100,
-    } as GetNotificationsRequest,
+    params: () => {
+      return {
+        NumToFetch: 50,
+        PublicKeyBase58Check: TYLER,
+        FetchStartIndex: 100,
+      } as GetNotificationsRequest;
+    },
     component: function () {
       return (
         <Route
@@ -56,9 +58,11 @@ export const notificationChapter = {
     title: 'Get Unread Notification Count',
     route: '/notification/get-unread-notifications-count',
     method: deso.notification.getUnreadNotificationsCount,
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-    } as Partial<GetNotificationsCountRequest>,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+      } as Partial<GetNotificationsCountRequest>;
+    },
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/notification-endpoints#get-unread-notification-count',
@@ -97,9 +101,11 @@ export const notificationChapter = {
       'http://localhost:4200/#/notification/set-notification-metadata',
     ],
     method: deso.notification.setNotificationMetadata,
-    params: {
-      PublicKeyBase58Check: localStorage.getItem('login_key'),
-    } as Partial<SetNotificationMetadataRequest>,
+    params: () => {
+      return {
+        PublicKeyBase58Check: localStorage.getItem('login_key'),
+      } as Partial<SetNotificationMetadataRequest>;
+    },
     component: function () {
       return (
         <Route

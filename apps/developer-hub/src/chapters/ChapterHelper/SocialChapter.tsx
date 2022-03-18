@@ -27,10 +27,12 @@ export const socialChapter = {
     parentRoute: ParentRoutes.social,
     title: 'Get Follows Stateless',
     route: '/social/get-follows-stateless',
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-      NumToFetch: 20,
-    } as GetFollowsStatelessRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+        NumToFetch: 20,
+      } as GetFollowsStatelessRequest;
+    },
     method: deso.social.getFollowsStateless,
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/social-endpoints#get-follows-stateless',
@@ -70,16 +72,18 @@ export const socialChapter = {
     route: '/social/get-message-stateless',
     documentation: [],
     githubSource: [],
-    params: {
-      NumToFetch: 25,
-      PublicKeyBase58Check: localStorage.getItem('login_key'),
-      FetchAfterPublicKeyBase58Check: '',
-      HoldersOnly: false,
-      FollowersOnly: false,
-      FollowingOnly: false,
-      HoldingsOnly: false,
-      SortAlgorithm: 'time',
-    } as GetMessagesStatelessRequest,
+    params: () => {
+      return {
+        NumToFetch: 25,
+        PublicKeyBase58Check: localStorage.getItem('login_key'),
+        FetchAfterPublicKeyBase58Check: '',
+        HoldersOnly: false,
+        FollowersOnly: false,
+        FollowingOnly: false,
+        HoldingsOnly: false,
+        SortAlgorithm: 'time',
+      } as GetMessagesStatelessRequest;
+    },
     method: deso.social.getMessagesStateless,
     component: function () {
       return (
@@ -114,11 +118,13 @@ export const socialChapter = {
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#create-follow-txn-stateless',
     ],
     githubSource: [],
-    params: {
-      IsUnfollow: true,
-      FollowedPublicKeyBase58Check: localStorage.getItem('login_key'),
-      FollowerPublicKeyBase58Check: TYLER,
-    } as CreateFollowTxnStatelessRequest,
+    params: () => {
+      return {
+        IsUnfollow: true,
+        FollowedPublicKeyBase58Check: localStorage.getItem('login_key'),
+        FollowerPublicKeyBase58Check: TYLER,
+      } as CreateFollowTxnStatelessRequest;
+    },
     method: deso.social.createFollowTxnStateless,
     component: function () {
       return (
@@ -153,10 +159,12 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#get-hodlers-for-public-key',
     ],
-    params: {
-      NumToFetch: 20,
-      PublicKeyBase58Check: TYLER,
-    } as GetHodlersForPublicKeyRequest,
+    params: () => {
+      return {
+        NumToFetch: 20,
+        PublicKeyBase58Check: TYLER,
+      } as GetHodlersForPublicKeyRequest;
+    },
     method: deso.social.getHodlersForPublicKey,
     component: function () {
       return (
@@ -193,10 +201,12 @@ export const socialChapter = {
     documentation: [
       'Get a list of objects representing all the diamonds a user has given or received.',
     ],
-    params: {
-      NumToFetch: 20,
-      PublicKeyBase58Check: TYLER,
-    } as GetHodlersForPublicKeyRequest,
+    params: () => {
+      return {
+        NumToFetch: 20,
+        PublicKeyBase58Check: TYLER,
+      } as GetHodlersForPublicKeyRequest;
+    },
     method: deso.social.getDiamondsForPublicKey,
     component: function () {
       return (
@@ -234,10 +244,12 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#is-following-public-key',
     ],
-    params: {
-      PublicKeyBase58Check: TYLER,
-      IsFollowingPublicKeyBase58Check: DEZO_DOG,
-    } as IsFollowingPublicKeyRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: TYLER,
+        IsFollowingPublicKeyBase58Check: DEZO_DOG,
+      } as IsFollowingPublicKeyRequest;
+    },
     method: deso.social.isFollowingPublicKey,
     component: function () {
       return (
@@ -272,11 +284,13 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/social-endpoints#is-hodling-public-key',
     ],
-    params: {
-      PublicKeyBase58Check: TYLER,
-      IsHodlingPublicKeyBase58Check: DEZO_DOG,
-      IsDAOCoin: false,
-    } as IsHodlingPublicKeyRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: TYLER,
+        IsHodlingPublicKeyBase58Check: DEZO_DOG,
+        IsDAOCoin: false,
+      } as IsHodlingPublicKeyRequest;
+    },
     method: deso.social.isHodlingPublicKey,
     component: function () {
       return (
@@ -315,11 +329,13 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#send-message',
     ],
-    params: {
-      RecipientPublicKeyBase58Check: DEZO_DOG,
-      SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
-      MessageText: 'Ogres are like onions.',
-    } as SendMessageStatelessRequest,
+    params: () => {
+      return {
+        RecipientPublicKeyBase58Check: DEZO_DOG,
+        SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        MessageText: 'Ogres are like onions.',
+      } as SendMessageStatelessRequest;
+    },
     method: deso.social.sendMessage,
     component: function () {
       return (
@@ -354,11 +370,13 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api',
     ],
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
-      MinFeeRateNanosPerKB: 1000,
-      NewDescription: 'WOOF WOOF',
-    } as UpdateProfileRequest,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        MinFeeRateNanosPerKB: 1000,
+        NewDescription: 'WOOF WOOF',
+      } as UpdateProfileRequest;
+    },
     method: deso.social.updateProfile,
     component: function () {
       return (
@@ -393,14 +411,16 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#send-diamonds',
     ],
-    params: {
-      ReceiverPublicKeyBase58Check: DEZO_DOG,
-      SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
-      DiamondPostHashHex: DOGS_LOVE_DIAMONDS_POST,
-      DiamondLevel: 1,
-      MinFeeRateNanosPerKB: 1000,
-      InTutorial: false,
-    } as SendDiamondsRequest,
+    params: () => {
+      return {
+        ReceiverPublicKeyBase58Check: DEZO_DOG,
+        SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        DiamondPostHashHex: DOGS_LOVE_DIAMONDS_POST,
+        DiamondLevel: 1,
+        MinFeeRateNanosPerKB: 1000,
+        InTutorial: false,
+      } as SendDiamondsRequest;
+    },
     method: deso.social.sendDiamonds,
     component: function () {
       return (
@@ -435,13 +455,15 @@ export const socialChapter = {
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#like',
     ],
-    params: {
-      ReaderPublicKeyBase58Check: localStorage.getItem('login_key'),
-      LikedPostHashHex:
-        'f7ea512c2435f233c948f761f7596d95190ed3c3c908fc21609535eca33e3a14',
-      MinFeeRateNanosPerKB: 1000,
-      IsUnlike: false,
-    } as CreateLikeStatelessRequest,
+    params: () => {
+      return {
+        ReaderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        LikedPostHashHex:
+          'f7ea512c2435f233c948f761f7596d95190ed3c3c908fc21609535eca33e3a14',
+        MinFeeRateNanosPerKB: 1000,
+        IsUnlike: false,
+      } as CreateLikeStatelessRequest;
+    },
     method: deso.social.createLikeStateless,
     component: function () {
       return (

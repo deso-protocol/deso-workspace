@@ -29,14 +29,16 @@ export const postChapter = {
     documentation: [],
     githubSource: [],
     method: deso.posts.submitPost,
-    params: {
-      UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
-      BodyObj: {
-        Body: `Checking out the developer hub`,
-        VideoURLs: [],
-        ImageURLs: [],
-      },
-    } as unknown as Partial<SubmitPostRequest>,
+    params: () => {
+      return {
+        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        BodyObj: {
+          Body: `Checking out the developer hub`,
+          VideoURLs: [],
+          ImageURLs: [],
+        },
+      } as unknown as Partial<SubmitPostRequest>;
+    },
 
     component: function () {
       return (
@@ -66,7 +68,9 @@ export const postChapter = {
     title: 'Get posts Stateless',
     route: '/post/get-posts-stateless',
     method: deso.posts.getPostsStateless,
-    params: {} as Partial<GetPostsStatelessRequest>,
+    params: () => {
+      return {} as Partial<GetPostsStatelessRequest>;
+    },
     documentation: [],
     githubSource: [],
     component: function () {
@@ -99,8 +103,10 @@ export const postChapter = {
     title: 'Get Single Post',
     route: '/post/get-single-post',
     method: deso.posts.getSinglePost,
-    params: {
-      PostHashHex: SAMPLE_POST,
+    params: () => {
+      return {
+        PostHashHex: SAMPLE_POST,
+      };
     },
     documentation: [],
     githubSource: [],
@@ -133,7 +139,9 @@ export const postChapter = {
     route: '/post/get_hot_feed',
     documentation: [],
     method: deso.posts.getHotFeed,
-    params: { ResponseLimit: 20 } as HotFeedPageRequest,
+    params: () => {
+      return { ResponseLimit: 20 } as HotFeedPageRequest;
+    },
     githubSource: [],
     component: function () {
       return (
@@ -171,11 +179,13 @@ export const postChapter = {
     route: '/post/get-diamonded-post',
 
     method: deso.posts.getDiamondedPosts,
-    params: {
-      NumToFetch: 20,
-      SenderPublicKeyBase58Check: DEZO_DOG,
-      ReceiverPublicKeyBase58Check: RUSSIA,
-    } as GetPostsDiamondedBySenderForReceiverRequest,
+    params: () => {
+      return {
+        NumToFetch: 20,
+        SenderPublicKeyBase58Check: DEZO_DOG,
+        ReceiverPublicKeyBase58Check: RUSSIA,
+      } as GetPostsDiamondedBySenderForReceiverRequest;
+    },
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/post-endpoints#get-diamonded-posts',
     ],
@@ -213,11 +223,13 @@ export const postChapter = {
     parentRoute: ParentRoutes.posts,
     title: 'Get Likes For Post',
     route: '/post/get_likes_for_post',
-    params: {
-      Limit: 20,
-      Offset: 0,
-      PostHashHex: SAMPLE_POST,
-    } as GetLikesForPostRequest,
+    params: () => {
+      return {
+        Limit: 20,
+        Offset: 0,
+        PostHashHex: SAMPLE_POST,
+      } as GetLikesForPostRequest;
+    },
     method: deso.posts.getLikesForPost,
     documentation: [],
     githubSource: [],
@@ -251,11 +263,13 @@ export const postChapter = {
     title: 'Get Diamonds For Posts',
     route: '/post/get-diamonds-for-post',
     method: deso.posts.getDiamondsForPost,
-    params: {
-      Limit: 20,
-      Offset: 20,
-      PostHashHex: SAMPLE_POST,
-    } as GetDiamondsForPostRequest,
+    params: () => {
+      return {
+        Limit: 20,
+        Offset: 20,
+        PostHashHex: SAMPLE_POST,
+      } as GetDiamondsForPostRequest;
+    },
     documentation: [],
     githubSource: [],
     component: function () {
@@ -291,11 +305,13 @@ export const postChapter = {
     title: 'Get Reposts For Post',
     route: '/post/get-reposts-for-post',
     method: deso.posts.getRepostsForPost,
-    params: {
-      Limit: 20,
-      Offset: 20,
-      PostHashHex: SAMPLE_POST,
-    } as GetRepostsForPostRequest,
+    params: () => {
+      return {
+        Limit: 20,
+        Offset: 20,
+        PostHashHex: SAMPLE_POST,
+      } as GetRepostsForPostRequest;
+    },
     documentation: [],
     githubSource: [],
     component: function () {
@@ -331,11 +347,13 @@ export const postChapter = {
     title: 'Get Quote Reposts FOR POST',
     route: '/post/get-quote-reposts-for-post',
     method: deso.posts.getQuoteRepostsForPost,
-    params: {
-      Limit: 20,
-      Offset: 20,
-      PostHashHex: SAMPLE_POST,
-    } as GetQuoteRepostsForPostRequest,
+    params: () => {
+      return {
+        Limit: 20,
+        Offset: 20,
+        PostHashHex: SAMPLE_POST,
+      } as GetQuoteRepostsForPostRequest;
+    },
     documentation: [],
     githubSource: [],
     component: function () {

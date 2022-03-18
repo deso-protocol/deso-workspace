@@ -21,9 +21,11 @@ export const userChapter = {
     title: 'Get Users Stateless',
     route: '/user/get-users-stateless',
     method: deso.user.getUserStateless,
-    params: {
-      PublicKeysBase58Check: [DEZO_DOG],
-    } as GetUsersStatelessRequest,
+    params: () => {
+      return {
+        PublicKeysBase58Check: [DEZO_DOG],
+      } as GetUsersStatelessRequest;
+    },
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-users-stateless',
     ],
@@ -58,9 +60,11 @@ export const userChapter = {
     title: 'Get Single Profile',
     route: '/get-single-profile',
     method: deso.user.getSingleProfile,
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-    } as GetSingleProfileRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+      } as GetSingleProfileRequest;
+    },
     documentation: [
       'https://docs.deso.org/backend/blockchain-data/api/user-endpoints#get-single-profile',
     ],
@@ -98,7 +102,9 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get Profiles',
     route: '/user/get-profiles',
-    params: { PublicKeyBase58Check: DEZO_DOG } as GetProfilesRequest,
+    params: () => {
+      return { PublicKeyBase58Check: DEZO_DOG } as GetProfilesRequest;
+    },
     method: deso.user.getProfiles,
     githubSource: [],
     documentation: [
@@ -134,7 +140,7 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get Single Profile Picture',
     route: '/user/get-single-profile-picture',
-    params: DEZO_DOG,
+    params: () => DEZO_DOG,
     method: deso.user.getSingleProfilePicture,
     githubSource: [],
     documentation: [
@@ -176,10 +182,12 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get User Metadata',
     route: '/user/get-user-metadata',
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-      jwt: 'jwt',
-    } as GetUserMetadataRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+        jwt: 'jwt',
+      } as GetUserMetadataRequest;
+    },
     method: deso.user.getUserMetadata,
     githubSource: [],
     documentation: [
@@ -214,7 +222,9 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Delete Pii',
     route: '/user/delete-pii',
-    params: { PublicKeyBase58Check: DEZO_DOG } as DeletePIIRequest,
+    params: () => {
+      return { PublicKeyBase58Check: DEZO_DOG } as DeletePIIRequest;
+    },
     method: deso.user.deletePii,
     githubSource: [],
     documentation: [
@@ -253,10 +263,12 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Block Public Key',
     route: '/user/block-public-key',
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-      BlockPublicKeyBase58Check: RUSSIA,
-    } as BlockPublicKeyRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+        BlockPublicKeyBase58Check: RUSSIA,
+      } as BlockPublicKeyRequest;
+    },
     method: deso.user.blockPublicKey,
     githubSource: [],
     documentation: [
@@ -291,9 +303,11 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get User Derived Keys',
     route: '/user/get-user-derived-keys',
-    params: {
-      PublicKeyBase58Check: DEZO_DOG,
-    } as BlockPublicKeyRequest,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+      } as BlockPublicKeyRequest;
+    },
     method: deso.user.getUserDerivedKeys,
     githubSource: [],
     documentation: [
@@ -331,7 +345,7 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Delete Identities',
     route: '/user/delete_identities',
-    params: undefined,
+    params: () => undefined,
     method: deso.user.getUserDerivedKeys,
     githubSource: [],
     documentation: [

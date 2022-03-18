@@ -22,7 +22,7 @@ export const mediaChapter = {
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-image',
   //   ],
   //   method: deso.media.uploadImage,
-  //   params: {
+  //   params: () => { return {
   //     UserPublicKeyBase58Check: localStorage.getItem('login_key'),
   //     JWT: 'jwt',
   //   } as UploadImageRequest,
@@ -60,7 +60,7 @@ export const mediaChapter = {
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-video',
   //   ],
   //   method: deso.media.uploadVideo,
-  //   params: {} as UploadVideoRequest,
+  //   params: () => { return {} as UploadVideoRequest,
   //   component: function () {
   //     return (
   //       <Route
@@ -92,7 +92,7 @@ export const mediaChapter = {
   //   route: '/media/get-video-status',
   //   githubSource: [],
   //   method: deso.media.getVideoStatus,
-  //   params: {} as GetVideoStatusRequest,
+  //   params: () => { return {} as GetVideoStatusRequest,
   //   documentation: [
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-video-status',
   //   ],
@@ -127,7 +127,7 @@ export const mediaChapter = {
   //   route: '/media/get-full-tiktok-url',
   //   githubSource: [],
   //   method: deso.media.getVideoStatus,
-  //   params: {} as GetFullTikTokURLRequest,
+  //   params: () => { return {} as GetFullTikTokURLRequest,
   //   documentation: [
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-full-tiktok-url',
   //   ],

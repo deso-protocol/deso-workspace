@@ -19,7 +19,7 @@ export const referralChapter = {
   //   documentation: [
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/referral-endpoints',
   //   ],
-  //   params: {
+  //   params: () => { return {
   //     PublicKeyBase58Check: DEZO_DOG,
   //     JWT: 'jwt',
   //   } as GetReferralInfoForUserRequest,
@@ -60,7 +60,7 @@ export const referralChapter = {
   //   documentation: [
   //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/referral-endpoints#get-referral-info-for-referral-hash',
   //   ],
-  //   params: {} as GetReferralInfoForReferralHashRequest,
+  //   params: () => { return {} as GetReferralInfoForReferralHashRequest,
   //   method: deso.referral.getReferralInfoForReferralHash,
   //   // component: function () {
   //   //   return (

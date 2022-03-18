@@ -15,7 +15,7 @@ export const identityChapter = {
       'https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in',
     ],
     method: deso.identity.login,
-    params: '3',
+    params: () => '3',
     component: function () {
       return (
         <Route
@@ -46,7 +46,7 @@ export const identityChapter = {
     title: 'Logout',
     route: '/identity/identity-logout',
     method: deso.identity.logout,
-    params: {},
+    params: deso.identity.getUserKey,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/identity/window-api/endpoints#logout',
@@ -81,7 +81,7 @@ export const identityChapter = {
     title: 'JWT',
     route: '/identity/jwt',
     method: deso.identity.getJwt,
-    params: {},
+    params: () => undefined,
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/identity/iframe-api/endpoints#jwt',
