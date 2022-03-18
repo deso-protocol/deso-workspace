@@ -15,7 +15,9 @@ export const identityChapter = {
       'https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in',
     ],
     method: deso.identity.login,
-    params: () => '3',
+    params: () => {
+      return '3';
+    },
     component: function () {
       return (
         <Route
@@ -46,7 +48,9 @@ export const identityChapter = {
     title: 'Logout',
     route: '/identity/identity-logout',
     method: deso.identity.logout,
-    params: deso.identity.getUserKey,
+    params: () => {
+      return deso.identity.getUserKey();
+    },
     githubSource: [],
     documentation: [
       'https://docs.deso.org/for-developers/identity/window-api/endpoints#logout',

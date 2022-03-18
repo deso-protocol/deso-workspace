@@ -11,10 +11,6 @@ import {
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
-
-import { createBrowserHistory } from 'history';
-
-const appHistory = createBrowserHistory();
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
@@ -77,7 +73,7 @@ export const Page = ({
                     codeBlock
                     text={`${IMPORT_CODE}const request = ${
                       typeof method?.params() === 'string'
-                        ? method.params
+                        ? method.params()
                         : JSON.stringify(method?.params(), null, 2)
                     };\n const response = await ${
                       method?.methodName as string
