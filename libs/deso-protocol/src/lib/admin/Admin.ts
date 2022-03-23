@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 
 export class Admin {

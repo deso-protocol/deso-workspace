@@ -6,7 +6,7 @@ import {
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 export class Tutorial {
   node: Node;
   identity: Identity;

@@ -1,4 +1,4 @@
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { requestLogin, requestLogout } from './WindowPrompts';
 import {
   AppendExtraDataRequest,

@@ -1,5 +1,5 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import axios from 'axios';
 import {
   GetUsersResponse,

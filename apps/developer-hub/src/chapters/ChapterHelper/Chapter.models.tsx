@@ -23,6 +23,7 @@ import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { transactionChapter } from './TransactionsChapter';
+import { walletChapter } from './WalletChapter';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -62,6 +63,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...socialChapter,
   ...transactionChapter,
   ...userChapter,
+  ...walletChapter,
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',

@@ -22,7 +22,7 @@ import {
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Transactions } from '../transaction/Transaction';
 import { convertExtraDataToHex, throwErrors } from '../../utils/utils';
 export class Posts {
@@ -59,16 +59,14 @@ export class Posts {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
-    if (!request.BodyObj?.Body) {
-      throw Error('BodyObj.Body is required');
-    }
+
     if (!request.MinFeeRateNanosPerKB) {
       request.MinFeeRateNanosPerKB = 1500;
     }
+
     const apiResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
-
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, extraData)
       .then(() => apiResponse)

@@ -7,7 +7,7 @@ export class Node {
   public setUri(uri: string): void {
     localStorage.setItem('node_uri', uri);
   }
-  constructor() {
-    this.setUri(BASE_URI);
+  constructor(uri?: string) {
+    this.setUri(uri ?? BASE_URI);
   }
 }

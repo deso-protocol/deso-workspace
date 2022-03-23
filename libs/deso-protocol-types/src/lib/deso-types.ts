@@ -3842,6 +3842,7 @@ export interface CreateLikeStatelessResponse {
 }
 
 // struct2ts:types/dist/generated.SubmitPostRequest
+
 export interface SubmitPostRequest {
   UpdaterPublicKeyBase58Check: string;
   PostHashHexToModify: string;
@@ -3888,7 +3889,7 @@ export interface CreateFollowTxnStatelessResponse {
 export interface BuyOrSellCreatorCoinRequest {
   UpdaterPublicKeyBase58Check: string;
   CreatorPublicKeyBase58Check: string;
-  OperationType: string;
+  OperationType: 'buy' | 'sell';
   DeSoToSellNanos: number;
   CreatorCoinToSellNanos: number;
   DeSoToAddNanos: number;
