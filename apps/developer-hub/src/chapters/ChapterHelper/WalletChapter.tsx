@@ -41,7 +41,13 @@ export const walletChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div></div>)}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Create a Basic transfer transaction. Basic transfer
+                  transactions send DeSo from one used to another.
+                </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -84,7 +90,10 @@ export const walletChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div></div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Create a buy/sell creator coin transaction. </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -125,7 +134,10 @@ export const walletChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div></div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Create a transfer creator coin transaction.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
