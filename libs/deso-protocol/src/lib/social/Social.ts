@@ -25,12 +25,12 @@ import {
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { User } from '../user/User';
 
 export class Social {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   user: User;
 
   constructor(node: Node, identity: Identity, user: User) {

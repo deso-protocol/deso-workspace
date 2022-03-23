@@ -20,6 +20,7 @@ export enum ParentRoutes {
   social = 'social',
   transactions = 'transactions',
   user = 'user',
+  wallet = 'wallet',
 }
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';

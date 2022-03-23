@@ -1,11 +1,11 @@
-import { AppendExtraDataRequest, GetDiamondsForPostRequest, GetDiamondsForPostResponse, GetLikesForPostRequest, GetLikesForPostResponse, GetPostsDiamondedBySenderForReceiverRequest, GetPostsDiamondedBySenderForReceiverResponse, GetPostsForPublicKeyResponse, GetPostsStatelessRequest, GetPostsStatelessResponse, GetQuoteRepostsForPostRequest, GetQuoteRepostsForPostResponse, GetRepostsForPostRequest, GetSinglePostRequest, GetSinglePostResponse, HotFeedPageRequest, HotFeedPageResponse, SubmitPostRequest, SubmitPostResponse } from 'deso-protocol-types';
+import { GetDiamondsForPostRequest, AppendExtraDataRequest, GetDiamondsForPostResponse, GetLikesForPostRequest, GetLikesForPostResponse, GetPostsDiamondedBySenderForReceiverRequest, GetPostsDiamondedBySenderForReceiverResponse, GetPostsForPublicKeyResponse, GetPostsStatelessRequest, GetPostsStatelessResponse, GetQuoteRepostsForPostRequest, GetQuoteRepostsForPostResponse, GetRepostsForPostRequest, GetSinglePostRequest, GetSinglePostResponse, HotFeedPageRequest, HotFeedPageResponse, SubmitPostRequest, SubmitPostResponse } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Transactions } from '../transaction/Transaction';
 export declare class Posts {
     static transaction: Transactions;
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     constructor(node: Node, identity: Identity);
     getPostsForPublicKey(ReaderPublicKeyBase58Check: string, Username: string): Promise<GetPostsForPublicKeyResponse>;
     submitPost(request: Partial<SubmitPostRequest>, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<SubmitPostResponse>;

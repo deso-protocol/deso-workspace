@@ -23,6 +23,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
             'landing',
             'notification',
             'transactions',
+            'wallet',
           ].includes(p)
         )
         .map((parentRoute) => {

@@ -1,9 +1,9 @@
 import { AcceptNFTBidRequest, AcceptNFTBidResponse, AcceptNFTTransferRequest, BurnNFTRequest, BurnNFTResponse, CreateNFTBidRequest, CreateNFTBidResponse, CreateNFTRequest, CreateNFTResponse, GetNextNFTShowcaseResponse, GetNFTBidsForNFTPostRequest, GetNFTBidsForNFTPostResponse, GetNFTBidsForUserRequest, GetNFTBidsForUserResponse, GetNFTCollectionSummaryRequest, GetNFTCollectionSummaryResponse, GetNFTEntriesForPostHashRequest, GetNFTEntriesForPostHashResponse, GetNFTsForUserRequest, GetNFTsForUserResponse, GetNFTShowcaseRequest, GetNFTShowcaseResponse, TransferNFTRequest, TransferNFTResponse, UpdateNFTRequest, UpdateNFTResponse } from 'deso-protocol-types';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 export declare class Nft {
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     constructor(node: Node, identity: Identity);
     getNftsForUser(request: Partial<GetNFTsForUserRequest>): Promise<GetNFTsForUserResponse>;
     getNftBidsForUser(request: Partial<GetNFTBidsForUserRequest>): Promise<GetNFTBidsForUserResponse>;

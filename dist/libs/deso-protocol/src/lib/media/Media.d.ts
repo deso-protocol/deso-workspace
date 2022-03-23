@@ -1,9 +1,9 @@
 import { GetFullTikTokURLRequest, GetFullTikTokURLResponse, GetVideoStatusRequest, GetVideoStatusResponse, UploadImageRequest, UploadImageResponse } from 'deso-protocol-types';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 export declare class Media {
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     constructor(node: Node, identity: Identity);
     uploadImage(request: Partial<UploadImageRequest>): Promise<UploadImageResponse>;
     uploadVideo(request: Partial<UploadImageRequest>): Promise<UploadImageResponse>;

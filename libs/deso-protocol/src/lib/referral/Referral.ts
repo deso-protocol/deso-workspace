@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 import {
   GetReferralInfoForReferralHashRequest,
@@ -8,8 +8,8 @@ import {
   GetReferralInfoForUserResponse,
 } from 'deso-protocol-types';
 export class Referral {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

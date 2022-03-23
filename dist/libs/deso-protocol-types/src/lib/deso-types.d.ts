@@ -3110,7 +3110,7 @@ export interface CreateFollowTxnStatelessResponse {
 export interface BuyOrSellCreatorCoinRequest {
     UpdaterPublicKeyBase58Check: string;
     CreatorPublicKeyBase58Check: string;
-    OperationType: string;
+    OperationType: 'buy' | 'sell';
     DeSoToSellNanos: number;
     CreatorCoinToSellNanos: number;
     DeSoToAddNanos: number;

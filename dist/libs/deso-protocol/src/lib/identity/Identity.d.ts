@@ -1,7 +1,7 @@
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { AppendExtraDataRequest, GetDecryptMessagesRequest, GetDecryptMessagesResponse, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
 export declare class Identity {
-    node: Node;
+    private node;
     constructor(node: Node);
     getIframe(): HTMLIFrameElement;
     getUser(): LoginUser | null;

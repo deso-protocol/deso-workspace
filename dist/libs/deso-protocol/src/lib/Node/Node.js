@@ -9,8 +9,8 @@ class Node {
     setUri(uri) {
         localStorage.setItem('node_uri', uri);
     }
-    constructor() {
-        this.setUri(BaseUri_1.BASE_URI);
+    constructor(uri) {
+        this.setUri(uri !== null && uri !== void 0 ? uri : BaseUri_1.BASE_URI);
     }
 }
 exports.Node = Node;

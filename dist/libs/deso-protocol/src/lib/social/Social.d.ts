@@ -1,10 +1,10 @@
 import { CreateFollowTxnStatelessRequest, CreateFollowTxnStatelessResponse, CreateLikeStatelessRequest, CreateLikeStatelessResponse, GetDecryptMessagesResponse, GetDiamondsForPublicKeyRequest, GetDiamondsForPublicKeyResponse, GetFollowsResponse, GetFollowsStatelessRequest, GetHodlersForPublicKeyRequest, GetHodlersForPublicKeyResponse, GetMessagesStatelessRequest, IsFolllowingPublicKeyResponse, IsFollowingPublicKeyRequest, IsHodlingPublicKeyRequest, IsHodlingPublicKeyResponse, SendDiamondsRequest, SendDiamondsResponse, SendMessageStatelessRequest, UpdateProfileRequest, UpdateProfileResponse } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { User } from '../user/User';
 export declare class Social {
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     user: User;
     constructor(node: Node, identity: Identity, user: User);
     sendMessage(request: Partial<SendMessageStatelessRequest>): Promise<any>;

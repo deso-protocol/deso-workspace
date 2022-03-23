@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { BASE_URI } from '../state/BaseUri';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 export class MetaData {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

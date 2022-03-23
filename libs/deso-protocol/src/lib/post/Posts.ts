@@ -1,6 +1,6 @@
 import {
-  AppendExtraDataRequest,
   GetDiamondsForPostRequest,
+  AppendExtraDataRequest,
   GetDiamondsForPostResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
@@ -22,13 +22,13 @@ import {
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Transactions } from '../transaction/Transaction';
-import { convertExtraDataToHex, throwErrors } from '../../utils/utils';
+import { throwErrors } from '../../utils/utils';
 export class Posts {
   static transaction: Transactions;
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;
@@ -65,10 +65,10 @@ export class Posts {
     if (!request.MinFeeRateNanosPerKB) {
       request.MinFeeRateNanosPerKB = 1500;
     }
+
     const apiResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
-
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, extraData)
       .then(() => apiResponse)
