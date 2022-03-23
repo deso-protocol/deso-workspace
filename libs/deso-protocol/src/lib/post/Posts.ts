@@ -59,7 +59,9 @@ export class Posts {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
-
+    if (!request.BodyObj) {
+      throw Error('BodyObj is required');
+    }
     if (!request.MinFeeRateNanosPerKB) {
       request.MinFeeRateNanosPerKB = 1500;
     }
