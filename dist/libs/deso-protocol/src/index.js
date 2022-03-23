@@ -12,8 +12,9 @@ const Posts_1 = require("./lib/post/Posts");
 const Referral_1 = require("./lib/referral/Referral");
 const Social_1 = require("./lib/social/Social");
 const User_1 = require("./lib/user/User");
-const Node_1 = require("./lib/Node/Node");
+const Node_1 = require("./lib/node/Node");
 const Tutorial_1 = require("./lib/tutorial/Tutorial");
+const Wallet_1 = require("./lib/wallet/Wallet");
 const Transaction_1 = require("./lib/transaction/Transaction");
 class Deso {
     constructor() {
@@ -29,6 +30,7 @@ class Deso {
         this.social = new Social_1.Social(this.node, this.identity, this.user);
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.transaction = Transaction_1.Transactions;
+        this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
         this.tutorial = new Tutorial_1.Tutorial(this.node, this.identity);
         this.identity.initialize();

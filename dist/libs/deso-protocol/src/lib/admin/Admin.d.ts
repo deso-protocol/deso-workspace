@@ -1,7 +1,7 @@
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 export declare class Admin {
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     constructor(node: Node, identity: Identity);
 }

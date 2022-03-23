@@ -29,8 +29,8 @@ import { Node } from '../node/Node';
 import { User } from '../user/User';
 
 export class Social {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   user: User;
 
   constructor(node: Node, identity: Identity, user: User) {

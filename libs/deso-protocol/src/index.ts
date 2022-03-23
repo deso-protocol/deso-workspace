@@ -11,15 +11,15 @@ import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
 import { Node } from './lib/node/Node';
 import { Tutorial } from './lib/tutorial/Tutorial';
-import { Transactions } from './lib/transaction/Transaction';
 import { Wallet } from './lib/wallet/Wallet';
+import { Transactions } from './lib/transaction/Transaction';
 export class Deso {
   constructor() {
     this.identity.initialize();
   }
   public node = new Node();
   public identity = new Identity(this.node);
-  public admin = new Admin(this.node, this.identity);
+  private admin = new Admin(this.node, this.identity);
   private media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
   private miner = new Miner(this.node, this.identity);

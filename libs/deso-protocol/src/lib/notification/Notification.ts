@@ -11,8 +11,8 @@ import { Identity } from '../identity/Identity';
 // remove this later and figure out a better solution for the this binding issue
 let Notifications: Notification;
 export class Notification {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

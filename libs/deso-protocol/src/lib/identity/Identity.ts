@@ -17,7 +17,7 @@ import { Transactions } from '../transaction/Transaction';
 import { convertExtraDataToHex } from '../../utils/utils';
 
 export class Identity {
-  node: Node;
+  private node: Node;
   constructor(node: Node) {
     this.node = node;
   }

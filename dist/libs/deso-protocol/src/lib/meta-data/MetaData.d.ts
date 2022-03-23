@@ -1,8 +1,8 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
+import { Node } from '../node/Node';
 export declare class MetaData {
-    node: Node;
-    identity: Identity;
+    private node;
+    private identity;
     constructor(node: Node, identity: Identity);
     getAppState(): Promise<any>;
 }

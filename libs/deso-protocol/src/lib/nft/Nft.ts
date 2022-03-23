@@ -31,8 +31,8 @@ import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
 
 export class Nft {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

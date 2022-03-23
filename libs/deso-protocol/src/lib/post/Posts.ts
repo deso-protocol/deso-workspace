@@ -1,6 +1,6 @@
 import {
-  AppendExtraDataRequest,
   GetDiamondsForPostRequest,
+  AppendExtraDataRequest,
   GetDiamondsForPostResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
@@ -24,11 +24,11 @@ import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { Node } from '../node/Node';
 import { Transactions } from '../transaction/Transaction';
-import { convertExtraDataToHex, throwErrors } from '../../utils/utils';
+import { throwErrors } from '../../utils/utils';
 export class Posts {
   static transaction: Transactions;
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

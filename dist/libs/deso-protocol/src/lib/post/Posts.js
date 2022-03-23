@@ -18,12 +18,11 @@ class Posts {
         return (await axios_1.default.post(`${this.node.getUri()}/get-posts-for-public-key`, request)).data;
     }
     async submitPost(request, extraData) {
-        var _a;
         if (!request.UpdaterPublicKeyBase58Check) {
             throw Error('UpdaterPublicKeyBase58Check is required');
         }
-        if (!((_a = request.BodyObj) === null || _a === void 0 ? void 0 : _a.Body)) {
-            throw Error('BodyObj.Body is required');
+        if (!request.BodyObj) {
+            throw Error('BodyObj is required');
         }
         if (!request.MinFeeRateNanosPerKB) {
             request.MinFeeRateNanosPerKB = 1500;

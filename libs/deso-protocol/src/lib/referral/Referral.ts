@@ -8,8 +8,8 @@ import {
   GetReferralInfoForUserResponse,
 } from 'deso-protocol-types';
 export class Referral {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

@@ -17,8 +17,8 @@ import {
   GetUserDerivedKeysResponse,
 } from 'deso-protocol-types';
 export class User {
-  node: Node;
-  identity: Identity;
+  private node: Node;
+  private identity: Identity;
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

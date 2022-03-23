@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "deso-protocol": ["libs/deso-protocol/src/index.ts"],
+      "deso-protocol-1": ["libs/deso-protocol-package/src/index.ts"],
       "deso-protocol-types": ["libs/deso-protocol-types/src/index.ts"]
     }
   },

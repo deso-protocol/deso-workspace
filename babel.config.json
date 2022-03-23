@@ -1,4 +1,7 @@
 {
   "babelrcRoots": ["*"],
-  "presets": ["@babel/preset-flow"]
+  "presets": ["@babel/preset-flow"],
+
+  "inputSourceMap": false,
+  "sourceMaps": false
 }
