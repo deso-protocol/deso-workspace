@@ -19,7 +19,6 @@ import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
 import { ParentRoutes } from '../../services/utils';
-import DesoDrawer from '../../components/layout/Drawer';
 import { PageProps } from '../Read/Page';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { transactionChapter } from './TransactionsChapter';
@@ -29,26 +28,6 @@ export interface TODOProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-
-export const TODOTemplate = ({ selectedChapter, chapters }: TODOProps) => {
-  return (
-    <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start">
-      <div className="border-r border-[#00000025]">
-        <DesoDrawer chapters={CHAPTERS} />
-      </div>
-      <div className="flex-grow-1 flex justify-around mx-auto w-full max-w-[1500px] ">
-        <div></div>
-        <div>Coming Soon!</div>
-        <div>
-          <PageNavigation
-            previous={chapters.prev(selectedChapter) as Chapter}
-            next={chapters.next(selectedChapter) as Chapter}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...adminChapter,

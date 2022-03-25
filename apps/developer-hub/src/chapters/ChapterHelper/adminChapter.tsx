@@ -1,6 +1,12 @@
 import { Route } from 'react-router-dom';
-import { CHAPTERS, TODOTemplate } from './Chapter.models';
+import { CHAPTERS } from './Chapter.models';
 import { ParentRoutes } from '../../services/utils';
+
+export const TODOTemplate = () => {
+  return (
+    <div className="mt-[13px]  pb-2 w-full bg-[#fff] min-h-[800px]  rounded-lg flex justify-start"></div>
+  );
+};
 export const adminChapter = {
   NODE_CONTROL: {
     parentRoute: ParentRoutes.admin,
@@ -9,13 +15,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   REPROCESS_BITCOIN_BLOCK: {
@@ -25,13 +25,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_MEMPOOL_STATS: {
@@ -41,13 +35,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   EVICT_UNMINED_BITCOIN_TXNS: {
@@ -57,13 +45,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_GLOBAL_PARAMS: {
@@ -73,13 +55,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   UPDATE_GLOBAL_PARAMS: {
@@ -89,13 +65,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   SWAP_IDENTITY: {
@@ -105,13 +75,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   UPDATE_USER_GLOBAL_METADATA: {
@@ -121,13 +85,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_ALL_USER_GLOBAL_METADATA: {
@@ -137,13 +95,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_USER_GLOBAL_METADATA: {
@@ -153,13 +105,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GRANT_VERIFICATION_BADGE: {
@@ -169,13 +115,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   REMOVE_VERIFICATION_BADGE: {
@@ -185,13 +125,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_VERIFIED_USERS: {
@@ -201,13 +135,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   GET_USERNAME_VERIFICATION_AUDIT_LOGS: {
@@ -217,16 +145,9 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
-
   UPDATE_GLOBAL_FEED: {
     parentRoute: ParentRoutes.admin,
     title: 'Update Global Feed',
@@ -234,13 +155,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   PIN_POST: {
@@ -250,13 +165,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
   REMOVE_NIL_POSTS: {
@@ -266,13 +175,7 @@ export const adminChapter = {
     githubSource: [],
     documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
     component: function () {
-      return (
-        <Route
-          key={this.title}
-          path={this.route}
-          element={<TODOTemplate selectedChapter={this} chapters={CHAPTERS} />}
-        ></Route>
-      );
+      return <></>;
     },
   },
 };
