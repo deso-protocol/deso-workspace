@@ -31,6 +31,6 @@ export class Deso {
   public transaction = Transactions;
   public wallet = new Wallet(this.node, this.identity);
   public referral = new Referral(this.node, this.identity);
-  private tutorial = new Tutorial(this.node, this.identity);
+  // private tutorial = new Tutorial(this.node, this.identity);
 }
 export default Deso;
