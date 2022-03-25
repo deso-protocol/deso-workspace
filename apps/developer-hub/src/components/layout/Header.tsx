@@ -1,21 +1,22 @@
 import { AppBar, Toolbar, Tooltip, Typography } from '@mui/material';
 import Logo from '../../assets/deso-logo.png';
-import { useRecoilState } from 'recoil';
-import { SampleAppToggleDrawer } from '../../recoil/AppState.atoms';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import { Link } from 'react-router-dom';
+import { CHAPTERS } from '../../chapters/ChapterHelper/Chapter.models';
 
 export const Header = () => {
-  const [toggle, setToggleDrawer] = useRecoilState(SampleAppToggleDrawer);
   return (
     <div className="mb-[60px]" style={{ position: 'relative', zIndex: 1301 }}>
       <AppBar position="fixed" sx={{ backgroundColor: '#000' }}>
         <Toolbar>
-          <Typography variant="h6" component="div">
-            <img className="max-h-[25px] mr-2 inline" src={Logo} />
-            <div className="inline mt-4 max-h-[32px] text-lg">
-              Developer Hub (beta)
-            </div>
-          </Typography>
+          <Link to={CHAPTERS.ABOUT.route} className="hover:text-[#ffc08c]">
+            <Typography variant="h6" component="div">
+              <img className="max-h-[15px] mr-2 inline" src={Logo} />
+              <div className="inline mt-4 max-h-[32px] text-base font-semibold">
+                Developer Hub (beta)
+              </div>
+            </Typography>
+          </Link>
           <div className="flex-grow"></div>
 
           <a
