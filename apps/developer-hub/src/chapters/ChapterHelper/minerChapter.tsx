@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { CHAPTERS, TODOTemplate } from './Chapter.models';
+import { CHAPTERS } from './Chapter.models';
 import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {

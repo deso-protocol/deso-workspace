@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { CHAPTERS, TODOTemplate } from './Chapter.models';
+import { CHAPTERS } from './Chapter.models';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
 import { DEZO_DOG, ParentRoutes, RUSSIA } from '../../services/utils';

@@ -3,6 +3,7 @@ import Logo from '../../assets/deso-logo.png';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import { Link } from 'react-router-dom';
 import { CHAPTERS } from '../../chapters/ChapterHelper/Chapter.models';
+import { CopyBlock, nord } from 'react-code-blocks';
 
 export const Header = () => {
   return (
@@ -18,6 +19,16 @@ export const Header = () => {
             </Typography>
           </Link>
           <div className="flex-grow"></div>
+
+          <div className="flex-grow mr-6 ml-20 max-w-[210px] ">
+            <CopyBlock
+              codeBlock
+              showLineNumbers={false}
+              text={`npm i deso-protocol`}
+              theme={nord}
+              language={'text'}
+            />
+          </div>
 
           <a
             className="font-bold hover:text-[#ffc08c]"

@@ -68,7 +68,7 @@ export const SideBar = (chapters: ChapterNavigation) => {
             }
           }}
         >
-          <div className="inline flex justify-start mr-20 ">
+          <div key={index} className="inline flex justify-start mr-20 ">
             {openedPanels[parentRoute] ? (
               <ArrowDropDownIcon />
             ) : (
