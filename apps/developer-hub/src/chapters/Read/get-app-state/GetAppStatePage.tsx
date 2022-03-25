@@ -13,13 +13,17 @@ export const GetAppStatePage = () => {
   const deso = useRecoilValue(desoService);
   const [nodes, setNodes] = useState<any[]>([]);
   useEffect(() => {
-    deso.metaData.getAppState().then((response) => {
-      setNodes(
-        (Object.values(response.Nodes) as any[]).map((node) => {
-          return node;
-        })
-      );
-    });
+    deso.metaData
+      .getAppState({
+        PublicKeyBase58Check: localStorage.getItem('login_key') as string,
+      })
+      .then((response) => {
+        setNodes(
+          (Object.values(response.Nodes) as any[]).map((node) => {
+            return node;
+          })
+        );
+      });
   }, []);
   return (
     <div className="mx-auto mt-20 max-w-[1160px] pb-2 w-full bg-[#fff] min-h-[800px] rounded-lg">

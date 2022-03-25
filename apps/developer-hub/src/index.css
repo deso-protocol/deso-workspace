@@ -9,13 +9,6 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: rgb(0, 1, 13);
-  background: linear-gradient(
-    180deg,
-    rgba(0, 1, 13, 1) 0%,
-    rgba(0, 2, 20, 1) 0%,
-    rgba(0, 22, 255, 1) 48%,
-    rgba(0, 0, 0, 1) 88%
-  );
 }
 
 code {

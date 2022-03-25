@@ -22,7 +22,7 @@ export class Deso {
   private admin = new Admin(this.node, this.identity);
   private media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
-  private miner = new Miner(this.node, this.identity);
+  public miner = new Miner(this.node, this.identity);
   public nft = new Nft(this.node, this.identity);
   public notification = new Notification(this.node, this.identity);
   public user = new User(this.node, this.identity);
@@ -30,7 +30,7 @@ export class Deso {
   public posts = new Posts(this.node, this.identity);
   public transaction = Transactions;
   public wallet = new Wallet(this.node, this.identity);
-  private referral = new Referral(this.node, this.identity);
+  public referral = new Referral(this.node, this.identity);
   private tutorial = new Tutorial(this.node, this.identity);
 }
 export default Deso;

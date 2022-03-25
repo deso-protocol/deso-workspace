@@ -54,23 +54,31 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
   return (
     <>
       {tabs && (
-        <div className="mt-[13px]  pb-2 w-full  flex justify-start ">
-          <div className="border-r border-[#00000025]">
+        <div className="mt-[13px] pb-2 w-full  flex justify-start ">
+          <div className=" border-[#00000025]">
             <DesoDrawer chapters={CHAPTERS} />
           </div>
           <div className="flex-grow-1 mx-auto w-full max-w-[1500px] ">
             <Box
               className="flex justify-evenly"
-              sx={{ borderBottom: 1, borderColor: 'divider' }}
+              sx={{ borderBottom: 1, borderColor: 'black' }}
             >
               <Tabs
+                TabIndicatorProps={{ style: { backgroundColor: '#000' } }}
+                textColor="inherit"
+                sx={{ color: 'black' }}
                 value={value}
                 onChange={handleChange}
                 aria-label="basic tabs example"
               >
                 {tabs.map((tab, index) => {
                   return (
-                    <Tab key={index} label={tab.title} {...a11yProps(index)} />
+                    <Tab
+                      sx={{ width: '1000px' }}
+                      key={index}
+                      label={tab.title}
+                      {...a11yProps(index)}
+                    />
                   );
                 })}
               </Tabs>
@@ -86,6 +94,8 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
               );
             })}
           </div>
+
+          <div className="w-[252px]"></div>
         </div>
       )}
     </>

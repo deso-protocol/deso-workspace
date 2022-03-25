@@ -1,5 +1,10 @@
 import { Node } from '../node/Node';
 import { Identity } from '../identity/Identity';
+import {
+  GetBlockTemplateRequest,
+  GetBlockTemplateResponse,
+} from 'deso-protocol-types';
+import axios from 'axios';
 
 export class Miner {
   private node: Node;
@@ -7,5 +12,19 @@ export class Miner {
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;
+  }
+
+  public async getBlockTemplate(
+    request: GetBlockTemplateRequest
+  ): Promise<GetBlockTemplateResponse> {
+    const endpoint = 'get-block-template';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+  }
+
+  public async submitBlock(
+    request: Partial<GetBlockTemplateRequest>
+  ): Promise<GetBlockTemplateResponse> {
+    const endpoint = 'submit-block';
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 }
