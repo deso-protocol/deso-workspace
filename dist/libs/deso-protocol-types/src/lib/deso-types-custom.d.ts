@@ -1,3 +1,4 @@
+import { BlockTemplateStats } from './deso-types';
 export interface GetApproveResponse {
     id?: string;
     service: 'identity';
@@ -110,4 +111,26 @@ export interface GetDecryptMessagesResponse {
     RecipientMessagingPublicKey: string;
     RecipientMessagingGroupKeyName: string;
     decryptedMessage: string;
+}
+export interface GetBlockTemplateRequest {
+    PublicKeyBase58Check: string;
+    NumHeaders: number;
+    HeaderVersion: number;
+}
+export interface GetBlockTemplateResponse {
+    Headers: number[][];
+    BlockID: string;
+    DifficultyTargetHex: string;
+    ExtraNonces: number[];
+    LatestBlockTemplateStats: BlockTemplateStats;
+}
+export interface SubmitBlockRequest {
+    PublicKeyBase58Check: string;
+    Header: string[];
+    ExtraData: any;
+    BlockID: string;
+}
+export interface SubmitBlockResponse {
+    IsMainChain: boolean;
+    IsOrphan: boolean;
 }

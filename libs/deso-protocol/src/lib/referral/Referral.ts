@@ -7,6 +7,7 @@ import {
   GetReferralInfoForUserRequest,
   GetReferralInfoForUserResponse,
 } from 'deso-protocol-types';
+import { throwErrors } from '../../utils/utils';
 export class Referral {
   private node: Node;
   private identity: Identity;
@@ -18,6 +19,11 @@ export class Referral {
   public async getReferralInfoForUser(
     request: Partial<GetReferralInfoForUserRequest>
   ): Promise<GetReferralInfoForUserResponse> {
+    throwErrors(['PublicKeyBase58Check'], request);
+    if (!request.JWT) {
+      const JWT = await this.identity.getJwt();
+      request.JWT = JWT;
+    }
     const endpoint = 'get-referral-info-for-user';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
@@ -25,6 +31,7 @@ export class Referral {
   public async getReferralInfoForReferralHash(
     request: Partial<GetReferralInfoForReferralHashRequest>
   ): Promise<GetReferralInfoForReferralHashResponse> {
+    throwErrors(['ReferralHash'], request);
     const endpoint = 'get-referral-info-for-referral-hash';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }

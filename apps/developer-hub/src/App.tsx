@@ -14,7 +14,6 @@ function App() {
           <Header />
         </div>
         <div className="flex-grow flex">
-          {/* <DesoDrawer chapters={CHAPTERS} /> */}
           <div className="flex-grow">
             <Routes>{routes}</Routes>
           </div>

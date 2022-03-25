@@ -26,10 +26,10 @@ export const convertExtraDataToHex = (
 
 export const throwErrors = (
   requiredAttributes: string[],
-  request: Partial<any>
+  request: any
 ): void => {
   requiredAttributes.forEach((attrName: string) => {
-    const doesExist = (request as any)[attrName];
+    const doesExist = request[attrName];
     if (!doesExist) {
       throw Error(`${attrName} is required`);
     }
