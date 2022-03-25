@@ -8,8 +8,14 @@ class MetaData {
         this.node = node;
         this.identity = identity;
     }
-    async getAppState() {
-        return (await axios_1.default.post(`${BaseUri_1.BASE_URI}/get-app-state`, {})).data;
+    async getAppState(request) {
+        return (await axios_1.default.post(`${BaseUri_1.BASE_URI}/get-app-state`, request)).data;
+    }
+    async getExchangeRate() {
+        return (await axios_1.default.get(`${BaseUri_1.BASE_URI}/get-exchange-rate`)).data;
+    }
+    async healthCheck() {
+        return (await axios_1.default.get(`${BaseUri_1.BASE_URI}/health-check`)).data;
     }
 }
 exports.MetaData = MetaData;
