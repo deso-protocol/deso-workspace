@@ -20,9 +20,10 @@ export const Header = () => {
           </Link>
           <div className="flex-grow"></div>
 
-          <div className="flex-grow mr-4 ml-20 max-w-[400px]">
+          <div className="flex-grow mr-6 ml-20 max-w-[210px] ">
             <CopyBlock
               codeBlock
+              showLineNumbers={false}
               text={`npm i deso-protocol`}
               theme={nord}
               language={'text'}

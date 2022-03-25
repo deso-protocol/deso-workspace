@@ -46,7 +46,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',
-    route: '*',
+    route: '/main/welcome',
     method: 'N/A',
     documentation: [],
     githubSource: [],
