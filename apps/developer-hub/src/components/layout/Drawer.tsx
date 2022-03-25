@@ -9,7 +9,6 @@ const getEnabledRoutes = (): string[] => {
   return Object.keys(ParentRoutes).filter((p) =>
     [
       'identity',
-      'landing',
       'miner',
       'metaData',
       'nft',

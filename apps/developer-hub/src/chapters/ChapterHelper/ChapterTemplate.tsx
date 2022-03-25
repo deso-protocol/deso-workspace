@@ -58,7 +58,7 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
           <div className=" border-[#00000025]">
             <DesoDrawer chapters={CHAPTERS} />
           </div>
-          <div className="flex-grow-1 mx-auto w-full max-w-[1500px] ">
+          <div className="flex-grow-1 mx-auto w-full max-w-[1500px] border-l border-r border-neutral-300">
             <Box
               className="flex justify-evenly"
               sx={{ borderBottom: 1, borderColor: 'black' }}
@@ -95,7 +95,7 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
             })}
           </div>
 
-          <div className="w-[252px]"></div>
+          <div className="w-[270px]"></div>
         </div>
       )}
     </>
