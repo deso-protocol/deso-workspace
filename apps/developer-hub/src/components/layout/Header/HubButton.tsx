@@ -7,11 +7,16 @@ export const HubButton = () => {
   return (
     <Link to={CHAPTERS.ABOUT.route} className="hover:text-[#ffc08c]">
       <Typography variant="h6" component="div">
-        <img className="max-h-[15px] mr-2 inline" src={Logo} />
-        <div className="inline mt-4 max-h-[32px] text-base font-semibold">
-          <BrowserView>Developer Hub (beta)</BrowserView>
-          <MobileView></MobileView>
-        </div>
+        <BrowserView>
+          <div className="inline mt-4 max-h-[32px] text-base font-semibold">
+            <img className="max-h-[15px] mr-2 inline" src={Logo} />
+            Developer Hub (beta){' '}
+          </div>
+        </BrowserView>
+
+        <MobileView>
+          <img className="max-h-[15px] mr-2 inline" src={Logo} />
+        </MobileView>
       </Typography>
     </Link>
   );
