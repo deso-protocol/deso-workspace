@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { Header } from './components/layout/Header';
+import { Header } from './components/layout/Header/Header';
 import { CHAPTERS } from './chapters/ChapterHelper/Chapter.models';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 function App() {
