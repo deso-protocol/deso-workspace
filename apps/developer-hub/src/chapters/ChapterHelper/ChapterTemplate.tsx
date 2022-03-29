@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/system/Box';
 import DesoDrawer from '../../components/layout/Drawer';
 import { CHAPTERS } from './Chapter.models';
+import { isMobile } from 'react-device-detect';
 export interface ChapterTemplateProps {
   title: string;
   tabs: TabItem[];
@@ -54,7 +55,11 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
   return (
     <>
       {tabs && (
-        <div className="mt-[13px] pb-2 w-full  flex justify-start ">
+        <div
+          className={`mt-[13px] pb-2 w-full  flex justify-start ${
+            isMobile ? 'flex-col-reverse' : 'flex-row'
+          }`}
+        >
           <div className=" border-[#00000025]">
             <DesoDrawer chapters={CHAPTERS} />
           </div>
