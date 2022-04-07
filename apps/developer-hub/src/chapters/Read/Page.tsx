@@ -23,7 +23,6 @@ export interface PageProps {
   pretext?: ReactElement;
   bind?: string;
   demo: boolean;
-  destructureParams?: boolean;
 }
 
 export const Page = ({
@@ -33,7 +32,6 @@ export const Page = ({
   pretext,
   bind,
   demo = true,
-  destructureParams = false,
 }: PageProps) => {
   const deso = useRecoilValue(desoService);
   const [response, setResponse] = useState<any | null>(null);
@@ -52,12 +50,7 @@ export const Page = ({
     const methodToCall = method.method.bind(
       bind === 'identity' ? deso.identity : deso
     );
-    let response: any;
-    if (destructureParams === true && method.params instanceof Function) {
-      response = await methodToCall(...method.params()); 
-    } else {
-      response = await methodToCall(method.params());
-    }
+    const response = await methodToCall(method.params());
     setResponse(response);
   };
 

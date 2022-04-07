@@ -348,7 +348,7 @@ export const userChapter = {
     title: 'Authorize Derived Key',
     route: '/user/authorize-derived-key',
     params: () => {
-      return { request: {
+      return {
         OwnerPublicKeyBase58Check: deso.identity.getUserKey(),
         DeleteKey: false,
         MinFeeRateNanosPerKB: 1000,
@@ -367,9 +367,7 @@ export const userChapter = {
           }
         },
         Memo: "deso developer hub derived key",
-      } as Partial<AuthorizeDerivedKeyParams>,
-      broadcast: false,
-    }
+      } as Partial<AuthorizeDerivedKeyParams>;
     },
     method: deso.user.authorizeDerivedKey,
     githubSource: [],
@@ -389,7 +387,6 @@ export const userChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              destructureParams={true}
               pretext={PageSection(
                 this.title,
                 <div>
