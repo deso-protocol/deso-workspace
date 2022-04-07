@@ -1,26 +1,41 @@
-export const requestApproval = (transactionHex: string): Window => {
+import { IdentityDeriveParams, IdentityDeriveQueryParams, NFTKey } from "deso-protocol-types";
+
+export const requestApproval = (transactionHex: string, uri: string): Window => {
   const prompt = window.open(
-    `https://identity.deso.org/approve?tx=${transactionHex}`,
+    `${uri}/approve?tx=${transactionHex}`,
     null as unknown as any,
     'toolbar=no, width=800, height=1000, top=0, left=0'
   ) as Window;
   return prompt;
 };
 
-export const requestLogin = (accessLevel = '4'): Window => {
+export const requestLogin = (accessLevel = '4', uri: string): Window => {
   const prompt = window.open(
-    `https://identity.deso.org/log-in?accessLevelRequest=${accessLevel}&hideJumio=true`,
+    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true`,
     null as unknown as any,
     'toolbar=no, width=800, height=1000, top=0, left=0'
   ) as Window;
   return prompt;
 };
 
-export const requestLogout = (publicKey: string): Window => {
+export const requestLogout = (publicKey: string, uri: string): Window => {
   const prompt = window.open(
-    `https://identity.deso.org/logout?publicKey=${publicKey}`,
+    `${uri}/logout?publicKey=${publicKey}`,
     null as unknown as any,
     'toolbar=no, width=800, height=1000, top=0, left=0'
   ) as Window;
   return prompt;
 };
+
+export const requestDerive = (params: IdentityDeriveQueryParams, uri: string) => {
+  const queryParams = Object.entries(params || {}).
+    filter(([_, value]) => value !== null && value !== undefined).
+    map(([key, value]) => `${key}=${value.toString()}`);
+  const queryString = queryParams.length ? "?"+queryParams.join("&") : "";
+  const prompt = window.open(
+    `${uri}/derive${queryString}`,
+    null as unknown as any,
+    'toolbar=no, width=800, height=1000, top=0, left=0'
+  ) as Window;
+  return prompt;
+}

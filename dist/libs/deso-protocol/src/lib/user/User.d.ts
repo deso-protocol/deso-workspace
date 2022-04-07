@@ -1,6 +1,6 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
-import { GetUsersResponse, GetUsersStatelessRequest, GetSingleProfileResponse, GetSingleProfileRequest, GetProfilesRequest, GetProfilesResponse, GetUserMetadataRequest, GetUserMetadataResponse, DeletePIIRequest, BlockPublicKeyRequest, GetUserDerivedKeysRequest, BlockPublicKeyResponse, GetUserDerivedKeysResponse } from 'deso-protocol-types';
+import { Node } from '../Node/Node';
+import { GetUsersResponse, GetUsersStatelessRequest, GetSingleProfileResponse, GetSingleProfileRequest, GetProfilesRequest, GetProfilesResponse, GetUserMetadataRequest, GetUserMetadataResponse, DeletePIIRequest, BlockPublicKeyRequest, GetUserDerivedKeysRequest, BlockPublicKeyResponse, GetUserDerivedKeysResponse, AuthorizeDerivedKeyResponse, AuthorizeDerivedKeyParams } from 'deso-protocol-types';
 export declare class User {
     private node;
     private identity;
@@ -13,4 +13,5 @@ export declare class User {
     deletePii(request: Partial<DeletePIIRequest>): Promise<boolean>;
     blockPublicKey(request: Partial<BlockPublicKeyRequest>): Promise<BlockPublicKeyResponse>;
     getUserDerivedKeys(request: Partial<GetUserDerivedKeysRequest>): Promise<GetUserDerivedKeysResponse>;
+    authorizeDerivedKey(request: Partial<AuthorizeDerivedKeyParams>, broadcast: boolean): Promise<AuthorizeDerivedKeyResponse>;
 }

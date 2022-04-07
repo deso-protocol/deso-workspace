@@ -4,6 +4,7 @@ import Page from '../Read/Page';
 import Deso from 'deso-protocol';
 import { PageSection } from './PageSections';
 import { CHAPTERS } from './Chapter.models';
+import { CreatorCoinLimitOperationString, DAOCoinLimitOperationString, IdentityDeriveParams, NFTLimitOperationString } from 'deso-protocol-types';
 const deso = new Deso();
 export const identityChapter = {
   IDENTITY_LOGIN: {
@@ -25,6 +26,7 @@ export const identityChapter = {
           path={this.route}
           element={
             <Page
+              bind="identity"
               method={{
                 methodName: `deso.identity.login(request)`,
                 params: this.params,
@@ -62,6 +64,7 @@ export const identityChapter = {
           path={this.route}
           element={
             <Page
+              bind="identity"
               method={{
                 methodName: `deso.identity.logout(request)`,
                 params: this.params,
@@ -116,4 +119,74 @@ export const identityChapter = {
       );
     },
   },
+  IDENTITY_DERIVE: {
+    parentRoute: ParentRoutes.identity,
+    title: 'Derive',
+    route: '/identity/derive',
+    method: deso.identity.derive,
+    params: () => {
+      return {
+        publicKey: deso.identity.getUserKey(),
+        transactionSpendingLimitResponse: {
+          GlobalDESOLimit: 100 * 1e9,
+          TransactionCountLimitMap: {
+            SUBMIT_POST: 120948,
+            FOLLOW: 82943,
+          },
+          CreatorCoinOperationLimitMap: {
+            "": {
+              [CreatorCoinLimitOperationString.ANY]: 2183,
+            },
+            BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+              [CreatorCoinLimitOperationString.BUY]: 123,
+              [CreatorCoinLimitOperationString.SELL]: 4123,
+              [CreatorCoinLimitOperationString.TRANSFER]: 9198,
+            }
+          },
+          // DAOCoinOperationLimitMap: {
+          //   "": {
+          //     [DAOCoinLimitOperationString.MINT]: 1,
+          //   }
+          // },
+          NFTOperationLimitMap: {
+            "01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b": {
+              0: {
+                [NFTLimitOperationString.UPDATE]: 10,
+                [NFTLimitOperationString.BID]: 501,
+              }
+            }
+          }
+        }
+      } as Partial<IdentityDeriveParams>;
+    },
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/identity/window-api/endpoints#derive',
+    ],
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              method={{
+                methodName: `deso.identity.derive(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Trigger a window prompt to let a user generate a derived key.</div>
+              )}
+              demo={true}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+              bind="identity"
+            />
+          }
+        ></Route>
+      );
+    },
+  }
 };

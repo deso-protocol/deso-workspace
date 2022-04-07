@@ -1,4 +1,4 @@
-import { BlockTemplateStats } from './deso-types';
+import { BlockTemplateStats, TransactionFee } from './deso-types';
 
 export interface GetApproveResponse {
   id?: string;
@@ -149,4 +149,147 @@ export interface SubmitBlockRequest {
 export interface SubmitBlockResponse {
   IsMainChain: boolean;
   IsOrphan: boolean;
+}
+
+export enum DeSoNetwork {
+  mainnet = 'mainnet',
+  testnet = 'testnet',
+}
+
+export interface DerivedPrivateUserInfo {
+  derivedSeedHex: string;
+  derivedPublicKeyBase58Check: string;
+  publicKeyBase58Check: string;
+  btcDepositAddress: string;
+  ethDepositAddress: string;
+  expirationBlock: number;
+  network: DeSoNetwork;
+  accessSignature: string;
+  jwt: string;
+  derivedJwt: string;
+  messagingPublicKeyBase58Check: string;
+  messagingPrivateKey: string;
+  messagingKeyName: string;
+  messagingKeySignature: string;
+  transactionSpendingLimitHex: string | undefined;
+}
+
+export enum CreatorCoinLimitOperationString {
+  ANY = 'any',
+  BUY = 'buy',
+  SELL = 'sell',
+  TRANSFER = 'transfer',
+}
+
+export enum DAOCoinLimitOperationString {
+  ANY = 'any',
+  MINT = 'mint',
+  BURN = 'burn',
+  DISABLE_MINTING = 'disable_minting',
+  UPDATE_TRANSFER_RESTRICTION_STATUS = 'update_transfer_restriction_status',
+  TRANSFER = 'transfer',
+}
+
+export type CoinLimitOperationString =
+  | DAOCoinLimitOperationString
+  | CreatorCoinLimitOperationString;
+
+export interface CoinOperationLimitMap<T extends CoinLimitOperationString> {
+  [public_key: string]: OperationToCountMap<T>;
+}
+
+export type OperationToCountMap<T extends LimitOperationString> = {
+  [operation in T]?: number;
+};
+
+export type LimitOperationString =
+  | DAOCoinLimitOperationString
+  | CreatorCoinLimitOperationString
+  | NFTLimitOperationString;
+export type CreatorCoinOperationLimitMap =
+  CoinOperationLimitMap<CreatorCoinLimitOperationString>;
+export type DAOCoinOperationLimitMap =
+  CoinOperationLimitMap<DAOCoinLimitOperationString>;
+
+export enum NFTLimitOperationString {
+  ANY = 'any',
+  UPDATE = 'update',
+  BID = 'nft_bid',
+  ACCEPT_BID = 'accept_nft_bid',
+  TRANSFER = 'transfer',
+  BURN = 'burn',
+  ACCEPT_TRANSFER = 'accept_nft_transfer',
+}
+export interface NFTOperationLimitMap {
+  [post_hash_hex: string]: {
+    [serial_number: number]: OperationToCountMap<NFTLimitOperationString>;
+  };
+}
+
+export enum TransactionType {
+  BasicTransfer = 'BASIC_TRANSFER',
+  BitcoinExchange = 'BITCOIN_EXCHANGE',
+  PrivateMessage = 'PRIVATE_MESSAGE',
+  SubmitPost = 'SUBMIT_POST',
+  UpdateProfile = 'UPDATE_PROFILE',
+  UpdateBitcoinUSDExchangeRate = 'UPDATE_BITCOIN_USD_EXCHANGE_RATE',
+  Follow = 'FOLLOW',
+  Like = 'LIKE',
+  CreatorCoin = 'CREATOR_COIN',
+  SwapIdentity = 'SWAP_IDENTITY',
+  UpdateGlobalParams = 'UPDATE_GLOBAL_PARAMS',
+  CreatorCoinTransfer = 'CREATOR_COIN_TRANSFER',
+  CreateNFT = 'CREATE_NFT',
+  UpdateNFT = 'UPDATE_NFT',
+  AcceptNFTBid = 'ACCEPT_NFT_BID',
+  NFTBid = 'NFT_BID',
+  NFTTransfer = 'NFT_TRANSFER',
+  AcceptNFTTransfer = 'ACCEPT_NFT_TRANSFER',
+  BurnNFT = 'BURN_NFT',
+  AuthorizeDerivedKey = 'AUTHORIZE_DERIVED_KEY',
+  MessagingGroup = 'MESSAGING_GROUP',
+  DAOCoin = 'DAO_COIN',
+  DAOCoinTransfer = 'DAO_COIN_TRANSFER',
+  DAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
+}
+
+export interface TransactionSpendingLimitResponse {
+  GlobalDESOLimit: number;
+  TransactionCountLimitMap?: { [k in TransactionType]?: number };
+  CreatorCoinOperationLimitMap?: CreatorCoinOperationLimitMap;
+  DAOCoinOperationLimitMap?: DAOCoinOperationLimitMap;
+  NFTOperationLimitMap?: NFTOperationLimitMap;
+  DerivedKeyMemo?: string;
+}
+
+export interface IdentityDeriveParams {
+  callback?: string;
+  testnet?: boolean;
+  webview?: boolean;
+  publicKey?: string;
+  transactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
+  derivedPublicKey?: string;
+}
+
+export interface IdentityDeriveQueryParams {
+  callback?: string;
+  testnet?: boolean;
+  webview?: boolean;
+  publicKey?: string;
+  transactionSpendingLimitResponse?: string;
+  derivedPublicKey?: string;
+}
+
+export interface AuthorizeDerivedKeyParams {
+  OwnerPublicKeyBase58Check?: string;
+  DerivedPublicKeyBase58Check?: string;
+  ExpirationBlock?: number;
+  DeleteKey: boolean;
+  DerivedKeySignature?: boolean;
+  TransactionFees: TransactionFee[] | null;
+  MinFeeRateNanosPerKB: number;
+  TransactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
+  Memo?: string;
+  AppName?: string;
+  ExtraData?: { [k: string]: string };
 }

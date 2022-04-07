@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Transactions } from '../transaction/Transaction';
 import { IframeMethods } from './IdentityHelper';
-import { GetDecryptMessagesResponse } from 'deso-protocol-types';
+import { DerivedPrivateUserInfo, GetDecryptMessagesResponse } from 'deso-protocol-types';
 
 export const iFrameHandler = (info: Payload): Promise<any> => {
   return new Promise((resolve, reject) => {
@@ -84,5 +84,10 @@ export const handlers = async (
       info.data.resolve(event.data.payload.encryptedMessage);
       window.removeEventListener('message', windowHandler);
     }
+  }
+  if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
+    info.data.prompt?.close();
+    info.data.resolve(event.data.payload as DerivedPrivateUserInfo);
+    window.removeEventListener('derive', windowHandler);
   }
 };

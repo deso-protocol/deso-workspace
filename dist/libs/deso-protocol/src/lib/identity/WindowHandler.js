@@ -40,7 +40,7 @@ const handlers = async (event, windowHandler, info) => {
         }
         const decryptedHexes = (_h = (_g = event === null || event === void 0 ? void 0 : event.data) === null || _g === void 0 ? void 0 : _g.payload) === null || _h === void 0 ? void 0 : _h.decryptedHexes;
         const messages = info.data.encryptedMessages;
-        const thread = (_j = messages) === null || _j === void 0 ? void 0 : _j.map((m) => {
+        const thread = messages === null || messages === void 0 ? void 0 : messages.map((m) => {
             const DecryptedMessage = decryptedHexes[m.EncryptedHex];
             return { ...m, DecryptedMessage };
         });
@@ -48,21 +48,21 @@ const handlers = async (event, windowHandler, info) => {
         window.removeEventListener('message', windowHandler);
     }
     if (info.iFrameMethod === 'login' && event.data.method === 'login') {
-        const key = (_l = (_k = event === null || event === void 0 ? void 0 : event.data) === null || _k === void 0 ? void 0 : _k.payload) === null || _l === void 0 ? void 0 : _l.publicKeyAdded;
+        const key = (_k = (_j = event === null || event === void 0 ? void 0 : event.data) === null || _j === void 0 ? void 0 : _j.payload) === null || _k === void 0 ? void 0 : _k.publicKeyAdded;
         const user = JSON.stringify(event.data.payload.users[key]);
-        (_m = info.data.prompt) === null || _m === void 0 ? void 0 : _m.close();
+        (_l = info.data.prompt) === null || _l === void 0 ? void 0 : _l.close();
         info.data.resolve({ key, user });
         window.removeEventListener('message', windowHandler);
     }
     if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
-        (_o = info.data.prompt) === null || _o === void 0 ? void 0 : _o.close();
+        (_m = info.data.prompt) === null || _m === void 0 ? void 0 : _m.close();
         info.data.resolve(true);
         localStorage.setItem('login_user', '');
         localStorage.setItem('login_key', '');
     }
     if (info.iFrameMethod === 'jwt') {
         if (event.data.payload.jwt) {
-            (_p = info.data.prompt) === null || _p === void 0 ? void 0 : _p.close();
+            (_o = info.data.prompt) === null || _o === void 0 ? void 0 : _o.close();
             info.data.resolve(event.data.payload.jwt);
             window.removeEventListener('message', windowHandler);
         }
@@ -73,6 +73,11 @@ const handlers = async (event, windowHandler, info) => {
             info.data.resolve(event.data.payload.encryptedMessage);
             window.removeEventListener('message', windowHandler);
         }
+    }
+    if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
+        (_p = info.data.prompt) === null || _p === void 0 ? void 0 : _p.close();
+        info.data.resolve(event.data.payload);
+        window.removeEventListener('derive', windowHandler);
     }
 };
 exports.handlers = handlers;

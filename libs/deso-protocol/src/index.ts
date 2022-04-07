@@ -9,7 +9,7 @@ import { Posts } from './lib/post/Posts';
 import { Referral } from './lib/referral/Referral';
 import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
-import { Node } from './lib/node/Node';
+import { Node } from './lib/Node/Node';
 import { Tutorial } from './lib/tutorial/Tutorial';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';

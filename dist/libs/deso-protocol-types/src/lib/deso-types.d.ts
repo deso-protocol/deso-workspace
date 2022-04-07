@@ -3212,6 +3212,12 @@ export interface AuthorizeDerivedKeyRequest {
     AccessSignature: string;
     DeleteKey: boolean;
     DerivedKeySignature: boolean;
+    ExtraData: {
+        [k: string]: string;
+    };
+    TransactionSpendingLimitHex: string;
+    Memo: string;
+    AppName: string;
     TransactionFees: TransactionFee[] | null;
     MinFeeRateNanosPerKB: number;
 }

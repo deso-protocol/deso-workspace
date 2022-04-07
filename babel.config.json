@@ -1,6 +1,6 @@
 {
   "babelrcRoots": ["*"],
-  "presets": ["@babel/preset-flow"],
+  "presets": ["@babel/preset-flow", "@babel/preset-typescript"],
 
   "inputSourceMap": false,
   "sourceMaps": false

@@ -1,6 +1,6 @@
 import { GetTutorialCreatorResponse, GetTutorialCreatorsRequest, StartOrSkipTutorialRequest, UpdateTutorialStatusRequest } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 export declare class Tutorial {
     private node;
     private identity;

@@ -1,5 +1,5 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { GetAppStateRequest, GetAppStateResponse } from 'deso-protocol-types';
 export declare class MetaData {
     private node;

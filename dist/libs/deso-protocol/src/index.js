@@ -12,7 +12,7 @@ const Posts_1 = require("./lib/post/Posts");
 const Referral_1 = require("./lib/referral/Referral");
 const Social_1 = require("./lib/social/Social");
 const User_1 = require("./lib/user/User");
-const Node_1 = require("./lib/node/Node");
+const Node_1 = require("./lib/Node/Node");
 const Wallet_1 = require("./lib/wallet/Wallet");
 const Transaction_1 = require("./lib/transaction/Transaction");
 class Deso {

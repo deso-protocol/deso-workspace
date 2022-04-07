@@ -27,7 +27,7 @@ import {
   UpdateNFTRequest,
   UpdateNFTResponse,
 } from 'deso-protocol-types';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
 
 export class Nft {

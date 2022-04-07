@@ -68,6 +68,38 @@ class User {
             JWT,
         });
     }
+    async authorizeDerivedKey(request, broadcast) {
+        // TODO: Validate partial?
+        const derivedPrivateUser = await this.identity.derive({
+            publicKey: this.identity.getUserKey() || undefined,
+            transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
+            derivedPublicKey: request.DerivedPublicKeyBase58Check,
+        });
+        const authorizeDerivedKeyRequest = {
+            OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
+            DerivedPublicKeyBase58Check: derivedPrivateUser.derivedPublicKeyBase58Check,
+            ExpirationBlock: derivedPrivateUser.expirationBlock,
+            AccessSignature: derivedPrivateUser.accessSignature,
+            DeleteKey: request.DeleteKey,
+            ExtraData: request.ExtraData,
+            TransactionSpendingLimitHex: derivedPrivateUser.transactionSpendingLimitHex,
+            Memo: request.Memo,
+            AppName: request.AppName,
+            TransactionFees: request.TransactionFees,
+            MinFeeRateNanosPerKB: request.MinFeeRateNanosPerKB,
+        };
+        const endpoint = 'authorize-derived-key';
+        const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)).data;
+        if (!broadcast) {
+            return apiResponse;
+        }
+        return await this.identity
+            .submitTransaction(apiResponse.TransactionHex)
+            .then(() => apiResponse)
+            .catch(() => {
+            throw Error('something went wrong while signing');
+        });
+    }
 }
 exports.User = User;
 //# sourceMappingURL=User.js.map
