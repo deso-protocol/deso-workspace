@@ -80,7 +80,6 @@ export const handlers = async (
 
   if (info.iFrameMethod === 'encrypt') {
     if (event.data.payload.encryptedMessage) {
-      console.log(event.data);
       info.data.resolve(event.data.payload.encryptedMessage);
       window.removeEventListener('message', windowHandler);
     }

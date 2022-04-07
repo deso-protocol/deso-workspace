@@ -52,7 +52,6 @@ export const Page = ({
     const methodToCall = method.method.bind(
       bind === 'identity' ? deso.identity : deso
     );
-    console.log(method);
     let response: any;
     if (destructureParams === true && method.params instanceof Function) {
       response = await methodToCall(...method.params()); 
