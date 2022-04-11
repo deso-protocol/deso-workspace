@@ -16,7 +16,7 @@ const iFrameHandler = (info) => {
 };
 exports.iFrameHandler = iFrameHandler;
 const handlers = async (event, windowHandler, info) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     if (info.iFrameMethod === 'sign') {
         if ((_b = (_a = event === null || event === void 0 ? void 0 : event.data) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.signedTransactionHex) {
             return Transaction_1.Transactions.submitTransaction((_d = (_c = event === null || event === void 0 ? void 0 : event.data) === null || _c === void 0 ? void 0 : _c.payload) === null || _d === void 0 ? void 0 : _d.signedTransactionHex)
@@ -40,7 +40,7 @@ const handlers = async (event, windowHandler, info) => {
         }
         const decryptedHexes = (_h = (_g = event === null || event === void 0 ? void 0 : event.data) === null || _g === void 0 ? void 0 : _g.payload) === null || _h === void 0 ? void 0 : _h.decryptedHexes;
         const messages = info.data.encryptedMessages;
-        const thread = messages === null || messages === void 0 ? void 0 : messages.map((m) => {
+        const thread = (_j = messages) === null || _j === void 0 ? void 0 : _j.map((m) => {
             const DecryptedMessage = decryptedHexes[m.EncryptedHex];
             return { ...m, DecryptedMessage };
         });
@@ -48,34 +48,33 @@ const handlers = async (event, windowHandler, info) => {
         window.removeEventListener('message', windowHandler);
     }
     if (info.iFrameMethod === 'login' && event.data.method === 'login') {
-        const key = (_k = (_j = event === null || event === void 0 ? void 0 : event.data) === null || _j === void 0 ? void 0 : _j.payload) === null || _k === void 0 ? void 0 : _k.publicKeyAdded;
+        const key = (_l = (_k = event === null || event === void 0 ? void 0 : event.data) === null || _k === void 0 ? void 0 : _k.payload) === null || _l === void 0 ? void 0 : _l.publicKeyAdded;
         const user = JSON.stringify(event.data.payload.users[key]);
-        (_l = info.data.prompt) === null || _l === void 0 ? void 0 : _l.close();
+        (_m = info.data.prompt) === null || _m === void 0 ? void 0 : _m.close();
         info.data.resolve({ key, user });
         window.removeEventListener('message', windowHandler);
     }
     if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
-        (_m = info.data.prompt) === null || _m === void 0 ? void 0 : _m.close();
+        (_o = info.data.prompt) === null || _o === void 0 ? void 0 : _o.close();
         info.data.resolve(true);
         localStorage.setItem('login_user', '');
         localStorage.setItem('login_key', '');
     }
     if (info.iFrameMethod === 'jwt') {
         if (event.data.payload.jwt) {
-            (_o = info.data.prompt) === null || _o === void 0 ? void 0 : _o.close();
+            (_p = info.data.prompt) === null || _p === void 0 ? void 0 : _p.close();
             info.data.resolve(event.data.payload.jwt);
             window.removeEventListener('message', windowHandler);
         }
     }
     if (info.iFrameMethod === 'encrypt') {
         if (event.data.payload.encryptedMessage) {
-            console.log(event.data);
             info.data.resolve(event.data.payload.encryptedMessage);
             window.removeEventListener('message', windowHandler);
         }
     }
     if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
-        (_p = info.data.prompt) === null || _p === void 0 ? void 0 : _p.close();
+        (_q = info.data.prompt) === null || _q === void 0 ? void 0 : _q.close();
         info.data.resolve(event.data.payload);
         window.removeEventListener('derive', windowHandler);
     }

@@ -20,11 +20,16 @@ import { Transactions } from '../transaction/Transaction';
 import { convertExtraDataToHex } from '../../utils/utils';
 import { BASE_IDENTITY_URI } from '../state/BaseUri';
 
+export interface IdentityConfig {
+  node: Node;
+  uri?: string;
+}
+
 export class Identity {
   private node: Node;
-  constructor(node: Node, uri?: string) {
-    this.node = node;
-    this.setUri(uri ?? BASE_IDENTITY_URI);
+  constructor(config: IdentityConfig) {
+    this.node = config.node;
+    this.setUri(config.uri ?? BASE_IDENTITY_URI);
   }
 
   public getUri(): string {
@@ -71,7 +76,7 @@ export class Identity {
               service: 'identity',
               payload: {},
             },
-            this.getUri() as WindowPostMessageOptions
+            this.getUri(),
           );
           resolve(event.data);
         }

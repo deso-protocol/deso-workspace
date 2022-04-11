@@ -19,7 +19,7 @@ import {
   AuthorizeDerivedKeyResponse,
   AuthorizeDerivedKeyParams,
 } from 'deso-protocol-types';
-import { data } from 'autoprefixer';
+import { throwErrors } from '../../utils/utils';
 export class User {
   private node: Node;
   private identity: Identity;
@@ -115,7 +115,7 @@ export class User {
     request: Partial<AuthorizeDerivedKeyParams>,
     broadcast: boolean,
   ): Promise<AuthorizeDerivedKeyResponse> {
-    // TODO: Validate partial?
+    throwErrors(["MinFeeRateNanosPerKB"], request);
     const derivedPrivateUser = await this.identity.derive({
       publicKey: this.identity.getUserKey() || undefined,
       transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,

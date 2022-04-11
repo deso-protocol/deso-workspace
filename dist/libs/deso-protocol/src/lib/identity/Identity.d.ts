@@ -1,8 +1,12 @@
 import { Node } from '../Node/Node';
 import { AppendExtraDataRequest, DerivedPrivateUserInfo, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
+export interface IdentityConfig {
+    node: Node;
+    uri?: string;
+}
 export declare class Identity {
     private node;
-    constructor(node: Node, uri?: string);
+    constructor(config: IdentityConfig);
     getUri(): string;
     setUri(uri: string): void;
     getIframe(): HTMLIFrameElement;

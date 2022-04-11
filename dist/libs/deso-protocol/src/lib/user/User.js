@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const axios_1 = require("axios");
+const utils_1 = require("../../utils/utils");
 class User {
     constructor(node, identity) {
         this.node = node;
@@ -69,7 +70,7 @@ class User {
         });
     }
     async authorizeDerivedKey(request, broadcast) {
-        // TODO: Validate partial?
+        (0, utils_1.throwErrors)(["MinFeeRateNanosPerKB"], request);
         const derivedPrivateUser = await this.identity.derive({
             publicKey: this.identity.getUserKey() || undefined,
             transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,

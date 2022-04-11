@@ -8,9 +8,10 @@ const Transaction_1 = require("../transaction/Transaction");
 const utils_1 = require("../../utils/utils");
 const BaseUri_1 = require("../state/BaseUri");
 class Identity {
-    constructor(node, uri) {
-        this.node = node;
-        this.setUri(uri !== null && uri !== void 0 ? uri : BaseUri_1.BASE_IDENTITY_URI);
+    constructor(config) {
+        var _a;
+        this.node = config.node;
+        this.setUri((_a = config.uri) !== null && _a !== void 0 ? _a : BaseUri_1.BASE_IDENTITY_URI);
     }
     getUri() {
         return localStorage.getItem('identity_url') || BaseUri_1.BASE_IDENTITY_URI;

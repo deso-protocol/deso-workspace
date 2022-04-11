@@ -30,7 +30,7 @@ export const requestLogout = (publicKey: string, uri: string): Window => {
 export const requestDerive = (params: IdentityDeriveQueryParams, uri: string) => {
   const queryParams = Object.entries(params || {}).
     filter(([_, value]) => value !== null && value !== undefined).
-    map(([key, value]) => `${key}=${value.toString()}`);
+    map(([key, value]) => `${key}=${value}`);
   const queryString = queryParams.length ? "?"+queryParams.join("&") : "";
   const prompt = window.open(
     `${uri}/derive${queryString}`,
