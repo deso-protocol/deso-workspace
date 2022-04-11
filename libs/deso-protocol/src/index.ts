@@ -13,10 +13,16 @@ import { Node } from './lib/Node/Node';
 import { Tutorial } from './lib/tutorial/Tutorial';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
+
+export interface DesoConfig { 
+  nodeUri?: string;
+  identityConfig?: IdentityConfig;
+}
+
 export class Deso {
-  constructor(nodeUri?: string, identityConfig?: IdentityConfig) {
-    this.node = new Node(nodeUri);
-    this.identity = new Identity(identityConfig || { node: this.node });
+  constructor(config?: DesoConfig) {
+    this.node = new Node(config?.nodeUri);
+    this.identity = new Identity({...config?.identityConfig, ...{ node: this.node }});
     this.identity.initialize();
     this.reinitialize();
   }

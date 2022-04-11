@@ -16,7 +16,7 @@ const Node_1 = require("./lib/Node/Node");
 const Wallet_1 = require("./lib/wallet/Wallet");
 const Transaction_1 = require("./lib/transaction/Transaction");
 class Deso {
-    constructor(nodeUri, identityConfig) {
+    constructor(config) {
         this.node = new Node_1.Node();
         this.identity = new Identity_1.Identity({ node: this.node });
         this.admin = new Admin_1.Admin(this.node, this.identity);
@@ -31,8 +31,8 @@ class Deso {
         this.transaction = Transaction_1.Transactions;
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.node = new Node_1.Node(nodeUri);
-        this.identity = new Identity_1.Identity(identityConfig || { node: this.node });
+        this.node = new Node_1.Node(config === null || config === void 0 ? void 0 : config.nodeUri);
+        this.identity = new Identity_1.Identity({ ...config === null || config === void 0 ? void 0 : config.identityConfig, ...{ node: this.node } });
         this.identity.initialize();
         this.reinitialize();
     }

@@ -10,8 +10,12 @@ import { User } from './lib/user/User';
 import { Node } from './lib/Node/Node';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
+export interface DesoConfig {
+    nodeUri?: string;
+    identityConfig?: IdentityConfig;
+}
 export declare class Deso {
-    constructor(nodeUri?: string, identityConfig?: IdentityConfig);
+    constructor(config?: DesoConfig);
     node: Node;
     identity: Identity;
     private admin;
