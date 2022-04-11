@@ -2069,10 +2069,15 @@ export interface AdminUpdateNFTDropResponse {
 }
 
 // struct2ts:types/dist/generated.NodeControlRequest
+
 export interface NodeControlRequest {
   Address: string;
   MinerPublicKeys: string;
-  OperationType: string;
+  OperationType:
+    | 'get_info'
+    | 'connect_deso_node'
+    | 'disconnect_deso_node'
+    | 'update_miner';
   JWT: string;
   AdminPublicKey: string;
 }

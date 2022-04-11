@@ -35,15 +35,8 @@ export class Posts {
   }
 
   public async getPostsForPublicKey(
-    ReaderPublicKeyBase58Check: string,
-    Username: string
+    request: Partial<GetPostsForPublicKeyRequest>
   ): Promise<GetPostsForPublicKeyResponse> {
-    const request: Partial<GetPostsForPublicKeyRequest> = {
-      PublicKeyBase58Check: '',
-      Username,
-      ReaderPublicKeyBase58Check,
-      NumToFetch: 10,
-    };
     return (
       await axios.post(
         `${this.node.getUri()}/get-posts-for-public-key`,

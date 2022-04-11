@@ -19,7 +19,7 @@ export class Deso {
   }
   public node = new Node();
   public identity = new Identity(this.node);
-  private admin = new Admin(this.node, this.identity);
+  public admin = new Admin(this.node, this.identity);
   private media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
   public miner = new Miner(this.node, this.identity);

@@ -22,10 +22,9 @@ const DisplayPosts = ({ publicKey }: CreatePostProps) => {
   const getPosts = async (): Promise<void> => {
     if (user?.profileInfoResponse?.Profile?.Username) {
       const posts: GetPostsForPublicKeyResponse =
-        await deso.posts.getPostsForPublicKey(
-          publicKey,
-          user?.profileInfoResponse?.Profile.Username
-        );
+        await deso.posts.getPostsForPublicKey({
+          PublicKeyBase58Check: publicKey as string,
+        });
       // TODO fix
       // setPosts(generatePosts(posts));
     }

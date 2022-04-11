@@ -1,3 +1,4 @@
+import { Admin } from './lib/admin/Admin';
 import { Identity } from './lib/identity/Identity';
 import { MetaData } from './lib/meta-data/MetaData';
 import { Miner } from './lib/miner/Miner';
@@ -14,7 +15,7 @@ export declare class Deso {
     constructor();
     node: Node;
     identity: Identity;
-    private admin;
+    admin: Admin;
     private media;
     metaData: MetaData;
     miner: Miner;

@@ -169,7 +169,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   },
 
   reload: () => {
-    console.log('adf');
+    console.log('reload called');
   },
   prev: function (currentChapter: Chapter) {
     const currentChapterIndex = this.chaptersToArray()
@@ -254,9 +254,7 @@ export interface ChapterNavigation {
   SUBMIT_BLOCK: Chapter;
   // Admin
   NODE_CONTROL: Chapter;
-  REPROCESS_BITCOIN_BLOCK: Chapter;
   GET_MEMPOOL_STATS: Chapter;
-  EVICT_UNMINED_BITCOIN_TXNS: Chapter;
   GET_GLOBAL_PARAMS: Chapter;
   UPDATE_GLOBAL_PARAMS: Chapter;
   SWAP_IDENTITY: Chapter;
@@ -271,17 +269,11 @@ export interface ChapterNavigation {
   PIN_POST: Chapter;
   REMOVE_NIL_POSTS: Chapter;
 
-  // BuyDeso
-
   // MetaData
   HEALTH_CHECK: Chapter;
   GET_EXCHANGE_RATE: Chapter;
   GET_APP_STATE: Chapter;
-
-  // READ_PROFILE_CARD: Chapter;
-  // IDENTITY_INITIALIZE: Chapter;
   IDENTITY_LOGIN: Chapter;
-  // IDENTITY_APPROVE: Chapter;
   IDENTITY_LOGOUT: Chapter;
   GET_MESSAGE_STATELESS: Chapter;
   SUBMIT_POST: Chapter;

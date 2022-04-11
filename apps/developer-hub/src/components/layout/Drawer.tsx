@@ -8,6 +8,7 @@ import { useState } from 'react';
 const getEnabledRoutes = (): string[] => {
   return Object.keys(ParentRoutes).filter((p) =>
     [
+      'admin',
       'identity',
       'miner',
       'metaData',

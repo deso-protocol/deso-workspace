@@ -8,13 +8,7 @@ class Posts {
         this.node = node;
         this.identity = identity;
     }
-    async getPostsForPublicKey(ReaderPublicKeyBase58Check, Username) {
-        const request = {
-            PublicKeyBase58Check: '',
-            Username,
-            ReaderPublicKeyBase58Check,
-            NumToFetch: 10,
-        };
+    async getPostsForPublicKey(request) {
         return (await axios_1.default.post(`${this.node.getUri()}/get-posts-for-public-key`, request)).data;
     }
     async submitPost(request, extraData) {

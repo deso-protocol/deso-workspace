@@ -3,6 +3,7 @@ import {
   GetDiamondsForPostRequest,
   GetLikesForPostRequest,
   GetPostsDiamondedBySenderForReceiverRequest,
+  GetPostsForPublicKeyRequest,
   GetPostsStatelessRequest,
   GetQuoteRepostsForPostRequest,
   GetRepostsForPostRequest,
@@ -15,6 +16,7 @@ import {
   ParentRoutes,
   RUSSIA,
   SAMPLE_POST,
+  TYLER,
 } from '../../services/utils';
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
@@ -54,6 +56,47 @@ export const postChapter = {
                 method: this.method,
               }}
               pretext={PageSection(this.title, <div>Submit a post</div>)}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  GET_POSTS_FOR_PUBLIC_KEY: {
+    parentRoute: ParentRoutes.posts,
+    title: 'Get Posts For Public Key',
+    route: '/post/get-posts-for-public-key',
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/post-endpoints#get-posts-for-public-key',
+    ],
+    githubSource: [],
+    method: deso.posts.getPostsForPublicKey,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+        NumToFetch: 20,
+      } as Partial<GetPostsForPublicKeyRequest>;
+    },
+
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: `deso.posts.getPostsForPublicKey(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Get Posts from a public key or account name</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
