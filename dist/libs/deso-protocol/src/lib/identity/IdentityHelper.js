@@ -26,8 +26,8 @@ const callIdentityMethodAndExecute = (attributeValue, method) => {
     });
 };
 exports.callIdentityMethodAndExecute = callIdentityMethodAndExecute;
-const approveSignAndSubmit = (transactionHex) => {
-    const prompt = (0, WindowPrompts_1.requestApproval)(transactionHex);
+const approveSignAndSubmit = (transactionHex, uri) => {
+    const prompt = (0, WindowPrompts_1.requestApproval)(transactionHex, uri);
     return (0, WindowHandler_1.iFrameHandler)({ iFrameMethod: 'sign', data: { prompt } });
 };
 exports.approveSignAndSubmit = approveSignAndSubmit;

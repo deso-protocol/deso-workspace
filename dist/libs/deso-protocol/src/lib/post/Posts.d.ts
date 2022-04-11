@@ -1,6 +1,6 @@
 import { GetDiamondsForPostRequest, AppendExtraDataRequest, GetDiamondsForPostResponse, GetLikesForPostRequest, GetLikesForPostResponse, GetPostsDiamondedBySenderForReceiverRequest, GetPostsDiamondedBySenderForReceiverResponse, GetPostsForPublicKeyResponse, GetPostsStatelessRequest, GetPostsStatelessResponse, GetQuoteRepostsForPostRequest, GetQuoteRepostsForPostResponse, GetRepostsForPostRequest, GetSinglePostRequest, GetSinglePostResponse, HotFeedPageRequest, HotFeedPageResponse, SubmitPostRequest, SubmitPostResponse } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
 export declare class Posts {
     static transaction: Transactions;

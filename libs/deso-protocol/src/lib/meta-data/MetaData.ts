@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { BASE_URI } from '../state/BaseUri';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { GetAppStateRequest, GetAppStateResponse } from 'deso-protocol-types';
 export class MetaData {
   private node: Node;

@@ -7,7 +7,7 @@ import {
 } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 
 export class Wallet {
   private node: Node;

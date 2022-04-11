@@ -16,7 +16,7 @@ const iFrameHandler = (info) => {
 };
 exports.iFrameHandler = iFrameHandler;
 const handlers = async (event, windowHandler, info) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     if (info.iFrameMethod === 'sign') {
         if ((_b = (_a = event === null || event === void 0 ? void 0 : event.data) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.signedTransactionHex) {
             return Transaction_1.Transactions.submitTransaction((_d = (_c = event === null || event === void 0 ? void 0 : event.data) === null || _c === void 0 ? void 0 : _c.payload) === null || _d === void 0 ? void 0 : _d.signedTransactionHex)
@@ -69,10 +69,14 @@ const handlers = async (event, windowHandler, info) => {
     }
     if (info.iFrameMethod === 'encrypt') {
         if (event.data.payload.encryptedMessage) {
-            console.log(event.data);
             info.data.resolve(event.data.payload.encryptedMessage);
             window.removeEventListener('message', windowHandler);
         }
+    }
+    if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
+        (_q = info.data.prompt) === null || _q === void 0 ? void 0 : _q.close();
+        info.data.resolve(event.data.payload);
+        window.removeEventListener('derive', windowHandler);
     }
 };
 exports.handlers = handlers;

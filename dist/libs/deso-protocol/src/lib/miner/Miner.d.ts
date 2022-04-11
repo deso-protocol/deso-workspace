@@ -1,4 +1,4 @@
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
 import { GetBlockTemplateRequest, GetBlockTemplateResponse } from 'deso-protocol-types';
 export declare class Miner {

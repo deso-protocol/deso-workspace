@@ -11,6 +11,8 @@ import {
   GetUserMetadataRequest,
   DeletePIIRequest,
   BlockPublicKeyRequest,
+  AuthorizeDerivedKeyParams,
+  CreatorCoinLimitOperationString,
 } from 'deso-protocol-types';
 const deso = new Deso();
 // deso.user.getSingleProfile;
@@ -331,6 +333,64 @@ export const userChapter = {
                 <div>
                   Get a map of derived public keys to metadata about that
                   derived key for a given master public key.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  AUTHORIZE_DERIVED_KEY: {
+    parentRoute: ParentRoutes.user,
+    title: 'Authorize Derived Key',
+    route: '/user/authorize-derived-key',
+    params: () => {
+      return {
+        OwnerPublicKeyBase58Check: deso.identity.getUserKey(),
+        DeleteKey: false,
+        MinFeeRateNanosPerKB: 1000,
+        TransactionSpendingLimitResponse: {
+          GlobalDESOLimit: 100 * 1e9,
+          TransactionCountLimitMap: {
+            BASIC_TRANSFER: 10,
+            SUBMIT_POST: 9810278,
+            LIKE: 89178,
+            CREATE_NFT: 10,
+          },
+          CreatorCoinOperationLimitMap: {
+            'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s': {
+              [CreatorCoinLimitOperationString.BUY]: 10,
+            }
+          }
+        },
+        Memo: "deso developer hub derived key",
+      } as Partial<AuthorizeDerivedKeyParams>;
+    },
+    method: deso.user.authorizeDerivedKey,
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/derived-keys-transaction-api',
+    ],
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: `deso.user.authorizeDerivedKey(request, broadcast)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Authorize a derived key.
                 </div>
               )}
               chapters={CHAPTERS}

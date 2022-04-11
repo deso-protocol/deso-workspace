@@ -1,5 +1,5 @@
 import { Admin } from './lib/admin/Admin';
-import { Identity } from './lib/identity/Identity';
+import { Identity, IdentityConfig } from './lib/identity/Identity';
 import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
 import { Miner } from './lib/miner/Miner';
@@ -9,16 +9,25 @@ import { Posts } from './lib/post/Posts';
 import { Referral } from './lib/referral/Referral';
 import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
-import { Node } from './lib/node/Node';
+import { Node } from './lib/Node/Node';
 import { Tutorial } from './lib/tutorial/Tutorial';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
+
+export interface DesoConfig { 
+  nodeUri?: string;
+  identityConfig?: IdentityConfig;
+}
+
 export class Deso {
-  constructor() {
+  constructor(config?: DesoConfig) {
+    this.node = new Node(config?.nodeUri);
+    this.identity = new Identity({...config?.identityConfig, ...{ node: this.node }});
     this.identity.initialize();
+    this.reinitialize();
   }
   public node = new Node();
-  public identity = new Identity(this.node);
+  public identity = new Identity({ node: this.node });
   private admin = new Admin(this.node, this.identity);
   private media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
@@ -32,5 +41,20 @@ export class Deso {
   public wallet = new Wallet(this.node, this.identity);
   public referral = new Referral(this.node, this.identity);
   // private tutorial = new Tutorial(this.node, this.identity);
+
+  reinitialize(): void {
+    this.admin = new Admin(this.node, this.identity);
+    this.media = new Media(this.node, this.identity);
+    this.metaData = new MetaData(this.node, this.identity);
+    this.miner = new Miner(this.node, this.identity);
+    this.nft = new Nft(this.node, this.identity);
+    this.notification = new Notification(this.node, this.identity);
+    this.user = new User(this.node, this.identity);
+    this.social = new Social(this.node, this.identity, this.user);
+    this.posts = new Posts(this.node, this.identity);
+    this.transaction = Transactions;
+    this.wallet = new Wallet(this.node, this.identity);
+    this.referral = new Referral(this.node, this.identity);
+  }
 }
 export default Deso;
