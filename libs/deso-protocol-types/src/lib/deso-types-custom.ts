@@ -264,7 +264,6 @@ export interface TransactionSpendingLimitResponse {
 
 export interface IdentityDeriveParams {
   callback?: string;
-  testnet?: boolean;
   webview?: boolean;
   publicKey?: string;
   transactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
@@ -273,7 +272,6 @@ export interface IdentityDeriveParams {
 
 export interface IdentityDeriveQueryParams {
   callback?: string;
-  testnet?: boolean;
   webview?: boolean;
   publicKey?: string;
   transactionSpendingLimitResponse?: string;

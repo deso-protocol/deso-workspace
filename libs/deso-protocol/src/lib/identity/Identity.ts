@@ -3,6 +3,7 @@ import { requestDerive, requestLogin, requestLogout } from './WindowPrompts';
 import {
   AppendExtraDataRequest,
   DerivedPrivateUserInfo,
+  DeSoNetwork,
   GetDecryptMessagesRequest,
   GetDecryptMessagesResponse,
   IdentityDeriveParams,
@@ -23,21 +24,26 @@ import { BASE_IDENTITY_URI } from '../state/BaseUri';
 export interface IdentityConfig {
   node: Node;
   uri?: string;
+  network?: DeSoNetwork;
 }
+
+const identityUriStorageKey = 'identity_uri';
 
 export class Identity {
   private node: Node;
+  private network: DeSoNetwork;
   constructor(config: IdentityConfig) {
     this.node = config.node;
+    this.network = config.network || DeSoNetwork.mainnet;
     this.setUri(config.uri ?? BASE_IDENTITY_URI);
   }
 
   public getUri(): string {
-    return localStorage.getItem('identity_url') || BASE_IDENTITY_URI;
+    return localStorage.getItem(identityUriStorageKey) || BASE_IDENTITY_URI;
   }
 
   public setUri(uri: string): void {
-    localStorage.setItem('identity_uri', uri);
+    localStorage.setItem(identityUriStorageKey, uri);
   }
 
   public getIframe(): HTMLIFrameElement {
@@ -89,7 +95,7 @@ export class Identity {
   public async login(
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
-    const prompt = requestLogin(accessLevel, this.getUri());
+    const prompt = requestLogin(accessLevel, this.getUri(), this.isTestnet());
     const { key, user } = await iFrameHandler({
       iFrameMethod: 'login',
       data: { prompt },
@@ -103,7 +109,7 @@ export class Identity {
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(publicKey, this.getUri());
+    const prompt = requestLogout(publicKey, this.getUri(), this.isTestnet());
     const successful = await iFrameHandler({
       iFrameMethod: 'logout',
       data: { prompt },
@@ -114,13 +120,12 @@ export class Identity {
   public async derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo> {
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
-      testnet: params.testnet,
       webview: params.webview,
       publicKey: params.publicKey,
       transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
       derivedPublicKey: params.derivedPublicKey,
     };
-    const prompt = requestDerive(queryParams, this.getUri());
+    const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler({
       iFrameMethod: 'derive',
       data: { prompt },
@@ -170,7 +175,7 @@ export class Identity {
       return callIdentityMethodAndExecute(TransactionHex, 'sign');
     } else {
       // user does not exist  get approval
-      return approveSignAndSubmit(TransactionHex, this.getUri());
+      return approveSignAndSubmit(TransactionHex, this.getUri(), this.isTestnet());
     }
   }
 
@@ -203,5 +208,9 @@ export class Identity {
       user = (await this.login()).user;
     }
     return await callIdentityMethodAndExecute(undefined, 'jwt');
+  }
+
+  private isTestnet(): boolean {
+    return this.network === DeSoNetwork.testnet;
   }
 }

@@ -1,11 +1,13 @@
 import { Node } from '../Node/Node';
-import { AppendExtraDataRequest, DerivedPrivateUserInfo, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
+import { AppendExtraDataRequest, DerivedPrivateUserInfo, DeSoNetwork, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
 export interface IdentityConfig {
     node: Node;
     uri?: string;
+    network?: DeSoNetwork;
 }
 export declare class Identity {
     private node;
+    private network;
     constructor(config: IdentityConfig);
     getUri(): string;
     setUri(uri: string): void;
@@ -24,4 +26,5 @@ export declare class Identity {
     decrypt(encryptedMessages: GetDecryptMessagesRequest[]): Promise<GetDecryptMessagesResponse[]>;
     encrypt(request: Partial<SendMessageStatelessRequest>): Promise<string>;
     getJwt(): Promise<string>;
+    private isTestnet;
 }
