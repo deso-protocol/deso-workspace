@@ -71,7 +71,7 @@ export class Posts {
     ).data;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, extraData)
-      .then((tnx) => {console.log(tnx); apiResponse.PostHashHex = tnx.data.TxnHashHex; return apiResponse })
+      .then((tnx) => {apiResponse.PostHashHex = tnx.data.TxnHashHex; return apiResponse })
       .catch(() => {
         throw Error('something went wrong while signing');
       });
