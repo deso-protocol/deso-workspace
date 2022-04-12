@@ -23,12 +23,15 @@ import { BASE_IDENTITY_URI } from '../state/BaseUri';
 export interface IdentityConfig {
   node: Node;
   uri?: string;
+  testnet?: boolean;
 }
 
 export class Identity {
   private node: Node;
+  private testnet: boolean;
   constructor(config: IdentityConfig) {
     this.node = config.node;
+    this.testnet = config.testnet !== undefined ? config.testnet : false;
     this.setUri(config.uri ?? BASE_IDENTITY_URI);
   }
 
@@ -89,7 +92,7 @@ export class Identity {
   public async login(
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
-    const prompt = requestLogin(accessLevel, this.getUri());
+    const prompt = requestLogin(accessLevel, this.getUri(), this.testnet);
     const { key, user } = await iFrameHandler({
       iFrameMethod: 'login',
       data: { prompt },
@@ -103,7 +106,7 @@ export class Identity {
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(publicKey, this.getUri());
+    const prompt = requestLogout(publicKey, this.getUri(), this.testnet);
     const successful = await iFrameHandler({
       iFrameMethod: 'logout',
       data: { prompt },
@@ -114,13 +117,12 @@ export class Identity {
   public async derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo> {
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
-      testnet: params.testnet,
       webview: params.webview,
       publicKey: params.publicKey,
       transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
       derivedPublicKey: params.derivedPublicKey,
     };
-    const prompt = requestDerive(queryParams, this.getUri());
+    const prompt = requestDerive(queryParams, this.getUri(), this.testnet);
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler({
       iFrameMethod: 'derive',
       data: { prompt },
@@ -170,7 +172,7 @@ export class Identity {
       return callIdentityMethodAndExecute(TransactionHex, 'sign');
     } else {
       // user does not exist  get approval
-      return approveSignAndSubmit(TransactionHex, this.getUri());
+      return approveSignAndSubmit(TransactionHex, this.getUri(), this.testnet);
     }
   }
 

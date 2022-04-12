@@ -11,6 +11,7 @@ class Identity {
     constructor(config) {
         var _a;
         this.node = config.node;
+        this.testnet = config.testnet !== undefined ? config.testnet : false;
         this.setUri((_a = config.uri) !== null && _a !== void 0 ? _a : BaseUri_1.BASE_IDENTITY_URI);
     }
     getUri() {
@@ -59,7 +60,7 @@ class Identity {
         });
     }
     async login(accessLevel = '4') {
-        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri());
+        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.testnet);
         const { key, user } = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'login',
             data: { prompt },
@@ -72,7 +73,7 @@ class Identity {
         if (typeof publicKey !== 'string') {
             throw Error('publicKey needs to be type of string');
         }
-        const prompt = (0, WindowPrompts_1.requestLogout)(publicKey, this.getUri());
+        const prompt = (0, WindowPrompts_1.requestLogout)(publicKey, this.getUri(), this.testnet);
         const successful = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'logout',
             data: { prompt },
@@ -82,13 +83,12 @@ class Identity {
     async derive(params) {
         const queryParams = {
             callback: params.callback,
-            testnet: params.testnet,
             webview: params.webview,
             publicKey: params.publicKey,
             transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
             derivedPublicKey: params.derivedPublicKey,
         };
-        const prompt = (0, WindowPrompts_1.requestDerive)(queryParams, this.getUri());
+        const prompt = (0, WindowPrompts_1.requestDerive)(queryParams, this.getUri(), this.testnet);
         const derivedPrivateUser = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'derive',
             data: { prompt },
@@ -132,7 +132,7 @@ class Identity {
         }
         else {
             // user does not exist  get approval
-            return (0, IdentityHelper_1.approveSignAndSubmit)(TransactionHex, this.getUri());
+            return (0, IdentityHelper_1.approveSignAndSubmit)(TransactionHex, this.getUri(), this.testnet);
         }
     }
     async decrypt(encryptedMessages) {

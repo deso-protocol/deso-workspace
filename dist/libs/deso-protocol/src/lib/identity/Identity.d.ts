@@ -3,9 +3,11 @@ import { AppendExtraDataRequest, DerivedPrivateUserInfo, GetDecryptMessagesReque
 export interface IdentityConfig {
     node: Node;
     uri?: string;
+    testnet?: boolean;
 }
 export declare class Identity {
     private node;
+    private testnet;
     constructor(config: IdentityConfig);
     getUri(): string;
     setUri(uri: string): void;

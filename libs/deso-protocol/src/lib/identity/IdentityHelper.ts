@@ -35,8 +35,8 @@ export const callIdentityMethodAndExecute = (
   });
 };
 
-export const approveSignAndSubmit = (transactionHex: string, uri: string): Promise<any> => {
-  const prompt = requestApproval(transactionHex, uri);
+export const approveSignAndSubmit = (transactionHex: string, uri: string, testnet?: boolean): Promise<any> => {
+  const prompt = requestApproval(transactionHex, uri, testnet);
   return iFrameHandler({ iFrameMethod: 'sign', data: { prompt } });
 };
 
