@@ -70,4 +70,3 @@ class Posts {
     }
 }
 exports.Posts = Posts;
-//# sourceMappingURL=Posts.js.map
