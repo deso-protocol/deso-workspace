@@ -30,7 +30,7 @@ class Posts {
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
         return await this.identity
             .submitTransaction(apiResponse.TransactionHex, extraData)
-            .then((tnx) => { console.log(tnx); apiResponse.PostHashHex = tnx.data.TxnHashHex; return apiResponse; })
+            .then(() => apiResponse)
             .catch(() => {
             throw Error('something went wrong while signing');
         });
