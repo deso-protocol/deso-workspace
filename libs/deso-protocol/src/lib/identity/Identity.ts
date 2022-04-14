@@ -1,9 +1,13 @@
-import { Node } from '../node/Node';
-import { requestLogin, requestLogout } from './WindowPrompts';
+import { Node } from '../Node/Node';
+import { requestDerive, requestLogin, requestLogout } from './WindowPrompts';
 import {
   AppendExtraDataRequest,
+  DerivedPrivateUserInfo,
+  DeSoNetwork,
   GetDecryptMessagesRequest,
   GetDecryptMessagesResponse,
+  IdentityDeriveParams,
+  IdentityDeriveQueryParams,
   LoginUser,
   SendMessageStatelessRequest,
 } from 'deso-protocol-types';
@@ -15,11 +19,31 @@ import {
 import { iFrameHandler } from './WindowHandler';
 import { Transactions } from '../transaction/Transaction';
 import { convertExtraDataToHex } from '../../utils/utils';
+import { BASE_IDENTITY_URI } from '../state/BaseUri';
+
+export interface IdentityConfig {
+  node: Node;
+  uri?: string;
+  network?: DeSoNetwork;
+}
+
+const identityUriStorageKey = 'identity_uri';
 
 export class Identity {
   private node: Node;
-  constructor(node: Node) {
-    this.node = node;
+  private network: DeSoNetwork;
+  constructor(config: IdentityConfig) {
+    this.node = config.node;
+    this.network = config.network || DeSoNetwork.mainnet;
+    this.setUri(config.uri ?? BASE_IDENTITY_URI);
+  }
+
+  public getUri(): string {
+    return localStorage.getItem(identityUriStorageKey) || BASE_IDENTITY_URI;
+  }
+
+  public setUri(uri: string): void {
+    localStorage.setItem(identityUriStorageKey, uri);
   }
 
   public getIframe(): HTMLIFrameElement {
@@ -48,7 +72,7 @@ export class Identity {
     }
     return new Promise((resolve) => {
       const windowHandler = (event: any) => {
-        if (event.origin !== 'https://identity.deso.org') {
+        if (event.origin !== this.getUri()) {
           return;
         }
         if (event.data.method === 'initialize') {
@@ -58,7 +82,7 @@ export class Identity {
               service: 'identity',
               payload: {},
             },
-            'https://identity.deso.org' as WindowPostMessageOptions
+            this.getUri(),
           );
           resolve(event.data);
         }
@@ -71,7 +95,7 @@ export class Identity {
   public async login(
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
-    const prompt = requestLogin(accessLevel);
+    const prompt = requestLogin(accessLevel, this.getUri(), this.isTestnet());
     const { key, user } = await iFrameHandler({
       iFrameMethod: 'login',
       data: { prompt },
@@ -85,12 +109,28 @@ export class Identity {
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(publicKey);
+    const prompt = requestLogout(publicKey, this.getUri(), this.isTestnet());
     const successful = await iFrameHandler({
       iFrameMethod: 'logout',
       data: { prompt },
     });
     return successful;
+  }
+
+  public async derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo> {
+    const queryParams: IdentityDeriveQueryParams = {
+      callback: params.callback,
+      webview: params.webview,
+      publicKey: params.publicKey,
+      transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
+      derivedPublicKey: params.derivedPublicKey,
+    };
+    const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
+    const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler({
+      iFrameMethod: 'derive',
+      data: { prompt },
+    });
+    return derivedPrivateUser;
   }
 
   private setIdentityFrame(createNewIdentityFrame = false): void {
@@ -102,7 +142,7 @@ export class Identity {
       return;
     }
     frame = document.createElement('iframe');
-    frame.setAttribute('src', 'https://identity.deso.org/embed?v=2');
+    frame.setAttribute('src', `${this.getUri()}/embed?v=2`);
     frame.setAttribute('id', 'identity');
     frame.style.width = '100vh';
     frame.style.height = '100vh';
@@ -135,7 +175,7 @@ export class Identity {
       return callIdentityMethodAndExecute(TransactionHex, 'sign');
     } else {
       // user does not exist  get approval
-      return approveSignAndSubmit(TransactionHex);
+      return approveSignAndSubmit(TransactionHex, this.getUri(), this.isTestnet());
     }
   }
 
@@ -168,5 +208,9 @@ export class Identity {
       user = (await this.login()).user;
     }
     return await callIdentityMethodAndExecute(undefined, 'jwt');
+  }
+
+  private isTestnet(): boolean {
+    return this.network === DeSoNetwork.testnet;
   }
 }

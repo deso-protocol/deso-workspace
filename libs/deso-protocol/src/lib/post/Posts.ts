@@ -22,7 +22,7 @@ import {
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
 import { throwErrors } from '../../utils/utils';
 export class Posts {

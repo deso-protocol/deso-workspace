@@ -1,5 +1,5 @@
 import { Identity } from '../identity/Identity';
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import axios from 'axios';
 import {
   GetUsersResponse,
@@ -15,7 +15,11 @@ import {
   GetUserDerivedKeysRequest,
   BlockPublicKeyResponse,
   GetUserDerivedKeysResponse,
+  AuthorizeDerivedKeyRequest,
+  AuthorizeDerivedKeyResponse,
+  AuthorizeDerivedKeyParams,
 } from 'deso-protocol-types';
+import { throwErrors } from '../../utils/utils';
 export class User {
   private node: Node;
   private identity: Identity;
@@ -105,5 +109,43 @@ export class User {
       ...request,
       JWT,
     });
+  }
+
+  public async authorizeDerivedKey(
+    request: Partial<AuthorizeDerivedKeyParams>,
+    broadcast: boolean,
+  ): Promise<AuthorizeDerivedKeyResponse> {
+    throwErrors(["MinFeeRateNanosPerKB"], request);
+    const derivedPrivateUser = await this.identity.derive({
+      publicKey: this.identity.getUserKey() || undefined,
+      transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
+      derivedPublicKey: request.DerivedPublicKeyBase58Check,
+    });
+    const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
+      OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
+      DerivedPublicKeyBase58Check: derivedPrivateUser.derivedPublicKeyBase58Check,
+      ExpirationBlock: derivedPrivateUser.expirationBlock,
+      AccessSignature: derivedPrivateUser.accessSignature,
+      DeleteKey: request.DeleteKey,
+      ExtraData: request.ExtraData,
+      TransactionSpendingLimitHex: derivedPrivateUser.transactionSpendingLimitHex,
+      Memo: request.Memo,
+      AppName: request.AppName,
+      TransactionFees: request.TransactionFees,
+      MinFeeRateNanosPerKB: request.MinFeeRateNanosPerKB,
+    };
+    const endpoint = 'authorize-derived-key';
+    const apiResponse: AuthorizeDerivedKeyResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)
+    ).data;
+    if (!broadcast) {
+      return apiResponse;
+    }
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 }

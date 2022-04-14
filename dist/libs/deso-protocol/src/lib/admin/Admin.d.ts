@@ -1,4 +1,4 @@
-import { Node } from '../node/Node';
+import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
 import { AdminGetAllUserGlobalMetadataRequest, AdminGetAllUserGlobalMetadataResponse, AdminGetMempoolStatsResponse, AdminGetVerifiedUsersResponse, AdminGrantVerificationBadgeRequest, AdminGrantVerificationBadgeResponse, AdminRemoveVerificationBadgeRequest, AdminRemoveVerificationBadgeResponse, AdminUpdateGlobalFeedRequest, GetGlobalParamsRequest, GetGlobalParamsResponse, GetUserGlobalMetadataRequest, GetUserGlobalMetadataResponse, NodeControlRequest, NodeControlResponse, SwapIdentityRequest, SwapIdentityResponse, UpdateGlobalParamsRequest, UpdateGlobalParamsResponse, UpdateUserGlobalMetadataRequest } from 'deso-protocol-types';
 export declare class Admin {

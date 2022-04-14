@@ -4016,6 +4016,12 @@ export interface AuthorizeDerivedKeyRequest {
   AccessSignature: string;
   DeleteKey: boolean;
   DerivedKeySignature: boolean;
+  // TODO: this is temporary until Ty updates interfaces
+  ExtraData: { [k: string]: string };
+  TransactionSpendingLimitHex: string;
+  Memo: string;
+  AppName: string;
+  // End manual editing
   TransactionFees: TransactionFee[] | null;
   MinFeeRateNanosPerKB: number;
 }

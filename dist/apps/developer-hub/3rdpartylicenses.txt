@@ -665,6 +665,8 @@ THE SOFTWARE.
 
 deso-protocol
 
+deso-protocol-types
+
 deso-workspace
 MIT
 

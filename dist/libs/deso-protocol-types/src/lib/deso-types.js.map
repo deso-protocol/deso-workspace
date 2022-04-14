@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"version":3,"file":"deso-types.js","sourceRoot":"","sources":["../../../../../libs/deso-protocol-types/src/lib/deso-types.ts"],"names":[],"mappings":";AAAA,0DAA0D;AAC1D,qDAAqD;;AA27IrD,UAAU"}
+=======
+{"version":3,"file":"deso-types.js","sourceRoot":"","sources":["../../../../../libs/deso-protocol-types/src/lib/deso-types.ts"],"names":[],"mappings":";AAAA,0DAA0D;AAC1D,qDAAqD;;AA47IrD,UAAU"}
+>>>>>>> c4a93f1ae659b194f72dc702d7d17f90da8c2ed5

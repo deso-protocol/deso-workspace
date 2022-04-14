@@ -8,7 +8,8 @@ export type IframeMethods =
   | 'decrypt'
   | 'jwt'
   | 'login'
-  | 'logout';
+  | 'logout'
+  | 'derive';
 
 export const callIdentityMethodAndExecute = (
   attributeValue: unknown,
@@ -34,8 +35,8 @@ export const callIdentityMethodAndExecute = (
   });
 };
 
-export const approveSignAndSubmit = (transactionHex: string): Promise<any> => {
-  const prompt = requestApproval(transactionHex);
+export const approveSignAndSubmit = (transactionHex: string, uri: string, testnet?: boolean): Promise<any> => {
+  const prompt = requestApproval(transactionHex, uri, testnet);
   return iFrameHandler({ iFrameMethod: 'sign', data: { prompt } });
 };
 

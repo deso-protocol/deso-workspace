@@ -1,6 +1,6 @@
 // import axios from 'axios';
 // import { Identity } from '../identity/Identity';
-// import { Node } from '../node/Node';
+// import { Node } from '../Node/Node';
 // import { MOCK_POST_NULL_BODY } from './post.mock';
 // import { Posts } from './Posts';
 // jest.mock('submitPost');
