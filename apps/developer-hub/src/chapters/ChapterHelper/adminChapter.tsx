@@ -222,7 +222,7 @@ export const adminChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Swaps Identity</div>)}
+              pretext={PageSection(this.title, <div>Swaps Identity.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -266,7 +266,7 @@ export const adminChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Update Global Metadata</div>
+                <div>Update Global Metadata.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -303,7 +303,7 @@ export const adminChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets all user metadata up to a provided amount</div>
+                <div>Gets all user metadata up to a provided amount.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -344,7 +344,7 @@ export const adminChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets user global metadata</div>
+                <div>Gets user global metadata.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -459,10 +459,7 @@ export const adminChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(
-                this.title,
-                <div>Gets verified users. </div>
-              )}
+              pretext={PageSection(this.title, <div>Gets verified users.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -501,7 +498,7 @@ export const adminChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Gets the verification audit logs for a user</div>
+                <div>Gets the verification audit logs for a user.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
