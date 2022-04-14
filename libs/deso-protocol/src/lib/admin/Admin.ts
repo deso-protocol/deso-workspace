@@ -5,9 +5,13 @@ import {
   AdminGetAllUserGlobalMetadataRequest,
   AdminGetAllUserGlobalMetadataResponse,
   AdminGetMempoolStatsResponse,
+  AdminGetUsernameVerificationAuditLogsRequest,
+  AdminGetUsernameVerificationAuditLogsResponse,
   AdminGetVerifiedUsersResponse,
   AdminGrantVerificationBadgeRequest,
   AdminGrantVerificationBadgeResponse,
+  AdminPinPostRequest,
+  AdminRemoveNilPostsRequest,
   AdminRemoveVerificationBadgeRequest,
   AdminRemoveVerificationBadgeResponse,
   AdminUpdateGlobalFeedRequest,
@@ -56,21 +60,48 @@ export class Admin {
     request: Partial<UpdateGlobalParamsRequest>
   ): Promise<UpdateGlobalParamsResponse> {
     const endpoint = 'update-global-params';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async swapIdentity(
     request: Partial<SwapIdentityRequest>
   ): Promise<SwapIdentityResponse> {
     const endpoint = 'swap-identity';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async updateUserGlobalMetadata(
     request: Partial<UpdateUserGlobalMetadataRequest>
   ): Promise<void> {
     const endpoint = 'update-user-global-metadata';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async getUserGlobalMetadata(
@@ -91,24 +122,42 @@ export class Admin {
     request: Partial<AdminGrantVerificationBadgeRequest>
   ): Promise<AdminGrantVerificationBadgeResponse> {
     const endpoint = 'grant-verification-badge';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async removeVerificationBadge(
     request: Partial<AdminRemoveVerificationBadgeRequest>
   ): Promise<AdminRemoveVerificationBadgeResponse> {
     const endpoint = 'remove-verification-badge';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async getVerifiedUsers(): Promise<AdminGetVerifiedUsersResponse> {
     const endpoint = 'get-verified-users';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, {});
+    const JWT = await this.identity.getJwt();
+    return await axios.post(`${this.node.getUri()}/${endpoint}`, { JWT });
   }
 
   public async getUsernameVerificationAuditLogs(
-    request: Partial<AdminRemoveVerificationBadgeRequest>
-  ): Promise<AdminRemoveVerificationBadgeResponse> {
+    request: Partial<AdminGetUsernameVerificationAuditLogsRequest>
+  ): Promise<AdminGetUsernameVerificationAuditLogsResponse> {
     const endpoint = 'get-username-verification-audit-logs';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
@@ -117,20 +166,45 @@ export class Admin {
     request: Partial<AdminUpdateGlobalFeedRequest>
   ): Promise<void> {
     const endpoint = 'update-global-feed';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
-  public async pinPost(
-    request: Partial<AdminUpdateGlobalFeedRequest>
-  ): Promise<void> {
+  public async pinPost(request: Partial<AdminPinPostRequest>): Promise<void> {
     const endpoint = 'pin-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async removeNilPosts(
-    request: Partial<AdminUpdateGlobalFeedRequest>
+    request: Partial<AdminRemoveNilPostsRequest>
   ): Promise<void> {
     const endpoint = 'remove-nil-posts';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    const apiResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 }

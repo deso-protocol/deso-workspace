@@ -291,3 +291,7 @@ export interface AuthorizeDerivedKeyParams {
   AppName?: string;
   ExtraData?: { [k: string]: string };
 }
+
+export interface AdminGetVerifiedUsersRequest {
+  JWT: string;
+}

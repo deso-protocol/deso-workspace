@@ -1,8 +1,26 @@
-import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
+import {
+  DEZO_DOG,
+  ParentRoutes,
+  SAMPLE_POST,
+  TYLER,
+} from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
+  AdminGetAllUserGlobalMetadataRequest,
   AdminGetMempoolStatsResponse,
+  AdminGetUsernameVerificationAuditLogsRequest,
+  AdminGetVerifiedUsersResponse,
+  AdminGrantVerificationBadgeRequest,
+  AdminPinPostRequest,
+  AdminRemoveNilPostsRequest,
+  AdminRemoveVerificationBadgeRequest,
+  AdminUpdateGlobalFeedRequest,
+  GetGlobalParamsRequest,
+  GetUserGlobalMetadataRequest,
   NodeControlRequest,
+  SwapIdentityRequest,
+  UpdateGlobalParamsRequest,
+  UpdateUserGlobalMetadataRequest,
 } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import Page from '../Read/Page';
@@ -59,10 +77,16 @@ export const adminChapter = {
     title: 'Get Mempool Stats',
     route: '/admin/get-mempool-stats',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
     method: deso.admin.getMemPoolStats,
     params: () => {
-      return {} as AdminGetMempoolStatsResponse;
+      return {
+        TransactionSummaryStats: {
+          [deso.identity.getUserKey() as string]: { Count: 1, TotalBytes: 1 },
+        },
+      } as AdminGetMempoolStatsResponse;
     },
     component: function () {
       return (
@@ -77,7 +101,7 @@ export const adminChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(this.title, <div>Gets Mempool data.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -91,10 +115,12 @@ export const adminChapter = {
     title: 'Get Global Params',
     route: '/admin/get-global-params',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.getGlobalParams,
     params: () => {
-      return {} as NodeControlRequest;
+      return {} as GetGlobalParamsRequest;
     },
     component: function () {
       return (
@@ -105,11 +131,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.getGlobalParams(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Get global parameters from node.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -123,10 +152,20 @@ export const adminChapter = {
     title: 'Update Global Params',
     route: '/admin/update-global-params',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.updateGlobalParams,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+        USDCentsPerBitcoin: 1,
+        CreateProfileFeeNanos: 1,
+        MinFeeRateNanosPerKB: 1,
+        MaxCopiesPerNFT: 1,
+        CreateNFTFeeNanos: 1,
+        MinimumNetworkFeeNanosPerKB: 1,
+      } as UpdateGlobalParamsRequest;
     },
     component: function () {
       return (
@@ -137,11 +176,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.updateGlobalParams(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Set global parameters from node.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -155,10 +197,17 @@ export const adminChapter = {
     title: 'Swap Identity',
     route: '/admin/swap-identity',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.swapIdentity,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        UpdaterPublicKeyBase58Check: deso.identity.getUserKey(),
+        FromUsernameOrPublicKeyBase58Check: DEZO_DOG,
+        ToUsernameOrPublicKeyBase58Check: deso.identity.getUserKey(),
+        MinFeeRateNanosPerKB: 1,
+      } as SwapIdentityRequest;
     },
     component: function () {
       return (
@@ -169,11 +218,11 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.swapIdentity(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(this.title, <div>Swaps Identity</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -187,10 +236,20 @@ export const adminChapter = {
     title: 'Update User Global Metadata',
     route: '/admin/update-user-global-metadata',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
-    params: () => {
-      return {} as NodeControlRequest;
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.updateUserGlobalMetadata,
+    params: async () => {
+      const JWT = await deso.identity.getJwt();
+      return {
+        UserPublicKeyBase58Check: deso.identity.getUserKey(),
+        JWT,
+        Email: 'dezo_dog@woofmail.com',
+        MessageReadStateUpdatesByContact: {
+          [deso.identity.getUserKey() as string]: 1,
+        },
+      } as UpdateUserGlobalMetadataRequest;
     },
     component: function () {
       return (
@@ -201,11 +260,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.updateUserGlobalMetadata(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Update Global Metadata</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -219,10 +281,12 @@ export const adminChapter = {
     title: 'Get All User Global Metadata',
     route: '/admin/get-all-user-global-metadata',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.getAllUserGlobalMetadata,
     params: () => {
-      return {} as NodeControlRequest;
+      return { NumToFetch: 20 } as AdminGetAllUserGlobalMetadataRequest;
     },
     component: function () {
       return (
@@ -233,11 +297,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.getAllUserGlobalMetadata(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Gets all user metadata up to a provided amount</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -251,10 +318,16 @@ export const adminChapter = {
     title: 'Get User Global Metadata',
     route: '/admin/get-user-global-metadata',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
-    params: () => {
-      return {} as NodeControlRequest;
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.getUserGlobalMetadata,
+    params: async () => {
+      const JWT: string = await deso.identity.getJwt();
+      return {
+        UserPublicKeyBase58Check: deso.identity.getUserKey() as string,
+        JWT,
+      } as GetUserGlobalMetadataRequest;
     },
     component: function () {
       return (
@@ -265,11 +338,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.getUserGlobalMetadata(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Gets user global metadata</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -283,10 +359,15 @@ export const adminChapter = {
     title: 'Grant Verification Badge',
     route: '/admin/grant-verification-badge',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.grantVerificationBadgeRequest,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        UsernameToVerify: 'DeZoDog',
+        AdminPublicKey: deso.identity.getUserKey(),
+      } as AdminGrantVerificationBadgeRequest;
     },
     component: function () {
       return (
@@ -297,11 +378,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.grantVerificationBadgeRequest(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Grants verification to an account.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -315,10 +399,15 @@ export const adminChapter = {
     title: 'Remove verification Badge',
     route: '/admin/remove-verification-badge',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.removeVerificationBadge,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        UsernameForWhomToRemoveVerification: 'DiamondHands',
+        AdminPublicKey: deso.identity.getUserKey(),
+      } as AdminRemoveVerificationBadgeRequest;
     },
     component: function () {
       return (
@@ -329,11 +418,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.removeVerificationBadge(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Removes verification to an account.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -347,10 +439,12 @@ export const adminChapter = {
     title: 'Get Verified Users',
     route: '/admin/get-verified-users',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.getVerifiedUsers,
     params: () => {
-      return {} as NodeControlRequest;
+      return undefined;
     },
     component: function () {
       return (
@@ -361,11 +455,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.getVerifiedUsers(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Gets verified users. </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -379,10 +476,14 @@ export const adminChapter = {
     title: 'Get Username Verification Audit Logs',
     route: '/admin/get-username-verification-audit-logs',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.getUsernameVerificationAuditLogs,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        Username: deso.identity.getUserKey(),
+      } as AdminGetUsernameVerificationAuditLogsRequest;
     },
     component: function () {
       return (
@@ -393,11 +494,15 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName:
+                  'deso.admin.getUsernameVerificationAuditLogs(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Gets the verification audit logs for a user</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -411,10 +516,15 @@ export const adminChapter = {
     title: 'Update Global Feed',
     route: '/admin/update-global-feed',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.updateGlobalFeed,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        PostHashHex: SAMPLE_POST,
+        RemoveFromGlobalFeed: false,
+      } as AdminUpdateGlobalFeedRequest;
     },
     component: function () {
       return (
@@ -425,11 +535,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.updateGlobalFeed(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Update or remove posts in the feed.</div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -443,10 +556,15 @@ export const adminChapter = {
     title: 'Pin Post',
     route: '/admin/pin-post',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.pinPost,
     params: () => {
-      return {} as NodeControlRequest;
+      return {
+        PostHashHex: SAMPLE_POST,
+        UnpinPost: true,
+      } as AdminPinPostRequest;
     },
     component: function () {
       return (
@@ -457,11 +575,14 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.pinPost(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(
+                this.title,
+                <div>Toggle pinning a post. </div>
+              )}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -475,10 +596,12 @@ export const adminChapter = {
     title: 'Remove Nil Posts',
     route: '/admin/remove-nil-posts',
     githubSource: [],
-    documentation: ['https://docs.deso.org/identity/window-api/endpoints'],
-    method: deso.nft.burnNft,
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/admin-endpoints',
+    ],
+    method: deso.admin.removeNilPosts,
     params: () => {
-      return {} as NodeControlRequest;
+      return { NumPostsToSearch: 20 } as AdminRemoveNilPostsRequest;
     },
     component: function () {
       return (
@@ -489,11 +612,11 @@ export const adminChapter = {
             <Page
               demo={false}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.admin.removeNilPosts(request)',
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(this.title, <div>Burn an NFT.</div>)}
+              pretext={PageSection(this.title, <div>Remove Nil Posts. </div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
