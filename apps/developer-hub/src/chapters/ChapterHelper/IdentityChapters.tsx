@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { ParentRoutes } from '../../services/utils';
+import { ParentRoutes, TYLER } from '../../services/utils';
 import Page from '../Read/Page';
 import Deso from 'deso-protocol';
 import { PageSection } from './PageSections';
@@ -143,11 +143,11 @@ export const identityChapter = {
               [CreatorCoinLimitOperationString.TRANSFER]: 9198,
             }
           },
-          // DAOCoinOperationLimitMap: {
-          //   "": {
-          //     [DAOCoinLimitOperationString.MINT]: 1,
-          //   }
-          // },
+          DAOCoinOperationLimitMap: {
+            "": {
+              [DAOCoinLimitOperationString.MINT]: 1,
+            }
+          },
           NFTOperationLimitMap: {
             "01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b": {
               0: {
@@ -155,7 +155,18 @@ export const identityChapter = {
                 [NFTLimitOperationString.BID]: 501,
               }
             }
-          }
+          },
+          DAOCoinLimitOrderLimitMap: {
+            "DESO": {
+              BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 10,
+            },
+            BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+              "DESO": 5,
+            },
+            [TYLER]: {
+              BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 1092,
+            }
+          },
         }
       } as Partial<IdentityDeriveParams>;
     },

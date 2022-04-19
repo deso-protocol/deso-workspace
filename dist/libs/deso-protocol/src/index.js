@@ -15,6 +15,7 @@ const User_1 = require("./lib/user/User");
 const Node_1 = require("./lib/Node/Node");
 const Wallet_1 = require("./lib/wallet/Wallet");
 const Transaction_1 = require("./lib/transaction/Transaction");
+const dao_1 = require("./lib/dao/dao");
 class Deso {
     constructor(config) {
         this.node = new Node_1.Node();
@@ -27,11 +28,12 @@ class Deso {
         this.notification = new Notification_1.Notification(this.node, this.identity);
         this.user = new User_1.User(this.node, this.identity);
         this.social = new Social_1.Social(this.node, this.identity, this.user);
+        this.dao = new dao_1.DAO(this.node, this.identity);
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.transaction = Transaction_1.Transactions;
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.node = new Node_1.Node(config === null || config === void 0 ? void 0 : config.nodeUri);
+        this.node = new Node_1.Node();
         this.identity = new Identity_1.Identity({ ...config === null || config === void 0 ? void 0 : config.identityConfig, ...{ node: this.node } });
         this.identity.initialize();
         this.reinitialize();
@@ -46,6 +48,7 @@ class Deso {
         this.notification = new Notification_1.Notification(this.node, this.identity);
         this.user = new User_1.User(this.node, this.identity);
         this.social = new Social_1.Social(this.node, this.identity, this.user);
+        this.dao = new dao_1.DAO(this.node, this.identity);
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.transaction = Transaction_1.Transactions;
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);

@@ -19,6 +19,7 @@ const getEnabledRoutes = (): string[] => {
       'transactions',
       'user',
       'wallet',
+      'dao',
     ].includes(p)
   );
 };
