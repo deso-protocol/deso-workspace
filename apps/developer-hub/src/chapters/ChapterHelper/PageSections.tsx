@@ -19,4 +19,5 @@ export enum CommonPageSectionTitles {
   TRY_IT_OUT = 'Try It Out',
   WHAT_HAPPENED = 'What Happened',
   ADDITIONAL_DOCUMENTATION = 'Additional Documentation',
+  THREADS = 'Threads',
 }

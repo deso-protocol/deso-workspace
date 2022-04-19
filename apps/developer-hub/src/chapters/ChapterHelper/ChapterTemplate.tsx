@@ -22,8 +22,11 @@ const TabPanel = (props: any) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {' '}
-      {value === index && <div className="p-3">{children} </div>}
+      {value === index && value === 0 ? (
+        <div className="p-3">{children} </div>
+      ) : (
+        <div className="">{children} </div>
+      )}
     </div>
   );
 };

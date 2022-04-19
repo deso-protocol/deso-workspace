@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import Tooltip from '@mui/material/Tooltip';
 import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
@@ -11,6 +12,7 @@ import {
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
+import { ThreadLayout } from '../../threads/threadLayout';
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
@@ -105,6 +107,12 @@ export const Page = ({
                 )) ||
                 'Demo coming soon'}
             </>
+          ),
+        },
+        {
+          title: 'Comments',
+          content: (
+            <ThreadLayout PostHashHex="1d0d7562719c304aa29a142db6fca3509c5d6ba377f58e8a5cc480f24a382c70" />
           ),
         },
       ]}
