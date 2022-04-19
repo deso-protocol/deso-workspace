@@ -25,7 +25,7 @@ const TabPanel = (props: any) => {
       {value === index && value === 0 ? (
         <div className="p-3">{children} </div>
       ) : (
-        <div className="">{children} </div>
+        <div>{children} </div>
       )}
     </div>
   );

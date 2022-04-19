@@ -4,6 +4,7 @@ import { GitBook } from './gitbook';
 import { Github } from './github';
 import { DesoNpm } from './DesoNpm';
 import { HubButton } from './HubButton';
+import { Login } from './Login';
 
 export const Header = () => {
   return (
@@ -16,6 +17,7 @@ export const Header = () => {
           <AppBar position="fixed" sx={{ backgroundColor: '#000' }}>
             <Toolbar>
               <HubButton />
+              <Login />
               <div className="flex-grow"></div>
               <DesoNpm />
               <Github />

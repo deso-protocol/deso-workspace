@@ -12,7 +12,8 @@ import {
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
-import { ThreadLayout } from '../../threads/threadLayout';
+import { Thread } from '../../threads/Thread';
+import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
@@ -111,9 +112,7 @@ export const Page = ({
         },
         {
           title: 'Comments',
-          content: (
-            <ThreadLayout PostHashHex="1d0d7562719c304aa29a142db6fca3509c5d6ba377f58e8a5cc480f24a382c70" />
-          ),
+          content: <AllThreadsONPage />,
         },
       ]}
       navigation={

@@ -22,10 +22,8 @@ const getEnabledRoutes = (): string[] => {
     ].includes(p)
   );
 };
-
 export const SideBar = (chapters: ChapterNavigation) => {
   const [openedPanels, setOpenedPanels] = useState<any>({});
-
   const Links = ({ chapters, parentRoute }: NewListItemProps) => {
     const sections = chapters
       .chaptersToArray()
@@ -74,7 +72,6 @@ export const SideBar = (chapters: ChapterNavigation) => {
             ) : (
               <ArrowRightIcon />
             )}
-
             <div>{parentRoute.toLowerCase()}</div>
           </div>
         </div>
@@ -83,6 +80,7 @@ export const SideBar = (chapters: ChapterNavigation) => {
     );
   });
 };
+
 export interface DesoDrawerProps {
   chapters: ChapterNavigation;
 }
@@ -96,6 +94,7 @@ export default function DesoDrawer({ chapters }: DesoDrawerProps) {
     </div>
   );
 }
+
 export interface NewListItemProps {
   chapters: ChapterNavigation;
   parentRoute: string;
