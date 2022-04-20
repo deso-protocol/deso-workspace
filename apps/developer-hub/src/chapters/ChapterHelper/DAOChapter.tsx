@@ -127,7 +127,7 @@ export const daoChapter = {
     },
     method: deso.dao.CreateDAOCoinLimitOrder,
     documentation: [
-      // Link TBD: 'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#transfer-dao-coin',
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#create-dao-coin-limit-order',
     ],
     githubSource: [],
     component: function () {
@@ -168,7 +168,7 @@ export const daoChapter = {
     },
     method: deso.dao.CancelDAOCoinLimitOrder,
     documentation: [
-      // Link TBD: 'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#transfer-dao-coin',
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#cancel-dao-coin-limit-order',
     ],
     githubSource: [],
     component: function () {
@@ -209,7 +209,7 @@ export const daoChapter = {
     },
     method: deso.dao.GetDAOCoinLimitOrders,
     documentation: [
-      // Link TBD: 'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#transfer-dao-coin',
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/dao-endpoints#gets-all-open-orders-on-order-book-for-a-dao-coin-market',
     ],
     githubSource: [],
     component: function () {
@@ -252,7 +252,7 @@ export const daoChapter = {
     },
     method: deso.dao.GetTransactorDAOCoinLimitOrders,
     documentation: [
-      // Link TBD: 'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#transfer-dao-coin',
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/dao-endpoints#gets-all-open-limit-orders-created-by-a-transactor',
     ],
     githubSource: [],
     component: function () {
