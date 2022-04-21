@@ -150,7 +150,7 @@ export class Identity {
     frame.style.zIndex = '1000';
     frame.style.display = 'none';
     frame.style.left = '0';
-    frame.style.right = '0';
+    frame.style.top = '0';
     const root = document.getElementsByTagName('body')[0];
     if (root) {
       root.appendChild(frame);
