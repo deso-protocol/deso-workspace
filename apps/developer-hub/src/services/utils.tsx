@@ -7,6 +7,7 @@ export enum ParentRoutes {
   landing = 'landing',
   admin = 'admin',
   buyDeso = 'buy deso',
+  dao = 'dao',
   identity = 'identity',
   media = 'media',
   metaData = 'metaData',

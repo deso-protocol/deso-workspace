@@ -23,6 +23,7 @@ import { PageProps } from '../Read/Page';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { transactionChapter } from './TransactionsChapter';
 import { walletChapter } from './WalletChapter';
+import { daoChapter } from './DAOChapter';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -43,6 +44,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...transactionChapter,
   ...userChapter,
   ...walletChapter,
+  ...daoChapter,
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',
@@ -270,6 +272,9 @@ export interface ChapterNavigation {
   UPDATE_GLOBAL_FEED: Chapter;
   PIN_POST: Chapter;
   REMOVE_NIL_POSTS: Chapter;
+
+  // DAO
+  DAO_COIN: Chapter;
 
   // BuyDeso
 

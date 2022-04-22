@@ -2,7 +2,7 @@ import { Route } from 'react-router-dom';
 import { CHAPTERS } from './Chapter.models';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
-import { DEZO_DOG, ParentRoutes, RUSSIA } from '../../services/utils';
+import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
   GetSingleProfileRequest,
@@ -13,7 +13,11 @@ import {
   BlockPublicKeyRequest,
   AuthorizeDerivedKeyParams,
   CreatorCoinLimitOperationString,
+  DAOCoinLimitOperationString,
+  DAOCoinLimitOrderOperationTypeString,
+  NFTLimitOperationString,
 } from 'deso-protocol-types';
+import { Nft } from 'libs/deso-protocol/src/lib/nft/Nft';
 const deso = new Deso();
 // deso.user.getSingleProfile;
 // deso.user.getSingleProfilePicture;
@@ -348,8 +352,9 @@ export const userChapter = {
     title: 'Authorize Derived Key',
     route: '/user/authorize-derived-key',
     params: () => {
+      const publicKey = deso.identity.getUserKey() || '';
       return {
-        OwnerPublicKeyBase58Check: deso.identity.getUserKey(),
+        OwnerPublicKeyBase58Check: publicKey,
         DeleteKey: false,
         MinFeeRateNanosPerKB: 1000,
         TransactionSpendingLimitResponse: {
@@ -363,6 +368,46 @@ export const userChapter = {
           CreatorCoinOperationLimitMap: {
             'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s': {
               [CreatorCoinLimitOperationString.BUY]: 10,
+            }
+          },
+          DAOCoinOperationLimitMap: {
+            'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s': {
+              [DAOCoinLimitOperationString.TRANSFER]: 10,
+            },
+            [publicKey]: {
+              [DAOCoinLimitOperationString.ANY]: 2,
+              [DAOCoinLimitOperationString.MINT]: 5,
+              [DAOCoinLimitOperationString.UPDATE_TRANSFER_RESTRICTION_STATUS]: 1,
+              [DAOCoinLimitOperationString.DISABLE_MINTING]: 1,
+              [DAOCoinLimitOperationString.BURN]: 21908,
+              [DAOCoinLimitOperationString.TRANSFER]: 10,
+            }
+          },
+          NFTOperationLimitMap: {
+            "01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b": {
+              0: {
+                [NFTLimitOperationString.ACCEPT_BID]: 1,
+                [NFTLimitOperationString.ACCEPT_TRANSFER]: 2,
+                [NFTLimitOperationString.BID]: 190283,
+                [NFTLimitOperationString.BURN]: 12,
+                [NFTLimitOperationString.TRANSFER]: 1,
+                [NFTLimitOperationString.UPDATE]: 190238,
+                [NFTLimitOperationString.ANY]: 1,
+              },
+              1: {
+                [NFTLimitOperationString.UPDATE]: 2
+              }
+            }
+          },
+          DAOCoinLimitOrderLimitMap: {
+            "DESO": {
+              BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 10,
+            },
+            BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+              "DESO": 5,
+            },
+            [TYLER]: {
+              BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 1092,
             }
           }
         },
