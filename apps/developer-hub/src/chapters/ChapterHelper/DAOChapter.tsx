@@ -21,9 +21,9 @@ export const daoChapter = {
     route: '/dao/dao-coin',
     params: () => {
       return {
-        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
         ProfilePublicKeyBase58CheckOrUsername:
-          localStorage.getItem('login_key'),
+          deso.identity.getUserKey() as string,
         OperationType: 'mint',
         CoinsToMintNanos: '0x3B9ACA00',
       } as Partial<DAOCoinRequest>;
@@ -68,9 +68,9 @@ export const daoChapter = {
     route: '/dao/transfer-dao-coin',
     params: () => {
       return {
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
         ProfilePublicKeyBase58CheckOrUsername:
-          localStorage.getItem('login_key'),
+          deso.identity.getUserKey() as string,
         ReceiverPublicKeyBase58CheckOrUsername: 'lazynina', // TODO: what should we put in here?
         DAOCoinToTransferNanos: '0x5F5E100',
       } as Partial<TransferDAOCoinRequest>;
@@ -115,10 +115,9 @@ export const daoChapter = {
     route: '/dao/create-dao-coin-limit-order',
     params: () => {
       return {
-        TransactorPublicKeyBase58Check: localStorage.getItem('login_key'),
-        BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: '', // "" means buying DESO
+        TransactorPublicKeyBase58Check: deso.identity.getUserKey() as string,
         SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername:
-          localStorage.getItem('login_key'), // TODO: what should we put in here?
+          deso.identity.getUserKey() as string, // TODO: what should we put in here?
         ExchangeRateCoinsToSellPerCoinToBuy: 0.1,
         QuantityToFill: 0.1,
         OperationType:
@@ -162,8 +161,8 @@ export const daoChapter = {
     route: '/dao/cancel-dao-coin-limit-order',
     params: () => {
       return {
-        TransactorPublicKeyBase58Check: localStorage.getItem('login_key'),
-        CancelOrderID: "", // TODO: how do we want to show this working?
+        TransactorPublicKeyBase58Check: deso.identity.getUserKey() as string,
+        CancelOrderID: '', // TODO: how do we want to show this working?
       } as Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>;
     },
     method: deso.dao.CancelDAOCoinLimitOrder,
@@ -197,14 +196,14 @@ export const daoChapter = {
       );
     },
   },
-  GET_DAO_COIN_LIMIT_ORDERS:  {
+  GET_DAO_COIN_LIMIT_ORDERS: {
     parentRoute: ParentRoutes.dao,
     title: 'Get DAO Coin Limit Orders',
     route: '/dao/get-dao-coin-limit-orders',
     params: () => {
       return {
-        DAOCoin1CreatorPublicKeyBase58CheckOrUsername: localStorage.getItem('login_key'),
-        DAOCoin2CreatorPublicKeyBase58CheckOrUsername: "", // Empty string is for DESO.
+        DAOCoin1CreatorPublicKeyBase58CheckOrUsername:
+          deso.identity.getUserKey() as string,
       } as Partial<GetDAOCoinLimitOrdersRequest>;
     },
     method: deso.dao.GetDAOCoinLimitOrders,
@@ -227,8 +226,9 @@ export const daoChapter = {
               pretext={PageSection(
                 this.title,
                 <div>
-                  Get all open DAO Coin Limit Orders for a trading pair. 
-                  If an empty string is provided for either request param, it is interpreted as DESO instead of a DAO coin.
+                  Get all open DAO Coin Limit Orders for a trading pair. If an
+                  empty string or no value is provided for either request param,
+                  it is interpreted as DESO instead of a DAO coin.
                 </div>
               )}
               demo={true}
@@ -241,13 +241,14 @@ export const daoChapter = {
       );
     },
   },
-  GET_TRANSACTOR_DAO_COIN_LIMIT_ORDERS:  {
+  GET_TRANSACTOR_DAO_COIN_LIMIT_ORDERS: {
     parentRoute: ParentRoutes.dao,
     title: 'Get Transactor DAO Coin Limit Orders',
     route: '/dao/get-transactor-dao-coin-limit-orders',
     params: () => {
       return {
-        TransactorPublicKeyBase58CheckOrUsername: localStorage.getItem('login_key'),
+        TransactorPublicKeyBase58CheckOrUsername:
+          deso.identity.getUserKey() as string,
       } as Partial<GetTransactorDAOCoinLimitOrdersRequest>;
     },
     method: deso.dao.GetTransactorDAOCoinLimitOrders,
@@ -269,9 +270,7 @@ export const daoChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  Get all open DAO Coin Limit Orders for a user.
-                </div>
+                <div>Get all open DAO Coin Limit Orders for a user.</div>
               )}
               demo={true}
               chapters={CHAPTERS}
