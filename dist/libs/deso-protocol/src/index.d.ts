@@ -10,6 +10,7 @@ import { User } from './lib/user/User';
 import { Node } from './lib/Node/Node';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
+import { DAO } from './lib/dao/dao';
 export interface DesoConfig {
     nodeUri?: string;
     identityConfig?: IdentityConfig;
@@ -26,6 +27,7 @@ export declare class Deso {
     notification: Notification;
     user: User;
     social: Social;
+    dao: DAO;
     posts: Posts;
     transaction: typeof Transactions;
     wallet: Wallet;

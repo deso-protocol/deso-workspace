@@ -50,7 +50,7 @@ export const Page = ({
       return;
     }
     const methodToCall = method.method.bind(
-      bind === 'identity' ? deso.identity : deso
+      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso,
     );
     const response = await methodToCall(method.params());
     setResponse(response);
