@@ -72,6 +72,9 @@ export class DAO {
     if (!request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
       request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
     }
+    if (!request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
+      request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
+    }
     // TODO: validate partial
     return this.executeTransaction<
       DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
@@ -94,6 +97,9 @@ export class DAO {
   ): Promise<GetDAOCoinLimitOrdersResponse> {
     if (!request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername) {
       request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername = '';
+    }
+    if (!request.DAOCoin1CreatorPublicKeyBase58CheckOrUsername) {
+      request.DAOCoin1CreatorPublicKeyBase58CheckOrUsername = '';
     }
     // TODO: validate partial
     return this.executePost<
