@@ -1,20 +1,26 @@
+import Deso from 'deso-protocol';
+import { useEffect } from 'react';
+import { ProfilePicture } from '../components/ProfilePicture';
 import { ReplyOptions } from './ReplyOptions';
-import { Votes } from './votes';
 export interface QuestionProps {
   body: string;
   PostHashHex: string;
+  posterKey: string;
+  userName: string;
 }
-export const Question = ({ body, PostHashHex }: QuestionProps) => {
+const deso = new Deso();
+export const Question = ({
+  body,
+  PostHashHex,
+  posterKey,
+  userName,
+}: QuestionProps) => {
   return (
-    <div>
-      {/* <div className="my-auto font-medium text-xl pl-3 border-b pb-2 border-gray-400"></div>{' '} */}
-      <div className="flex justify-start ">
-        <div className="flex border-gray-400 ml-2">
-          <Votes PostHashHex={PostHashHex} />
-        </div>
-        <div className="pb-5 mx-2 ">{body}</div>
+    <div className="border-gray-400 ">
+      <div className="flex  ml-2 flex-col bg-[#000000d5]"></div>
+      <div className="my-auto rounded-b border border-gray-400  min-h-[75px]">
+        {body}
       </div>
-      <ReplyOptions PostHashHex={PostHashHex} />
     </div>
   );
 };

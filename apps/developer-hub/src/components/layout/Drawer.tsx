@@ -33,7 +33,7 @@ export const SideBar = (chapters: ChapterNavigation) => {
           <>
             <Link
               className="pb-2 px-4 hover:underline cursor-pointer block ml-6"
-              key={index}
+              key={`${index}`}
               to={`${section.chapterContent.route}`}
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' } as any);
@@ -66,7 +66,7 @@ export const SideBar = (chapters: ChapterNavigation) => {
             }
           }}
         >
-          <div key={index} className="inline flex justify-start mr-20 ">
+          <div key={index} className="inline flex justify-start mr-20">
             {openedPanels[parentRoute] ? (
               <ArrowDropDownIcon />
             ) : (
@@ -75,7 +75,11 @@ export const SideBar = (chapters: ChapterNavigation) => {
             <div>{parentRoute.toLowerCase()}</div>
           </div>
         </div>
-        <Links chapters={chapters} parentRoute={parentRoute} />
+        <Links
+          key={`${index}link`}
+          chapters={chapters}
+          parentRoute={parentRoute}
+        />
       </>
     );
   });

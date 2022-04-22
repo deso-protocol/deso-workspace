@@ -1,5 +1,4 @@
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AddIcon from '@mui/icons-material/Add';
 import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
 export interface VotesProps {
@@ -28,6 +27,9 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
   };
 
   const vote = async (vote: 'up' | 'down') => {
+    console.log();
+    if (vote === 'up' && liked) return;
+    if (vote === 'down' && !liked) return;
     await deso.social
       .createLikeStateless({
         ReaderPublicKeyBase58Check: deso.identity.getUserKey() as string,
@@ -43,29 +45,20 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
   };
 
   return (
-    <div className="flex flex-col max-w-[20px] my-auto">
-      <div onClick={() => vote('up')}>
-        {!liked ? (
-          <KeyboardArrowUpIcon
-            fontSize="small"
-            className="cursor-pointer hover:text-[#141674]"
-          />
-        ) : (
-          <div className="min-h-[20px]"></div>
-        )}
-      </div>
+    <div className="flex text-white ml-2">
       <div className="mx-auto text-sm cursor-default font-semibold max-h-[15px] my-auto align-middle">
         {upVotes}
       </div>
-      <div onClick={() => vote('down')}>
-        {liked ? (
-          <KeyboardArrowDownIcon
-            fontSize="small"
-            className="cursor-pointer hover:text-[#3a0c0c]"
-          />
-        ) : (
-          <div className="min-h-[20px]"></div>
-        )}
+      <div
+        onClick={() => {
+          liked ? vote('down') : vote('up');
+        }}
+      >
+        <AddIcon
+          sx={{ fontSize: '14px' }}
+          htmlColor={liked ? 'orange' : ''}
+          className="cursor-pointer hover:text-[#ffc08c]"
+        />
       </div>
     </div>
   );

@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import Tooltip from '@mui/material/Tooltip';
 import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
 import { desoService } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
-import { IMPORT_CODE, jsonBlock } from '../../services/utils';
+import { HUB, IMPORT_CODE, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
-import { Thread } from '../../threads/Thread';
+import { CreateThreadOnChain } from '../../threads/CreateThreadOnChain';
 import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 export interface PageProps {
   selectedChapter: Chapter;
@@ -111,8 +110,15 @@ export const Page = ({
           ),
         },
         {
-          title: 'Comments',
-          content: <AllThreadsONPage />,
+          title: 'Threads',
+          content: (
+            <>
+              <AllThreadsONPage
+                title={selectedChapter.title}
+                publicKeyWhereThreadsLive={HUB}
+              />
+            </>
+          ),
         },
       ]}
       navigation={
