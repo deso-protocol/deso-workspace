@@ -1,4 +1,4 @@
-import { Statement } from './Statement';
+import { Statement, StatementTypeEnum } from './Statement';
 import { ReactElement, useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
 export interface ThreadProps {
@@ -8,7 +8,6 @@ const deso = new Deso();
 export const Thread = ({ PostHashHex }: ThreadProps) => {
   const [thread, setThread] = useState<ReactElement | null>(null);
   const [responses, setResponses] = useState<ReactElement[]>([]);
-  const [showComments, setShowComments] = useState<boolean>(false);
   useEffect(() => {
     getThreadAndResponses();
     // get thread data
@@ -21,22 +20,13 @@ export const Thread = ({ PostHashHex }: ThreadProps) => {
     });
 
     if (!response.PostFound) return;
-    const thread = (
-      <Statement
-        setShowComments={setShowComments}
-        userName={response.PostFound.ProfileEntryResponse?.Username as string}
-        statementType="Question"
-        body={response.PostFound.Body}
-        PostHashHex={response.PostFound.PostHashHex}
-        posterKey={response.PostFound.PosterPublicKeyBase58Check}
-      />
-    );
-    setThread(thread ?? null);
     if (!response.PostFound?.Comments) return;
 
     const responses = response.PostFound?.Comments.map((c) => {
       return (
         <Statement
+          comments={[]}
+          statementType={StatementTypeEnum.Reply}
           userName={c.ProfileEntryResponse?.Username as string}
           body={c.Body}
           PostHashHex={c.PostHashHex}
@@ -46,14 +36,26 @@ export const Thread = ({ PostHashHex }: ThreadProps) => {
     });
 
     setResponses(responses);
+
+    const thread = (
+      <Statement
+        userName={response.PostFound.ProfileEntryResponse?.Username as string}
+        statementType={StatementTypeEnum.Question}
+        body={response.PostFound.Body}
+        PostHashHex={response.PostFound.PostHashHex}
+        posterKey={response.PostFound.PosterPublicKeyBase58Check}
+        comments={response.PostFound.Comments ?? []}
+      />
+    );
+    setThread(thread ?? null);
   };
 
   return (
-    <div className="w-[800px] max-w-[800px] mx-auto mt-4">
+    <div className="w-[800px] max-w-[800px] mx-auto">
       <div className="flex border-gray-400">
         <div>
           <div>{thread}</div>
-          {showComments && responses}
+          {/* {showComments && responses} */}
         </div>
       </div>
     </div>

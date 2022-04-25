@@ -16,7 +16,9 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
 
   const getVotes = async () => {
     const key = deso.identity.getUserKey();
-    if (!key) return;
+    // not sure if PostHashHex is getting set as a string as null somewhere or
+    // if the api returns it that way, but a temp fix checks for a certain greater than length
+    if (!key || PostHashHex.length < 10) return;
     const response = await deso.posts.getSinglePost({
       PostHashHex,
       ReaderPublicKeyBase58Check: key,
@@ -27,7 +29,6 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
   };
 
   const vote = async (vote: 'up' | 'down') => {
-    console.log();
     if (vote === 'up' && liked) return;
     if (vote === 'down' && !liked) return;
     await deso.social

@@ -171,7 +171,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   },
 
   reload: () => {
-    console.log('adf');
+    console.log('temp');
   },
   prev: function (currentChapter: Chapter) {
     const currentChapterIndex = this.chaptersToArray()

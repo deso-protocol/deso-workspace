@@ -11,7 +11,6 @@ import {
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
-import { CreateThreadOnChain } from '../../threads/CreateThreadOnChain';
 import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 export interface PageProps {
   selectedChapter: Chapter;
@@ -50,7 +49,7 @@ export const Page = ({
       return;
     }
     const methodToCall = method.method.bind(
-      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso,
+      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso
     );
     const response = await methodToCall(method.params());
     setResponse(response);

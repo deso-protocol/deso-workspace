@@ -1,62 +1,82 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/ban-types */
 import { Button } from '@mui/material';
 import Deso from 'deso-protocol';
 import { useState } from 'react';
+import { ThreadCategory, ThreadState } from '../services/utils';
+import { StatementTypeEnum } from './Statement';
+import { CircularProgress } from '@mui/material';
+import { timeout } from '../services/utils';
 
-export enum ThreadCategory {
-  GENERAL = 'GENERAL',
-  NODE = 'NODE',
-  CORE = 'CORE',
-  BACKEND = 'BACKEND',
-  CLIENT = 'CLIENT',
-}
-export enum ThreadState {
-  PENDING = 'PENDING',
-  RESOLVED = 'RESOLVED',
-  CLOSED = 'CLOSED',
-  REMOVED = 'REMOVED',
-  OPEN = 'OPEN',
-}
 export interface CreateThreadOnChain {
   PostHashHex: string;
   category: ThreadCategory;
   state: ThreadState;
+  statementType: StatementTypeEnum;
+  onPostCallback: Function;
 }
 const deso = new Deso();
 export const CreateThreadOnChain = ({
   PostHashHex,
   category,
   state,
+  statementType,
+  onPostCallback,
 }: CreateThreadOnChain) => {
   const [commentText, setCommentText] = useState('');
-  const replyToQuestion = () => {
-    deso.posts.submitPost({
-      UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-      ParentStakeID: PostHashHex,
-      BodyObj: {
-        Body: commentText,
-        VideoURLs: [],
-        ImageURLs: [],
-      },
-      PostExtraData: {
-        title: 'title',
-        category: category,
-        resolvedBy: 'N/A',
-        state: state,
-      },
-    });
+  const [showSpinner, setShowSpinner] = useState(false);
+  const replyToQuestion = async () => {
+    if (!PostHashHex) return;
+    setShowSpinner(true);
+    await deso.posts
+      .submitPost({
+        UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+        ParentStakeID: PostHashHex,
+        BodyObj: {
+          Body: commentText,
+          VideoURLs: [],
+          ImageURLs: [],
+        },
+        PostExtraData: {
+          title: 'title',
+          category: category,
+          resolvedBy: 'N/A',
+          state: state,
+        },
+      })
+      .finally(async () => {
+        await timeout(2500);
+
+        setShowSpinner(false);
+        onPostCallback();
+        setCommentText('');
+      });
   };
   return (
-    <div className="w-full mx-auto mt-4 border-t border-gray-400">
-      <div className="min-h-[70px] p-4 border">
-        <textarea
-          placeholder="add your comment here"
-          className="min-h-[70px] border w-full"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-        />
+    <div className="w-full mx-auto">
+      <div className="min-h-[70px] p-4 ">
+        {showSpinner ? (
+          <div className="flex justify-center min-h-[125px] ">
+            <CircularProgress className="my-auto" size="100px" />
+          </div>
+        ) : (
+          <textarea
+            placeholder={`add your ${
+              statementType === StatementTypeEnum.NewQuestion
+                ? StatementTypeEnum.Question.toLowerCase()
+                : StatementTypeEnum.Reply.toLowerCase()
+            } here`}
+            className="min-h-[125px] border w-full border-gray-400 p-1"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+        )}
         <Button
-          color="success"
-          variant="outlined"
+          style={{
+            color: `${!commentText ? 'gray' : 'black'}`,
+            borderColor: `${!commentText ? 'gray' : 'black'}`,
+          }}
+          variant={'outlined'}
           disabled={!commentText}
           onClick={replyToQuestion}
         >

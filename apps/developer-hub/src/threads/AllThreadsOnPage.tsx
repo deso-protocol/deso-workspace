@@ -1,19 +1,23 @@
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
-import { CreateThreadOnChain } from './CreateThreadOnChain';
-import { Statement } from './Statement';
+import { Statement, StatementTypeEnum } from './Statement';
 import { Thread } from './Thread';
 
 export interface AllThreadsONPage {
   title: string;
   publicKeyWhereThreadsLive: string;
+  ParentPostHashHex?: string;
 }
+
 const deso = new Deso();
 export const AllThreadsONPage = ({
   title,
   publicKeyWhereThreadsLive,
+  ParentPostHashHex,
 }: AllThreadsONPage) => {
   const [threads, setThreads] = useState<ReactElement[]>([]);
+  const [createNewThreadPostHashHex, setCreateNewThreadPostHashHex] =
+    useState('');
   const getThreads = async () => {
     const response = await deso.posts.getPostsForPublicKey({
       PublicKeyBase58Check: publicKeyWhereThreadsLive,
@@ -21,10 +25,12 @@ export const AllThreadsONPage = ({
       NumToFetch: 1000,
     });
     if (!response.Posts) return;
+
     const posts = response.Posts.filter(
       (p) => p.PostExtraData['Title'] === title
     );
     if (!posts) return;
+    setCreateNewThreadPostHashHex(posts[0].PostHashHex);
     console.log(posts);
     const postsWithComments = await Promise.all(
       posts.map((p) => {
@@ -35,39 +41,39 @@ export const AllThreadsONPage = ({
         });
       })
     );
-
     // deso.posts.getSinglePost({PostHashHex: posts})
     const threads = postsWithComments
       .map((p, i) => {
-        console.log(p);
         if (!p.PostFound?.Comments) return [];
-        return p.PostFound.Comments.map((c) => (
+        return p.PostFound.Comments.sort((a, b) => {
+          if (a.TimestampNanos && b.TimestampNanos) {
+            return b.TimestampNanos - a.TimestampNanos;
+          }
+          return 0;
+        }).map((c) => (
           <Thread key={c.PostHashHex} PostHashHex={c.PostHashHex} />
         ));
       })
       .flat();
-    console.log(threads);
     setThreads(threads);
-    // console.log(response);
   };
   useEffect(() => {
     setThreads([]);
-    console.log('asdf');
     getThreads();
-    // deso.posts.getSinglePost({ PostHashHex, CommentLimit: 500 });
   }, [title]);
   return (
     <>
-      <Statement
-        userName="You"
-        body="Create a new Thread"
-        PostHashHex="null"
-        statementType="Question"
-        setShowComments={() => {
-          console.log('temp');
-        }}
-        posterKey={deso.identity.getUserKey() as string}
-      />
+      <div className="flex justify-center">
+        <Statement
+          comments={[]}
+          userName="You"
+          body="Create a new Thread"
+          onPostCallback={() => getThreads()}
+          PostHashHex={createNewThreadPostHashHex as string}
+          statementType={StatementTypeEnum.NewQuestion}
+          posterKey={deso.identity.getUserKey() as string}
+        />
+      </div>
       {threads}
     </>
   );

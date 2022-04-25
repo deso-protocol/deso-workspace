@@ -10,12 +10,11 @@ import { Referral } from './lib/referral/Referral';
 import { Social } from './lib/social/Social';
 import { User } from './lib/user/User';
 import { Node } from './lib/Node/Node';
-import { Tutorial } from './lib/tutorial/Tutorial';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
 import { DAO } from './lib/dao/dao';
 
-export interface DesoConfig { 
+export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: IdentityConfig;
 }
@@ -23,7 +22,10 @@ export interface DesoConfig {
 export class Deso {
   constructor(config?: DesoConfig) {
     this.node = new Node();
-    this.identity = new Identity({...config?.identityConfig, ...{ node: this.node }});
+    this.identity = new Identity({
+      ...config?.identityConfig,
+      ...{ node: this.node },
+    });
     this.identity.initialize();
     this.reinitialize();
   }
@@ -37,7 +39,7 @@ export class Deso {
   public notification = new Notification(this.node, this.identity);
   public user = new User(this.node, this.identity);
   public social = new Social(this.node, this.identity, this.user);
-  public dao = new DAO(this.node, this.identity)
+  public dao = new DAO(this.node, this.identity);
   public posts = new Posts(this.node, this.identity);
   public transaction = Transactions;
   public wallet = new Wallet(this.node, this.identity);

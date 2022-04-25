@@ -8,12 +8,13 @@ import { Votes } from './votes';
 import { ProfilePicture } from '../components/ProfilePicture';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { StatementTypeEnum } from './Statement';
 export interface ReplyOptionsProps {
   PostHashHex: string;
   posterKey: string;
   userName: string;
   setShowComments?: Function;
-  statementType?: 'Question' | 'Reply';
+  statementType?: StatementTypeEnum;
 }
 const deso = new Deso();
 export const ReplyOptions = ({
@@ -27,16 +28,24 @@ export const ReplyOptions = ({
   const [bannerText, setBannerText] = useState('');
   const [gaveDiamonds, setGaveDiamonds] = useState(false);
   const [arrowOpened, setArrowOpened] = useState<boolean>(false);
+  const [commentCount, setCommentCount] = useState(0);
   const [toggleComments, setToggleComments] = useState<ReactElement | null>(
     null
   );
   // const [toggleOpen, setToggleOpen] = useState(false);
   useEffect(() => {
-    setBannerText(statementType === 'Question' ? 'asked: ' : 'commented:');
-    getPoster();
-    if (statementType === 'Question') {
+    if (statementType === StatementTypeEnum.Question) {
+      setBannerText(`${userName} asked:`);
       getToggle();
     }
+    if (statementType === StatementTypeEnum.Reply) {
+      setBannerText(`${userName} commented:`);
+    }
+
+    if (statementType === StatementTypeEnum.NewQuestion) {
+      setBannerText('Ask a question:');
+    }
+    getPoster();
   }, [arrowOpened, setArrowOpened]);
 
   const getToggle = () => {
@@ -46,20 +55,22 @@ export const ReplyOptions = ({
         onClick={() => {
           if (setShowComments) {
             setShowComments((toggle: boolean) => {
-              console.log(toggle);
               setArrowOpened(!toggle);
               return !toggle;
             });
           }
         }}
       >
-        {arrowOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+        <Tooltip title={`${commentCount} comments`} placement="top">
+          <div>{arrowOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}</div>
+        </Tooltip>
       </div>
     );
   };
-
   const getPoster = async () => {
+    if (PostHashHex.length < 10) return;
     const post = await deso.posts.getSinglePost({ PostHashHex });
+    setCommentCount(post.PostFound?.CommentCount ?? 0);
     if (!post.PostFound?.PosterPublicKeyBase58Check) return;
     setGaveDiamonds(!!post.PostFound.PostEntryReaderState.DiamondLevelBestowed);
     setPoster(post.PostFound?.PosterPublicKeyBase58Check);
@@ -94,9 +105,7 @@ export const ReplyOptions = ({
       <div className="flex text-xl py-1">
         {toggleComments ?? <div className="min-w-[24px]"></div>}
         <ProfilePicture publicKey={posterKey} />{' '}
-        <div className=" text-white ml-2">
-          {userName} {bannerText}{' '}
-        </div>
+        <div className=" text-white ml-2">{bannerText} </div>
       </div>
       <div className="flex my-auto">
         <div
@@ -104,11 +113,7 @@ export const ReplyOptions = ({
             statementType === 'Reply' && 'hidden'
           }`}
           onClick={submitPost}
-        >
-          <Tooltip title="Add a comment" placement="right">
-            <AddCommentOutlinedIcon fontSize="small" />
-          </Tooltip>
-        </div>{' '}
+        ></div>{' '}
         <div
           className="cursor-pointer hover:text-[#ffc08c] text-white ml-2"
           onClick={giveDiamond}

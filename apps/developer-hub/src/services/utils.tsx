@@ -1,13 +1,31 @@
-import { LoginUser, SubmitPostRequest } from 'deso-protocol-types';
+import {
+  LoginUser,
+  PostEntryResponse,
+  SubmitPostRequest,
+} from 'deso-protocol-types';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
 import Deso from 'deso-protocol';
-import { ThreadCategory, ThreadState } from '../threads/CreateThreadOnChain';
 import { CHAPTERS } from '../chapters/ChapterHelper/Chapter.models';
 import { Category } from '@mui/icons-material';
 const deso = new Deso();
+
+export enum ThreadCategory {
+  GENERAL = 'GENERAL',
+  NODE = 'NODE',
+  CORE = 'CORE',
+  BACKEND = 'BACKEND',
+  CLIENT = 'CLIENT',
+}
+export enum ThreadState {
+  PENDING = 'PENDING',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+  REMOVED = 'REMOVED',
+  OPEN = 'OPEN',
+}
 export enum ParentRoutes {
   landing = 'landing',
   admin = 'admin',
@@ -128,11 +146,9 @@ export const ClickHereSnippet = (
 
 export function groupBy(array: any[], key: string) {
   return array.reduce((hash, obj) => {
-    if (obj['chapterContent'][key] === undefined) return hash;
+    if (obj['props'][key] === undefined) return hash;
     return Object.assign(hash, {
-      [obj['chapterContent'][key]]: (
-        hash[obj['chapterContent'][key]] || []
-      ).concat(obj),
+      [obj['props'][key]]: (hash[obj['props'][key]] || []).concat(obj),
     });
   }, {});
 }
@@ -142,27 +158,27 @@ const deso = new Deso();
 `;
 
 export const createPostsWith = async () => {
-  throw Error('already ran do not call this');
+  // throw Error('already ran do not call this');
   const chapters = CHAPTERS.chaptersToArray();
-  const postsToMake = chapters.map((c) => {
-    const post: Partial<SubmitPostRequest> = {
-      UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-      BodyObj: {
-        Body: c.chapterContent.title,
-        VideoURLs: [],
-        ImageURLs: [],
-      },
-      PostExtraData: {
-        Title: c.chapterContent.title,
-        Category: ThreadCategory.CLIENT,
-        ResolvedBy: 'N/A',
-        State: ThreadState.OPEN,
-      },
-    };
-    return post;
-  });
+  // const postsToMake = chapters.map((c) => {
+  //   const post: Partial<SubmitPostRequest> = {
+  //     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  //     BodyObj: {
+  //       Body: c.chapterContent.title,
+  //       VideoURLs: [],
+  //       ImageURLs: [],
+  //     },
+  //     PostExtraData: {
+  //       Title: c.chapterContent.title,
+  //       Category: ThreadCategory.CLIENT,
+  //       ResolvedBy: 'N/A',
+  //       State: ThreadState.OPEN,
+  //     },
+  //   };
+  //   return post;
+  // });
   for (const p of [
-    ...postsToMake,
+    // ...postsToMake,
     ...genericThreads(ThreadCategory.BACKEND),
     ...genericThreads(ThreadCategory.CORE),
     ...genericThreads(ThreadCategory.NODE),
@@ -172,24 +188,25 @@ export const createPostsWith = async () => {
     await deso.posts.submitPost(p);
   }
 };
-function timeout(ms: number) {
+export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 const genericThreads = (category: ThreadCategory) => {
-  const backendGeneral: Partial<SubmitPostRequest> = {
-    UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    BodyObj: {
-      Body: 'General',
-      VideoURLs: [],
-      ImageURLs: [],
-    },
-    PostExtraData: {
-      Title: 'General',
-      Category: category,
-      ResolvedBy: 'N/A',
-      State: ThreadState.OPEN,
-    },
-  };
+  // throw Error('already ran do not call this');
+  // const backendGeneral: Partial<SubmitPostRequest> = {
+  //   UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  //   BodyObj: {
+  //     Body: 'General',
+  //     VideoURLs: [],
+  //     ImageURLs: [],
+  //   },
+  //   PostExtraData: {
+  //     Title: 'General',
+  //     Category: category,
+  //     ResolvedBy: 'N/A',
+  //     State: ThreadState.OPEN,
+  //   },
+  // };
   const backendTeam: Partial<SubmitPostRequest> = {
     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
     BodyObj: {
@@ -199,10 +216,32 @@ const genericThreads = (category: ThreadCategory) => {
     },
     PostExtraData: {
       Title: 'Foundation Questions/Request',
-      Category: ThreadCategory.CLIENT,
+      Category: category,
       ResolvedBy: 'N/A',
       State: ThreadState.OPEN,
     },
   };
-  return [backendGeneral, backendTeam];
+  return [backendTeam];
+};
+export const getForumPosts = async () => {
+  const response = await deso.posts.getPostsForPublicKey({
+    PublicKeyBase58Check: HUB,
+    NumToFetch: 1000,
+  });
+  return response.Posts?.filter(isForumThread) ?? [];
+};
+
+const isForumThread = (p: PostEntryResponse) => {
+  const category = p.PostExtraData['Category'];
+  return [
+    ThreadCategory.CORE,
+    ThreadCategory.BACKEND,
+    ThreadCategory.GENERAL,
+    ThreadCategory.NODE,
+  ].includes(category as ThreadCategory);
+};
+export const forumRoute = (p: PostEntryResponse) => {
+  return `/forum/${p.PostExtraData['Category']}/${p.Body}`
+    .replace(' ', '')
+    .toLowerCase();
 };
