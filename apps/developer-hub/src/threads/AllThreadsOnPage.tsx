@@ -1,6 +1,6 @@
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useReducer, useState } from 'react';
-import { timeout } from '../services/utils';
+import { ThreadCategory, timeout } from '../services/utils';
 import { Statement, StatementTypeEnum } from './Statement';
 import { Thread } from './Thread';
 
@@ -8,6 +8,7 @@ export interface AllThreadsONPage {
   title: string;
   publicKeyWhereThreadsLive: string;
   ParentPostHashHex?: string;
+  category?: ThreadCategory;
 }
 
 const deso = new Deso();
@@ -15,6 +16,7 @@ export const AllThreadsONPage = ({
   title,
   publicKeyWhereThreadsLive,
   ParentPostHashHex,
+  category = ThreadCategory.CLIENT,
 }: AllThreadsONPage) => {
   const [threads, setThreads] = useState<ReactElement[]>([]);
   const [createNewThreadPostHashHex, setCreateNewThreadPostHashHex] =
@@ -28,10 +30,18 @@ export const AllThreadsONPage = ({
     });
     if (!response.Posts) return;
 
-    const posts = response.Posts.filter(
-      (p) => p.PostExtraData['Title'] === title
-    );
+    const posts = response.Posts.filter((p) => {
+      if (p.PostExtraData['Title'] === title) {
+        if (p.PostExtraData['Category'] === ThreadCategory.CLIENT) return true;
+        console.log(category === p.PostExtraData['Category']);
+        console.log(p.PostExtraData['Category']);
+        console.log(category);
+        return category === p.PostExtraData['Category'];
+      }
+      return false;
+    });
     if (!posts) return;
+    if (!posts[0]) return;
     setCreateNewThreadPostHashHex(posts[0].PostHashHex);
     const postsWithComments = await Promise.all(
       posts.map((p) => {
@@ -60,12 +70,13 @@ export const AllThreadsONPage = ({
     setThreads([]);
     getThreads();
     setRefresh(false);
-  }, [title, refresh, setRefresh, ParentPostHashHex]);
+  }, [title, refresh, setRefresh, ParentPostHashHex, category]);
 
   return (
     <div className="mt-4 flex justify-center border-r ">
       <div>
         <Statement
+          category={category}
           comments={[]}
           userName="You"
           body="Create a new Thread"
@@ -78,7 +89,6 @@ export const AllThreadsONPage = ({
               top: document.body.scrollHeight,
               behavior: 'smooth',
             } as any);
-            // window.scrollTo({ top: 0, behavior: 'smooth' } as any)
           }}
           PostHashHex={createNewThreadPostHashHex as string}
           statementType={StatementTypeEnum.NewQuestion}

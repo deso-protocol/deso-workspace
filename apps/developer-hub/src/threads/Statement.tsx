@@ -22,6 +22,7 @@ export interface ResponseProps {
   comments: PostEntryResponse[];
   statementType?: StatementTypeEnum;
   parentOnPostCallback?: Function;
+  category?: ThreadCategory;
 }
 const deso = new Deso();
 export const Statement = ({
@@ -31,6 +32,7 @@ export const Statement = ({
   comments,
   statementType = StatementTypeEnum.Reply,
   parentOnPostCallback,
+  category = ThreadCategory.CLIENT,
 }: ResponseProps) => {
   const [showComments, setShowComments] = useState<boolean>(false);
   const [commentsToDisplay, setCommentsToDisplay] = useState<ReactElement[]>();
@@ -90,7 +92,7 @@ export const Statement = ({
     setCommentsToDisplay(commentsToDisplay);
   };
   return (
-    <div className={`${style} border border-white`}>
+    <div className={`min-w-[1200px] max-w-[1600px] border border-white`}>
       <ThreadThumbnail
         setShowComments={setShowComments}
         statementType={statementType}
@@ -108,7 +110,7 @@ export const Statement = ({
           onPostCallback={onPostCallback}
           statementType={statementType}
           PostHashHex={PostHashHex}
-          category={ThreadCategory.CLIENT}
+          category={category}
           state={ThreadState.OPEN}
         />
       )}

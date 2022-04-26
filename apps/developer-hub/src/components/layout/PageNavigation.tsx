@@ -5,8 +5,8 @@ import { Button } from '@mui/material';
 import { Chapter } from '../../chapters/ChapterHelper/Chapter.models';
 import { Link } from 'react-router-dom';
 export interface PageNavigationProps {
-  previous: Chapter;
-  next: Chapter;
+  previous?: Chapter;
+  next?: Chapter;
 }
 export const PageNavigation = ({ previous, next }: PageNavigationProps) => {
   return (

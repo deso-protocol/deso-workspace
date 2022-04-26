@@ -228,6 +228,7 @@ export const getForumPosts = async () => {
     PublicKeyBase58Check: HUB,
     NumToFetch: 1000,
   });
+
   return response.Posts?.filter(isForumThread) ?? [];
 };
 
