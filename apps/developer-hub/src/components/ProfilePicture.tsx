@@ -16,7 +16,7 @@ export const ProfilePicture = ({
   }, [publicKey]);
   return (
     <img
-      className={`min-h-[30px] rounded-full bg-inherit ${className}  opacity-100`}
+      className={`min-h-[30px] min-w-[30px] rounded-full bg-inherit ${className}  opacity-100`}
       width={30}
       src={url}
     />

@@ -20,23 +20,6 @@ export const Thread = ({ PostHashHex }: ThreadProps) => {
     });
 
     if (!response.PostFound) return;
-    if (!response.PostFound?.Comments) return;
-
-    const responses = response.PostFound?.Comments.map((c) => {
-      return (
-        <Statement
-          comments={[]}
-          statementType={StatementTypeEnum.Reply}
-          userName={c.ProfileEntryResponse?.Username as string}
-          body={c.Body}
-          PostHashHex={c.PostHashHex}
-          posterKey={c.PosterPublicKeyBase58Check}
-        />
-      );
-    });
-
-    setResponses(responses);
-
     const thread = (
       <Statement
         userName={response.PostFound.ProfileEntryResponse?.Username as string}
@@ -44,29 +27,11 @@ export const Thread = ({ PostHashHex }: ThreadProps) => {
         body={response.PostFound.Body}
         PostHashHex={response.PostFound.PostHashHex}
         posterKey={response.PostFound.PosterPublicKeyBase58Check}
-        comments={response.PostFound.Comments ?? []}
+        comments={response?.PostFound?.Comments ?? []}
       />
     );
     setThread(thread ?? null);
   };
 
-  return (
-    <div className="w-[800px] max-w-[800px] mx-auto">
-      <div className="flex border-gray-400">
-        <div>
-          <div>{thread}</div>
-          {/* {showComments && responses} */}
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="">{thread}</div>;
 };
-
-// export const arrowToggle = () => {
-//   return (
-//     <>
-//       <ArrowDropDownIcon />
-//       <ArrowRightIcon />
-//     </>
-//   );
-// };

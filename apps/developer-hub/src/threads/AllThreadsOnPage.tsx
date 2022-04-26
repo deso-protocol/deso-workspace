@@ -1,5 +1,6 @@
 import Deso from 'deso-protocol';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useReducer, useState } from 'react';
+import { timeout } from '../services/utils';
 import { Statement, StatementTypeEnum } from './Statement';
 import { Thread } from './Thread';
 
@@ -17,7 +18,8 @@ export const AllThreadsONPage = ({
 }: AllThreadsONPage) => {
   const [threads, setThreads] = useState<ReactElement[]>([]);
   const [createNewThreadPostHashHex, setCreateNewThreadPostHashHex] =
-    useState('');
+    useState<string>('');
+  const [refresh, setRefresh] = useState(true);
   const getThreads = async () => {
     const response = await deso.posts.getPostsForPublicKey({
       PublicKeyBase58Check: publicKeyWhereThreadsLive,
@@ -31,7 +33,6 @@ export const AllThreadsONPage = ({
     );
     if (!posts) return;
     setCreateNewThreadPostHashHex(posts[0].PostHashHex);
-    console.log(posts);
     const postsWithComments = await Promise.all(
       posts.map((p) => {
         return deso.posts.getSinglePost({
@@ -41,40 +42,51 @@ export const AllThreadsONPage = ({
         });
       })
     );
-    // deso.posts.getSinglePost({PostHashHex: posts})
-    const threads = postsWithComments
-      .map((p, i) => {
-        if (!p.PostFound?.Comments) return [];
-        return p.PostFound.Comments.sort((a, b) => {
-          if (a.TimestampNanos && b.TimestampNanos) {
-            return b.TimestampNanos - a.TimestampNanos;
-          }
-          return 0;
-        }).map((c) => (
-          <Thread key={c.PostHashHex} PostHashHex={c.PostHashHex} />
-        ));
-      })
-      .flat();
-    setThreads(threads);
+    let comments = postsWithComments[0].PostFound?.Comments;
+    if (!comments?.length) return;
+    comments = comments.sort((a, b) => {
+      if (a.TimestampNanos && b.TimestampNanos) {
+        return a.TimestampNanos - b.TimestampNanos;
+      }
+      return 0;
+    });
+    const commentsToDisplay = comments.map((c) => {
+      return <Thread key={c.PostHashHex} PostHashHex={c.PostHashHex} />;
+    });
+    console.log(commentsToDisplay);
+    setThreads(commentsToDisplay);
   };
   useEffect(() => {
     setThreads([]);
     getThreads();
-  }, [title]);
+    setRefresh(false);
+  }, [title, refresh, setRefresh, ParentPostHashHex]);
+
   return (
-    <>
-      <div className="flex justify-center">
+    <div className="mt-4 flex justify-center border-r ">
+      <div>
         <Statement
           comments={[]}
           userName="You"
           body="Create a new Thread"
-          onPostCallback={() => getThreads()}
+          parentOnPostCallback={async () => {
+            // await timeout(2000);
+            await getThreads();
+            // document.getElementById('root')?.scrollIntoView(false);
+
+            window.scrollTo({
+              top: document.body.scrollHeight,
+              behavior: 'smooth',
+            } as any);
+            // window.scrollTo({ top: 0, behavior: 'smooth' } as any)
+          }}
           PostHashHex={createNewThreadPostHashHex as string}
           statementType={StatementTypeEnum.NewQuestion}
           posterKey={deso.identity.getUserKey() as string}
         />
+
+        {threads}
       </div>
-      {threads}
-    </>
+    </div>
   );
 };

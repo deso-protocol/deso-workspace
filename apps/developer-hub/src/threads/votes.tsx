@@ -1,4 +1,4 @@
-import AddIcon from '@mui/icons-material/Add';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
 export interface VotesProps {
@@ -47,7 +47,7 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
 
   return (
     <div className="flex text-white ml-2">
-      <div className="mx-auto text-sm cursor-default font-semibold max-h-[15px] my-auto align-middle">
+      <div className="mx-auto text-sm cursor-default font-semibold max-h-[15px] my-auto align-middle text-[24px] mr-2">
         {upVotes}
       </div>
       <div
@@ -55,8 +55,8 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
           liked ? vote('down') : vote('up');
         }}
       >
-        <AddIcon
-          sx={{ fontSize: '14px' }}
+        <ThumbUpIcon
+          sx={{ fontSize: '24px' }}
           htmlColor={liked ? 'orange' : ''}
           className="cursor-pointer hover:text-[#ffc08c]"
         />

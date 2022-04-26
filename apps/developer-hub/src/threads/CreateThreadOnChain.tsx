@@ -53,35 +53,41 @@ export const CreateThreadOnChain = ({
       });
   };
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full mx-auto bg-[#2e3440]">
       <div className="min-h-[70px] p-4 ">
         {showSpinner ? (
           <div className="flex justify-center min-h-[125px] ">
             <CircularProgress className="my-auto" size="100px" />
           </div>
         ) : (
-          <textarea
-            placeholder={`add your ${
-              statementType === StatementTypeEnum.NewQuestion
-                ? StatementTypeEnum.Question.toLowerCase()
-                : StatementTypeEnum.Reply.toLowerCase()
-            } here`}
-            className="min-h-[125px] border w-full border-gray-400 p-1"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-          />
+          <div>
+            <textarea
+              placeholder={`add your ${
+                statementType === StatementTypeEnum.NewQuestion
+                  ? StatementTypeEnum.Question.toLowerCase()
+                  : StatementTypeEnum.Reply.toLowerCase()
+              } here`}
+              className="min-h-[125px] ml-[150px] max-w-[900px] border w-full border-white p-1 bg-[#ededed]"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
+          </div>
         )}
-        <Button
-          style={{
-            color: `${!commentText ? 'gray' : 'black'}`,
-            borderColor: `${!commentText ? 'gray' : 'black'}`,
-          }}
-          variant={'outlined'}
-          disabled={!commentText}
-          onClick={replyToQuestion}
-        >
-          Reply
-        </Button>
+        <div className="flex justify-center mt-2">
+          <Button
+            style={{
+              color: `${!commentText ? 'gray' : 'white'}`,
+              borderColor: `${!commentText ? 'gray' : 'white'}`,
+              borderWidth: `${commentText ? '2px' : '1px'}`,
+              marginTop: `${commentText ? '0px' : '2px'}`,
+            }}
+            variant={'outlined'}
+            disabled={!commentText}
+            onClick={replyToQuestion}
+          >
+            Reply
+          </Button>
+        </div>
       </div>
     </div>
   );

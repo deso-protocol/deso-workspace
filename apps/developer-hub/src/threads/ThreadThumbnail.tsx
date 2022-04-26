@@ -1,23 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
-import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import { Tooltip } from '@mui/material';
-import { Votes } from './votes';
 import { ProfilePicture } from '../components/ProfilePicture';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { StatementTypeEnum } from './Statement';
+import { Responses } from './Responses';
 export interface ReplyOptionsProps {
   PostHashHex: string;
   posterKey: string;
   userName: string;
   setShowComments?: Function;
-  statementType?: StatementTypeEnum;
+  statementType: StatementTypeEnum;
 }
 const deso = new Deso();
-export const ReplyOptions = ({
+export const ThreadThumbnail = ({
   PostHashHex,
   posterKey,
   userName,
@@ -26,20 +24,19 @@ export const ReplyOptions = ({
 }: ReplyOptionsProps) => {
   const [poster, setPoster] = useState('');
   const [bannerText, setBannerText] = useState('');
-  const [gaveDiamonds, setGaveDiamonds] = useState(false);
   const [arrowOpened, setArrowOpened] = useState<boolean>(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [question, setQuestion] = useState('');
   const [toggleComments, setToggleComments] = useState<ReactElement | null>(
     null
   );
-  // const [toggleOpen, setToggleOpen] = useState(false);
   useEffect(() => {
     if (statementType === StatementTypeEnum.Question) {
-      setBannerText(`${userName} asked:`);
+      setBannerText(`${userName}`);
       getToggle();
     }
     if (statementType === StatementTypeEnum.Reply) {
-      setBannerText(`${userName} commented:`);
+      setBannerText(`${userName}`);
     }
 
     if (statementType === StatementTypeEnum.NewQuestion) {
@@ -72,60 +69,33 @@ export const ReplyOptions = ({
     const post = await deso.posts.getSinglePost({ PostHashHex });
     setCommentCount(post.PostFound?.CommentCount ?? 0);
     if (!post.PostFound?.PosterPublicKeyBase58Check) return;
-    setGaveDiamonds(!!post.PostFound.PostEntryReaderState.DiamondLevelBestowed);
     setPoster(post.PostFound?.PosterPublicKeyBase58Check);
-  };
-
-  const submitPost = async () => {
-    await deso.posts.submitPost({
-      ParentStakeID: PostHashHex,
-      UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-      BodyObj: {
-        Body: 'replying to thread',
-        VideoURLs: [],
-        ImageURLs: [],
-      },
-    });
-  };
-
-  const giveDiamond = async () => {
-    if (gaveDiamonds) return;
-    await deso.social.sendDiamonds({
-      ReceiverPublicKeyBase58Check: poster,
-      SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-      DiamondPostHashHex: PostHashHex,
-      DiamondLevel: 1,
-      MinFeeRateNanosPerKB: 1000,
-      InTutorial: false,
-    });
+    setQuestion(post.PostFound.Body);
+    // setDiamondTotal
   };
 
   return (
-    <div className="flex justify-between">
-      <div className="flex text-xl py-1">
-        {toggleComments ?? <div className="min-w-[24px]"></div>}
-        <ProfilePicture publicKey={posterKey} />{' '}
-        <div className=" text-white ml-2">{bannerText} </div>
-      </div>
-      <div className="flex my-auto">
-        <div
-          className={`cursor-pointer hover:text-[#ffc08c] text-white ${
-            statementType === 'Reply' && 'hidden'
-          }`}
-          onClick={submitPost}
-        ></div>{' '}
-        <div
-          className="cursor-pointer hover:text-[#ffc08c] text-white ml-2"
-          onClick={giveDiamond}
-        >
-          <Tooltip title="Tip a diamond" placement="right">
-            <LocalAtmIcon fontSize="small" />
-          </Tooltip>
+    <div className="flex justify-between toggleComments  border-b border-white bg-[#2e3440]">
+      <div className="flex text-xl">
+        <div className="mt-auto min-w-[150px] max-w-[150px] mx-auto text-white">
+          <ProfilePicture
+            publicKey={posterKey}
+            className="max-h-[30px] mx-auto mt-2"
+          />{' '}
+          <div className="flex text-base">
+            {toggleComments ?? <div className="min-w-[24px]"></div>}
+            {bannerText}
+          </div>
         </div>
-        <div>
-          <Votes PostHashHex={PostHashHex} />
+        <div className="text-white border-l border-white p-2  max-w-[900px]">
+          <div className="text text-base font-light text-gray-200">
+            {question}
+          </div>{' '}
         </div>
       </div>
+      {statementType !== StatementTypeEnum.NewQuestion && (
+        <Responses PostHashHex={PostHashHex} />
+      )}
     </div>
   );
 };
