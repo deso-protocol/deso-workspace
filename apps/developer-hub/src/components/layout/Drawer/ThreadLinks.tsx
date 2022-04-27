@@ -24,18 +24,20 @@ export const ThreadLinks = ({
 }: ThreadLinksProps) => {
   const [threads, setThreads] = useState<ReactElement[]>([]);
   const getThreads = async () => {
-    const forumPosts = await getForumPosts();
+    const forumPosts = await await getForumPosts();
     const threads =
-      forumPosts.map((p, index) => {
-        return (
-          <DrawerLink
-            category={p.PostExtraData['Category'] as ThreadCategory}
-            index={`${index}`}
-            to={forumRoute(p)}
-            title={p.Body}
-          />
-        );
-      }) ?? [];
+      forumPosts
+        .filter((p) => p.Body === 'General')
+        .map((p, index) => {
+          return (
+            <DrawerLink
+              category={p.PostExtraData['Category'] as ThreadCategory}
+              index={`${index}`}
+              to={forumRoute(p)}
+              title={p.Body}
+            />
+          );
+        }) ?? [];
     const groupedThreads = groupBy(threads, 'category');
     const threadsToDisplay = Object.entries(groupedThreads).map(
       (group, index) => {

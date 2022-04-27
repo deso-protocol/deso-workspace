@@ -85,7 +85,7 @@ export const CreateThreadOnChain = ({
             disabled={!commentText}
             onClick={replyToQuestion}
           >
-            Reply
+            {statementType !== StatementTypeEnum.NewQuestion ? 'Reply' : 'Ask'}
           </Button>
         </div>
       </div>

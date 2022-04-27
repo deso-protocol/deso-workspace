@@ -33,9 +33,6 @@ export const AllThreadsONPage = ({
     const posts = response.Posts.filter((p) => {
       if (p.PostExtraData['Title'] === title) {
         if (p.PostExtraData['Category'] === ThreadCategory.CLIENT) return true;
-        console.log(category === p.PostExtraData['Category']);
-        console.log(p.PostExtraData['Category']);
-        console.log(category);
         return category === p.PostExtraData['Category'];
       }
       return false;
@@ -63,7 +60,6 @@ export const AllThreadsONPage = ({
     const commentsToDisplay = comments.map((c) => {
       return <Thread key={c.PostHashHex} PostHashHex={c.PostHashHex} />;
     });
-    console.log(commentsToDisplay);
     setThreads(commentsToDisplay);
   };
   useEffect(() => {
@@ -81,10 +77,7 @@ export const AllThreadsONPage = ({
           userName="You"
           body="Create a new Thread"
           parentOnPostCallback={async () => {
-            // await timeout(2000);
             await getThreads();
-            // document.getElementById('root')?.scrollIntoView(false);
-
             window.scrollTo({
               top: document.body.scrollHeight,
               behavior: 'smooth',
@@ -94,8 +87,7 @@ export const AllThreadsONPage = ({
           statementType={StatementTypeEnum.NewQuestion}
           posterKey={deso.identity.getUserKey() as string}
         />
-
-        {threads}
+        <div className="mt-10">{threads}</div>
       </div>
     </div>
   );

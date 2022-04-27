@@ -47,7 +47,7 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
 
   return (
     <div className="flex text-white ml-2">
-      <div className="mx-auto text-sm cursor-default font-semibold max-h-[15px] my-auto align-middle text-[24px] mr-2">
+      <div className=" mx-auto text-sm cursor-default font-semibold max-h-[15px] my-auto align-middle text-[23px] mr-2">
         {upVotes}
       </div>
       <div

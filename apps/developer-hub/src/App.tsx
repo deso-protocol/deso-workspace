@@ -9,7 +9,6 @@ import {
   HUB,
   ThreadCategory,
 } from './services/utils';
-import Deso from 'deso-protocol';
 import { AllThreadsONPage } from './threads/AllThreadsOnPage';
 import DesoDrawer from './components/layout/Drawer/Drawer';
 import ChapterTemplate from './chapters/ChapterHelper/ChapterTemplate';
@@ -22,7 +21,6 @@ function App() {
 
   const getForumRoutes = async () => {
     const posts = await getForumPosts();
-    console.log(posts);
     const forum = posts.map((p) => {
       return (
         <Route

@@ -71,10 +71,10 @@ export const Statement = ({
                 placement="left"
                 title={c.ProfileEntryResponse?.Username as string}
               >
-                <div className=" p-2">
+                <div className="  pt-2">
                   <ProfilePicture
                     publicKey={c.PosterPublicKeyBase58Check}
-                    className="bg-gray-400 mx-auto max-h-[50px] min-h-[50px]"
+                    className="bg-gray-400 mx-auto max-h-[30px] min-h-[30px]"
                   />
                   <div className="text-sm text-center">
                     {c.ProfileEntryResponse?.Username}
@@ -92,7 +92,7 @@ export const Statement = ({
     setCommentsToDisplay(commentsToDisplay);
   };
   return (
-    <div className={`min-w-[1200px] max-w-[1600px] border border-white`}>
+    <div className={`min-w-[1200px] max-w-[1200px] border border-white`}>
       <ThreadThumbnail
         setShowComments={setShowComments}
         statementType={statementType}
