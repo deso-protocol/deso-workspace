@@ -26,11 +26,11 @@ export enum ThreadState {
   OPEN = 'OPEN',
 }
 export enum ParentRoutes {
-  landing = 'landing',
+  identity = 'identity',
   admin = 'admin',
   buyDeso = 'buy deso',
   dao = 'dao',
-  identity = 'identity',
+  landing = 'landing',
   media = 'media',
   metaData = 'metaData',
   miner = 'miner',
