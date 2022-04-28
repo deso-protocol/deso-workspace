@@ -1,4 +1,4 @@
-import { DAOCoinLimitOrderResponse, DAOCoinLimitOrderWithCancelOrderIDRequest, DAOCoinLimitOrderWithExchangeRateAndQuantityRequest, DAOCoinRequest, DAOCoinResponse, GetDAOCoinLimitOrdersRequest, GetDAOCoinLimitOrdersResponse, GetTransactorDAOCoinLimitOrdersRequest, TransferDAOCoinRequest, TransferDAOCoinResponse } from "../../../../deso-protocol-types/src";
+import { DAOCoinLimitOrderResponse, DAOCoinLimitOrderWithCancelOrderIDRequest, DAOCoinLimitOrderWithExchangeRateAndQuantityRequest, DAOCoinRequest, DAOCoinResponse, GetDAOCoinLimitOrdersRequest, GetDAOCoinLimitOrdersResponse, GetTransactorDAOCoinLimitOrdersRequest, TransferDAOCoinRequest, TransferDAOCoinResponse } from '../../../../deso-protocol-types/src';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 export declare class DAO {
