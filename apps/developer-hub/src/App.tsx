@@ -31,7 +31,7 @@ function App() {
               <ChapterTemplate
                 tabs={[
                   {
-                    title: 'General',
+                    title: p.Body,
                     content: (
                       <AllThreadsONPage
                         category={p.PostExtraData['Category'] as ThreadCategory}
@@ -41,17 +41,17 @@ function App() {
                       />
                     ),
                   },
-                  {
-                    title: 'Foundation Questions',
-                    content: (
-                      <AllThreadsONPage
-                        category={p.PostExtraData['Category'] as ThreadCategory}
-                        title={p.Body}
-                        publicKeyWhereThreadsLive={HUB}
-                        ParentPostHashHex={p.PostHashHex}
-                      />
-                    ),
-                  },
+                  // {
+                  //   title: 'Foundation Questions',
+                  //   content: (
+                  //     <AllThreadsONPage
+                  //       category={p.PostExtraData['Category'] as ThreadCategory}
+                  //       title={p.Body}
+                  //       publicKeyWhereThreadsLive={HUB}
+                  //       ParentPostHashHex={p.PostHashHex}
+                  //     />
+                  //   ),
+                  // },
                 ]}
                 navigation={<PageNavigation />}
               />

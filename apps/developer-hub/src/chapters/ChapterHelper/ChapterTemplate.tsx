@@ -21,11 +21,7 @@ const TabPanel = (props: any) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && value === 0 ? (
-        <div className="p-3">{children} </div>
-      ) : (
-        <div>{children} </div>
-      )}
+      <div className="p-3">{children} </div>
     </div>
   );
 };
@@ -102,8 +98,6 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
               );
             })}
           </div>
-
-          <div className="w-[270px]"></div>
         </div>
       )}
     </>

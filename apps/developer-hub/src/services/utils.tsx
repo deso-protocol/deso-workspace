@@ -193,20 +193,20 @@ export function timeout(ms: number) {
 }
 const genericThreads = (category: ThreadCategory) => {
   // throw Error('already ran do not call this');
-  // const backendGeneral: Partial<SubmitPostRequest> = {
-  //   UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-  //   BodyObj: {
-  //     Body: 'General',
-  //     VideoURLs: [],
-  //     ImageURLs: [],
-  //   },
-  //   PostExtraData: {
-  //     Title: 'General',
-  //     Category: category,
-  //     ResolvedBy: 'N/A',
-  //     State: ThreadState.OPEN,
-  //   },
-  // };
+  const backendGeneral: Partial<SubmitPostRequest> = {
+    UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    BodyObj: {
+      Body: 'General',
+      VideoURLs: [],
+      ImageURLs: [],
+    },
+    PostExtraData: {
+      Title: 'General',
+      Category: category,
+      ResolvedBy: 'N/A',
+      State: ThreadState.OPEN,
+    },
+  };
   const backendTeam: Partial<SubmitPostRequest> = {
     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
     BodyObj: {

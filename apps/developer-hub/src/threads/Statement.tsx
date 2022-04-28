@@ -40,9 +40,6 @@ export const Statement = ({
     getComments(comments);
   }, []);
   useEffect(() => {}, [commentsToDisplay, setCommentsToDisplay]);
-  const style = `w-[${
-    statementType === StatementTypeEnum.Reply ? '1200' : '1200'
-  }px]`;
 
   const onPostCallback = async () => {
     const response = await deso.posts.getSinglePost({
@@ -64,7 +61,7 @@ export const Statement = ({
         const style = i % 2 === 0 ? 'bg-[#35476a]' : 'bg-[#1d2535]';
         return (
           <div
-            className={`flex overflow-auto border-b border-white ${style} text-white `}
+            className={`flex overflow-auto border-b border-white ${style} text-white`}
           >
             <div className="min-w-[150px] max-w-[150px] w-full border-l">
               <Tooltip
@@ -92,7 +89,7 @@ export const Statement = ({
     setCommentsToDisplay(commentsToDisplay);
   };
   return (
-    <div className={`min-w-[1200px] max-w-[1200px] border border-white`}>
+    <div className={`w-full border border-white mb-[25px]`}>
       <ThreadThumbnail
         setShowComments={setShowComments}
         statementType={statementType}

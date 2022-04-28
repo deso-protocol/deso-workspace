@@ -1,8 +1,10 @@
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useReducer, useState } from 'react';
+import { useRecoilState } from 'recoil';
 import { ThreadCategory, timeout } from '../services/utils';
 import { Statement, StatementTypeEnum } from './Statement';
 import { Thread } from './Thread';
+import { LoggedIn } from './Threads.state';
 
 export interface AllThreadsONPage {
   title: string;
@@ -18,10 +20,18 @@ export const AllThreadsONPage = ({
   ParentPostHashHex,
   category = ThreadCategory.CLIENT,
 }: AllThreadsONPage) => {
+  // useEffect(() => {
+  //   const key = deso.identity.getUserKey();
+  //   if (!key) {
+  //     deso.identity.login();
+  //   }
+  // }, []);
   const [threads, setThreads] = useState<ReactElement[]>([]);
   const [createNewThreadPostHashHex, setCreateNewThreadPostHashHex] =
     useState<string>('');
   const [refresh, setRefresh] = useState(true);
+  const [loggedIn] = useRecoilState(LoggedIn);
+
   const getThreads = async () => {
     const response = await deso.posts.getPostsForPublicKey({
       PublicKeyBase58Check: publicKeyWhereThreadsLive,
@@ -69,25 +79,27 @@ export const AllThreadsONPage = ({
   }, [title, refresh, setRefresh, ParentPostHashHex, category]);
 
   return (
-    <div className="mt-4 flex justify-center border-r ">
-      <div>
-        <Statement
-          category={category}
-          comments={[]}
-          userName="You"
-          body="Create a new Thread"
-          parentOnPostCallback={async () => {
-            await getThreads();
-            window.scrollTo({
-              top: document.body.scrollHeight,
-              behavior: 'smooth',
-            } as any);
-          }}
-          PostHashHex={createNewThreadPostHashHex as string}
-          statementType={StatementTypeEnum.NewQuestion}
-          posterKey={deso.identity.getUserKey() as string}
-        />
-        <div className="mt-10">{threads}</div>
+    <div className="mt-4 flex justify-center w-full ">
+      <div className="flex-grow ">
+        {loggedIn && (
+          <Statement
+            category={category}
+            comments={[]}
+            userName="You"
+            body="Create a new Thread"
+            parentOnPostCallback={async () => {
+              await getThreads();
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth',
+              } as any);
+            }}
+            PostHashHex={createNewThreadPostHashHex as string}
+            statementType={StatementTypeEnum.NewQuestion}
+            posterKey={deso.identity.getUserKey() as string}
+          />
+        )}
+        <div>{threads}</div>
       </div>
     </div>
   );

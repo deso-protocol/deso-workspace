@@ -31,9 +31,10 @@ export const ThreadThumbnail = ({
     null
   );
   useEffect(() => {
+    getPoster();
     if (statementType === StatementTypeEnum.Question) {
-      setBannerText(`${userName}`);
       getToggle();
+      setBannerText(`${userName}`);
     }
     if (statementType === StatementTypeEnum.Reply) {
       setBannerText(`${userName}`);
@@ -42,8 +43,7 @@ export const ThreadThumbnail = ({
     if (statementType === StatementTypeEnum.NewQuestion) {
       setBannerText('Ask a question:');
     }
-    getPoster();
-  }, [arrowOpened, setArrowOpened]);
+  }, [arrowOpened, setArrowOpened, commentCount]);
 
   const getToggle = () => {
     setToggleComments(
@@ -58,9 +58,10 @@ export const ThreadThumbnail = ({
           }
         }}
       >
-        <Tooltip title={`${commentCount} comments`} placement="top">
-          <div>{arrowOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}</div>
-        </Tooltip>
+        <div className="flex pl-1">
+          {commentCount}
+          {arrowOpened ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+        </div>
       </div>
     );
   };
@@ -71,11 +72,10 @@ export const ThreadThumbnail = ({
     if (!post.PostFound?.PosterPublicKeyBase58Check) return;
     setPoster(post.PostFound?.PosterPublicKeyBase58Check);
     setQuestion(post.PostFound.Body);
-    // setDiamondTotal
   };
 
   return (
-    <div className="flex justify-between toggleComments  border-b border-white bg-[#2e3440]">
+    <div className="flex justify-between toggleComments  border border-white bg-[#2e3440]">
       <div className="flex text-xl">
         <div className="mt-auto min-w-[150px] max-w-[150px] mx-auto text-white">
           <ProfilePicture

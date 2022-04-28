@@ -27,7 +27,7 @@ export const ThreadLinks = ({
     const forumPosts = await await getForumPosts();
     const threads =
       forumPosts
-        .filter((p) => p.Body === 'General')
+        // .filter((p) => p.Body === 'General')
         .map((p, index) => {
           return (
             <DrawerLink

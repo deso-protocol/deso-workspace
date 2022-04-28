@@ -1,17 +1,22 @@
+import { LoggedIn } from '../../../threads/Threads.state';
 import Deso from 'deso-protocol';
 import { GetSingleProfileResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
 
 const deso = new Deso();
 export const Login = () => {
   const [userKey, setUserKey] = useState('');
   const [user, setUser] = useState<GetSingleProfileResponse | null>(null);
-
+  const [loggedIn, setLoggedIn] = useRecoilState(LoggedIn);
   useEffect(() => {
     const userKey = deso.identity.getUserKey();
     if (userKey) {
-      setUserKey(deso.identity.getUserKey() ?? '');
+      setUserKey(userKey);
+      setLoggedIn(true);
       getProfile();
+    } else {
+      setLoggedIn(false);
     }
   }, []);
 
@@ -25,12 +30,15 @@ export const Login = () => {
   const login = async () => {
     await deso.identity.login();
     setUserKey(deso.identity.getUserKey() ?? '');
+    setLoggedIn(true);
     getProfile();
   };
 
   const logout = async () => {
     await deso.identity.logout(userKey);
     setUserKey('');
+
+    setLoggedIn(false);
     setUser(null);
   };
 
