@@ -5,12 +5,13 @@ import { PageNavigation } from '../../components/layout/PageNavigation';
 import { desoService } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
-import { IMPORT_CODE, jsonBlock } from '../../services/utils';
+import { HUB, IMPORT_CODE, jsonBlock } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../ChapterHelper/PageSections';
 import { CopyBlock, nord } from 'react-code-blocks';
+import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
@@ -48,7 +49,7 @@ export const Page = ({
       return;
     }
     const methodToCall = method.method.bind(
-      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso,
+      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso
     );
     const response = await methodToCall(method.params());
     setResponse(response);
@@ -104,6 +105,17 @@ export const Page = ({
                   </div>
                 )) ||
                 'Demo coming soon'}
+            </>
+          ),
+        },
+        {
+          title: 'Threads',
+          content: (
+            <>
+              <AllThreadsONPage
+                title={selectedChapter.title}
+                publicKeyWhereThreadsLive={HUB}
+              />
             </>
           ),
         },

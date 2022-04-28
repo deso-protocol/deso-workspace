@@ -21,11 +21,13 @@ const DisplayPosts = ({ publicKey }: CreatePostProps) => {
 
   const getPosts = async (): Promise<void> => {
     if (user?.profileInfoResponse?.Profile?.Username) {
-      const posts: GetPostsForPublicKeyResponse =
-        await deso.posts.getPostsForPublicKey(
-          publicKey,
-          user?.profileInfoResponse?.Profile.Username
-        );
+      // const posts: GetPostsForPublicKeyResponse =
+      //   await deso.posts.getPostsForPublicKey({
+      //     PublicKeyBase58Check: '',
+      //     Username,
+      //     ReaderPublicKeyBase58Check,
+      //     NumToFetch: 10,
+      //   });
       // TODO fix
       // setPosts(generatePosts(posts));
     }

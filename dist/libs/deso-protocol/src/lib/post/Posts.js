@@ -8,13 +8,13 @@ class Posts {
         this.node = node;
         this.identity = identity;
     }
-    async getPostsForPublicKey(ReaderPublicKeyBase58Check, Username) {
-        const request = {
-            PublicKeyBase58Check: '',
-            Username,
-            ReaderPublicKeyBase58Check,
-            NumToFetch: 10,
-        };
+    async getPostsForPublicKey(request) {
+        // const request: Partial<GetPostsForPublicKeyRequest> = {
+        //   PublicKeyBase58Check: '',
+        //   Username,
+        //   ReaderPublicKeyBase58Check,
+        //   NumToFetch: 10,
+        // };
         return (await axios_1.default.post(`${this.node.getUri()}/get-posts-for-public-key`, request)).data;
     }
     async submitPost(request, extraData) {
@@ -30,43 +30,43 @@ class Posts {
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
         return await this.identity
             .submitTransaction(apiResponse.TransactionHex, extraData)
-            .then(() => apiResponse)
+            .then((txn) => { apiResponse.PostHashHex = txn.data.TxnHashHex; return apiResponse; })
             .catch(() => {
             throw Error('something went wrong while signing');
         });
     }
     async getPostsStateless(request) {
         const endpoint = 'get-posts-stateless';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getSinglePost(request) {
         (0, utils_1.throwErrors)(['PostHashHex'], request);
         const endpoint = 'get-single-post';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getHotFeed(request) {
         const endpoint = 'get-hot-feed';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getDiamondedPosts(request) {
         const endpoint = 'get-diamonded-posts';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getLikesForPost(request) {
         const endpoint = 'get-likes-for-post';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getDiamondsForPost(request) {
         const endpoint = 'get-diamonds-for-post';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getRepostsForPost(request) {
         const endpoint = 'get-reposts-for-post';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getQuoteRepostsForPost(request) {
         const endpoint = 'get-quote-reposts-for-post';
-        return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
+        return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
 }
 exports.Posts = Posts;

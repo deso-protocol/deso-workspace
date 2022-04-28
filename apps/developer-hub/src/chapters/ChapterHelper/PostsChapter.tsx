@@ -26,7 +26,9 @@ export const postChapter = {
     parentRoute: ParentRoutes.posts,
     title: 'Submit Post',
     route: '/post/submit-post',
-    documentation: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/social-transactions-api#submit-post',
+    ],
     githubSource: [],
     method: deso.posts.submitPost,
     params: () => {
@@ -39,7 +41,6 @@ export const postChapter = {
         },
       } as unknown as Partial<SubmitPostRequest>;
     },
-
     component: function () {
       return (
         <Route

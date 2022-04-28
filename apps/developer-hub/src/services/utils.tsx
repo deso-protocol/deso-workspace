@@ -1,8 +1,30 @@
-import { LoginUser } from 'deso-protocol-types';
+import {
+  LoginUser,
+  PostEntryResponse,
+  SubmitPostRequest,
+} from 'deso-protocol-types';
 import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
+import Deso from 'deso-protocol';
+const deso = new Deso();
+
+export enum ThreadCategory {
+  GENERAL = 'GENERAL',
+  NODE = 'NODE',
+  CORE = 'CORE',
+  BACKEND = 'BACKEND',
+  CLIENT = 'CLIENT',
+  HUB = 'HUB',
+}
+export enum ThreadState {
+  PENDING = 'PENDING',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+  REMOVED = 'REMOVED',
+  OPEN = 'OPEN',
+}
 export enum ParentRoutes {
   landing = 'landing',
   admin = 'admin',
@@ -35,6 +57,8 @@ export const SAMPLE_POST =
   'd30d715dfdc59955ae239635833367dd6c367bb52771bc47f507ccfb4060d53a';
 export const SAMPLE_NFT_POST =
   'be84338d248394f9ef194c01054039a51667420a7fb91fb838c2445f786432b6';
+export const HUB: Readonly<string> =
+  'BC1YLjF8fqTCWx5JHqH8tvqMGqrZpREdbLKRQptma15rjnGmZ1WGQT2';
 export const getFollowerCount = (userInfoResponse: any): number => {
   const followers =
     userInfoResponse?.UserList[0]?.PublicKeysBase58CheckFollowedByUser?.length;
@@ -121,11 +145,9 @@ export const ClickHereSnippet = (
 
 export function groupBy(array: any[], key: string) {
   return array.reduce((hash, obj) => {
-    if (obj['chapterContent'][key] === undefined) return hash;
+    if (obj['props'][key] === undefined) return hash;
     return Object.assign(hash, {
-      [obj['chapterContent'][key]]: (
-        hash[obj['chapterContent'][key]] || []
-      ).concat(obj),
+      [obj['props'][key]]: (hash[obj['props'][key]] || []).concat(obj),
     });
   }, {});
 }
@@ -133,3 +155,57 @@ export function groupBy(array: any[], key: string) {
 export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
 const deso = new Deso();
 `;
+
+export function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+export interface CreateNewThreadOnHub {
+  Body: string;
+  Title: string;
+  Category: ThreadCategory;
+}
+export const createNewThread = ({
+  Body,
+  Category,
+  Title,
+}: CreateNewThreadOnHub) => {
+  const request: Partial<SubmitPostRequest> = {
+    UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    BodyObj: {
+      Body,
+      VideoURLs: [],
+      ImageURLs: [],
+    },
+    PostExtraData: {
+      Title,
+      Category,
+      ResolvedBy: 'N/A',
+      State: ThreadState.OPEN,
+    },
+  };
+  deso.posts.submitPost(request);
+};
+export const getForumPosts = async () => {
+  const response = await deso.posts.getPostsForPublicKey({
+    PublicKeyBase58Check: HUB,
+    NumToFetch: 1000,
+  });
+
+  return response.Posts?.filter(isForumThread) ?? [];
+};
+
+const isForumThread = (p: PostEntryResponse) => {
+  const category = p.PostExtraData['Category'];
+  return [
+    ThreadCategory.CORE,
+    ThreadCategory.BACKEND,
+    ThreadCategory.GENERAL,
+    ThreadCategory.NODE,
+    ThreadCategory.HUB,
+  ].includes(category as ThreadCategory);
+};
+export const forumRoute = (p: PostEntryResponse) => {
+  return `/forum/${p.PostExtraData['Category']}/${p.Body}`
+    .replace(' ', '')
+    .toLowerCase();
+};

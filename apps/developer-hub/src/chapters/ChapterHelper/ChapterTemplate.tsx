@@ -1,10 +1,9 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/system/Box';
-import DesoDrawer from '../../components/layout/Drawer';
-import { CHAPTERS } from './Chapter.models';
+import DesoDrawer from '../../components/layout/Drawer/Drawer';
 import { isMobile } from 'react-device-detect';
 export interface ChapterTemplateProps {
   title: string;
@@ -22,8 +21,7 @@ const TabPanel = (props: any) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {' '}
-      {value === index && <div className="p-3">{children} </div>}
+      <div className="p-3">{children} </div>
     </div>
   );
 };
@@ -48,6 +46,10 @@ export interface TabProps {
 
 export default function ChapterTemplate({ tabs, navigation }: TabProps) {
   const [value, setValue] = useState(0);
+  useEffect(() => {
+    setValue(0);
+  }, [tabs]);
+
   const handleChange = (event: any, newValue: number) => {
     setValue(newValue);
   };
@@ -60,10 +62,7 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
             isMobile ? 'flex-col-reverse' : 'flex-row'
           }`}
         >
-          <div className=" border-[#00000025]">
-            <DesoDrawer chapters={CHAPTERS} />
-          </div>
-          <div className="flex-grow-1 mx-auto w-full max-w-[1500px] border-l border-r border-neutral-300">
+          <div className="flex-grow-1 mx-auto w-full max-w-[1500px]">
             <Box
               className="flex justify-evenly"
               sx={{ borderBottom: 1, borderColor: 'black' }}
@@ -99,8 +98,6 @@ export default function ChapterTemplate({ tabs, navigation }: TabProps) {
               );
             })}
           </div>
-
-          <div className="w-[270px]"></div>
         </div>
       )}
     </>

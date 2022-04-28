@@ -35,15 +35,15 @@ export class Posts {
   }
 
   public async getPostsForPublicKey(
-    ReaderPublicKeyBase58Check: string,
-    Username: string
+    request: Partial<GetPostsForPublicKeyRequest>
   ): Promise<GetPostsForPublicKeyResponse> {
-    const request: Partial<GetPostsForPublicKeyRequest> = {
-      PublicKeyBase58Check: '',
-      Username,
-      ReaderPublicKeyBase58Check,
-      NumToFetch: 10,
-    };
+    // const request: Partial<GetPostsForPublicKeyRequest> = {
+    //   PublicKeyBase58Check: '',
+    //   Username,
+    //   ReaderPublicKeyBase58Check,
+    //   NumToFetch: 10,
+    // };
+
     return (
       await axios.post(
         `${this.node.getUri()}/get-posts-for-public-key`,
@@ -81,7 +81,9 @@ export class Posts {
     request: Partial<GetPostsStatelessRequest>
   ): Promise<GetPostsStatelessResponse> {
     const endpoint = 'get-posts-stateless';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getSinglePost(
@@ -89,48 +91,62 @@ export class Posts {
   ): Promise<GetSinglePostResponse> {
     throwErrors(['PostHashHex'], request);
     const endpoint = 'get-single-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getHotFeed(
     request: Partial<HotFeedPageRequest>
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-hot-feed';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getDiamondedPosts(
     request: Partial<GetPostsDiamondedBySenderForReceiverRequest>
   ): Promise<GetPostsDiamondedBySenderForReceiverResponse> {
     const endpoint = 'get-diamonded-posts';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getLikesForPost(
     request: Partial<GetLikesForPostRequest>
   ): Promise<GetLikesForPostResponse> {
     const endpoint = 'get-likes-for-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getDiamondsForPost(
     request: Partial<GetDiamondsForPostRequest>
   ): Promise<GetDiamondsForPostResponse> {
     const endpoint = 'get-diamonds-for-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getRepostsForPost(
     request: Partial<GetRepostsForPostRequest>
   ): Promise<HotFeedPageResponse> {
     const endpoint = 'get-reposts-for-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 
   public async getQuoteRepostsForPost(
     request: Partial<GetQuoteRepostsForPostRequest>
   ): Promise<GetQuoteRepostsForPostResponse> {
     const endpoint = 'get-quote-reposts-for-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
   }
 }
