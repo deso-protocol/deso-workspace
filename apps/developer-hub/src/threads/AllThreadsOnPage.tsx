@@ -99,6 +99,11 @@ export const AllThreadsONPage = ({
             posterKey={deso.identity.getUserKey() as string}
           />
         )}
+        {!loggedIn && (
+          <div className="mt-4 text-center mb-2">
+            to reply or ask a question login first
+          </div>
+        )}
         <div>{threads}</div>
       </div>
     </div>

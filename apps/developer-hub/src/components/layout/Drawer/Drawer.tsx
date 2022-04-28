@@ -25,7 +25,7 @@ export default function DesoDrawer() {
   };
   return (
     <div>
-      <div className="bg-[#fff] min-w-[250px] rounded-lg border-r border-neutral-300">
+      <div className="bg-[#fff] min-w-[300px] rounded-lg border-r border-neutral-300">
         <div className=" font-semibold ml-2">Library</div>
         <DrawerLinks
           openedPanels={openedPanels}

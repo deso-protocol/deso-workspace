@@ -8,8 +8,6 @@ import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
 import Deso from 'deso-protocol';
-import { CHAPTERS } from '../chapters/ChapterHelper/Chapter.models';
-import { Category } from '@mui/icons-material';
 const deso = new Deso();
 
 export enum ThreadCategory {
@@ -18,6 +16,7 @@ export enum ThreadCategory {
   CORE = 'CORE',
   BACKEND = 'BACKEND',
   CLIENT = 'CLIENT',
+  HUB = 'HUB',
 }
 export enum ThreadState {
   PENDING = 'PENDING',
@@ -157,71 +156,34 @@ export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
 const deso = new Deso();
 `;
 
-export const createPostsWith = async () => {
-  // throw Error('already ran do not call this');
-  const chapters = CHAPTERS.chaptersToArray();
-  // const postsToMake = chapters.map((c) => {
-  //   const post: Partial<SubmitPostRequest> = {
-  //     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-  //     BodyObj: {
-  //       Body: c.chapterContent.title,
-  //       VideoURLs: [],
-  //       ImageURLs: [],
-  //     },
-  //     PostExtraData: {
-  //       Title: c.chapterContent.title,
-  //       Category: ThreadCategory.CLIENT,
-  //       ResolvedBy: 'N/A',
-  //       State: ThreadState.OPEN,
-  //     },
-  //   };
-  //   return post;
-  // });
-  for (const p of [
-    // ...postsToMake,
-    ...genericThreads(ThreadCategory.BACKEND),
-    ...genericThreads(ThreadCategory.CORE),
-    ...genericThreads(ThreadCategory.NODE),
-    ...genericThreads(ThreadCategory.GENERAL),
-  ]) {
-    await timeout(5000);
-    await deso.posts.submitPost(p);
-  }
-};
 export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-const genericThreads = (category: ThreadCategory) => {
-  // throw Error('already ran do not call this');
-  const backendGeneral: Partial<SubmitPostRequest> = {
+export interface CreateNewThreadOnHub {
+  Body: string;
+  Title: string;
+  Category: ThreadCategory;
+}
+export const createNewThread = ({
+  Body,
+  Category,
+  Title,
+}: CreateNewThreadOnHub) => {
+  const request: Partial<SubmitPostRequest> = {
     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
     BodyObj: {
-      Body: 'General',
+      Body,
       VideoURLs: [],
       ImageURLs: [],
     },
     PostExtraData: {
-      Title: 'General',
-      Category: category,
+      Title,
+      Category,
       ResolvedBy: 'N/A',
       State: ThreadState.OPEN,
     },
   };
-  const backendTeam: Partial<SubmitPostRequest> = {
-    UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    BodyObj: {
-      Body: 'Foundation Questions/Request',
-      VideoURLs: [],
-      ImageURLs: [],
-    },
-    PostExtraData: {
-      Title: 'Foundation Questions/Request',
-      Category: category,
-      ResolvedBy: 'N/A',
-      State: ThreadState.OPEN,
-    },
-  };
-  return [backendTeam];
+  deso.posts.submitPost(request);
 };
 export const getForumPosts = async () => {
   const response = await deso.posts.getPostsForPublicKey({
@@ -239,6 +201,7 @@ const isForumThread = (p: PostEntryResponse) => {
     ThreadCategory.BACKEND,
     ThreadCategory.GENERAL,
     ThreadCategory.NODE,
+    ThreadCategory.HUB,
   ].includes(category as ThreadCategory);
 };
 export const forumRoute = (p: PostEntryResponse) => {
