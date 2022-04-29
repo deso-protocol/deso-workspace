@@ -9,10 +9,9 @@ import {
 } from 'deso-protocol-types';
 import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
-import { resolve } from 'path';
 import { throwErrors } from '../../utils/utils';
-import * as tus from 'tus-js-client';
-import { uploadVideo } from './Tus.config';
+// import * as tus from 'tus-js-client';
+// import { uploadVideo } from './Tus.config';
 export class Media {
   private node: Node;
   private identity: Identity;

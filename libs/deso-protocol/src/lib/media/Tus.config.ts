@@ -1,5 +1,5 @@
-import { rejects } from 'assert';
-import * as tus from 'tus-js-client';
+// import { rejects } from 'assert';
+// import * as tus from 'tus-js-client';
 
 export const uploadVideo = (path: string, file: File): void => {
   //   let mediaId;
