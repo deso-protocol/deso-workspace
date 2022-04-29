@@ -1,10 +1,5 @@
 import Deso from 'deso-protocol';
-import {
-  GetFullTikTokURLRequest,
-  GetVideoStatusRequest,
-  UploadImageRequest,
-  UploadVideoRequest,
-} from 'deso-protocol-types';
+import { UploadImageRequest } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
 import Page from '../Read/Page';
@@ -13,44 +8,49 @@ import { PageSection } from './PageSections';
 
 const deso = new Deso();
 export const mediaChapter = {
-  // UPLOAD_IMAGE: {
-  //   parentRoute: ParentRoutes.media,
-  //   title: 'Upload Image',
-  //   route: '/media/upload-image',
-  //   githubSource: [],
-  //   documentation: [
-  //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-image',
-  //   ],
-  //   method: deso.media.uploadImage,
-  //   params: () => { return {
-  //     UserPublicKeyBase58Check: localStorage.getItem('login_key'),
-  //     JWT: 'jwt',
-  //   } as UploadImageRequest,
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Page
-  //             demo={true}
-  //             method={{
-  //               methodName: 'deso.media.uploadImage(request)',
-  //               params: this.params,
-  //               method: this.method,
-  //             }}
-  //             pretext={PageSection(
-  //               this.title,
-  //               <div>Get the nfts that belongs to an account.</div>
-  //             )}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
+  UPLOAD_IMAGE: {
+    parentRoute: ParentRoutes.media,
+    title: 'Upload Image',
+    route: '/media/upload-image',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-image',
+    ],
+    method: deso.media.uploadImage,
+    params: () => {
+      return {
+        UserPublicKeyBase58Check: deso.identity.getUserKey(),
+      } as UploadImageRequest;
+    },
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: 'deso.media.uploadImage(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Uploads an image to be included in a post and returns the URL
+                  where the image is stored. This endpoint also handles the
+                  resizing of the image.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
   // UPLOAD_VIDEO: {
   //   parentRoute: ParentRoutes.media,
   //   title: 'Upload Video',

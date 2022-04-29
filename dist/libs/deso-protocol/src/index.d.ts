@@ -1,4 +1,5 @@
 import { Identity, IdentityConfig } from './lib/identity/Identity';
+import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
 import { Miner } from './lib/miner/Miner';
 import { Nft } from './lib/nft/Nft';
@@ -20,7 +21,7 @@ export declare class Deso {
     node: Node;
     identity: Identity;
     private admin;
-    private media;
+    media: Media;
     metaData: MetaData;
     miner: Miner;
     nft: Nft;

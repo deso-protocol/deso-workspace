@@ -32,7 +32,7 @@ export class Deso {
   public node = new Node();
   public identity = new Identity({ node: this.node });
   private admin = new Admin(this.node, this.identity);
-  private media = new Media(this.node, this.identity);
+  public media = new Media(this.node, this.identity);
   public metaData = new MetaData(this.node, this.identity);
   public miner = new Miner(this.node, this.identity);
   public nft = new Nft(this.node, this.identity);

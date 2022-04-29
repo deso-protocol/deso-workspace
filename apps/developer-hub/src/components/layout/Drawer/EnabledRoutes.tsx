@@ -2,9 +2,11 @@ import { ParentRoutes } from '../../../services/utils';
 export const getEnabledRoutes = (): string[] => {
   return Object.keys(ParentRoutes).filter((p) =>
     [
+      'dao',
       'identity',
-      'miner',
       'metaData',
+      'media',
+      'miner',
       'nft',
       'notification',
       'posts',
@@ -13,7 +15,6 @@ export const getEnabledRoutes = (): string[] => {
       'transactions',
       'user',
       'wallet',
-      'dao',
     ].includes(p)
   );
 };

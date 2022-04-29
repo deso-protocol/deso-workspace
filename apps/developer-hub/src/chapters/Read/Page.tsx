@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { PageNavigation } from '../../components/layout/PageNavigation';
 import { desoService } from '../ChapterHelper/Chapter.atom';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
-import { HUB, IMPORT_CODE, jsonBlock } from '../../services/utils';
+import { HUB, IMPORT_CODE, jsonBlock, timeout } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
@@ -34,6 +34,7 @@ export const Page = ({
   bind,
   demo = true,
 }: PageProps) => {
+  const filePicker = useRef(null);
   const deso = useRecoilValue(desoService);
   const [response, setResponse] = useState<any | null>(null);
   const [chapterTitle, setChapterTitle] = useState<string>('');
@@ -43,7 +44,6 @@ export const Page = ({
       setChapterTitle(selectedChapter.title);
     }
   }, [chapterTitle, selectedChapter, setResponse]);
-
   const executeApiCall = async () => {
     if (!method) {
       return;
@@ -52,6 +52,7 @@ export const Page = ({
       bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso
     );
     const response = await methodToCall(method.params());
+    console.log(response);
     setResponse(response);
   };
 
@@ -85,7 +86,6 @@ export const Page = ({
                   />
                 </>
               )}
-
               {(demo &&
                 PageSection(
                   CommonPageSectionTitles.TRY_IT_OUT,

@@ -39,8 +39,9 @@ export const ThreadLinks = ({
           );
         }) ?? [];
     const groupedThreads = groupBy(threads, 'category');
-    const threadsToDisplay = Object.entries(groupedThreads).map(
-      (group, index) => {
+    const threadsToDisplay = Object.entries(groupedThreads)
+      .sort()
+      .map((group, index) => {
         const [key, links] = group;
         return (
           <div>
@@ -57,8 +58,7 @@ export const ThreadLinks = ({
             {openedPanels[key] ? links : ''}
           </div>
         );
-      }
-    );
+      });
     setThreads(threadsToDisplay);
   };
   useEffect(() => {
