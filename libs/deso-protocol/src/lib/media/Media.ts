@@ -42,10 +42,10 @@ export class Media {
   }
 
   public async uploadVideo(
-    request: Partial<UploadImageRequest>
+    request: Partial<UploadImageRequest> = {}
   ): Promise<string> {
     const endpoint = 'upload-video';
-    if (!request.file) {
+    if (!request?.file) {
       const file: File = (await selectFile()) as File;
       request.file = file;
     }

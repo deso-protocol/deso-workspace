@@ -73,7 +73,7 @@ export const DisplayThreadState = ({
 
   return (
     <div
-      className={`bg-[#2e3440]  text-center border-x  border-white text-white flex justify-between border-b border-white p-1`}
+      className={`text-center border-x  border-white text-white flex justify-between border-b border-white p-1`}
     >
       <div className={`${bgColor} rounded-lg px-1`}>
         {stateToDisplay.toLowerCase()}

@@ -60,7 +60,7 @@ export const CreateThreadOnChain = ({
   return (
     <>
       {loggedIn && (
-        <div className="w-full mx-auto bg-[#2e3440] border-x border-white">
+        <div className="w-full mx-auto bg-[#2e3440] border-x border-white rounded-b-lg">
           <div className="min-h-[70px] p-4">
             {showSpinner ? (
               <div className="flex justify-center min-h-[125px] ">

@@ -82,9 +82,9 @@ export const ThreadThumbnail = ({
   };
 
   return (
-    <>
+    <div className="bg-[#2e3440] rounded-md">
       {<DisplayThreadState state={threadState} PostHashHex={PostHashHex} />}
-      <div className="flex justify-between toggleComments  border-x border-b border-white bg-[#2e3440]">
+      <div className="flex justify-between toggleComments  border-x border-b border-white ">
         <div className="flex text-xl">
           <div className="mt-auto min-w-[150px] max-w-[150px] mx-auto text-white">
             <ProfilePicture
@@ -106,6 +106,6 @@ export const ThreadThumbnail = ({
           <Responses PostHashHex={PostHashHex} />
         )}
       </div>
-    </>
+    </div>
   );
 };

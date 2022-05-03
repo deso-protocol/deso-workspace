@@ -24,9 +24,9 @@ class Media {
             return (0, Media_Helper_1.uploadImageHelper)(request, this.node, JWT);
         }
     }
-    async uploadVideo(request) {
+    async uploadVideo(request = {}) {
         const endpoint = 'upload-video';
-        if (!request.file) {
+        if (!(request === null || request === void 0 ? void 0 : request.file)) {
             const file = (await (0, Media_Helper_1.selectFile)());
             request.file = file;
         }

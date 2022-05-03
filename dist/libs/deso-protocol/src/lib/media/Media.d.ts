@@ -6,7 +6,7 @@ export declare class Media {
     private identity;
     constructor(node: Node, identity: Identity);
     uploadImage(request: Partial<UploadImageRequest>): Promise<UploadImageResponse | void>;
-    uploadVideo(request: Partial<UploadImageRequest>): Promise<string>;
+    uploadVideo(request?: Partial<UploadImageRequest>): Promise<string>;
     getVideoStatus(request: Partial<GetVideoStatusRequest>): Promise<GetVideoStatusResponse>;
     getFullTikTokUrl(request: Partial<GetFullTikTokURLRequest>): Promise<GetFullTikTokURLResponse>;
 }
