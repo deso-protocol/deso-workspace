@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import CircleIcon from '@mui/icons-material/Circle';
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
 import { Tooltip } from '@mui/material';
@@ -7,6 +8,8 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { StatementTypeEnum } from './Statement';
 import { Responses } from './Responses';
+import { DisplayThreadState } from './DisplayThreadState';
+import { ThreadState } from '../services/utils';
 export interface ReplyOptionsProps {
   PostHashHex: string;
   posterKey: string;
@@ -25,6 +28,9 @@ export const ThreadThumbnail = ({
   const [poster, setPoster] = useState('');
   const [bannerText, setBannerText] = useState('');
   const [arrowOpened, setArrowOpened] = useState<boolean>(false);
+  const [threadState, setThreadState] = useState<ThreadState>(
+    ThreadState.PENDING
+  );
   const [commentCount, setCommentCount] = useState(0);
   const [question, setQuestion] = useState('');
   const [toggleComments, setToggleComments] = useState<ReactElement | null>(
@@ -72,6 +78,7 @@ export const ThreadThumbnail = ({
     if (!post.PostFound?.PosterPublicKeyBase58Check) return;
     setPoster(post.PostFound?.PosterPublicKeyBase58Check);
     setQuestion(post.PostFound.Body);
+    setThreadState(post.PostFound.PostExtraData['state'] as ThreadState);
   };
 
   return (
@@ -86,6 +93,7 @@ export const ThreadThumbnail = ({
             {toggleComments ?? <div className="min-w-[24px]"></div>}
             {bannerText}
           </div>
+          {/* <DisplayThreadState state={threadState} /> */}
         </div>
         <div className="text-white border-l border-white p-2  max-w-[900px]">
           <div className="text text-base font-light text-gray-200">

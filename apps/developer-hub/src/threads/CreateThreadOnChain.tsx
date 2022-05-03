@@ -46,7 +46,7 @@ export const CreateThreadOnChain = ({
           title: 'title',
           category: category,
           resolvedBy: 'N/A',
-          state: state,
+          state,
         },
       })
       .finally(async () => {

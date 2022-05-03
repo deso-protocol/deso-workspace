@@ -1,5 +1,9 @@
 import Deso from 'deso-protocol';
-import { UploadImageRequest } from 'deso-protocol-types';
+import {
+  GetFullTikTokURLRequest,
+  GetVideoStatusRequest,
+  UploadImageRequest,
+} from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
 import Page from '../Read/Page';
@@ -51,109 +55,127 @@ export const mediaChapter = {
       );
     },
   },
-  // UPLOAD_VIDEO: {
-  //   parentRoute: ParentRoutes.media,
-  //   title: 'Upload Video',
-  //   route: '/media/upload-video',
-  //   githubSource: [],
-  //   documentation: [
-  //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-video',
-  //   ],
-  //   method: deso.media.uploadVideo,
-  //   params: () => { return {} as UploadVideoRequest,
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Page
-  //             demo={true}
-  //             method={{
-  //               methodName: 'deso.media.uploadVideo(request)',
-  //               params: this.params,
-  //               method: this.method,
-  //             }}
-  //             pretext={PageSection(
-  //               this.title,
-  //               <div>Get the nfts that belongs to an account.</div>
-  //             )}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
-  // GET_VIDEO_STATUS: {
-  //   parentRoute: ParentRoutes.media,
-  //   title: 'Get Video Status',
-  //   route: '/media/get-video-status',
-  //   githubSource: [],
-  //   method: deso.media.getVideoStatus,
-  //   params: () => { return {} as GetVideoStatusRequest,
-  //   documentation: [
-  //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-video-status',
-  //   ],
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Page
-  //             demo={true}
-  //             method={{
-  //               methodName: 'deso.media.getVideoStatus(request)',
-  //               params: this.params,
-  //               method: this.method,
-  //             }}
-  //             pretext={PageSection(
-  //               this.title,
-  //               <div>Get the nfts that belongs to an account.</div>
-  //             )}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
-  // GET_FULL_TIKTOK_URL: {
-  //   parentRoute: ParentRoutes.media,
-  //   title: 'Get Full Tiktok Url',
-  //   route: '/media/get-full-tiktok-url',
-  //   githubSource: [],
-  //   method: deso.media.getVideoStatus,
-  //   params: () => { return {} as GetFullTikTokURLRequest,
-  //   documentation: [
-  //     'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-full-tiktok-url',
-  //   ],
-  //   component: function () {
-  //     return (
-  //       <Route
-  //         key={this.title}
-  //         path={this.route}
-  //         element={
-  //           <Page
-  //             demo={true}
-  //             method={{
-  //               methodName: 'deso.media.getVideoStatus(request)',
-  //               params: this.params,
-  //               method: this.method,
-  //             }}
-  //             pretext={PageSection(
-  //               this.title,
-  //               <div>Get the nfts that belongs to an account.</div>
-  //             )}
-  //             chapters={CHAPTERS}
-  //             selectedChapter={this}
-  //           />
-  //         }
-  //       ></Route>
-  //     );
-  //   },
-  // },
+  UPLOAD_VIDEO: {
+    parentRoute: ParentRoutes.media,
+    title: 'Upload Video',
+    route: '/media/upload-video',
+    githubSource: [],
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#upload-video',
+    ],
+    method: deso.media.uploadVideo,
+    params: () => {
+      return {};
+    },
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: 'deso.media.uploadVideo(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Get the nfts that belongs to an account.</div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  GET_VIDEO_STATUS: {
+    parentRoute: ParentRoutes.media,
+    title: 'Get Video Status',
+    route: '/media/get-video-status',
+    githubSource: [],
+    method: deso.media.getVideoStatus,
+    params: () => {
+      return { videoId: 'your video id here' } as GetVideoStatusRequest;
+    },
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-video-status',
+    ],
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={false}
+              method={{
+                methodName: 'deso.media.getVideoStatus(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Get Video Status queries cloudflare's API to see if a video is
+                  ready to be streamed. This is useful in showing a preview of
+                  an uploaded video to an end-user when they are creating a
+                  post.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+  GET_FULL_TIKTOK_URL: {
+    parentRoute: ParentRoutes.media,
+    title: 'Get Full Tiktok Url',
+    route: '/media/get-full-tiktok-url',
+    githubSource: [],
+    method: deso.media.getVideoStatus,
+    params: () => {
+      return { TikTokShortVideoID: 'TikTokShort' } as GetFullTikTokURLRequest;
+    },
+    documentation: [
+      'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-full-tiktok-url',
+    ],
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: 'deso.media.getVideoStatus(request)',
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>
+                  Given a short video ID of a TikTok, find the URL that can be
+                  used to embed this video. The short URL users get when copying
+                  a link to a TikTok from TikTok's mobile app isn't embeddable,
+                  so this endpoint allows us to find the desktop version of the
+                  URL from which we can construct an embeddable version of the
+                  URL.
+                </div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
 };
