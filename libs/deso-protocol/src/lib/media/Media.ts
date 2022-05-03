@@ -45,8 +45,14 @@ export class Media {
     request: Partial<UploadImageRequest>
   ): Promise<string> {
     const endpoint = 'upload-video';
-    const file: File = (await selectFile()) as File;
-    return uploadVideoToCloudFlare(`${this.node.getUri()}/${endpoint}`, file);
+    if (!request.file) {
+      const file: File = (await selectFile()) as File;
+      request.file = file;
+    }
+    return uploadVideoToCloudFlare(
+      `${this.node.getUri()}/${endpoint}`,
+      request.file
+    );
   }
 
   public async getVideoStatus(
@@ -54,13 +60,15 @@ export class Media {
   ): Promise<GetVideoStatusResponse> {
     throwErrors(['videoId'], request);
     const endpoint = 'get-video-status';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return await axios.get(
+      `${this.node.getUri()}/${endpoint}/${request.videoId}`
+    );
   }
 
-  private async getFullTikTokUrl(
+  public async getFullTikTokUrl(
     request: Partial<GetFullTikTokURLRequest>
   ): Promise<GetFullTikTokURLResponse> {
-    const endpoint = 'get-full-tik-tok-url';
+    const endpoint = 'get-full-tiktok-url';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
 }

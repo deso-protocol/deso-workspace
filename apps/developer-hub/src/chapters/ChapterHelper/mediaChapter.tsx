@@ -82,7 +82,14 @@ export const mediaChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Get the nfts that belongs to an account.</div>
+                <div>
+                  UploadVideo creates a one-time tokenized URL that can be used
+                  to upload larger video files using the tus protocol. The
+                  client uses the Location header in the response from this
+                  function to upload the file. The client uses the
+                  Stream-Media-Id header in the response from cloudflare to
+                  understand how to access the file for streaming.{' '}
+                </div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}
@@ -99,7 +106,9 @@ export const mediaChapter = {
     githubSource: [],
     method: deso.media.getVideoStatus,
     params: () => {
-      return { videoId: 'your video id here' } as GetVideoStatusRequest;
+      return {
+        videoId: '20b42475c2116fbaeba01573535cad89',
+      } as GetVideoStatusRequest;
     },
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-video-status',
@@ -111,7 +120,7 @@ export const mediaChapter = {
           path={this.route}
           element={
             <Page
-              demo={false}
+              demo={true}
               method={{
                 methodName: 'deso.media.getVideoStatus(request)',
                 params: this.params,
@@ -139,9 +148,9 @@ export const mediaChapter = {
     title: 'Get Full Tiktok Url',
     route: '/media/get-full-tiktok-url',
     githubSource: [],
-    method: deso.media.getVideoStatus,
+    method: deso.media.getFullTikTokUrl,
     params: () => {
-      return { TikTokShortVideoID: 'TikTokShort' } as GetFullTikTokURLRequest;
+      return { TikTokShortVideoID: 'ZTdbMKkFB' } as GetFullTikTokURLRequest;
     },
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/media-endpoints#get-full-tiktok-url',

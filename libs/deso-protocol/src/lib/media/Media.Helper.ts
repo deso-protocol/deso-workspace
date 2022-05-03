@@ -5,12 +5,18 @@ import * as tus from 'tus-js-client';
 
 export const uploadVideoToCloudFlare = (
   path: string,
-  file: File
+  file: File,
+  callbackOverrides?: {
+    onProgress?: (bytesUploaded: number, bytesTotal: number) => void;
+    onSuccess?: () => void;
+    onAfterResponse?: (req: any, res: any) => void;
+  }
 ): Promise<string> => {
   if (!(file && file.type.startsWith('video/')))
     throw Error('invalid file or file type');
 
   let mediaId: string;
+
   const onResponse = new Promise((resolve, reject) => {
     const options = {
       endpoint: path,
@@ -36,6 +42,12 @@ export const uploadVideoToCloudFlare = (
         }
       },
     };
+    if (callbackOverrides?.onAfterResponse) {
+      options.onAfterResponse = callbackOverrides.onAfterResponse;
+    }
+    if (callbackOverrides?.onProgress) {
+      options.onProgress = callbackOverrides.onProgress;
+    }
     new tus.Upload(file, options).start();
   });
   return onResponse as Promise<string>;
