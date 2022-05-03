@@ -2,7 +2,6 @@
 import CircleIcon from '@mui/icons-material/Circle';
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
-import { Tooltip } from '@mui/material';
 import { ProfilePicture } from '../components/ProfilePicture';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -71,6 +70,7 @@ export const ThreadThumbnail = ({
       </div>
     );
   };
+
   const getPoster = async () => {
     if (PostHashHex.length < 10) return;
     const post = await deso.posts.getSinglePost({ PostHashHex });
@@ -82,28 +82,30 @@ export const ThreadThumbnail = ({
   };
 
   return (
-    <div className="flex justify-between toggleComments  border border-white bg-[#2e3440]">
-      <div className="flex text-xl">
-        <div className="mt-auto min-w-[150px] max-w-[150px] mx-auto text-white">
-          <ProfilePicture
-            publicKey={posterKey}
-            className="max-h-[30px] mx-auto mt-2"
-          />{' '}
-          <div className="flex text-base">
-            {toggleComments ?? <div className="min-w-[24px]"></div>}
-            {bannerText}
+    <>
+      {<DisplayThreadState state={threadState} PostHashHex={PostHashHex} />}
+      <div className="flex justify-between toggleComments  border-x border-b border-white bg-[#2e3440]">
+        <div className="flex text-xl">
+          <div className="mt-auto min-w-[150px] max-w-[150px] mx-auto text-white">
+            <ProfilePicture
+              publicKey={posterKey}
+              className="max-h-[30px] mx-auto mt-2"
+            />{' '}
+            <div className="flex text-base">
+              {toggleComments ?? <div className="min-w-[24px]"></div>}
+              {bannerText}
+            </div>
           </div>
-          {/* <DisplayThreadState state={threadState} /> */}
+          <div className="text-white border-l border-white p-2  max-w-[900px]">
+            <div className="text text-base font-light text-gray-200">
+              {question}
+            </div>{' '}
+          </div>
         </div>
-        <div className="text-white border-l border-white p-2  max-w-[900px]">
-          <div className="text text-base font-light text-gray-200">
-            {question}
-          </div>{' '}
-        </div>
+        {statementType !== StatementTypeEnum.NewQuestion && (
+          <Responses PostHashHex={PostHashHex} />
+        )}
       </div>
-      {statementType !== StatementTypeEnum.NewQuestion && (
-        <Responses PostHashHex={PostHashHex} />
-      )}
-    </div>
+    </>
   );
 };

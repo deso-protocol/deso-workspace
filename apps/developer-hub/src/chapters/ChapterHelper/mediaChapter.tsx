@@ -65,7 +65,7 @@ export const mediaChapter = {
     ],
     method: deso.media.uploadVideo,
     params: () => {
-      return {};
+      //
     },
     component: function () {
       return (
