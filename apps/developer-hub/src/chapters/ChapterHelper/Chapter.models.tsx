@@ -24,6 +24,7 @@ import { CopyBlock, nord } from 'react-code-blocks';
 import { transactionChapter } from './TransactionsChapter';
 import { walletChapter } from './WalletChapter';
 import { daoChapter } from './DAOChapter';
+import { RecentThreads } from '../../threads/RecentThreads';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -97,6 +98,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
                           />
                         </div>
                       )}
+                      {PageSection('Recent Threads', <RecentThreads />)}
                     </>
                   ),
                   title: 'Welcome',

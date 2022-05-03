@@ -24,11 +24,11 @@ export const convertExtraDataToHex = (
   return extraData;
 };
 
-export const throwErrors = (
-  requiredAttributes: string[],
-  request: any
+export const throwErrors = <G, K extends keyof G>(
+  requiredAttributes: K[],
+  request: G
 ): void => {
-  requiredAttributes.forEach((attrName: string) => {
+  requiredAttributes.forEach((attrName: K) => {
     const doesExist = request[attrName];
     if (!doesExist) {
       throw Error(`${attrName} is required`);

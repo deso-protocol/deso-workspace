@@ -9,11 +9,13 @@ import { CreateThreadOnChain } from './CreateThreadOnChain';
 import { ThreadThumbnail } from './ThreadThumbnail';
 import { Responses } from './Responses';
 import Deso from 'deso-protocol';
+
 export enum StatementTypeEnum {
   Question = 'Question',
   Reply = 'Reply',
   NewQuestion = 'NewQuestion',
 }
+
 export interface ResponseProps {
   body: string;
   PostHashHex: string;
@@ -24,6 +26,7 @@ export interface ResponseProps {
   parentOnPostCallback?: Function;
   category?: ThreadCategory;
 }
+
 const deso = new Deso();
 export const Statement = ({
   PostHashHex,
@@ -39,6 +42,7 @@ export const Statement = ({
   useEffect(() => {
     getComments(comments);
   }, []);
+
   useEffect(() => {}, [commentsToDisplay, setCommentsToDisplay]);
 
   const onPostCallback = async () => {
@@ -47,6 +51,7 @@ export const Statement = ({
       ReaderPublicKeyBase58Check: deso.identity.getUserKey() as string,
       CommentLimit: 1000,
     });
+
     const updatedComments = response.PostFound?.Comments;
     if (updatedComments) {
       getComments(updatedComments);
@@ -55,6 +60,7 @@ export const Statement = ({
       parentOnPostCallback();
     }
   };
+
   const getComments = (comments: PostEntryResponse[]) => {
     const commentsToDisplay =
       comments.map((c, i) => {

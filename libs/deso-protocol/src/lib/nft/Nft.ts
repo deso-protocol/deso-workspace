@@ -29,6 +29,7 @@ import {
 } from 'deso-protocol-types';
 import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
+import { throwErrors } from '../../utils/utils';
 
 export class Nft {
   private node: Node;
@@ -141,7 +142,6 @@ export class Nft {
     const apiResponse = await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex)
       .then(() => apiResponse)

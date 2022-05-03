@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { LoggedIn } from '../../../threads/Threads.state';
 import Deso from 'deso-protocol';
 import { GetSingleProfileResponse } from 'deso-protocol-types';
@@ -32,6 +33,7 @@ export const Login = () => {
     setUserKey(deso.identity.getUserKey() ?? '');
     setLoggedIn(true);
     getProfile();
+    location.reload();
   };
 
   const logout = async () => {
@@ -40,6 +42,7 @@ export const Login = () => {
 
     setLoggedIn(false);
     setUser(null);
+    location.reload();
   };
 
   return (

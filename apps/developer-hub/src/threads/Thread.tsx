@@ -33,5 +33,5 @@ export const Thread = ({ PostHashHex }: ThreadProps) => {
     setThread(thread ?? null);
   };
 
-  return <div className="">{thread}</div>;
+  return <div>{thread}</div>;
 };
