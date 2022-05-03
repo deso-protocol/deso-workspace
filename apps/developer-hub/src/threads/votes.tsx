@@ -18,11 +18,18 @@ export const Votes = ({ PostHashHex }: VotesProps) => {
     const key = deso.identity.getUserKey();
     // not sure if PostHashHex is getting set as a string as null somewhere or
     // if the api returns it that way, but a temp fix checks for a certain greater than length
-    if (!key || PostHashHex.length < 10) return;
-    const response = await deso.posts.getSinglePost({
-      PostHashHex,
-      ReaderPublicKeyBase58Check: key,
-    });
+    if (PostHashHex.length < 10) return;
+    let response;
+    if (key) {
+      response = await deso.posts.getSinglePost({
+        PostHashHex,
+        ReaderPublicKeyBase58Check: key,
+      });
+    } else {
+      response = await deso.posts.getSinglePost({
+        PostHashHex,
+      });
+    }
     if (!response.PostFound) return;
     setUpVotes(response.PostFound.LikeCount);
     setLiked(response.PostFound.PostEntryReaderState.LikedByReader);
