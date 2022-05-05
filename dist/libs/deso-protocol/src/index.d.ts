@@ -14,10 +14,10 @@ import { Transactions } from './lib/transaction/Transaction';
 import { DAO } from './lib/dao/dao';
 export interface DesoConfig {
     nodeUri?: string;
-    identityConfig?: IdentityConfig;
+    identityConfig?: Partial<IdentityConfig>;
 }
 export declare class Deso {
-    constructor(config?: DesoConfig);
+    constructor(config?: Partial<DesoConfig>);
     node: Node;
     identity: Identity;
     private admin;

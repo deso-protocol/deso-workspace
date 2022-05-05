@@ -16,12 +16,12 @@ import { DAO } from './lib/dao/dao';
 
 export interface DesoConfig {
   nodeUri?: string;
-  identityConfig?: IdentityConfig;
+  identityConfig?: Partial<IdentityConfig>;
 }
 
 export class Deso {
-  constructor(config?: DesoConfig) {
-    this.node = new Node();
+  constructor(config?: Partial<DesoConfig>) {
+    this.node = new Node(config?.nodeUri);
     this.identity = new Identity({
       ...config?.identityConfig,
       ...{ node: this.node },
