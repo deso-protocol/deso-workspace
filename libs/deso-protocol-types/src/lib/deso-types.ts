@@ -2953,6 +2953,9 @@ export interface HotFeedPageRequest {
   ReaderPublicKeyBase58Check: string;
   SeenPosts: string[] | null;
   ResponseLimit: number;
+  // Temporary fix to support new hot feed params
+  Tag: string;
+  SortByNew: boolean;
 }
 
 // struct2ts:types/dist/generated.HotFeedPageResponse
