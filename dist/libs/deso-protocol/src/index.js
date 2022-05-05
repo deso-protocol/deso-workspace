@@ -33,7 +33,7 @@ class Deso {
         this.transaction = Transaction_1.Transactions;
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.node = new Node_1.Node();
+        this.node = new Node_1.Node(config === null || config === void 0 ? void 0 : config.nodeUri);
         this.identity = new Identity_1.Identity({
             ...config === null || config === void 0 ? void 0 : config.identityConfig,
             ...{ node: this.node },

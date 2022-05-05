@@ -2367,6 +2367,8 @@ export interface HotFeedPageRequest {
     ReaderPublicKeyBase58Check: string;
     SeenPosts: string[] | null;
     ResponseLimit: number;
+    Tag: string;
+    SortByNew: boolean;
 }
 export interface HotFeedPageResponse {
     HotFeedPage: PostEntryResponse[] | null;
