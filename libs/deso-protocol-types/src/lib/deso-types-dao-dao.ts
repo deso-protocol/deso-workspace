@@ -3535,7 +3535,7 @@ export interface GetBlockTemplateResponse {
 // struct2ts:types/generated/types.SubmitBlockRequest
 export interface SubmitBlockRequest {
   PublicKeyBase58Check: string;
-  Header: number[] | null;
+  Header: string[] | null;
   ExtraNonce: number;
   BlockID: string;
 }
@@ -4389,8 +4389,8 @@ export interface DAOCoinRequest {
   UpdaterPublicKeyBase58Check: string;
   ProfilePublicKeyBase58CheckOrUsername: string;
   OperationType: string;
-  CoinsToMintNanos: number[];
-  CoinsToBurnNanos: number[];
+  CoinsToMintNanos: string;
+  CoinsToBurnNanos: string;
   TransferRestrictionStatus: string;
   MinFeeRateNanosPerKB: number;
   TransactionFees: TransactionFee[] | null;
@@ -4411,7 +4411,7 @@ export interface TransferDAOCoinRequest {
   SenderPublicKeyBase58Check: string;
   ProfilePublicKeyBase58CheckOrUsername: string;
   ReceiverPublicKeyBase58CheckOrUsername: string;
-  DAOCoinToTransferNanos: number[];
+  DAOCoinToTransferNanos: string;
   MinFeeRateNanosPerKB: number;
   TransactionFees: TransactionFee[] | null;
 }
@@ -4439,16 +4439,16 @@ export interface DAOCoinLimitOrderResponse {
 }
 
 // struct2ts:types/generated/types.DAOCoinLimitOrderWithExchangeRateAndQuantityRequest
-export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
-  TransactorPublicKeyBase58Check: string;
-  BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  ExchangeRateCoinsToSellPerCoinToBuy: number;
-  QuantityToFill: number;
-  OperationType: string;
-  MinFeeRateNanosPerKB: number;
-  TransactionFees: TransactionFee[] | null;
-}
+// export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
+//   TransactorPublicKeyBase58Check: string;
+//   BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
+//   SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
+//   ExchangeRateCoinsToSellPerCoinToBuy: number;
+//   QuantityToFill: number;
+//   OperationType: string;
+//   MinFeeRateNanosPerKB: number;
+//   TransactionFees: TransactionFee[] | null;
+// }
 
 // struct2ts:types/generated/types.DAOCoinMarketOrderWithQuantityRequest
 export interface DAOCoinMarketOrderWithQuantityRequest {
