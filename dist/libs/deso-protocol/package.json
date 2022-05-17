@@ -1,10 +1,12 @@
 {
   "name": "deso-protocol",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "commonjs",
   "dependencies": {
-    "deso-protocol-types": "^0.2.0",
-    "axios": "^0.25.0"
+    "deso-protocol-types": "0.3.0",
+    "tus-js-client": "^2.3.1",
+    "axios": "^0.25.0",
+    "tslib": "^2.4.0"
   },
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"

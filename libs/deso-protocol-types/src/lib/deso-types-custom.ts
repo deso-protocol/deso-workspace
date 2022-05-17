@@ -1,4 +1,10 @@
-import { BlockTemplateStats, Hex, MsgDeSoTxn, TransactionFee } from './deso-types';
+// import {
+//   BlockTemplateStats,
+//   Hex,
+//   MsgDeSoTxn,
+//   // TransactionFee,
+// } from './deso-types';
+import { TransactionFee, TransactionSpendingLimitResponse } from './deso-types';
 
 export interface GetApproveResponse {
   id?: string;
@@ -126,30 +132,30 @@ export interface GetDecryptMessagesResponse {
   decryptedMessage: string;
 }
 
-export interface GetBlockTemplateRequest {
-  PublicKeyBase58Check: string;
-  NumHeaders: number;
-  HeaderVersion: number;
-}
-export interface GetBlockTemplateResponse {
-  Headers: number[][];
-  BlockID: string;
-  DifficultyTargetHex: string;
-  ExtraNonces: number[];
-  LatestBlockTemplateStats: BlockTemplateStats;
-}
-export interface SubmitBlockRequest {
-  PublicKeyBase58Check: string;
-  Header: string[];
-  ExtraData: any;
-  // ExtraData `json:"ExtraNonce"`
-  BlockID: string;
-}
+// export interface GetBlockTemplateRequest {
+//   PublicKeyBase58Check: string;
+//   NumHeaders: number;
+//   HeaderVersion: number;
+// }
+// export interface GetBlockTemplateResponse {
+//   Headers: number[][];
+//   BlockID: string;
+//   DifficultyTargetHex: string;
+//   ExtraNonces: number[];
+//   LatestBlockTemplateStats: BlockTemplateStats;
+// }
+// export interface SubmitBlockRequest {
+//   PublicKeyBase58Check: string;
+//   Header: string[];
+//   ExtraData: any;
+//   // ExtraData `json:"ExtraNonce"`
+//   BlockID: string;
+// }
 
-export interface SubmitBlockResponse {
-  IsMainChain: boolean;
-  IsOrphan: boolean;
-}
+// export interface SubmitBlockResponse {
+//   IsMainChain: boolean;
+//   IsOrphan: boolean;
+// }
 
 export enum DeSoNetwork {
   mainnet = 'mainnet',
@@ -210,7 +216,9 @@ export type CreatorCoinOperationLimitMap =
   CoinOperationLimitMap<CreatorCoinLimitOperationString>;
 export type DAOCoinOperationLimitMap =
   CoinOperationLimitMap<DAOCoinLimitOperationString>;
-export type DAOCoinLimitOrderLimitMap = { [buying_public_key: string]: { [selling_public_key: string]: number }};
+export type DAOCoinLimitOrderLimitMap = {
+  [buying_public_key: string]: { [selling_public_key: string]: number };
+};
 
 export enum NFTLimitOperationString {
   ANY = 'any',
@@ -254,15 +262,15 @@ export enum TransactionType {
   DAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
 }
 
-export interface TransactionSpendingLimitResponse {
-  GlobalDESOLimit: number;
-  TransactionCountLimitMap?: { [k in TransactionType]?: number };
-  CreatorCoinOperationLimitMap?: CreatorCoinOperationLimitMap;
-  DAOCoinOperationLimitMap?: DAOCoinOperationLimitMap;
-  NFTOperationLimitMap?: NFTOperationLimitMap;
-  DAOCoinLimitOrderLimitMap?: DAOCoinLimitOrderLimitMap;
-  DerivedKeyMemo?: string;
-}
+// export interface TransactionSpendingLimitResponse {
+//   GlobalDESOLimit: number;
+//   TransactionCountLimitMap?: { [k in TransactionType]?: number };
+//   CreatorCoinOperationLimitMap?: CreatorCoinOperationLimitMap;
+//   DAOCoinOperationLimitMap?: DAOCoinOperationLimitMap;
+//   NFTOperationLimitMap?: NFTOperationLimitMap;
+//   DAOCoinLimitOrderLimitMap?: DAOCoinLimitOrderLimitMap;
+//   DerivedKeyMemo?: string;
+// }
 
 export interface IdentityDeriveParams {
   callback?: string;
@@ -294,12 +302,11 @@ export interface AuthorizeDerivedKeyParams {
   ExtraData?: { [k: string]: string };
 }
 
-
-// Temporary manual creation of classes for DAO coin limit orders 
+// Temporary manual creation of classes for DAO coin limit orders
 
 export enum DAOCoinLimitOrderOperationTypeString {
-  DAOCoinLimitOrderOperationTypeStringASK = "ASK",
-  DAOCoinLimitOrderOperationTypeStringBID = "BID",
+  DAOCoinLimitOrderOperationTypeStringASK = 'ASK',
+  DAOCoinLimitOrderOperationTypeStringBID = 'BID',
 }
 
 export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
@@ -313,48 +320,49 @@ export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
   TransactionFees: TransactionFee[] | null;
 }
 
-export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
-  TransactorPublicKeyBase58Check: string;
-  CancelOrderID: string;
-  MinFeeRateNanosPerKB?: number;
-  TransactionFees: TransactionFee[] | null;
-}
+// export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
+//   TransactorPublicKeyBase58Check: string;
+//   CancelOrderID: string;
+//   MinFeeRateNanosPerKB?: number;
+//   TransactionFees: TransactionFee[] | null;
+// }
 
-export interface DAOCoinLimitOrderResponse extends TransactionConstructionResponse {
-  SpendAmountNanos: number;
-  TotalInputNanos: number;
-  ChangeAmountNanos: number;
-  FeeNanos: number;
-  Transaction: MsgDeSoTxn;
-  TransactionHex: string;
-  TxnHashHex: string;
-}
+// export interface DAOCoinLimitOrderResponse
+//   extends TransactionConstructionResponse {
+//   SpendAmountNanos: number;
+//   TotalInputNanos: number;
+//   ChangeAmountNanos: number;
+//   FeeNanos: number;
+//   Transaction: MsgDeSoTxn;
+//   TransactionHex: string;
+//   TxnHashHex: string;
+// }
 
-export interface GetDAOCoinLimitOrdersRequest {
-	DAOCoin1CreatorPublicKeyBase58CheckOrUsername: string;
-	DAOCoin2CreatorPublicKeyBase58CheckOrUsername: string;
-}
+// export interface GetDAOCoinLimitOrdersRequest {
+//   DAOCoin1CreatorPublicKeyBase58CheckOrUsername: string;
+//   DAOCoin2CreatorPublicKeyBase58CheckOrUsername: string;
+// }V
 
-export interface GetDAOCoinLimitOrdersResponse {
-	Orders: DAOCoinLimitOrderEntryResponse[]
-}
+// export interface GetDAOCoinLimitOrdersResponse {
+//   Orders: DAOCoinLimitOrderEntryResponse[];
+// }
 
-export interface DAOCoinLimitOrderEntryResponse {
-	TransactorPublicKeyBase58Check: string;
+// export interface DAOCoinLimitOrderEntryResponse {
+// 	TransactorPublicKeyBase58Check: string;
 
-	BuyingDAOCoinCreatorPublicKeyBase58Check:  string;
-	SellingDAOCoinCreatorPublicKeyBase58Check: string;
+// 	BuyingDAOCoinCreatorPublicKeyBase58Check:  string;
+// 	SellingDAOCoinCreatorPublicKeyBase58Check: string;
 
-	ExchangeRateCoinsToSellPerCoinToBuy: number;
-	QuantityToFill: number;
+// 	ExchangeRateCoinsToSellPerCoinToBuy: number;
+// 	QuantityToFill: number;
 
-	OperationType: DAOCoinLimitOrderOperationTypeString;
-	OrderID: string;
-}
+// 	OperationType: DAOCoinLimitOrderOperationTypeString;
+// 	OrderID: string;
+// }
 
-export interface GetTransactorDAOCoinLimitOrdersRequest {
-	TransactorPublicKeyBase58CheckOrUsername: string;
-}
+// export interface GetTransactorDAOCoinLimitOrdersRequest {
+//   TransactorPublicKeyBase58CheckOrUsername: string;
+// }
 
 export interface TransactionConstructionResponse {
   TransactionHex: string;

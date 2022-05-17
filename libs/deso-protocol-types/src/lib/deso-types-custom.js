@@ -1,6 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DAOCoinLimitOrderOperationTypeString = exports.TransactionType = exports.NFTLimitOperationString = exports.DAOCoinLimitOperationString = exports.CreatorCoinLimitOperationString = exports.DeSoNetwork = void 0;
+// export interface GetBlockTemplateRequest {
+//   PublicKeyBase58Check: string;
+//   NumHeaders: number;
+//   HeaderVersion: number;
+// }
+// export interface GetBlockTemplateResponse {
+//   Headers: number[][];
+//   BlockID: string;
+//   DifficultyTargetHex: string;
+//   ExtraNonces: number[];
+//   LatestBlockTemplateStats: BlockTemplateStats;
+// }
+// export interface SubmitBlockRequest {
+//   PublicKeyBase58Check: string;
+//   Header: string[];
+//   ExtraData: any;
+//   // ExtraData `json:"ExtraNonce"`
+//   BlockID: string;
+// }
+// export interface SubmitBlockResponse {
+//   IsMainChain: boolean;
+//   IsOrphan: boolean;
+// }
 var DeSoNetwork;
 (function (DeSoNetwork) {
     DeSoNetwork["mainnet"] = "mainnet";
@@ -59,7 +82,7 @@ var TransactionType;
     TransactionType["DAOCoinTransfer"] = "DAO_COIN_TRANSFER";
     TransactionType["DAOCoinLimitOrder"] = "DAO_COIN_LIMIT_ORDER";
 })(TransactionType = exports.TransactionType || (exports.TransactionType = {}));
-// Temporary manual creation of classes for DAO coin limit orders 
+// Temporary manual creation of classes for DAO coin limit orders
 var DAOCoinLimitOrderOperationTypeString;
 (function (DAOCoinLimitOrderOperationTypeString) {
     DAOCoinLimitOrderOperationTypeString["DAOCoinLimitOrderOperationTypeStringASK"] = "ASK";

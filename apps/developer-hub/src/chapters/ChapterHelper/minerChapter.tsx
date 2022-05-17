@@ -64,7 +64,7 @@ export const minerChapter = {
     params: () => {
       return {
         BlockID: '1',
-        ExtraData: 2,
+        ExtraNonce: 2,
         Header: ['not a real byte array'],
         PublicKeyBase58Check: localStorage.getItem('login_key') as string,
       } as SubmitBlockRequest;
