@@ -3,6 +3,7 @@ import {
   DAOCoinLimitOrderOperationTypeString,
   DAOCoinLimitOrderWithCancelOrderIDRequest,
   DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
+  DAOCoinMarketOrderWithQuantityRequest,
   DAOCoinRequest,
   GetDAOCoinLimitOrdersRequest,
   GetTransactorDAOCoinLimitOrdersRequest,
@@ -75,7 +76,7 @@ export const daoChapter = {
         DAOCoinToTransferNanos: '0x5F5E100',
       } as Partial<TransferDAOCoinRequest>;
     },
-    method: deso.dao.TransferDAOCoin,
+    method: deso.dao.transferDAOCoin,
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#transfer-dao-coin',
     ],
@@ -124,7 +125,7 @@ export const daoChapter = {
           DAOCoinLimitOrderOperationTypeString.DAOCoinLimitOrderOperationTypeStringASK,
       } as Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>;
     },
-    method: deso.dao.CreateDAOCoinLimitOrder,
+    method: deso.dao.createDAOCoinLimitOrder,
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#create-dao-coin-limit-order',
     ],
@@ -165,7 +166,7 @@ export const daoChapter = {
         CancelOrderID: '', // TODO: how do we want to show this working?
       } as Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>;
     },
-    method: deso.dao.CancelDAOCoinLimitOrder,
+    method: deso.dao.cancelDAOCoinLimitOrder,
     documentation: [
       'https://docs.deso.org/for-developers/backend/transactions/construct-transactions/dao-transactions-api#cancel-dao-coin-limit-order',
     ],
@@ -206,7 +207,7 @@ export const daoChapter = {
           deso.identity.getUserKey() as string,
       } as Partial<GetDAOCoinLimitOrdersRequest>;
     },
-    method: deso.dao.GetDAOCoinLimitOrders,
+    method: deso.dao.getDAOCoinLimitOrders,
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/dao-endpoints#gets-all-open-orders-on-order-book-for-a-dao-coin-market',
     ],
@@ -251,7 +252,7 @@ export const daoChapter = {
           deso.identity.getUserKey() as string,
       } as Partial<GetTransactorDAOCoinLimitOrdersRequest>;
     },
-    method: deso.dao.GetTransactorDAOCoinLimitOrders,
+    method: deso.dao.getTransactorDAOCoinLimitOrders,
     documentation: [
       'https://docs.deso.org/for-developers/backend/blockchain-data/api/dao-endpoints#gets-all-open-limit-orders-created-by-a-transactor',
     ],
@@ -282,4 +283,44 @@ export const daoChapter = {
       );
     },
   },
+  // uncomment this to enable it in the UI
+  // Create_DAO_COIN_MARKET_ORDER: {
+  //   parentRoute: ParentRoutes.dao,
+  //   title: 'Create Dao Coin Market Order',
+  //   route: 'create-dao-coin-market-order',
+  //   params: () => {
+  //     return {
+  //       TransactorPublicKeyBase58CheckOrUsername:
+  //         deso.identity.getUserKey() as string,
+  //     } as Partial<DAOCoinMarketOrderWithQuantityRequest>;
+  //   },
+  //   method: deso.dao.getTransactorDAOCoinLimitOrders,
+  //   documentation: [],
+  //   githubSource: [],
+  //   component: function () {
+  //     return (
+  //       <Route
+  //         key={this.title}
+  //         path={this.route}
+  //         element={
+  //           <Page
+  //             method={{
+  //               methodName: `deso.dao.createDaoCoinMarketOrder(request)`,
+  //               params: this.params,
+  //               method: this.method,
+  //             }}
+  //             pretext={PageSection(
+  //               this.title,
+  //               <div>Creates a dao coin market order</div>
+  //             )}
+  //             demo={true}
+  //             chapters={CHAPTERS}
+  //             selectedChapter={this}
+  //             bind="dao"
+  //           />
+  //         }
+  //       ></Route>
+  //     );
+  //   },
+  // },
 };
