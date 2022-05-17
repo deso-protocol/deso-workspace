@@ -11,7 +11,7 @@ import {
   TransactionConstructionResponse,
   TransferDAOCoinRequest,
   TransferDAOCoinResponse,
-} from '../../../../deso-protocol-types/src';
+} from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 

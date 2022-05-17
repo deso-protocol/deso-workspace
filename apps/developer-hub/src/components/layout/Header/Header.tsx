@@ -42,6 +42,7 @@ export const Header = () => {
         <AppBar position="fixed" sx={{ backgroundColor: '#000' }}>
           <Toolbar className="flex justify-between min-w-max">
             <HubButton />
+            <Login />
             <Github />
             <GitBook />
           </Toolbar>

@@ -1,3 +1,61 @@
+export declare type DB = any;
+export declare type Mutex = any;
+export declare type Deque = any;
+export declare type KVCache = any;
+export interface SnapshotOperationChannel {
+    OperationChannel: SnapshotOperation;
+    StateSemaphore: number;
+    StateSemaphoreLock: Mutex;
+}
+export declare type StateChecksum = any;
+export declare type EncoderMigration = any;
+export interface SnapshotEpochMetadata {
+    SnapshotBlockHeight: number;
+    FirstSnapshotBlockHeight: number;
+    CurrentEpochChecksumBytes: number[] | null;
+    CurrentEpochBlockHash: number[];
+}
+export interface SnapshotStatus {
+    MainDBSemaphore: number;
+    AncestralDBSemaphore: number;
+    CurrentBlockHeight: number;
+    MemoryLock: Mutex;
+}
+export interface Snapshot {
+    SnapshotDb: DB | null;
+    SnapshotDbMutex: Mutex | null;
+    AncestralMemory: Deque | null;
+    DatabaseCache: KVCache;
+    AncestralFlushCounter: number;
+    SnapshotBlockHeightPeriod: number;
+    OperationChannel: SnapshotOperationChannel | null;
+    Checksum: StateChecksum | null;
+    Migrations: EncoderMigration | null;
+    CurrentEpochSnapshotMetadata: SnapshotEpochMetadata | null;
+    Status: SnapshotStatus | null;
+    ExitChannel: boolean;
+}
+export interface DBEntry {
+    Key: number[] | null;
+    Value: number[] | null;
+}
+export interface AncestralRecordValue {
+    Value: number[] | null;
+    Existed: boolean;
+}
+export interface AncestralCache {
+    AncestralRecordsMap: {
+        [key: string]: AncestralRecordValue;
+    };
+}
+export declare type SnapshotOperation = any;
+export interface EncoderMigrationChecksum {
+    Checksum: StateChecksum | null;
+    BlockHeight: number;
+    Version: number;
+    Completed: boolean;
+}
+export declare type Timer = any;
 export interface BitcoinUtxo {
     TxID: number[];
     Index: number;
@@ -46,8 +104,7 @@ export interface BlockonomicsRBFResponse {
     rbf: number;
     status: string;
 }
-export interface DeSoBlockProducer {
-}
+export declare type DeSoBlockProducer = any;
 export interface BlockTemplateStats {
     TxnCount: number;
     FailingTxnHash: string;
@@ -86,6 +143,9 @@ export interface MessageEntry {
     SenderMessagingGroupKeyName: number[];
     RecipientMessagingPublicKey: number[];
     RecipientMessagingGroupKeyName: number[];
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface MessagingGroupMember {
     GroupMemberPublicKey: number[];
@@ -97,6 +157,9 @@ export interface MessagingGroupEntry {
     MessagingPublicKey: number[];
     MessagingGroupKeyName: number[];
     MessagingGroupMembers: MessagingGroupMember[] | null;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface PGMessage {
     MessageHash: number[];
@@ -104,14 +167,17 @@ export interface PGMessage {
     RecipientPublicKey: number[] | null;
     EncryptedText: number[] | null;
     TimestampNanos: number;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface FollowEntry {
-    Followerany: number[];
-    Followedany: number[];
+    FollowerPKID: number[];
+    FollowedPKID: number[];
 }
 export interface NFTEntry {
-    LastOwnerany: number[];
-    Ownerany: number[];
+    LastOwnerPKID: number[];
+    OwnerPKID: number[];
     NFTPostHash: number[];
     SerialNumber: number;
     IsForSale: boolean;
@@ -121,17 +187,20 @@ export interface NFTEntry {
     IsPending: boolean;
     IsBuyNow: boolean;
     BuyNowPriceNanos: number;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface NFTBidEntry {
-    Bidderany: number[];
+    BidderPKID: number[];
     NFTPostHash: number[];
     SerialNumber: number;
     BidAmountNanos: number;
     AcceptedBlockHeight: number | null;
 }
 export interface DiamondEntry {
-    Senderany: number[];
-    Receiverany: number[];
+    SenderPKID: number[];
+    ReceiverPKID: number[];
     DiamondPostHash: number[];
     DiamondLevel: number;
 }
@@ -176,11 +245,11 @@ export interface PostEntry {
         [key: string]: number;
     };
     PostExtraData: {
-        [key: string]: number[];
+        [key: string]: number;
     };
 }
-export interface anyEntry {
-    any: number[];
+export interface PKIDEntry {
+    PKID: number[];
     PublicKey: number[] | null;
 }
 export interface CoinEntry {
@@ -200,23 +269,57 @@ export interface ProfileEntry {
     IsHidden: boolean;
     CreatorCoinEntry: CoinEntry;
     DAOCoinEntry: CoinEntry;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface BalanceEntry {
-    HODLerany: number[];
-    Creatorany: number[];
+    HODLerPKID: number[];
+    CreatorPKID: number[];
     BalanceNanos: number[];
     HasPurchased: boolean;
+}
+export interface TransactionSpendingLimit {
+    GlobalDESOLimit: number;
+    TransactionCountLimitMap: {
+        [key: number]: number;
+    };
+    CreatorCoinOperationLimitMap: {
+        [key: string]: number;
+    };
+    DAOCoinOperationLimitMap: {
+        [key: string]: number;
+    };
+    NFTOperationLimitMap: {
+        [key: string]: number;
+    };
+    DAOCoinLimitOrderLimitMap: {
+        [key: string]: number;
+    };
 }
 export interface DerivedKeyEntry {
     OwnerPublicKey: number[];
     DerivedPublicKey: number[];
     ExpirationBlock: number;
     OperationType: number;
+    ExtraData: {
+        [key: string]: number;
+    };
+    TransactionSpendingLimitTracker: TransactionSpendingLimit | null;
+    Memo: number[] | null;
 }
-export interface DB {
+export interface DAOCoinLimitOrderEntry {
+    OrderID: number[];
+    TransactorPKID: number[];
+    BuyingDAOCoinCreatorPKID: number[];
+    SellingDAOCoinCreatorPKID: number[];
+    ScaledExchangeRateCoinsToSellPerCoinToBuy: number[];
+    QuantityToFillInBaseUnits: number[];
+    OperationType: number;
+    FillType: number;
+    BlockHeight: number;
 }
-export interface Postgres {
-}
+export declare type Postgres = any;
 export interface DNSSeed {
     Host: string;
     HasFiltering: boolean;
@@ -253,8 +356,7 @@ export interface MsgBlock {
     Header: BlockHeader;
     Transactions: MsgTx[] | null;
 }
-export interface Int {
-}
+export declare type Int = number;
 export interface Checkpoint {
     Height: number;
     Hash: number[];
@@ -335,7 +437,7 @@ export interface MsgDeSoTxn {
     TxnMeta: any;
     PublicKey: number[] | null;
     ExtraData: {
-        [key: string]: number[];
+        [key: string]: number;
     };
     Signature: Signature | null;
     TxnTypeJSON: number;
@@ -349,9 +451,9 @@ export interface MsgDeSoBlock {
     Txns: MsgDeSoTxn[] | null;
     BlockProducerInfo: BlockProducerInfo | null;
 }
-export interface Float {
-}
+export declare type Float = number;
 export interface ForkHeights {
+    DefaultHeight: number;
     DeflationBombBlockHeight: number;
     SalomonFixBlockHeight: number;
     DeSoFounderRewardBlockHeight: number;
@@ -364,6 +466,18 @@ export interface ForkHeights {
     DeSoV3MessagesBlockHeight: number;
     BuyNowAndNFTSplitsBlockHeight: number;
     DAOCoinBlockHeight: number;
+    ExtraDataOnEntriesBlockHeight: number;
+    DerivedKeySetSpendingLimitsBlockHeight: number;
+    DerivedKeyTrackSpendingLimitsBlockHeight: number;
+    DAOCoinLimitOrderBlockHeight: number;
+}
+export interface MigrationHeight {
+    Height: number;
+    Version: number;
+    Name: string;
+}
+export interface EncoderMigrationHeights {
+    DefaultMigration: MigrationHeight;
 }
 export interface DeSoParams {
     NetworkType: number;
@@ -420,6 +534,8 @@ export interface DeSoParams {
     CreatorCoinReserveRatio: Float | null;
     CreatorCoinAutoSellThresholdNanos: number;
     ForkHeights: ForkHeights;
+    EncoderMigrationHeights: EncoderMigrationHeights | null;
+    EncoderMigrationHeightsList: MigrationHeight[] | null;
 }
 export interface UtxoView {
     NumUtxoEntries: number;
@@ -433,10 +549,10 @@ export interface UtxoView {
     USDCentsPerBitcoin: number;
     GlobalParamsEntry: GlobalParamsEntry | null;
     BitcoinBurnTxIDs: {
-        [key: string]: boolean;
+        [key: BlockHash]: boolean;
     };
     ForbiddenPubKeyToForbiddenPubKeyEntry: {
-        [key: string]: ForbiddenPubKeyEntry;
+        [key: PkMapKey]: ForbiddenPubKeyEntry;
     };
     MessageKeyToMessageEntry: {
         [key: string]: MessageEntry;
@@ -445,7 +561,7 @@ export interface UtxoView {
         [key: string]: MessagingGroupEntry;
     };
     MessageMap: {
-        [key: string]: PGMessage;
+        [key: BlockHash]: PGMessage;
     };
     FollowKeyToFollowEntry: {
         [key: string]: FollowEntry;
@@ -469,38 +585,42 @@ export interface UtxoView {
         [key: string]: RepostEntry;
     };
     PostHashToPostEntry: {
-        [key: string]: PostEntry;
+        [key: BlockHash]: PostEntry;
     };
-    PublicKeyToanyEntry: {
-        [key: string]: anyEntry;
+    PublicKeyToPKIDEntry: {
+        [key: PkMapKey]: PKIDEntry;
     };
-    anyToPublicKey: {
-        [key: string]: anyEntry;
+    PKIDToPublicKey: {
+        [key: string]: PKIDEntry;
     };
-    ProfileanyToProfileEntry: {
+    ProfilePKIDToProfileEntry: {
         [key: string]: ProfileEntry;
     };
     ProfileUsernameToProfileEntry: {
-        [key: string]: ProfileEntry;
+        [key: UsernameMapKey]: ProfileEntry;
     };
-    HODLeranyCreatoranyToBalanceEntry: {
+    HODLerPKIDCreatorPKIDToBalanceEntry: {
         [key: string]: BalanceEntry;
     };
-    HODLeranyCreatoranyToDAOCoinBalanceEntry: {
+    HODLerPKIDCreatorPKIDToDAOCoinBalanceEntry: {
         [key: string]: BalanceEntry;
     };
     DerivedKeyToDerivedEntry: {
         [key: string]: DerivedKeyEntry;
     };
+    DAOCoinLimitOrderMapKeyToDAOCoinLimitOrderEntry: {
+        [key: string]: DAOCoinLimitOrderEntry;
+    };
     TipHash: number[];
     Handle: DB | null;
     Postgres: Postgres | null;
     Params: DeSoParams | null;
+    Snapshot: Snapshot | null;
 }
 export interface HelpConnectNFTSoldStruct {
     NFTPostHash: number[];
     SerialNumber: number;
-    Bidderany: number[];
+    BidderPKID: number[];
     BidAmountNanos: number;
     UnlockableText: number[] | null;
     PrevNFTBidEntry: NFTBidEntry | null;
@@ -513,6 +633,15 @@ export interface HelpConnectNFTSoldStruct {
 export interface PublicKeyRoyaltyPair {
     PublicKey: number[] | null;
     RoyaltyAmountNanos: number;
+}
+export interface FilledDAOCoinLimitOrder {
+    OrderID: number[];
+    TransactorPKID: number[];
+    BuyingDAOCoinCreatorPKID: number[];
+    SellingDAOCoinCreatorPKID: number[];
+    CoinQuantityInBaseUnitsBought: number[];
+    CoinQuantityInBaseUnitsSold: number[];
+    IsFulfilled: boolean;
 }
 export interface UtxoOperation {
     Type: number;
@@ -565,6 +694,15 @@ export interface UtxoOperation {
     NFTBidCreatorDESORoyaltyNanos: number;
     NFTBidAdditionalCoinRoyalties: PublicKeyRoyaltyPair[] | null;
     NFTBidAdditionalDESORoyalties: PublicKeyRoyaltyPair[] | null;
+    PrevTransactorDAOCoinLimitOrderEntry: DAOCoinLimitOrderEntry | null;
+    PrevBalanceEntries: {
+        [key: string]: string;
+    };
+    PrevMatchingOrders: DAOCoinLimitOrderEntry[] | null;
+    FilledDAOCoinLimitOrders: FilledDAOCoinLimitOrder[] | null;
+}
+export interface UtxoOperationBundle {
+    UtxoOpBundle: UtxoOperation[] | null;
 }
 export interface MessageKey {
     PublicKey: number[];
@@ -584,7 +722,7 @@ export interface NFTKey {
     SerialNumber: number;
 }
 export interface NFTBidKey {
-    Bidderany: number[];
+    BidderPKID: number[];
     NFTPostHash: number[];
     SerialNumber: number;
 }
@@ -593,12 +731,12 @@ export interface DerivedKeyMapKey {
     DerivedPublicKey: number[];
 }
 export interface FollowKey {
-    Followerany: number[];
-    Followedany: number[];
+    FollowerPKID: number[];
+    FollowedPKID: number[];
 }
 export interface DiamondKey {
-    Senderany: number[];
-    Receiverany: number[];
+    SenderPKID: number[];
+    ReceiverPKID: number[];
     DiamondPostHash: number[];
 }
 export interface RepostKey {
@@ -612,19 +750,96 @@ export interface PostEntryReaderState {
     RepostPostHashHex: string;
 }
 export interface BalanceEntryMapKey {
-    HODLerany: number[];
-    Creatorany: number[];
+    HODLerPKID: number[];
+    CreatorPKID: number[];
+}
+export interface DAOCoinLimitOrderMapKey {
+    OrderID: number[];
 }
 export interface OrphanBlock {
     Block: MsgDeSoBlock | null;
     Hash: number[];
 }
-export interface RWMutex {
-}
+export declare type RWMutex = any;
 export interface Blockchain {
+    MaxSyncBlockHeight: number;
     ChainLock: RWMutex;
 }
+export declare type AddrManager = any;
 export interface ConnectionManager {
+    AddrMgr: AddrManager | null;
+    HyperSync: boolean;
+    DisableSlowSync: boolean;
+}
+export interface DBPrefixes {
+    PrefixBlockHashToBlock: number[] | null;
+    PrefixHeightHashToNodeInfo: number[] | null;
+    PrefixBitcoinHeightHashToNodeInfo: number[] | null;
+    PrefixBestDeSoBlockHash: number[] | null;
+    PrefixBestBitcoinHeaderHash: number[] | null;
+    PrefixUtxoKeyToUtxoEntry: number[] | null;
+    PrefixPubKeyUtxoKey: number[] | null;
+    PrefixUtxoNumEntries: number[] | null;
+    PrefixBlockHashToUtxoOperations: number[] | null;
+    PrefixNanosPurchased: number[] | null;
+    PrefixUSDCentsPerBitcoinExchangeRate: number[] | null;
+    PrefixGlobalParams: number[] | null;
+    PrefixBitcoinBurnTxIDs: number[] | null;
+    PrefixPublicKeyTimestampToPrivateMessage: number[] | null;
+    PrefixTransactionIndexTip: number[] | null;
+    PrefixTransactionIDToMetadata: number[] | null;
+    PrefixPublicKeyIndexToTransactionIDs: number[] | null;
+    PrefixPublicKeyToNextIndex: number[] | null;
+    PrefixPostHashToPostEntry: number[] | null;
+    PrefixPosterPublicKeyPostHash: number[] | null;
+    PrefixTstampNanosPostHash: number[] | null;
+    PrefixCreatorBpsPostHash: number[] | null;
+    PrefixMultipleBpsPostHash: number[] | null;
+    PrefixCommentParentStakeIDToPostHash: number[] | null;
+    PrefixPKIDToProfileEntry: number[] | null;
+    PrefixProfileUsernameToPKID: number[] | null;
+    PrefixCreatorDeSoLockedNanosCreatorPKID: number[] | null;
+    PrefixStakeIDTypeAmountStakeIDIndex: number[] | null;
+    PrefixFollowerPKIDToFollowedPKID: number[] | null;
+    PrefixFollowedPKIDToFollowerPKID: number[] | null;
+    PrefixLikerPubKeyToLikedPostHash: number[] | null;
+    PrefixLikedPostHashToLikerPubKey: number[] | null;
+    PrefixHODLerPKIDCreatorPKIDToBalanceEntry: number[] | null;
+    PrefixCreatorPKIDHODLerPKIDToBalanceEntry: number[] | null;
+    PrefixPosterPublicKeyTimestampPostHash: number[] | null;
+    PrefixPublicKeyToPKID: number[] | null;
+    PrefixPKIDToPublicKey: number[] | null;
+    PrefixMempoolTxnHashToMsgDeSoTxn: number[] | null;
+    PrefixReposterPubKeyRepostedPostHashToRepostPostHash: number[] | null;
+    PrefixDiamondReceiverPKIDDiamondSenderPKIDPostHash: number[] | null;
+    PrefixDiamondSenderPKIDDiamondReceiverPKIDPostHash: number[] | null;
+    PrefixForbiddenBlockSignaturePubKeys: number[] | null;
+    PrefixRepostedPostHashReposterPubKey: number[] | null;
+    PrefixRepostedPostHashReposterPubKeyRepostPostHash: number[] | null;
+    PrefixDiamondedPostHashDiamonderPKIDDiamondLevel: number[] | null;
+    PrefixPostHashSerialNumberToNFTEntry: number[] | null;
+    PrefixPKIDIsForSaleBidAmountNanosPostHashSerialNumberToNFTEntry: number[] | null;
+    PrefixPostHashSerialNumberBidNanosBidderPKID: number[] | null;
+    PrefixBidderPKIDPostHashSerialNumberToBidNanos: number[] | null;
+    PrefixPublicKeyToDeSoBalanceNanos: number[] | null;
+    PrefixPublicKeyBlockHashToBlockReward: number[] | null;
+    PrefixPostHashSerialNumberToAcceptedBidEntries: number[] | null;
+    PrefixHODLerPKIDCreatorPKIDToDAOCoinBalanceEntry: number[] | null;
+    PrefixCreatorPKIDHODLerPKIDToDAOCoinBalanceEntry: number[] | null;
+    PrefixMessagingGroupEntriesByOwnerPubKeyAndGroupKeyName: number[] | null;
+    PrefixMessagingGroupMetadataByMemberPubKeyAndGroupMessagingPubKey: number[] | null;
+    PrefixAuthorizeDerivedKey: number[] | null;
+    PrefixDAOCoinLimitOrder: number[] | null;
+    PrefixDAOCoinLimitOrderByTransactorPKID: number[] | null;
+    PrefixDAOCoinLimitOrderByOrderID: number[] | null;
+}
+export interface DBStatePrefixes {
+    Prefixes: DBPrefixes | null;
+    StatePrefixesMap: {
+        [key: number]: boolean;
+    };
+    StatePrefixesList: number[] | null;
+    TxIndexPrefixes: number[] | null;
 }
 export interface AffectedPublicKey {
     PublicKeyBase58Check: string;
@@ -670,6 +885,21 @@ export interface DAOCoinTxindexMetadata {
     CoinsToMintNanos: number[];
     CoinsToBurnNanos: number[];
     TransferRestrictionStatus: string;
+}
+export interface FilledDAOCoinLimitOrderMetadata {
+    TransactorPublicKeyBase58Check: string;
+    BuyingDAOCoinCreatorPublicKey: string;
+    SellingDAOCoinCreatorPublicKey: string;
+    CoinQuantityInBaseUnitsBought: number[];
+    CoinQuantityInBaseUnitsSold: number[];
+    IsFulfilled: boolean;
+}
+export interface DAOCoinLimitOrderTxindexMetadata {
+    BuyingDAOCoinCreatorPublicKey: string;
+    SellingDAOCoinCreatorPublicKey: string;
+    ScaledExchangeRateCoinsToSellPerCoinToBuy: number[];
+    QuantityToFillInBaseUnits: number[];
+    FilledDAOCoinLimitOrdersMetadata: FilledDAOCoinLimitOrderMetadata[] | null;
 }
 export interface UpdateProfileTxindexMetadata {
     ProfilePublicKeyBase58Check: string;
@@ -717,29 +947,13 @@ export interface NFTBidTxindexMetadata {
     BidAmountNanos: number;
     IsBuyNowBid: boolean;
     OwnerPublicKeyBase58Check: string;
-    CreatorCoinRoyaltyNanos: number;
-    CreatorRoyaltyNanos: number;
-    CreatorPublicKeyBase58Check: string;
-    AdditionalCoinRoyaltiesMap: {
-        [key: string]: number;
-    };
-    AdditionalDESORoyaltiesMap: {
-        [key: string]: number;
-    };
+    NFTRoyaltiesMetadata: NFTRoyaltiesMetadata | null;
 }
 export interface AcceptNFTBidTxindexMetadata {
     NFTPostHashHex: string;
     SerialNumber: number;
     BidAmountNanos: number;
-    CreatorCoinRoyaltyNanos: number;
-    CreatorRoyaltyNanos: number;
-    CreatorPublicKeyBase58Check: string;
-    AdditionalCoinRoyaltiesMap: {
-        [key: string]: number;
-    };
-    AdditionalDESORoyaltiesMap: {
-        [key: string]: number;
-    };
+    NFTRoyaltiesMetadata: NFTRoyaltiesMetadata | null;
 }
 export interface NFTTransferTxindexMetadata {
     NFTPostHashHex: string;
@@ -792,6 +1006,7 @@ export interface TransactionMetadata {
     DAOCoinTransferTxindexMetadata: DAOCoinTransferTxindexMetadata | null;
     CreateNFTTxindexMetadata: CreateNFTTxindexMetadata | null;
     UpdateNFTTxindexMetadata: UpdateNFTTxindexMetadata | null;
+    DAOCoinLimitOrderTxindexMetadata: DAOCoinLimitOrderTxindexMetadata | null;
 }
 export interface TransactionEvent {
     Txn: MsgDeSoTxn | null;
@@ -803,8 +1018,6 @@ export interface BlockEvent {
     Block: MsgDeSoBlock | null;
     UtxoView: UtxoView | null;
     UtxoOps: UtxoOperation[] | null;
-}
-export interface EventManager {
 }
 export interface MempoolTx {
     Tx: MsgDeSoTxn | null;
@@ -820,10 +1033,6 @@ export interface SummaryStats {
     Count: number;
     TotalBytes: number;
 }
-export interface UnconnectedTx {
-}
-export interface DeSoMempool {
-}
 export interface PublicKey {
     Curve: any;
     X: Int | null;
@@ -833,18 +1042,9 @@ export interface DeSoMiner {
     PublicKeys: PublicKey[] | null;
     BlockProducer: DeSoBlockProducer | null;
 }
-export interface MsgDeSoQuit {
-}
-export interface MsgDeSoNewPeer {
-}
-export interface MsgDeSoDonePeer {
-}
-export interface MsgDeSoBitcoinManagerUpdate {
-    TransactionsFound: MsgDeSoTxn[] | null;
-}
 export interface MsgDeSoGetHeaders {
     StopHash: number[];
-    BlockLocator: any[] | null;
+    BlockLocator: BlockHash[] | null;
 }
 export interface MsgDeSoHeaderBundle {
     Headers: MsgDeSoHeader[] | null;
@@ -852,7 +1052,7 @@ export interface MsgDeSoHeaderBundle {
     TipHeight: number;
 }
 export interface MsgDeSoGetBlocks {
-    HashList: any[] | null;
+    HashList: BlockHash[] | null;
 }
 export interface DeSoBodySchema {
     Body: string;
@@ -860,12 +1060,10 @@ export interface DeSoBodySchema {
     VideoURLs: string[] | null;
 }
 export interface MsgDeSoGetTransactions {
-    HashList: any[] | null;
+    HashList: BlockHash[] | null;
 }
 export interface MsgDeSoTransactionBundle {
     Transactions: MsgDeSoTxn[] | null;
-}
-export interface MsgDeSoMempool {
 }
 export interface InvVect {
     Type: number;
@@ -899,12 +1097,17 @@ export interface SingleAddr {
 export interface MsgDeSoAddr {
     AddrList: SingleAddr[] | null;
 }
-export interface MsgDeSoGetAddr {
-}
 export interface MsgDeSoVerack {
     Nonce: number;
 }
-export interface BasicTransferMetadata {
+export interface MsgDeSoGetSnapshot {
+    SnapshotStartKey: number[] | null;
+}
+export interface MsgDeSoSnapshotData {
+    SnapshotMetadata: SnapshotEpochMetadata | null;
+    SnapshotChunk: DBEntry[] | null;
+    SnapshotChunkFull: boolean;
+    Prefix: number[] | null;
 }
 export interface BlockRewardMetadataa {
     ExtraData: number[] | null;
@@ -950,8 +1153,6 @@ export interface UpdateProfileMetadata {
     NewStakeMultipleBasisPoints: number;
     IsHidden: boolean;
 }
-export interface UpdateGlobalParamsMetadata {
-}
 export interface UpdateBitcoinUSDExchangeRateMetadataa {
     USDCentsPerBitcoin: number;
 }
@@ -987,7 +1188,7 @@ export interface UpdateNFTMetadata {
 export interface AcceptNFTBidMetadata {
     NFTPostHash: number[];
     SerialNumber: number;
-    Bidderany: number[];
+    BidderPKID: number[];
     BidAmountNanos: number;
     UnlockableText: number[] | null;
     BidderInputs: DeSoInput[] | null;
@@ -1021,6 +1222,23 @@ export interface AuthorizeDerivedKeyMetadata {
     OperationType: number;
     AccessSignature: number[] | null;
 }
+export interface NFTOperationLimitKey {
+    BlockHash: number[];
+    SerialNumber: number;
+    Operation: number;
+}
+export interface CreatorCoinOperationLimitKey {
+    CreatorPKID: number[];
+    Operation: number;
+}
+export interface DAOCoinOperationLimitKey {
+    CreatorPKID: number[];
+    Operation: number;
+}
+export interface DAOCoinLimitOrderLimitKey {
+    BuyingDAOCoinCreatorPKID: number[];
+    SellingDAOCoinCreatorPKID: number[];
+}
 export interface DAOCoinMetadata {
     ProfilePublicKey: number[] | null;
     OperationType: number;
@@ -1033,34 +1251,57 @@ export interface DAOCoinTransferMetadata {
     DAOCoinToTransferNanos: number[];
     ReceiverPublicKey: number[] | null;
 }
+export interface DeSoInputsByTransactor {
+    TransactorPublicKey: number[];
+    Inputs: DeSoInput[] | null;
+}
+export interface DAOCoinLimitOrderMetadata {
+    BuyingDAOCoinCreatorPublicKey: number[];
+    SellingDAOCoinCreatorPublicKey: number[];
+    ScaledExchangeRateCoinsToSellPerCoinToBuy: number[];
+    QuantityToFillInBaseUnits: number[];
+    OperationType: number;
+    FillType: number;
+    CancelOrderID: number[];
+    BidderInputs: DeSoInputsByTransactor[] | null;
+    FeeNanos: number;
+}
 export interface MessagingGroupMetadata {
     MessagingPublicKey: number[] | null;
     MessagingGroupKeyName: number[] | null;
     GroupOwnerSignature: number[] | null;
     MessagingGroupMembers: MessagingGroupMember[] | null;
 }
-export interface Notifier {
+export interface DeSoNode {
+    Name: string;
+    URL: string;
+    Owner: string;
 }
+export declare type Notifer = any;
 export interface ExpectedResponse {
     TimeExpected: Date;
-    MessageType: number;
+    MessageTan: number;
 }
 export interface DeSoMessageMeta {
     DeSoMessage: any;
     Inbound: boolean;
 }
-export interface Mutex {
-}
 export interface Peer {
     StatsMtx: RWMutex;
+    TimeOffsetSecs: number;
+    TimeConnected: Date;
     ID: number;
     LastPingNonce: number;
     LastPingTime: Date;
     LastPingMicros: number;
+    Conn: any;
     Params: DeSoParams | null;
     MessageChan: ServerMessage;
     PeerManuallyRemovedFromConnectionManager: boolean;
+    VersionNonceSent: number;
+    VersionNonceReceived: number;
     PeerInfoMtx: Mutex;
+    VersionNegotiated: boolean;
 }
 export interface PGChain {
     Name: string;
@@ -1183,7 +1424,7 @@ export interface PGMetadataAcceptNFTBid {
     TransactionHash: number[];
     NFTPostHash: number[];
     SerialNumber: number;
-    Bidderany: number[];
+    BidderPKID: number[];
     BidAmountNanos: number;
     UnlockableText: number[] | null;
     BidderInputs: PGMetadataBidInput[] | null;
@@ -1232,13 +1473,30 @@ export interface PGMetadataDAOCoinTransfer {
     DAOCoinToTransferNanos: string;
     ReceiverPublicKey: number[] | null;
 }
+export interface PGMetadataDAOCoinLimitOrderBidderInputs {
+    TransactionHash: number[];
+    InputHash: number[];
+    InputIndex: number;
+}
+export interface PGMetadataDAOCoinLimitOrder {
+    TransactionHash: number[];
+    BuyingDAOCoinCreatorPublicKey: number[];
+    SellingDAOCoinCreatorPublicKey: number[];
+    ScaledExchangeRateCoinsToSellPerCoinToBuy: string;
+    QuantityToFillInBaseUnits: string;
+    OperationType: number;
+    FillType: number;
+    CancelOrderID: number[];
+    FeeNanos: number;
+    BidderInputs: PGMetadataDAOCoinLimitOrderBidderInputs[] | null;
+}
 export interface PGTransaction {
     Hash: number[];
-    any: number[];
+    BlockHash: number[];
     Type: number;
     PublicKey: number[] | null;
     ExtraData: {
-        [key: string]: number[];
+        [key: string]: number;
     };
     R: number[];
     S: number[];
@@ -1264,6 +1522,7 @@ export interface PGTransaction {
     MetadataDerivedKey: PGMetadataDerivedKey | null;
     MetadataDAOCoin: PGMetadataDAOCoin | null;
     MetadataDAOCoinTransfer: PGMetadataDAOCoinTransfer | null;
+    MetadataDAOCoinLimitOrder: PGMetadataDAOCoinLimitOrder | null;
 }
 export interface PGNotification {
     TransactionHash: number[];
@@ -1277,7 +1536,7 @@ export interface PGNotification {
     Timestamp: number;
 }
 export interface PGProfile {
-    any: number[];
+    PKID: number[];
     PublicKey: number[];
     Username: string;
     Description: string;
@@ -1292,6 +1551,9 @@ export interface PGProfile {
     DAOCoinCoinsInCirculationNanos: string;
     DAOCoinMintingDisabled: boolean;
     DAOCoinTransferRestrictionStatus: number;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface PGPost {
     PostHash: number[];
@@ -1322,7 +1584,7 @@ export interface PGPost {
         [key: string]: number;
     };
     ExtraData: {
-        [key: string]: number[];
+        [key: string]: number;
     };
 }
 export interface PGLike {
@@ -1330,12 +1592,12 @@ export interface PGLike {
     LikedPostHash: number[];
 }
 export interface PGFollow {
-    Followerany: number[];
-    Followedany: number[];
+    FollowerPKID: number[];
+    FollowedPKID: number[];
 }
 export interface PGDiamond {
-    Senderany: number[];
-    Receiverany: number[];
+    SenderPKID: number[];
+    ReceiverPKID: number[];
     DiamondPostHash: number[];
     DiamondLevel: number;
 }
@@ -1344,18 +1606,32 @@ export interface PGMessagingGroup {
     MessagingPublicKey: number[];
     MessagingGroupKeyName: number[];
     MessagingGroupMembers: number[] | null;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface PGCreatorCoinBalance {
-    Holderany: number[];
-    Creatorany: number[];
+    HolderPKID: number[];
+    CreatorPKID: number[];
     BalanceNanos: number;
     HasPurchased: boolean;
 }
 export interface PGDAOCoinBalance {
-    Holderany: number[];
-    Creatorany: number[];
+    HolderPKID: number[];
+    CreatorPKID: number[];
     BalanceNanos: string;
     HasPurchased: boolean;
+}
+export interface PGDAOCoinLimitOrder {
+    OrderID: number[];
+    TransactorPKID: number[];
+    BuyingDAOCoinCreatorPKID: number[];
+    SellingDAOCoinCreatorPKID: number[];
+    ScaledExchangeRateCoinsToSellPerCoinToBuy: string;
+    QuantityToFillInBaseUnits: string;
+    OperationType: number;
+    FillType: number;
+    BlockHeight: number;
 }
 export interface PGBalance {
     PublicKey: number[];
@@ -1380,8 +1656,8 @@ export interface PGForbiddenKey {
 export interface PGNFT {
     NFTPostHash: number[];
     SerialNumber: number;
-    LastOwnerany: number[];
-    Ownerany: number[];
+    LastOwnerPKID: number[];
+    OwnerPKID: number[];
     ForSale: boolean;
     MinBidAmountNanos: number;
     UnlockableText: string;
@@ -1389,9 +1665,12 @@ export interface PGNFT {
     IsPending: boolean;
     IsBuyNow: boolean;
     BuyNowPriceNanos: number;
+    ExtraData: {
+        [key: string]: number;
+    };
 }
 export interface PGNFTBid {
-    Bidderany: number[];
+    BidderPKID: number[];
     NFTPostHash: number[];
     SerialNumber: number;
     BidAmountNanos: number;
@@ -1403,6 +1682,11 @@ export interface PGDerivedKey {
     DerivedPublicKey: number[];
     ExpirationBlock: number;
     OperationType: number;
+    ExtraData: {
+        [key: string]: number;
+    };
+    TransactionSpendingLimitTracker: TransactionSpendingLimit | null;
+    Memo: number[] | null;
 }
 export interface ServerMessage {
     Peer: Peer | null;
@@ -1413,40 +1697,32 @@ export interface GetDataRequestInfo {
     PeerWhoSentInv: Peer | null;
     TimeRequested: Date;
 }
-export interface CountryLevelSignUpBonus {
-    AllowCustomReferralAmount: boolean;
-    ReferralAmountOverrideUSDCents: number;
-    AllowCustomKickbackAmount: boolean;
-    KickbackAmountOverrideUSDCents: number;
+export declare type ServerReply = any;
+export interface TXIndex {
+    TXIndexLock: RWMutex;
+    TXIndexChain: Blockchain | null;
+    CoreChain: Blockchain | null;
+    Params: DeSoParams | null;
 }
-export interface Alpha3CountryCodeDetails {
-    CountryCode: string;
-    Name: string;
-    Alpha3: string;
+export interface SyncPrefixProgress {
+    PrefixSyncPeer: Peer | null;
+    Prefix: number[] | null;
+    LastReceivedKey: number[] | null;
+    Completed: boolean;
 }
-export interface CountrySignUpBonusResponse {
-    CountryLevelSignUpBonus: CountryLevelSignUpBonus;
-    CountryCodeDetails: Alpha3CountryCodeDetails;
-}
-export interface ServerReply {
-    GraylistedResponseMap: {
-        [key: string]: number[];
-    };
-    GlobalFeedPostHashes: any[] | null;
-    TotalSupplyNanos: number;
-    TotalSupplyDESO: number;
-    CountKeysWithDESO: number;
-    AllCountryLevelSignUpBonuses: {
-        [key: string]: CountrySignUpBonusResponse;
-    };
-    USDCentsToDESOReserveExchangeRate: number;
-    BuyDESOFeeBasisPoints: number;
-    JumioUSDCents: number;
-    JumioKickbackUSDCents: number;
+export interface SyncProgress {
+    PrefixProgress: SyncPrefixProgress[] | null;
+    SnapshotMetadata: SnapshotEpochMetadata | null;
+    Completed: boolean;
 }
 export interface Server {
+    TxIndex: TXIndex | null;
     SyncPeer: Peer | null;
-    Notifier: Notifier | null;
+    HyperSyncProgress: SyncProgress;
+    DisableNetworking: boolean;
+    ReadOnlyMode: boolean;
+    IgnoreInboundPeerInvMessages: boolean;
+    Notifier: any | null;
 }
 export interface MiningSupplyIntervalStart {
     StartBlockHeight: number;
@@ -1455,12 +1731,6 @@ export interface MiningSupplyIntervalStart {
 export interface PurchaseSupplyIntervalStart {
     SatoshisPerUnit: number;
     SupplyStartNanos: number;
-}
-export interface TXIndex {
-    TXIndexLock: RWMutex;
-    TXIndexChain: Blockchain | null;
-    CoreChain: Blockchain | null;
-    Params: DeSoParams | null;
 }
 export interface SetUSDCentsToDeSoExchangeRateRequest {
     USDCentsPerDeSo: number;
@@ -1481,6 +1751,25 @@ export interface SetBuyDeSoFeeBasisPointsResponse {
 }
 export interface GetBuyDeSoFeeBasisPointsResponse {
     BuyDeSoFeeBasisPoints: number;
+}
+export interface GetDAOCoinLimitOrdersRequest {
+    DAOCoin1CreatorPublicKeyBase58CheckOrUsername: string;
+    DAOCoin2CreatorPublicKeyBase58CheckOrUsername: string;
+}
+export interface DAOCoinLimitOrderEntryResponse {
+    TransactorPublicKeyBase58Check: string;
+    BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+    SellingDAOCoinCreatorPublicKeyBase58Check: string;
+    ExchangeRateCoinsToSellPerCoinToBuy: number;
+    QuantityToFill: number;
+    OperationType: string;
+    OrderID: string;
+}
+export interface GetDAOCoinLimitOrdersResponse {
+    Orders: DAOCoinLimitOrderEntryResponse[] | null;
+}
+export interface GetTransactorDAOCoinLimitOrdersRequest {
+    TransactorPublicKeyBase58CheckOrUsername: string;
 }
 export interface AdminPinPostRequest {
     PostHashHex: string;
@@ -1561,7 +1850,7 @@ export interface BalanceEntryResponse {
     CreatorPublicKeyBase58Check: string;
     HasPurchased: boolean;
     BalanceNanos: number;
-    BalanceNanosUint256: number[];
+    BalanceNanosUint256: string[];
     NetBalanceInMempool: number;
     ProfileEntryResponse: ProfileEntryResponse | null;
 }
@@ -1581,6 +1870,9 @@ export interface ProfileEntryResponse {
     UsersThatHODL: BalanceEntryResponse[] | null;
     IsFeaturedTutorialWellKnownCreator: boolean;
     IsFeaturedTutorialUpAndComingCreator: boolean;
+    ExtraData: {
+        [key: string]: string;
+    };
 }
 export interface TransactionFee {
     PublicKeyBase58Check: string;
@@ -1653,9 +1945,24 @@ export interface AdminJumioCallback {
     Username: string;
     CountryAlpha3: string;
 }
+export interface CountryLevelSignUpBonus {
+    AllowCustomReferralAmount: boolean;
+    ReferralAmountOverrideUSDCents: number;
+    AllowCustomKickbackAmount: boolean;
+    KickbackAmountOverrideUSDCents: number;
+}
 export interface AdminUpdateJumioCountrySignUpBonusRequest {
     CountryCode: string;
     CountryLevelSignUpBonus: CountryLevelSignUpBonus;
+}
+export interface Alpha3CountryCodeDetails {
+    CountryCode: string;
+    Name: string;
+    Alpha3: string;
+}
+export interface CountrySignUpBonusResponse {
+    CountryLevelSignUpBonus: CountryLevelSignUpBonus;
+    CountryCodeDetails: Alpha3CountryCodeDetails;
 }
 export interface GetAllCountryLevelSignUpBonusResponse {
     SignUpBonusMetadata: {
@@ -1670,7 +1977,7 @@ export interface NFTDropEntry {
     IsActive: boolean;
     DropNumber: number;
     DropTstampNanos: number;
-    NFTHashes: any[] | null;
+    NFTHashes: BlockHash[] | null;
 }
 export interface AdminGetNFTDropResponse {
     DropEntry: NFTDropEntry | null;
@@ -1734,7 +2041,7 @@ export interface AdminCreateReferralHashRequest {
 }
 export interface ReferralInfo {
     ReferralHashBase58: string;
-    Referrerany: number[];
+    ReferrerPKID: number[];
     ReferrerAmountUSDCents: number;
     RefereeAmountUSDCents: number;
     MaxReferrals: number;
@@ -1796,8 +2103,6 @@ export interface AdminUploadReferralCSVResponse {
 }
 export interface AdminDownloadRefereeCSVResponse {
     CSVRows: string[] | null;
-}
-export interface GetGlobalParamsRequest {
 }
 export interface GetGlobalParamsResponse {
     USDCentsPerBitcoin: number;
@@ -1886,7 +2191,7 @@ export interface UserMetadata {
     SatoshisBurnedSoFar: number;
     HasBurnedEnoughSatoshisToCreateProfile: boolean;
     BlockedPublicKeys: {
-        [key: string]: any;
+        [key: string]: string;
     };
     WhitelistPosts: boolean;
     JumioInternalReference: string;
@@ -1902,7 +2207,7 @@ export interface UserMetadata {
     IsFeaturedTutorialWellKnownCreator: boolean;
     IsFeaturedTutorialUpAndComingCreator: boolean;
     TutorialStatus: string;
-    CreatorPurchasedInTutorialany: number[];
+    CreatorPurchasedInTutorialPKID: number[];
     CreatorCoinsPurchasedInTutorial: number;
     ReferralHashBase58Check: string;
     ReferrerDeSoTxnHash: string;
@@ -1924,26 +2229,26 @@ export interface AdminGetUserGlobalMetadataResponse {
     UserMetadata: UserMetadata;
     UserProfileEntryResponse: ProfileEntryResponse | null;
 }
-export interface VerifiedUsernameToany {
-    VerifiedUsernameToany: {
-        [key: string]: any;
+export interface VerifiedUsernameToPKID {
+    VerifiedUsernameToPKID: {
+        [key: string]: PKID;
     };
 }
 export interface VerificationUsernameAuditLog {
     TimestampNanos: number;
     VerifierUsername: string;
-    Verifierany: number[];
+    VerifierPKID: number[];
     VerifiedUsername: string;
-    Verifiedany: number[];
+    VerifiedPKID: number[];
     IsRemoval: boolean;
 }
 export interface FilterAuditLog {
     TimestampNanos: number;
     Filter: number;
     UpdaterUsername: string;
-    Updaterany: number[];
+    UpdaterPKID: number[];
     UpdatedUsername: string;
-    Updatedany: number[];
+    UpdatedPKID: number[];
     IsRemoval: boolean;
 }
 export interface AdminGrantVerificationBadgeRequest {
@@ -2025,11 +2330,6 @@ export interface CoinbaseDeSoTickerResponse {
 export interface GetAppStateRequest {
     PublicKeyBase58Check: string;
 }
-export interface DeSoNode {
-    Name: string;
-    URL: string;
-    Owner: string;
-}
 export interface GetAppStateResponse {
     MinSatoshisBurnedForProfileCreation: number;
     BlockHeight: number;
@@ -2059,12 +2359,6 @@ export interface GetAppStateResponse {
     };
     USDCentsPerBitCloutExchangeRate: number;
     JumioBitCloutNanos: number;
-}
-export interface CoinbaseResponse {
-    data: any;
-}
-export interface CoingeckoResponse {
-    bitcoin: any;
 }
 export interface BlockchainDotcomResponse {
     USD: any;
@@ -2103,12 +2397,6 @@ export interface AdminProcessETHTxRequest {
 export interface AdminProcessETHTxResponse {
     DESOTxHash: string;
 }
-export interface InfuraRequest {
-    jsonrpc: string;
-    method: string;
-    params: any[] | null;
-    id: number;
-}
 export interface InfuraResponse {
     id: number;
     jsonrpc: string;
@@ -2116,7 +2404,7 @@ export interface InfuraResponse {
     error: any;
 }
 export interface InfuraTx {
-    any: string | null;
+    blockHash: string | null;
     blockNumber: string | null;
     from: string;
     gas: string;
@@ -2133,6 +2421,7 @@ export interface InfuraTx {
 }
 export interface QueryETHRPCRequest {
     Method: string;
+    Params: any;
 }
 export interface HeaderResponse {
     BlockHashHex: string;
@@ -2239,8 +2528,6 @@ export interface APITransactionInfoResponse {
     LastPublicKeyTransactionIndex: number;
     BalanceNanos: number;
 }
-export interface APINodeInfoRequest {
-}
 export interface APINodeInfoResponse {
     Error: string;
 }
@@ -2254,6 +2541,10 @@ export interface APIBlockResponse {
     Header: HeaderResponse | null;
     Transactions: TransactionResponse[] | null;
 }
+export interface ExtraDataEncoding {
+    Decode: ExtraDataDecoderFunc;
+    Encode: ExtraDataEncoderFunc;
+}
 export interface GlobalState {
     GlobalStateRemoteNode: string;
     GlobalStateRemoteSecret: string;
@@ -2263,7 +2554,7 @@ export interface HotFeedApprovedPostOp {
     IsRemoval: boolean;
     Multiplier: number;
 }
-export interface HotFeedanyMultiplierOp {
+export interface HotFeedPKIDMultiplierOp {
     InteractionMultiplier: number;
     PostsMultiplier: number;
 }
@@ -2301,7 +2592,7 @@ export interface WyreTrackOrderResponse {
     message: any;
     transferHistoryEntryType: string;
     successTimeline: [] | null;
-    failedTimeline: any[] | null;
+    failedTimeline: any;
     failureReason: any;
     reversalReason: any;
 }
@@ -2314,8 +2605,6 @@ export interface WyreWalletOrderMetadata {
 export interface PutRemoteRequest {
     Key: number[] | null;
     Value: number[] | null;
-}
-export interface PutRemoteResponse {
 }
 export interface GetRemoteRequest {
     Key: number[] | null;
@@ -2331,8 +2620,6 @@ export interface BatchGetRemoteResponse {
 }
 export interface DeleteRemoteRequest {
     Key: number[] | null;
-}
-export interface DeleteRemoteResponse {
 }
 export interface SeekRemoteRequest {
     StartPrefix: number[] | null;
@@ -2351,11 +2638,17 @@ export interface HotFeedEntry {
     PostHashHex: string;
     HotnessScore: number;
 }
+export interface HotFeedEntryTimeSortable {
+    PostHash: number[];
+    PostHashHex: string;
+    HotnessScore: number;
+    PostBlockAge: number;
+}
 export interface HotFeedInteractionKey {
-    Interactionany: number[];
+    InteractionPKID: number[];
     InteractionPostHash: number[];
 }
-export interface HotFeedanyMultiplier {
+export interface HotFeedPKIDMultiplier {
     InteractionMultiplier: number;
     PostsMultiplier: number;
 }
@@ -2375,11 +2668,21 @@ export interface HotFeedPageResponse {
 }
 export interface AdminUpdateHotFeedAlgorithmRequest {
     InteractionCap: number;
+    InteractionCapTag: number;
     TimeDecayBlocks: number;
+    TimeDecayBlocksTag: number;
+    TxnTypeMultiplierMap: {
+        [key: number]: number;
+    };
 }
 export interface AdminGetHotFeedAlgorithmResponse {
     InteractionCap: number;
+    InteractionCapTag: number;
     TimeDecayBlocks: number;
+    TimeDecayBlocksTag: number;
+    TxnTypeMultiplierMap: {
+        [key: number]: number;
+    };
 }
 export interface AdminUpdateHotFeedPostMultiplierRequest {
     PostHashHex: string;
@@ -2411,8 +2714,8 @@ export interface CFVideoDetailsResponse {
         [key: string]: any;
     };
     success: boolean;
-    errors: any[] | null;
-    messages: any[] | null;
+    errors: any;
+    messages: any;
 }
 export interface GetVideoStatusResponse {
     ReadyToStream: boolean;
@@ -2443,6 +2746,9 @@ export interface MessageEntryResponse {
     SenderMessagingGroupKeyName: string;
     RecipientMessagingPublicKey: string;
     RecipientMessagingGroupKeyName: string;
+    ExtraData: {
+        [key: string]: string;
+    };
 }
 export interface MessageContactResponse {
     PublicKeyBase58Check: string;
@@ -2461,6 +2767,9 @@ export interface MessagingGroupEntryResponse {
     MessagingGroupKeyName: string;
     MessagingGroupMembers: MessagingGroupMemberResponse[] | null;
     EncryptedKey: string;
+    ExtraData: {
+        [key: string]: string;
+    };
 }
 export interface GetMessagesResponse {
     PublicKeyToProfileEntry: {
@@ -2482,6 +2791,9 @@ export interface SendMessageStatelessRequest {
     TransactionFees: TransactionFee[] | null;
     SenderMessagingGroupKeyName: string;
     RecipientMessagingGroupKeyName: string;
+    ExtraData: {
+        [key: string]: string;
+    };
 }
 export interface SendMessageStatelessResponse {
     TstampNanos: number;
@@ -2505,6 +2817,9 @@ export interface RegisterMessagingGroupKeyRequest {
     MessagingPublicKeyBase58Check: string;
     MessagingGroupKeyName: string;
     MessagingKeySignatureHex: string;
+    ExtraData: {
+        [key: string]: string;
+    };
     MinFeeRateNanosPerKB: number;
     TransactionFees: TransactionFee[] | null;
 }
@@ -2536,6 +2851,28 @@ export interface CheckPartyMessagingKeysResponse {
     RecipientMessagingKeyName: string;
     IsRecipientMessagingKey: boolean;
 }
+export interface GetBlockTemplateRequest {
+    PublicKeyBase58Check: string;
+    NumHeaders: number;
+    HeaderVersion: number;
+}
+export interface GetBlockTemplateResponse {
+    Headers: number[] | null;
+    ExtraNonces: number[] | null;
+    BlockID: string;
+    DifficultyTargetHex: string;
+    LatestBlockTemplateStats: BlockTemplateStats;
+}
+export interface SubmitBlockRequest {
+    PublicKeyBase58Check: string;
+    Header: string[] | null;
+    ExtraNonce: number;
+    BlockID: string;
+}
+export interface SubmitBlockResponse {
+    IsMainChain: boolean;
+    IsOrphan: boolean;
+}
 export interface NFTEntryResponse {
     OwnerPublicKeyBase58Check: string;
     ProfileEntryResponse: ProfileEntryResponse | null;
@@ -2551,6 +2888,9 @@ export interface NFTEntryResponse {
     LowestBidAmountNanos: number;
     LastOwnerPublicKeyBase58Check: string | null;
     EncryptedUnlockableText: string | null;
+    ExtraData: {
+        [key: string]: string;
+    };
 }
 export interface NFTCollectionResponse {
     ProfileEntryResponse: ProfileEntryResponse | null;
@@ -2591,6 +2931,9 @@ export interface CreateNFTRequest {
     };
     AdditionalCoinRoyaltiesMap: {
         [key: string]: number;
+    };
+    ExtraData: {
+        [key: string]: string;
     };
     MinFeeRateNanosPerKB: number;
     TransactionFees: TransactionFee[] | null;
@@ -2920,15 +3263,34 @@ export interface GetReferralInfoForReferralHashResponse {
     ReferralInfoResponse: SimpleReferralInfoResponse | null;
     CountrySignUpBonus: CountryLevelSignUpBonus;
 }
+export interface Config {
+    Checks: string[] | null;
+    Initialisms: string[] | null;
+    DotImportWhitelist: string[] | null;
+    HTTPStatusCodeWhitelist: string[] | null;
+}
+export declare type ConferenceService = any;
+export declare type NumberPurchasingService = any;
+export interface IncomingNumberService {
+    Local: NumberPurchasingService | null;
+    TollFree: NumberPurchasingService | null;
+}
 export interface LastTradePriceHistoryItem {
     LastTradePrice: number;
     Timestamp: number;
+}
+export interface RichListEntryResponse {
+    PublicKeyBase58Check: string;
+    BalanceNanos: number;
+    BalanceDESO: number;
+    Percentage: number;
+    Value: number;
 }
 export interface Route {
     Name: string;
     Method: string[] | null;
     Pattern: string;
-    any: any;
+    HandlerFunc: any;
     AccessLevel: number;
 }
 export interface AdminRequest {
@@ -2969,7 +3331,7 @@ export interface User {
     HasPhoneNumber: boolean;
     CanCreateProfile: boolean;
     BlockedPubKeys: {
-        [key: string]: any;
+        [key: string]: string;
     };
     HasEmail: boolean;
     EmailVerified: boolean;
@@ -2985,6 +3347,10 @@ export interface User {
     CreatorPurchasedInTutorialUsername: string | null;
     CreatorCoinsPurchasedInTutorial: number;
     MustCompleteTutorial: boolean;
+}
+export interface RichListEntry {
+    KeyBytes: number[] | null;
+    BalanceNanos: number;
 }
 export interface GetTxnRequest {
     TxnHashHex: string;
@@ -3009,6 +3375,9 @@ export interface UpdateProfileRequest {
     NewCreatorBasisPoints: number;
     NewStakeMultipleBasisPoints: number;
     IsHidden: boolean;
+    ExtraData: {
+        [key: string]: string;
+    };
     MinFeeRateNanosPerKB: number;
     TransactionFees: TransactionFee[] | null;
 }
@@ -3112,7 +3481,7 @@ export interface CreateFollowTxnStatelessResponse {
 export interface BuyOrSellCreatorCoinRequest {
     UpdaterPublicKeyBase58Check: string;
     CreatorPublicKeyBase58Check: string;
-    OperationType: 'buy' | 'sell';
+    OperationType: string;
     DeSoToSellNanos: number;
     CreatorCoinToSellNanos: number;
     DeSoToAddNanos: number;
@@ -3172,13 +3541,12 @@ export interface SendDiamondsResponse {
     TransactionHex: string;
     TxnHashHex: string;
 }
-export declare type Hex = string | number;
 export interface DAOCoinRequest {
     UpdaterPublicKeyBase58Check: string;
     ProfilePublicKeyBase58CheckOrUsername: string;
     OperationType: string;
-    CoinsToMintNanos: Hex;
-    CoinsToBurnNanos: Hex;
+    CoinsToMintNanos: string;
+    CoinsToBurnNanos: string;
     TransferRestrictionStatus: string;
     MinFeeRateNanosPerKB: number;
     TransactionFees: TransactionFee[] | null;
@@ -3195,7 +3563,7 @@ export interface TransferDAOCoinRequest {
     SenderPublicKeyBase58Check: string;
     ProfilePublicKeyBase58CheckOrUsername: string;
     ReceiverPublicKeyBase58CheckOrUsername: string;
-    DAOCoinToTransferNanos: Hex;
+    DAOCoinToTransferNanos: string;
     MinFeeRateNanosPerKB: number;
     TransactionFees: TransactionFee[] | null;
 }
@@ -3208,6 +3576,59 @@ export interface TransferDAOCoinResponse {
     TransactionHex: string;
     TxnHashHex: string;
 }
+export interface DAOCoinLimitOrderResponse {
+    SpendAmountNanos: number;
+    TotalInputNanos: number;
+    ChangeAmountNanos: number;
+    FeeNanos: number;
+    Transaction: MsgDeSoTxn;
+    TransactionHex: string;
+    TxnHashHex: string;
+}
+export interface DAOCoinMarketOrderWithQuantityRequest {
+    TransactorPublicKeyBase58Check: string;
+    BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
+    SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
+    QuantityToFill: number;
+    OperationType: string;
+    FillType: string;
+    MinFeeRateNanosPerKB: number;
+    TransactionFees: TransactionFee[] | null;
+}
+export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
+    TransactorPublicKeyBase58Check: string;
+    CancelOrderID: string;
+    MinFeeRateNanosPerKB: number;
+    TransactionFees: TransactionFee[] | null;
+}
+export interface TransactionSpendingLimitResponse {
+    GlobalDESOLimit: number;
+    TransactionCountLimitMap: {
+        [key: string]: number;
+    };
+    CreatorCoinOperationLimitMap: {
+        [key: string]: {
+            [key: string]: number;
+        };
+    };
+    DAOCoinOperationLimitMap: {
+        [key: string]: {
+            [key: string]: number;
+        };
+    };
+    NFTOperationLimitMap: {
+        [key: string]: {
+            [key: number]: {
+                [key: string]: number;
+            };
+        };
+    };
+    DAOCoinLimitOrderLimitMap: {
+        [key: string]: {
+            [key: string]: number;
+        };
+    };
+}
 export interface AuthorizeDerivedKeyRequest {
     OwnerPublicKeyBase58Check: string;
     DerivedPublicKeyBase58Check: string;
@@ -3216,7 +3637,7 @@ export interface AuthorizeDerivedKeyRequest {
     DeleteKey: boolean;
     DerivedKeySignature: boolean;
     ExtraData: {
-        [k: string]: string;
+        [key: string]: string;
     };
     TransactionSpendingLimitHex: string;
     Memo: string;
@@ -3270,6 +3691,7 @@ export interface StartOrSkipTutorialRequest {
 export interface GetUsersStatelessRequest {
     PublicKeysBase58Check: string[] | null;
     SkipForLeaderboard: boolean;
+    IncludeBalance: boolean;
     GetUnminedBalance: boolean;
 }
 export interface GetUsersResponse {
@@ -3427,7 +3849,7 @@ export interface BlockPublicKeyRequest {
 }
 export interface BlockPublicKeyResponse {
     BlockedPublicKeys: {
-        [key: string]: any;
+        [key: string]: string;
     };
 }
 export interface IsFollowingPublicKeyRequest {
@@ -3454,11 +3876,22 @@ export interface UserDerivedKey {
     DerivedPublicKeyBase58Check: string;
     ExpirationBlock: number;
     IsValid: boolean;
+    ExtraData: {
+        [key: string]: string;
+    };
+    TransactionSpendingLimit: TransactionSpendingLimitResponse | null;
+    Memo: string;
 }
 export interface GetUserDerivedKeysResponse {
     DerivedKeys: {
         [key: string]: UserDerivedKey;
     };
+}
+export interface GetTransactionSpendingLimitHexStringRequest {
+    TransactionSpendingLimit: TransactionSpendingLimitResponse;
+}
+export interface GetTransactionSpendingLimitHexStringResponse {
+    HexString: string;
 }
 export interface DeletePIIRequest {
     PublicKeyBase58Check: string;
@@ -3468,8 +3901,6 @@ export interface SendPhoneNumberVerificationTextRequest {
     PublicKeyBase58Check: string;
     PhoneNumber: string;
     JWT: string;
-}
-export interface SendPhoneNumberVerificationTextResponse {
 }
 export interface SubmitPhoneNumberVerificationCodeRequest {
     JWT: string;
@@ -3629,3 +4060,9 @@ export interface WyreWalletOrderMetadataResponse {
 export interface GetWyreWalletOrderForPublicKeyResponse {
     WyreWalletOrderMetadataResponses: WyreWalletOrderMetadataResponse[] | null;
 }
+export declare type BlockHash = string;
+export declare type PkMapKey = string;
+export declare type UsernameMapKey = string;
+export declare type PKID = string;
+export declare type ExtraDataDecoderFunc = Function;
+export declare type ExtraDataEncoderFunc = Function;

@@ -1,14 +1,10 @@
-import {
-  BlockTemplateStats,
-  Hex,
-  MsgDeSoTxn,
-  // TransactionFee,
-} from './deso-types';
-import {
-  DAOCoinLimitOrderEntryResponse,
-  TransactionFee,
-  TransactionSpendingLimitResponse,
-} from './deso-types-dao-dao';
+// import {
+//   BlockTemplateStats,
+//   Hex,
+//   MsgDeSoTxn,
+//   // TransactionFee,
+// } from './deso-types';
+import { TransactionFee, TransactionSpendingLimitResponse } from './deso-types';
 
 export interface GetApproveResponse {
   id?: string;
