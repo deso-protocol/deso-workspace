@@ -2157,7 +2157,7 @@ export interface GetDAOCoinLimitOrdersResponse {
 
 // struct2ts:types/generated/types.GetTransactorDAOCoinLimitOrdersRequest
 export interface GetTransactorDAOCoinLimitOrdersRequest {
-  TransactorPublicKeyBase58CheckOrUsername: string;
+  TransactorPublicKeyBase58Check: string;
 }
 
 // struct2ts:types/generated/types.AdminPinPostRequest
@@ -4438,29 +4438,16 @@ export interface DAOCoinLimitOrderResponse {
   TxnHashHex: string;
 }
 
-// struct2ts:types/generated/types.DAOCoinLimitOrderWithExchangeRateAndQuantityRequest
 // export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
 //   TransactorPublicKeyBase58Check: string;
-//   BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-//   SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
+//   BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+//   SellingDAOCoinCreatorPublicKeyBase58Check: string;
 //   ExchangeRateCoinsToSellPerCoinToBuy: number;
 //   QuantityToFill: number;
 //   OperationType: string;
-//   MinFeeRateNanosPerKB: number;
+//   MinFeeRateNanosPerKB?: number;
 //   TransactionFees: TransactionFee[] | null;
 // }
-
-// struct2ts:types/generated/types.DAOCoinMarketOrderWithQuantityRequest
-export interface DAOCoinMarketOrderWithQuantityRequest {
-  TransactorPublicKeyBase58Check: string;
-  BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  QuantityToFill: number;
-  OperationType: string;
-  FillType: string;
-  MinFeeRateNanosPerKB: number;
-  TransactionFees: TransactionFee[] | null;
-}
 
 // struct2ts:types/generated/types.DAOCoinLimitOrderWithCancelOrderIDRequest
 export interface DAOCoinLimitOrderWithCancelOrderIDRequest {

@@ -3,6 +3,7 @@ import {
   DAOCoinLimitOrderResponse,
   DAOCoinLimitOrderWithCancelOrderIDRequest,
   DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
+  DAOCoinMarketOrderWithQuantityRequest,
   DAOCoinRequest,
   DAOCoinResponse,
   GetDAOCoinLimitOrdersRequest,
@@ -56,7 +57,7 @@ export class DAO {
     );
   }
 
-  public async TransferDAOCoin(
+  public async transferDAOCoin(
     request: Partial<TransferDAOCoinRequest>
   ): Promise<TransferDAOCoinResponse> {
     // TODO: validate partial
@@ -66,14 +67,14 @@ export class DAO {
     >(request, 'transfer-dao-coin');
   }
 
-  public async CreateDAOCoinLimitOrder(
+  public async createDAOCoinLimitOrder(
     request: Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>
   ): Promise<DAOCoinLimitOrderResponse> {
-    if (!request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
-      request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
+    if (!request.BuyingDAOCoinCreatorPublicKeyBase58Check) {
+      request.BuyingDAOCoinCreatorPublicKeyBase58Check = '';
     }
-    if (!request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
-      request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
+    if (!request.SellingDAOCoinCreatorPublicKeyBase58Check) {
+      request.SellingDAOCoinCreatorPublicKeyBase58Check = '';
     }
     // TODO: validate partial
     return this.executeTransaction<
@@ -82,7 +83,7 @@ export class DAO {
     >(request, 'create-dao-coin-limit-order');
   }
 
-  public async CancelDAOCoinLimitOrder(
+  public async cancelDAOCoinLimitOrder(
     request: Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>
   ): Promise<DAOCoinLimitOrderResponse> {
     // TODO: validate partial
@@ -92,7 +93,7 @@ export class DAO {
     >(request, 'cancel-dao-coin-limit-order');
   }
 
-  public async GetDAOCoinLimitOrders(
+  public async getDAOCoinLimitOrders(
     request: Partial<GetDAOCoinLimitOrdersRequest>
   ): Promise<GetDAOCoinLimitOrdersResponse> {
     if (!request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername) {
@@ -108,7 +109,7 @@ export class DAO {
     >(request, 'get-dao-coin-limit-orders');
   }
 
-  public GetTransactorDAOCoinLimitOrders(
+  public getTransactorDAOCoinLimitOrders(
     request: Partial<GetTransactorDAOCoinLimitOrdersRequest>
   ): Promise<GetDAOCoinLimitOrdersResponse> {
     // TODO: validate partial
@@ -116,5 +117,15 @@ export class DAO {
       GetTransactorDAOCoinLimitOrdersRequest,
       GetDAOCoinLimitOrdersResponse
     >(request, 'get-transactor-dao-coin-limit-orders');
+  }
+
+  public createDaoCoinMarketOrder(
+    request: Partial<DAOCoinMarketOrderWithQuantityRequest>
+  ): Promise<DAOCoinLimitOrderResponse> {
+    // TODO: validate partial
+    return this.executePost<
+      DAOCoinMarketOrderWithQuantityRequest,
+      DAOCoinLimitOrderResponse
+    >(request, 'create-dao-coin-market-order');
   }
 }

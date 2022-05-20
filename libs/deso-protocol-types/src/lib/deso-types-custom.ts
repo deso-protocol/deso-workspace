@@ -1,9 +1,3 @@
-// import {
-//   BlockTemplateStats,
-//   Hex,
-//   MsgDeSoTxn,
-//   // TransactionFee,
-// } from './deso-types';
 import { TransactionFee, TransactionSpendingLimitResponse } from './deso-types';
 
 export interface GetApproveResponse {
@@ -132,31 +126,6 @@ export interface GetDecryptMessagesResponse {
   decryptedMessage: string;
 }
 
-// export interface GetBlockTemplateRequest {
-//   PublicKeyBase58Check: string;
-//   NumHeaders: number;
-//   HeaderVersion: number;
-// }
-// export interface GetBlockTemplateResponse {
-//   Headers: number[][];
-//   BlockID: string;
-//   DifficultyTargetHex: string;
-//   ExtraNonces: number[];
-//   LatestBlockTemplateStats: BlockTemplateStats;
-// }
-// export interface SubmitBlockRequest {
-//   PublicKeyBase58Check: string;
-//   Header: string[];
-//   ExtraData: any;
-//   // ExtraData `json:"ExtraNonce"`
-//   BlockID: string;
-// }
-
-// export interface SubmitBlockResponse {
-//   IsMainChain: boolean;
-//   IsOrphan: boolean;
-// }
-
 export enum DeSoNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
@@ -262,16 +231,6 @@ export enum TransactionType {
   DAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
 }
 
-// export interface TransactionSpendingLimitResponse {
-//   GlobalDESOLimit: number;
-//   TransactionCountLimitMap?: { [k in TransactionType]?: number };
-//   CreatorCoinOperationLimitMap?: CreatorCoinOperationLimitMap;
-//   DAOCoinOperationLimitMap?: DAOCoinOperationLimitMap;
-//   NFTOperationLimitMap?: NFTOperationLimitMap;
-//   DAOCoinLimitOrderLimitMap?: DAOCoinLimitOrderLimitMap;
-//   DerivedKeyMemo?: string;
-// }
-
 export interface IdentityDeriveParams {
   callback?: string;
   webview?: boolean;
@@ -309,61 +268,29 @@ export enum DAOCoinLimitOrderOperationTypeString {
   DAOCoinLimitOrderOperationTypeStringBID = 'BID',
 }
 
-export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
-  TransactorPublicKeyBase58Check: string;
-  BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-  ExchangeRateCoinsToSellPerCoinToBuy: number;
-  QuantityToFill: number;
-  OperationType: DAOCoinLimitOrderOperationTypeString;
-  MinFeeRateNanosPerKB?: number;
-  TransactionFees: TransactionFee[] | null;
-}
-
-// export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
-//   TransactorPublicKeyBase58Check: string;
-//   CancelOrderID: string;
-//   MinFeeRateNanosPerKB?: number;
-//   TransactionFees: TransactionFee[] | null;
-// }
-
-// export interface DAOCoinLimitOrderResponse
-//   extends TransactionConstructionResponse {
-//   SpendAmountNanos: number;
-//   TotalInputNanos: number;
-//   ChangeAmountNanos: number;
-//   FeeNanos: number;
-//   Transaction: MsgDeSoTxn;
-//   TransactionHex: string;
-//   TxnHashHex: string;
-// }
-
-// export interface GetDAOCoinLimitOrdersRequest {
-//   DAOCoin1CreatorPublicKeyBase58CheckOrUsername: string;
-//   DAOCoin2CreatorPublicKeyBase58CheckOrUsername: string;
-// }V
-
-// export interface GetDAOCoinLimitOrdersResponse {
-//   Orders: DAOCoinLimitOrderEntryResponse[];
-// }
-
-// export interface DAOCoinLimitOrderEntryResponse {
-// 	TransactorPublicKeyBase58Check: string;
-
-// 	BuyingDAOCoinCreatorPublicKeyBase58Check:  string;
-// 	SellingDAOCoinCreatorPublicKeyBase58Check: string;
-
-// 	ExchangeRateCoinsToSellPerCoinToBuy: number;
-// 	QuantityToFill: number;
-
-// 	OperationType: DAOCoinLimitOrderOperationTypeString;
-// 	OrderID: string;
-// }
-
-// export interface GetTransactorDAOCoinLimitOrdersRequest {
-//   TransactorPublicKeyBase58CheckOrUsername: string;
-// }
-
 export interface TransactionConstructionResponse {
   TransactionHex: string;
+}
+
+// issues with the converter lately so just going to add these to the custom types
+export interface DAOCoinMarketOrderWithQuantityRequest {
+  TransactorPublicKeyBase58Check: string;
+  BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+  SellingDAOCoinCreatorPublicKeyBase58Check: string;
+  QuantityToFill: number;
+  OperationType: string;
+  FillType: string;
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+}
+
+export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
+  TransactorPublicKeyBase58Check: string;
+  BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+  SellingDAOCoinCreatorPublicKeyBase58Check: string;
+  ExchangeRateCoinsToSellPerCoinToBuy: number;
+  QuantityToFill: number;
+  OperationType: string;
+  MinFeeRateNanosPerKB?: number;
+  TransactionFees: TransactionFee[] | null;
 }
