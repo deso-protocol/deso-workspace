@@ -46,7 +46,7 @@ export const socialChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.posts.getFollowsStateless(request)`,
+                methodName: `deso.social.getFollowsStateless(request)`,
                 params: this.params,
                 method: this.method,
               }}
