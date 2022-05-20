@@ -21,25 +21,25 @@ class DAO {
         // TODO: validate partial
         return this.executeTransaction(request, 'dao-coin');
     }
-    async TransferDAOCoin(request) {
+    async transferDAOCoin(request) {
         // TODO: validate partial
         return this.executeTransaction(request, 'transfer-dao-coin');
     }
-    async CreateDAOCoinLimitOrder(request) {
-        if (!request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
-            request.BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
+    async createDAOCoinLimitOrder(request) {
+        if (!request.BuyingDAOCoinCreatorPublicKeyBase58Check) {
+            request.BuyingDAOCoinCreatorPublicKeyBase58Check = '';
         }
-        if (!request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername) {
-            request.SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername = '';
+        if (!request.SellingDAOCoinCreatorPublicKeyBase58Check) {
+            request.SellingDAOCoinCreatorPublicKeyBase58Check = '';
         }
         // TODO: validate partial
         return this.executeTransaction(request, 'create-dao-coin-limit-order');
     }
-    async CancelDAOCoinLimitOrder(request) {
+    async cancelDAOCoinLimitOrder(request) {
         // TODO: validate partial
         return this.executeTransaction(request, 'cancel-dao-coin-limit-order');
     }
-    async GetDAOCoinLimitOrders(request) {
+    async getDAOCoinLimitOrders(request) {
         if (!request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername) {
             request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername = '';
         }
@@ -49,9 +49,13 @@ class DAO {
         // TODO: validate partial
         return this.executePost(request, 'get-dao-coin-limit-orders');
     }
-    GetTransactorDAOCoinLimitOrders(request) {
+    getTransactorDAOCoinLimitOrders(request) {
         // TODO: validate partial
         return this.executePost(request, 'get-transactor-dao-coin-limit-orders');
+    }
+    createDaoCoinMarketOrder(request) {
+        // TODO: validate partial
+        return this.executePost(request, 'create-dao-coin-market-order');
     }
 }
 exports.DAO = DAO;

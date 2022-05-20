@@ -1,4 +1,4 @@
-import { DAOCoinLimitOrderResponse, DAOCoinLimitOrderWithCancelOrderIDRequest, DAOCoinLimitOrderWithExchangeRateAndQuantityRequest, DAOCoinRequest, DAOCoinResponse, GetDAOCoinLimitOrdersRequest, GetDAOCoinLimitOrdersResponse, GetTransactorDAOCoinLimitOrdersRequest, TransferDAOCoinRequest, TransferDAOCoinResponse } from 'deso-protocol-types';
+import { DAOCoinLimitOrderResponse, DAOCoinLimitOrderWithCancelOrderIDRequest, DAOCoinLimitOrderWithExchangeRateAndQuantityRequest, DAOCoinMarketOrderWithQuantityRequest, DAOCoinRequest, DAOCoinResponse, GetDAOCoinLimitOrdersRequest, GetDAOCoinLimitOrdersResponse, GetTransactorDAOCoinLimitOrdersRequest, TransferDAOCoinRequest, TransferDAOCoinResponse } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 export declare class DAO {
@@ -8,9 +8,10 @@ export declare class DAO {
     private executeTransaction;
     private executePost;
     DAOCoin(request: Partial<DAOCoinRequest>): Promise<DAOCoinResponse>;
-    TransferDAOCoin(request: Partial<TransferDAOCoinRequest>): Promise<TransferDAOCoinResponse>;
-    CreateDAOCoinLimitOrder(request: Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>): Promise<DAOCoinLimitOrderResponse>;
-    CancelDAOCoinLimitOrder(request: Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>): Promise<DAOCoinLimitOrderResponse>;
-    GetDAOCoinLimitOrders(request: Partial<GetDAOCoinLimitOrdersRequest>): Promise<GetDAOCoinLimitOrdersResponse>;
-    GetTransactorDAOCoinLimitOrders(request: Partial<GetTransactorDAOCoinLimitOrdersRequest>): Promise<GetDAOCoinLimitOrdersResponse>;
+    transferDAOCoin(request: Partial<TransferDAOCoinRequest>): Promise<TransferDAOCoinResponse>;
+    createDAOCoinLimitOrder(request: Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>): Promise<DAOCoinLimitOrderResponse>;
+    cancelDAOCoinLimitOrder(request: Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>): Promise<DAOCoinLimitOrderResponse>;
+    getDAOCoinLimitOrders(request: Partial<GetDAOCoinLimitOrdersRequest>): Promise<GetDAOCoinLimitOrdersResponse>;
+    getTransactorDAOCoinLimitOrders(request: Partial<GetTransactorDAOCoinLimitOrdersRequest>): Promise<GetDAOCoinLimitOrdersResponse>;
+    createDaoCoinMarketOrder(request: Partial<DAOCoinMarketOrderWithQuantityRequest>): Promise<DAOCoinLimitOrderResponse>;
 }

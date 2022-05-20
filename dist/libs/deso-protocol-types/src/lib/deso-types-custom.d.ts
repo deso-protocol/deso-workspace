@@ -235,16 +235,26 @@ export declare enum DAOCoinLimitOrderOperationTypeString {
     DAOCoinLimitOrderOperationTypeStringASK = "ASK",
     DAOCoinLimitOrderOperationTypeStringBID = "BID"
 }
-export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
-    TransactorPublicKeyBase58Check: string;
-    BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-    SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-    ExchangeRateCoinsToSellPerCoinToBuy: number;
-    QuantityToFill: number;
-    OperationType: DAOCoinLimitOrderOperationTypeString;
-    MinFeeRateNanosPerKB?: number;
-    TransactionFees: TransactionFee[] | null;
-}
 export interface TransactionConstructionResponse {
     TransactionHex: string;
+}
+export interface DAOCoinMarketOrderWithQuantityRequest {
+    TransactorPublicKeyBase58Check: string;
+    BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+    SellingDAOCoinCreatorPublicKeyBase58Check: string;
+    QuantityToFill: number;
+    OperationType: string;
+    FillType: string;
+    MinFeeRateNanosPerKB: number;
+    TransactionFees: TransactionFee[];
+}
+export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
+    TransactorPublicKeyBase58Check: string;
+    BuyingDAOCoinCreatorPublicKeyBase58Check: string;
+    SellingDAOCoinCreatorPublicKeyBase58Check: string;
+    ExchangeRateCoinsToSellPerCoinToBuy: number;
+    QuantityToFill: number;
+    OperationType: string;
+    MinFeeRateNanosPerKB?: number;
+    TransactionFees: TransactionFee[] | null;
 }

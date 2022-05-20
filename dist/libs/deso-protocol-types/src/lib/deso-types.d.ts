@@ -1769,7 +1769,7 @@ export interface GetDAOCoinLimitOrdersResponse {
     Orders: DAOCoinLimitOrderEntryResponse[] | null;
 }
 export interface GetTransactorDAOCoinLimitOrdersRequest {
-    TransactorPublicKeyBase58CheckOrUsername: string;
+    TransactorPublicKeyBase58Check: string;
 }
 export interface AdminPinPostRequest {
     PostHashHex: string;
@@ -3584,16 +3584,6 @@ export interface DAOCoinLimitOrderResponse {
     Transaction: MsgDeSoTxn;
     TransactionHex: string;
     TxnHashHex: string;
-}
-export interface DAOCoinMarketOrderWithQuantityRequest {
-    TransactorPublicKeyBase58Check: string;
-    BuyingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-    SellingDAOCoinCreatorPublicKeyBase58CheckOrUsername: string;
-    QuantityToFill: number;
-    OperationType: string;
-    FillType: string;
-    MinFeeRateNanosPerKB: number;
-    TransactionFees: TransactionFee[] | null;
 }
 export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
     TransactorPublicKeyBase58Check: string;

@@ -1,29 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DAOCoinLimitOrderOperationTypeString = exports.TransactionType = exports.NFTLimitOperationString = exports.DAOCoinLimitOperationString = exports.CreatorCoinLimitOperationString = exports.DeSoNetwork = void 0;
-// export interface GetBlockTemplateRequest {
-//   PublicKeyBase58Check: string;
-//   NumHeaders: number;
-//   HeaderVersion: number;
-// }
-// export interface GetBlockTemplateResponse {
-//   Headers: number[][];
-//   BlockID: string;
-//   DifficultyTargetHex: string;
-//   ExtraNonces: number[];
-//   LatestBlockTemplateStats: BlockTemplateStats;
-// }
-// export interface SubmitBlockRequest {
-//   PublicKeyBase58Check: string;
-//   Header: string[];
-//   ExtraData: any;
-//   // ExtraData `json:"ExtraNonce"`
-//   BlockID: string;
-// }
-// export interface SubmitBlockResponse {
-//   IsMainChain: boolean;
-//   IsOrphan: boolean;
-// }
 var DeSoNetwork;
 (function (DeSoNetwork) {
     DeSoNetwork["mainnet"] = "mainnet";
