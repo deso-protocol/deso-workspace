@@ -13,7 +13,7 @@ import { Node } from './lib/Node/Node';
 import { Wallet } from './lib/wallet/Wallet';
 import { Transactions } from './lib/transaction/Transaction';
 import { DAO } from './lib/dao/dao';
-
+import { Metamask } from './lib/metamask/Metamask';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
@@ -44,6 +44,7 @@ export class Deso {
   public transaction = Transactions;
   public wallet = new Wallet(this.node, this.identity);
   public referral = new Referral(this.node, this.identity);
+  public metamask = new Metamask(this.node, this.identity);
   // private tutorial = new Tutorial(this.node, this.identity);
 
   reinitialize(): void {

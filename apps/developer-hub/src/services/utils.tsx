@@ -44,6 +44,7 @@ export enum ParentRoutes {
   transactions = 'transactions',
   user = 'user',
   wallet = 'wallet',
+  metamask = 'metamask',
 }
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';

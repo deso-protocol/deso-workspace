@@ -25,6 +25,7 @@ import { transactionChapter } from './TransactionsChapter';
 import { walletChapter } from './WalletChapter';
 import { daoChapter } from './DAOChapter';
 import { RecentThreads } from '../../threads/RecentThreads';
+import { metamaskChapter } from './MetamaskChapter';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -46,6 +47,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...userChapter,
   ...walletChapter,
   ...daoChapter,
+  ...metamaskChapter,
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',
