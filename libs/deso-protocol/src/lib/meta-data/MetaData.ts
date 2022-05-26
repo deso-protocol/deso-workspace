@@ -23,3 +23,6 @@ export class MetaData {
     return (await axios.get(`${BASE_URI}/health-check`)).data;
   }
 }
+export const asdf = () => {
+  return;
+};

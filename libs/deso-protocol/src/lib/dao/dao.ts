@@ -19,7 +19,6 @@ import { Node } from '../Node/Node';
 export class DAO {
   private node: Node;
   private identity: Identity;
-
   constructor(node: Node, identity: Identity) {
     this.node = node;
     this.identity = identity;

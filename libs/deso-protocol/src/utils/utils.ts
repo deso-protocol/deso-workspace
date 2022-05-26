@@ -35,3 +35,18 @@ export const throwErrors = <G, K extends keyof G>(
     }
   });
 };
+
+export const assignDefaults = <G, K extends keyof G>(
+  attributesWithDefaults: {
+    name: K;
+    default: unknown;
+  }[],
+  request: G
+): void => {
+  attributesWithDefaults.forEach((attribute) => {
+    const doesExist = request[attribute.name];
+    if (!doesExist) {
+    }
+  });
+  console.log('oy');
+};

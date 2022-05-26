@@ -17,10 +17,13 @@ import { DAO } from './lib/dao/dao';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
+  application?: 'browser' | 'server';
 }
 
 export class Deso {
   constructor(config?: Partial<DesoConfig>) {
+    if (config && !config?.application) config.application = 'browser';
+
     this.node = new Node(config?.nodeUri);
     this.identity = new Identity({
       ...config?.identityConfig,

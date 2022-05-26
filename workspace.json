@@ -4,7 +4,8 @@
     "deso-protocol": "libs/deso-protocol",
     "deso-protocol-types": "libs/deso-protocol-types",
     "developer-hub": "apps/developer-hub",
-    "developer-hub-e2e": "apps/developer-hub-e2e"
+    "developer-hub-e2e": "apps/developer-hub-e2e",
+    "node-app": "apps/node-app"
   },
   "options": {}
 }
