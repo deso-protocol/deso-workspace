@@ -35,3 +35,21 @@ export const throwErrors = <G, K extends keyof G>(
     }
   });
 };
+
+export const assignDefaults = <G, K extends keyof G>(
+  attributesWithDefaults: AssignDefaultsInterface<G, K>[],
+  request: G
+): G => {
+  attributesWithDefaults.forEach((attribute) => {
+    const value = request[attribute.name];
+    if (value === undefined || value === null) {
+      request[attribute.name] = attribute.default;
+    }
+  });
+  return request;
+};
+
+export interface AssignDefaultsInterface<G, K extends keyof G> {
+  name: K;
+  default: G[K];
+}

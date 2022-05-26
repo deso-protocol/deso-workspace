@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.throwErrors = exports.convertExtraDataToHex = exports.convertToHex = exports.uuid = void 0;
+exports.assignDefaults = exports.throwErrors = exports.convertExtraDataToHex = exports.convertToHex = exports.uuid = void 0;
 const uuid = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0, v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -32,4 +32,14 @@ const throwErrors = (requiredAttributes, request) => {
     });
 };
 exports.throwErrors = throwErrors;
+const assignDefaults = (attributesWithDefaults, request) => {
+    attributesWithDefaults.forEach((attribute) => {
+        const value = request[attribute.name];
+        if (value === undefined || value === null) {
+            request[attribute.name] = attribute.default;
+        }
+    });
+    return request;
+};
+exports.assignDefaults = assignDefaults;
 //# sourceMappingURL=utils.js.map

@@ -77,20 +77,8 @@ class Social {
         return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
     }
     async updateProfile(request) {
-        throw Error('todo');
         const endpoint = 'update-profile';
         const response = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
-        // const profile = (await this.user.getSingleProfile({
-        //   PublicKeyBase58Check: request.ProfilePublicKeyBase58Check,
-        // })).Profile;
-        //   const oy = {
-        // NewUsername: profile?.Username,
-        // NewDescription: profile?.Description,
-        // // NewProfilePic: profile.,
-        // NewCreatorBasisPoints: profile.,
-        // MinFeeRateNanosPerKB: 1000
-        //   }
-        response.TransactionHex;
         return await this.identity
             .submitTransaction(response.TransactionHex)
             .then(() => response)
