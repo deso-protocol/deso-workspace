@@ -373,8 +373,12 @@ export const socialChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        ProfilePublicKeyBase58Check: '',
+        NewUsername: '',
         MinFeeRateNanosPerKB: 1000,
+        NewCreatorBasisPoints: 100,
         NewDescription: 'WOOF WOOF',
+        NewStakeMultipleBasisPoints: 12500,
       } as UpdateProfileRequest;
     },
     method: deso.social.updateProfile,
@@ -392,9 +396,9 @@ export const socialChapter = {
               }}
               pretext={PageSection(
                 CommonPageSectionTitles.OVERVIEW,
-                <div>Modify an accounts profile data</div>
+                <div>Modify an account's profile data</div>
               )}
-              demo={false}
+              demo={true}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
