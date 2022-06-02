@@ -1,7 +1,8 @@
 import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
-import { IdentityDeriveParams } from 'deso-protocol-types';
+// import { IdentityDeriveParams } from 'deso-protocol-types';
 import { ethers } from 'ethers';
+// import * as bip39 from 'bip39';
 export class Metamask {
   private node: Node;
   private identity: Identity;
@@ -10,23 +11,38 @@ export class Metamask {
     this.identity = identity;
   }
 
-  public async promptLogin(): Promise<any> {
-    console.log('in?');
-    const provider = new ethers.providers.Web3Provider(
-      (window as any).ethereum,
-      'any'
-    );
+  public async derive(): Promise<void> {
+    //     export enum Network {
+    //   mainnet = 'mainnet',
+    //   testnet = 'testnet',
+    // }
+    const PUBLIC_KEY_PREFIXES = {
+      mainnet: {
+        bitcoin: [0x00],
+        deso: [0xcd, 0x14, 0x0],
+      },
+      testnet: {
+        bitcoin: [0x6f],
+        deso: [0x11, 0xc2, 0x0],
+      },
+    };
+    const mainnet = 'mainnet';
+    const testnet = 'testnet';
+    // 1. goal of this is to generate a random derived key
+    const entropy = ethers.utils.randomBytes(16);
+    const dMnemonic = ethers.utils.entropyToMnemonic(entropy);
+    const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
+    console.log({ entropy, dMnemonic, dKeyChain });
+    console.log(dKeyChain.privateKey);
+    const prefix = PUBLIC_KEY_PREFIXES.mainnet.deso
+    ethers.utils.
+    dKeyChain.publicKey
+    const desoPublicKey = 
 
-    // Prompt user for account connections
-    await provider.send('eth_requestAccounts', []);
-    const signer = provider.getSigner();
-    signer.getAddress();
+    //2. expiration block
 
-    const payload: Partial<IdentityDeriveParams> = {};
+    //3. spending limits
 
-    const message = await signer.signMessage('message to sign');
-
-    // this.identity.derive();
-    console.log(message);
+    //4. create signature Byte[key, block, limit ]
   }
 }

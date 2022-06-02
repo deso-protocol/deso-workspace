@@ -10,7 +10,7 @@ export const metamaskChapter = {
     parentRoute: ParentRoutes.metamask,
     title: 'Metamask sign in',
     route: '/metamask/signin',
-    method: deso.metamask.promptLogin,
+    method: deso.metamask.derive,
     githubSource: [],
     documentation: [],
     component: function () {
