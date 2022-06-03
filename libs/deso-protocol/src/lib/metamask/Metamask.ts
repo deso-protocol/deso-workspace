@@ -35,14 +35,7 @@ export class Metamask {
     // const pk = ethers.utils.recoverPublicKey(arrayify)
     let recoveredPublicKey = this.getMetaMaskMasterPublicKeyFromSignature(message, signature);
 
-    // const message = await provider.send('eth_sign', [address, ethers.utils.arrayify('0x0000000000000e16e8b0331bedf6c9ca52d5c1ddd7143caf480dadcf7659e76e')]);
-    // 0x52d29d3f07683754accff1d48584a6f7518b83b66e1b0a712471fe7745cb8bd24952a1b026420f8dbab3ad7a3a2607a35c56e618376eebe5064a1cab4d7ccff71b
     // this.identity.derive();
-    console.log("signature", signature);
-    console.log("message", message);
-    console.log("recoveredPublicKey", recoveredPublicKey);
-    console.log("recovered address", ethers.utils.computeAddress(recoveredPublicKey));
-    console.log("address", address);
   }
 
   getMetaMaskMasterPublicKeyFromSignature(message: string, signature: string): string {
