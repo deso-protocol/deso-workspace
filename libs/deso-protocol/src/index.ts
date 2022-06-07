@@ -44,7 +44,12 @@ export class Deso {
   public transaction = Transactions;
   public wallet = new Wallet(this.node, this.identity);
   public referral = new Referral(this.node, this.identity);
-  public metamask = new Metamask(this.node, this.identity);
+  public metamask = new Metamask(
+    this.node,
+    this.identity,
+    this.social,
+    this.user
+  );
   // private tutorial = new Tutorial(this.node, this.identity);
 
   reinitialize(): void {

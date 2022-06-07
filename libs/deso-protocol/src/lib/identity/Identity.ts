@@ -82,7 +82,7 @@ export class Identity {
               service: 'identity',
               payload: {},
             },
-            this.getUri(),
+            this.getUri()
           );
           resolve(event.data);
         }
@@ -117,12 +117,18 @@ export class Identity {
     return successful;
   }
 
-  public async derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo> {
+  public async derive(
+    params: IdentityDeriveParams
+  ): Promise<DerivedPrivateUserInfo> {
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
       webview: params.webview,
       publicKey: params.publicKey,
-      transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
+      transactionSpendingLimitResponse: params.transactionSpendingLimitResponse
+        ? encodeURIComponent(
+            JSON.stringify(params.transactionSpendingLimitResponse)
+          )
+        : undefined,
       derivedPublicKey: params.derivedPublicKey,
     };
     const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
@@ -175,7 +181,11 @@ export class Identity {
       return callIdentityMethodAndExecute(TransactionHex, 'sign');
     } else {
       // user does not exist  get approval
-      return approveSignAndSubmit(TransactionHex, this.getUri(), this.isTestnet());
+      return approveSignAndSubmit(
+        TransactionHex,
+        this.getUri(),
+        this.isTestnet()
+      );
     }
   }
 

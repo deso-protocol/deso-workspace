@@ -48,9 +48,7 @@ export const Page = ({
     if (!method) {
       return;
     }
-    const methodToCall = method.method.bind(
-      bind === 'identity' ? deso.identity : bind === 'dao' ? deso.dao : deso
-    );
+    const methodToCall = method.method.bind(bind ? (deso as any)[bind] : deso);
 
     const response = await methodToCall(method.params());
     console.log(response);

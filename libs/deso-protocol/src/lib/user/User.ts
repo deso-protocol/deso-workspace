@@ -113,22 +113,25 @@ export class User {
 
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
-    broadcast: boolean,
+    broadcast: boolean
   ): Promise<AuthorizeDerivedKeyResponse> {
-    throwErrors(["MinFeeRateNanosPerKB"], request);
+    throwErrors(['MinFeeRateNanosPerKB'], request);
     const derivedPrivateUser = await this.identity.derive({
       publicKey: this.identity.getUserKey() || undefined,
-      transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
+      transactionSpendingLimitResponse:
+        request.TransactionSpendingLimitResponse,
       derivedPublicKey: request.DerivedPublicKeyBase58Check,
     });
     const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
-      DerivedPublicKeyBase58Check: derivedPrivateUser.derivedPublicKeyBase58Check,
+      DerivedPublicKeyBase58Check:
+        derivedPrivateUser.derivedPublicKeyBase58Check,
       ExpirationBlock: derivedPrivateUser.expirationBlock,
       AccessSignature: derivedPrivateUser.accessSignature,
       DeleteKey: request.DeleteKey,
       ExtraData: request.ExtraData,
-      TransactionSpendingLimitHex: derivedPrivateUser.transactionSpendingLimitHex,
+      TransactionSpendingLimitHex:
+        derivedPrivateUser.transactionSpendingLimitHex,
       Memo: request.Memo,
       AppName: request.AppName,
       TransactionFees: request.TransactionFees,
@@ -136,11 +139,15 @@ export class User {
     };
     const endpoint = 'authorize-derived-key';
     const apiResponse: AuthorizeDerivedKeyResponse = (
-      await axios.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)
+      await axios.post(
+        `${this.node.getUri()}/${endpoint}`,
+        authorizeDerivedKeyRequest
+      )
     ).data;
     if (!broadcast) {
       return apiResponse;
     }
+    console.log('hello?');
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex)
       .then(() => apiResponse)

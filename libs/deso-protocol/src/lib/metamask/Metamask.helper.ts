@@ -1,12 +1,12 @@
-export const getSpendingLimits = (publicKey: string): any => {
+import { TxnString } from 'deso-protocol-types';
+
+export const getSpendingLimits = (): any => {
   return {
-    publicKey: publicKey,
-    transactionSpendingLimitResponse: {
-      GlobalDESOLimit: 100000000000,
-      TransactionCountLimitMap: {
-        SUBMIT_POST: 120948,
-        FOLLOW: 82943,
-      },
+    GlobalDESOLimit: 1000000000,
+    TransactionCountLimitMap: {
+      [TxnString.TxnStringSubmitPost]: 120948,
+      [TxnString.TxnStringUpdateProfile]: 120000,
+      [TxnString.TxnStringAuthorizeDerivedKey]: 120000,
     },
   };
 };
