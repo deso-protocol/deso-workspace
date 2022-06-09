@@ -8,7 +8,7 @@ import {
 } from 'deso-protocol-types';
 import Page from '../Read/Page';
 import { PageSection } from './PageSections';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const minerChapter = {
   GET_BLOCK_TEMPLATE: {
     parentRoute: ParentRoutes.miner,

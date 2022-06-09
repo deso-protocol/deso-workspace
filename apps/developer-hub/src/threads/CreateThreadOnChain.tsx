@@ -17,7 +17,7 @@ export interface CreateThreadOnChain {
   statementType: StatementTypeEnum;
   onPostCallback: Function;
 }
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const CreateThreadOnChain = ({
   PostHashHex,
   category,

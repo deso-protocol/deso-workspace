@@ -4,7 +4,7 @@ import Deso from 'deso-protocol';
 export interface ThreadProps {
   PostHashHex: string;
 }
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const Thread = ({ PostHashHex }: ThreadProps) => {
   const [thread, setThread] = useState<ReactElement | null>(null);
   const [responses, setResponses] = useState<ReactElement[]>([]);

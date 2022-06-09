@@ -9,7 +9,7 @@ import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const referralChapter = {
   GET_REFERRAL_INFO_FOR_USER: {
     parentRoute: ParentRoutes.referral,

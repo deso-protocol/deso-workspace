@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { StatementTypeEnum } from './Statement';
 import { Votes } from './votes';
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export interface ResponsesProps {
   PostHashHex: string;
 }

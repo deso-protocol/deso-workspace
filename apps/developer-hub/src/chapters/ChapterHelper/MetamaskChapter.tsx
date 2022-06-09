@@ -4,7 +4,7 @@ import { ParentRoutes } from '../../services/utils';
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const metamaskChapter = {
   METAMASK_SIGN_IN: {
     parentRoute: ParentRoutes.metamask,
@@ -22,6 +22,7 @@ export const metamaskChapter = {
             <Page
               bind="metamask"
               demo={true}
+              testnet={true}
               method={{
                 methodName: 'deso.metamask.signin()',
                 params: () => null,

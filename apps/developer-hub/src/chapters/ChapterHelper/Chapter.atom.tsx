@@ -13,7 +13,7 @@ export const PublicKey = atom<string>({
 
 export const desoService = atom<Deso>({
   key: 'desoService',
-  default: new Deso(),
+  default: new Deso({ nodeUri: 'http://deso-seed-3.io:18501' }),
   effects_UNSTABLE: [persistAtom],
 });
 

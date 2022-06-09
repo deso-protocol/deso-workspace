@@ -8,6 +8,7 @@ export class Node {
     localStorage.setItem('node_uri', uri);
   }
   constructor(uri?: string) {
+    console.log(uri ?? BASE_URI);
     this.setUri(uri ?? BASE_URI);
   }
 }

@@ -8,7 +8,7 @@ import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
 import Deso from 'deso-protocol';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 
 export enum ThreadCategory {
   GENERAL = 'GENERAL',
@@ -154,7 +154,7 @@ export function groupBy(array: any[], key: string) {
 }
 
 export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 `;
 
 export function timeout(ms: number) {

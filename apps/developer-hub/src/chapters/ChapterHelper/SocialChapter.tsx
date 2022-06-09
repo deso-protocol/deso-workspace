@@ -21,7 +21,7 @@ import {
 import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const socialChapter = {
   GET_FOLLOWS_STATELESS: {
     parentRoute: ParentRoutes.social,

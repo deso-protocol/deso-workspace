@@ -5,7 +5,7 @@ import Deso from 'deso-protocol';
 import { GetAppStateRequest } from 'deso-protocol-types';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const metaDataChapter = {
   HEALTH_CHECK: {
     parentRoute: ParentRoutes.metaData,

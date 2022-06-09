@@ -12,7 +12,7 @@ import { PostEntryResponse } from 'deso-protocol-types';
 import { DrawerLink } from './DrawerLink';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 
 export interface ThreadLinksProps {
   openedPanels: any;

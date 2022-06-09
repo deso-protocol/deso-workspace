@@ -16,7 +16,7 @@ export interface ReplyOptionsProps {
   setShowComments?: Function;
   statementType: StatementTypeEnum;
 }
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const ThreadThumbnail = ({
   PostHashHex,
   posterKey,

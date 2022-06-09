@@ -15,7 +15,7 @@ const bgColors = {
   [ThreadState.REMOVED]: 'bg-[#000]',
   [ThreadState.RESOLVED]: 'bg-[#5f5f5f] ',
 };
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const DisplayThreadState = ({
   state,
   PostHashHex,

@@ -4,8 +4,13 @@ import Page from '../Read/Page';
 import Deso from 'deso-protocol';
 import { PageSection } from './PageSections';
 import { CHAPTERS } from './Chapter.models';
-import { CreatorCoinLimitOperationString, DAOCoinLimitOperationString, IdentityDeriveParams, NFTLimitOperationString } from 'deso-protocol-types';
-const deso = new Deso();
+import {
+  CreatorCoinLimitOperationString,
+  DAOCoinLimitOperationString,
+  IdentityDeriveParams,
+  NFTLimitOperationString,
+} from 'deso-protocol-types';
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const identityChapter = {
   IDENTITY_LOGIN: {
     parentRoute: ParentRoutes.identity,
@@ -134,40 +139,41 @@ export const identityChapter = {
             FOLLOW: 82943,
           },
           CreatorCoinOperationLimitMap: {
-            "": {
+            '': {
               [CreatorCoinLimitOperationString.ANY]: 2183,
             },
             BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
               [CreatorCoinLimitOperationString.BUY]: 123,
               [CreatorCoinLimitOperationString.SELL]: 4123,
               [CreatorCoinLimitOperationString.TRANSFER]: 9198,
-            }
+            },
           },
           DAOCoinOperationLimitMap: {
-            "": {
+            '': {
               [DAOCoinLimitOperationString.MINT]: 1,
-            }
+            },
           },
           NFTOperationLimitMap: {
-            "01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b": {
-              0: {
-                [NFTLimitOperationString.UPDATE]: 10,
-                [NFTLimitOperationString.BID]: 501,
-              }
-            }
+            '01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b':
+              {
+                0: {
+                  [NFTLimitOperationString.UPDATE]: 10,
+                  [NFTLimitOperationString.BID]: 501,
+                },
+              },
           },
           DAOCoinLimitOrderLimitMap: {
-            "DESO": {
+            DESO: {
               BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 10,
             },
             BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
-              "DESO": 5,
+              DESO: 5,
             },
             [TYLER]: {
               BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 1092,
-            }
+            },
           },
-        }
+        },
       } as Partial<IdentityDeriveParams>;
     },
     githubSource: [],
@@ -188,7 +194,9 @@ export const identityChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Trigger a window prompt to let a user generate a derived key.</div>
+                <div>
+                  Trigger a window prompt to let a user generate a derived key.
+                </div>
               )}
               demo={true}
               chapters={CHAPTERS}
@@ -199,5 +207,5 @@ export const identityChapter = {
         ></Route>
       );
     },
-  }
+  },
 };

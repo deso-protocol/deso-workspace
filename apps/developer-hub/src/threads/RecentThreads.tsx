@@ -5,7 +5,7 @@ import { HUB } from '../services/utils';
 import { Statement, StatementTypeEnum } from '../threads/Statement';
 import { LoggedIn } from './Threads.state';
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const RecentThreads = () => {
   const [loggedIn, setLoggedIn] = useRecoilState(LoggedIn);
   const [threadsToDisplay, setThreads] = useState<ReactElement[]>();

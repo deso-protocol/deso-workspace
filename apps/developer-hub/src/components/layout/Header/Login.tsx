@@ -5,7 +5,7 @@ import { GetSingleProfileResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const Login = () => {
   const [userKey, setUserKey] = useState('');
   const [user, setUser] = useState<GetSingleProfileResponse | null>(null);

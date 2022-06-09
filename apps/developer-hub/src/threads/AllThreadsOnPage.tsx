@@ -13,7 +13,7 @@ export interface AllThreadsONPage {
   category?: ThreadCategory;
 }
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const AllThreadsONPage = ({
   title,
   publicKeyWhereThreadsLive,

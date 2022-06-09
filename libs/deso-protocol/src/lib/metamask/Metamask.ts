@@ -6,11 +6,14 @@ import { getSpendingLimits, PUBLIC_KEY_PREFIXES } from './Metamask.helper';
 import * as bs58check from 'bs58check';
 import {
   AuthorizeDerivedKeyParams,
+  AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
 } from 'deso-protocol-types';
 import { Social } from '../social/Social';
 
 import { User } from '../user/User';
+import { Transactions } from '../transaction/Transaction';
+const BLOCK: Readonly<number> = 999999999999;
 
 export class Metamask {
   private node: Node;
@@ -23,27 +26,39 @@ export class Metamask {
     this.social = social;
     this.user = user;
   }
+
   public async main() {
-    const publicDesoAddress =
-      await this.getMetaMaskMasterPublicKeyFromSignature();
-    const { derivedPublicKeyBase58Check, keyPair } =
+    const { derivedPublicKeyBase58Check, derivedKeyPair } =
       await this.generateDerivedKey();
+
+    const { signature, message } = await this.generateMessage(
+      derivedKeyPair.getPublic().encode('hex', true),
+      getSpendingLimits()
+    );
+
+    const publicDesoAddress =
+      await this.getMetaMaskMasterPublicKeyFromSignature(signature, message);
+
     const response = await this.authorizeDerivedKeyBackEndRequest(
       publicDesoAddress,
-      derivedPublicKeyBase58Check
-    );
-    const signedMessage = await this.generateMessage(
       derivedPublicKeyBase58Check,
-      response.Transaction.TxnMeta.AccessSignature,
-      keyPair
+      signature,
+      getSpendingLimits()
     );
-    console.log(signedMessage);
-    console.log({
-      publicDesoAddress,
-      derivedPublicKeyBase58Check,
-      response,
-    });
-    // 2.1 sends funds to deso public address if the eth address has eth in it && the deso public address has not already received an airdrop
+
+    const authorizedDerivedKeySignature = derivedKeyPair.sign(
+      response.TransactionHex
+    );
+
+    const hexToSign = Buffer.from(
+      authorizedDerivedKeySignature.toDER()
+    ).toString('hex');
+
+    console.log(authorizedDerivedKeySignature.toDER('hex'));
+    console.log(hexToSign);
+    // console.log(hexToSign);
+    const submissionResponse = await Transactions.submitTransaction(hexToSign);
+    console.log(submissionResponse);
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
     // if (ens) {
     //   await this.social.updateProfile({
@@ -54,25 +69,24 @@ export class Metamask {
     //   });
     // }
   }
-  async getMetaMaskMasterPublicKeyFromSignature(): Promise<string> {
-    const e = new ec('secp256k1');
-    const randomMessage =
-      'You are about to generate a derived Key through metamask.';
-    const arrayify = ethers.utils.arrayify;
 
-    const signature = await this.signMessage(
-      Uint8Array.from(ethers.utils.toUtf8Bytes(randomMessage))
-    );
-    const messageHash = arrayify(ethers.utils.hashMessage(randomMessage));
+  private async getMetaMaskMasterPublicKeyFromSignature(
+    signature: string,
+    message: string
+  ): Promise<string> {
+    const e = new ec('secp256k1');
+    const arrayify = ethers.utils.arrayify;
+    const messageHash = arrayify(ethers.utils.hashMessage(message));
     const publicKeyUncompressedHexWith0x = ethers.utils.recoverPublicKey(
       messageHash,
       signature
     );
+
     const messagingPublicKey = e.keyFromPublic(
       publicKeyUncompressedHexWith0x.slice(2),
       'hex'
     );
-    const prefix = PUBLIC_KEY_PREFIXES.mainnet.deso;
+    const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
     const key = messagingPublicKey.getPublic().encode('array', true);
     const desoKey = Uint8Array.from([...prefix, ...key]);
     const encodedDesoKey = bs58check.encode(desoKey);
@@ -81,22 +95,41 @@ export class Metamask {
 
   private async authorizeDerivedKeyBackEndRequest(
     OwnerPublicKeyBase58Check: string,
-    DerivedPublicKeyBase58Check: string
+    DerivedPublicKeyBase58Check: string,
+    AccessSignature: string,
+    TransactionSpendingLimits: any
   ): Promise<AuthorizeDerivedKeyResponse> {
-    const limits: Partial<AuthorizeDerivedKeyParams> = {
+    const TransactionSpendingLimitHex = new Buffer(
+      JSON.stringify(TransactionSpendingLimits)
+    ).toString('hex');
+    const limits: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check,
       DerivedPublicKeyBase58Check,
       DerivedKeySignature: true,
+      ExpirationBlock: BLOCK,
       MinFeeRateNanosPerKB: 1000,
-      TransactionSpendingLimitResponse: getSpendingLimits(),
+      AccessSignature: AccessSignature.slice(2),
+      TransactionSpendingLimitHex,
     };
-    console.log(limits);
-    return this.user.authorizeDerivedKey(limits, false);
+    return this.user.authorizeDerivedKeyWithoutIdentity(limits, false);
   }
+
+  // private generateDkTemp() {
+  //   const e = new ec('secp256k1');
+  //   const derivedKeyPair = e.keyFromPrivate(
+  //     '32abae6b92a979038402b15ec7dbb016538746d93d428378b699dc0636aa177d',
+  //     'hex'
+  //   );
+  //   const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
+  //   const desoKey = derivedKeyPair.getPublic().encode('array', true);
+  //   const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
+  //   const derivedPublicKeyBase58Check = bs58check.encode(prefixAndKey);
+  //   return { derivedPublicKeyBase58Check, derivedKeyPair };
+  // }
 
   private async generateDerivedKey(): Promise<{
     derivedPublicKeyBase58Check: string;
-    keyPair: ec.KeyPair;
+    derivedKeyPair: ec.KeyPair;
   }> {
     const e = new ec('secp256k1');
     // 1.1 goal of this is to generate a random derived key
@@ -104,34 +137,33 @@ export class Metamask {
     const dMnemonic = ethers.utils.entropyToMnemonic(entropy);
     const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
     // 1.2 turn it into a deso key
-    const prefix = PUBLIC_KEY_PREFIXES.mainnet.deso;
-    const keyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
-    const desoKey = keyPair.getPublic().encode('array', true);
+    const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
+    const derivedKeyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
+    const desoKey = derivedKeyPair.getPublic().encode('array', true);
     const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
     const derivedPublicKeyBase58Check = bs58check.encode(prefixAndKey);
-    return { derivedPublicKeyBase58Check, keyPair };
+    return { derivedPublicKeyBase58Check, derivedKeyPair };
   }
 
   private async generateMessage(
     derivedPublicKeyBase58Check: string,
-    spendingLimitsSignature: string,
-    keyPair: ec.KeyPair
+    spendingLimits: any
   ): Promise<any> {
-    // 0 configure helper objects
-    //2. expiration block
-    //3. spending limits
-    //
-    // AuthorizeDerivedKeyRequest ...
-    //4. convert to a bytes for signing
-    const numBlocksBeforeExpiration = '999999999999';
+    console.log('=>', derivedPublicKeyBase58Check);
+    const numBlocksBeforeExpiration = BLOCK;
+    const spendingLimitHex = new Buffer(
+      JSON.stringify(spendingLimits)
+    ).toString('hex');
     const message = [
       ...ethers.utils.toUtf8Bytes(derivedPublicKeyBase58Check),
-      ...ethers.utils.toUtf8Bytes(numBlocksBeforeExpiration),
-      ...ethers.utils.toUtf8Bytes(spendingLimitsSignature),
+      ...ethers.utils.toUtf8Bytes(
+        uint64ToBufBigEndian(numBlocksBeforeExpiration).toString('hex')
+      ),
+      ...ethers.utils.toUtf8Bytes(spendingLimitHex),
     ];
-    return keyPair.sign(message);
-    // const signature = ethers.utils.toUtf8Bytes(message);
-    // return { signature: await this.signMessage(signature), message };
+    const provider = this.getProvider();
+    const signature = await provider.getSigner().signMessage(message);
+    return { message, signature };
   }
 
   private async signMessage(message: Uint8Array) {
@@ -153,3 +185,16 @@ export class Metamask {
     return provider;
   };
 }
+
+export const uint64ToBufBigEndian = (uint: number): Buffer => {
+  const result = [];
+  while (BigInt(uint) >= BigInt(0xff)) {
+    result.push(Number(BigInt(uint) & BigInt(0xff)));
+    uint = Number(BigInt(uint) >> BigInt(8));
+  }
+  result.push(Number(BigInt(uint) | BigInt(0)));
+  while (result.length < 8) {
+    result.push(0);
+  }
+  return new Buffer(result.reverse());
+};

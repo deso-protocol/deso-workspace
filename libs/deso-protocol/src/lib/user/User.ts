@@ -111,6 +111,39 @@ export class User {
     });
   }
 
+  public async authorizeDerivedKeyWithoutIdentity(
+    request: Partial<AuthorizeDerivedKeyRequest>,
+    broadcast: boolean
+  ): Promise<AuthorizeDerivedKeyResponse> {
+    // const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
+    //   OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
+    //   DerivedPublicKeyBase58Check:
+    //     derivedPrivateUser.derivedPublicKeyBase58Check,
+    //   ExpirationBlock: derivedPrivateUser.expirationBlock,
+    //   AccessSignature: derivedPrivateUser.accessSignature,
+    //   DeleteKey: request.DeleteKey,
+    //   ExtraData: request.ExtraData,
+    //   TransactionSpendingLimitHex:
+    //     derivedPrivateUser.transactionSpendingLimitHex,
+    //   Memo: request.Memo,
+    //   AppName: request.AppName,
+    //   TransactionFees: request.TransactionFees,
+    //   MinFeeRateNanosPerKB: request.MinFeeRateNanosPerKB,
+    // };
+    const endpoint = 'authorize-derived-key';
+    const apiResponse: AuthorizeDerivedKeyResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    if (!broadcast) {
+      return apiResponse;
+    }
+    return await this.identity
+      .submitTransaction(apiResponse.TransactionHex)
+      .then(() => apiResponse)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
+  }
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
     broadcast: boolean

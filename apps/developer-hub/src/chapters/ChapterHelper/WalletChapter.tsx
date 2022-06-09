@@ -9,7 +9,7 @@ import { Route } from 'react-router-dom';
 import { Page } from '../Read/Page';
 import { PageSection } from './PageSections';
 import { CHAPTERS } from './Chapter.models';
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const walletChapter = {
   SEND_DESO: {
     parentRoute: ParentRoutes.wallet,

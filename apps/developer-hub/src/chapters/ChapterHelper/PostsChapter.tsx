@@ -20,7 +20,7 @@ import Page from '../Read/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 
-const deso = new Deso();
+const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const postChapter = {
   SUBMIT_POST: {
     parentRoute: ParentRoutes.posts,

@@ -24,6 +24,7 @@ export interface PageProps {
   pretext?: ReactElement;
   bind?: string;
   demo: boolean;
+  testnet?: boolean;
 }
 
 export const Page = ({
@@ -33,6 +34,7 @@ export const Page = ({
   pretext,
   bind,
   demo = true,
+  testnet = false,
 }: PageProps) => {
   const filePicker = useRef(null);
   const deso = useRecoilValue(desoService);
