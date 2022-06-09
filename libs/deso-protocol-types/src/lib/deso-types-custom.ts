@@ -238,6 +238,7 @@ export interface IdentityDeriveParams {
   transactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
   derivedPublicKey?: string;
   deleteKey?: boolean;
+  expirationDays?: number;
 }
 
 export interface IdentityDeriveQueryParams {
@@ -247,6 +248,7 @@ export interface IdentityDeriveQueryParams {
   transactionSpendingLimitResponse?: string;
   derivedPublicKey?: string;
   deleteKey?: boolean;
+  expirationDays?: number;
 }
 
 export interface AuthorizeDerivedKeyParams {
@@ -261,6 +263,7 @@ export interface AuthorizeDerivedKeyParams {
   Memo?: string;
   AppName?: string;
   ExtraData?: { [k: string]: string };
+  ExpirationDays?: number;
 }
 
 // Temporary manual creation of classes for DAO coin limit orders

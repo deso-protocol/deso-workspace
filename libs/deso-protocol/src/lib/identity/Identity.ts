@@ -125,6 +125,7 @@ export class Identity {
       transactionSpendingLimitResponse: params.transactionSpendingLimitResponse ? encodeURIComponent(JSON.stringify(params.transactionSpendingLimitResponse)) : undefined,
       derivedPublicKey: params.derivedPublicKey,
       deleteKey: params.deleteKey,
+      expirationDays: params.expirationDays,
     };
     const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler({

@@ -120,6 +120,8 @@ export class User {
       publicKey: this.identity.getUserKey() || undefined,
       transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
       derivedPublicKey: request.DerivedPublicKeyBase58Check,
+      deleteKey: request.DeleteKey,
+      expirationDays: request.ExpirationDays,
     });
     const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
