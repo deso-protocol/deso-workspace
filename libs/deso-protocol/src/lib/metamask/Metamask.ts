@@ -54,11 +54,11 @@ export class Metamask {
       authorizedDerivedKeySignature.toDER()
     ).toString('hex');
 
-    console.log(authorizedDerivedKeySignature.toDER('hex'));
-    console.log(hexToSign);
+    // console.log(authorizedDerivedKeySignature.toDER('hex'));
+    // console.log(hexToSign);
     // console.log(hexToSign);
     const submissionResponse = await Transactions.submitTransaction(hexToSign);
-    console.log(submissionResponse);
+    // console.log(submissionResponse);
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
     // if (ens) {
     //   await this.social.updateProfile({
