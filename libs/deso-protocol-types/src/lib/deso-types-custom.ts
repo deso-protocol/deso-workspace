@@ -237,6 +237,7 @@ export interface IdentityDeriveParams {
   publicKey?: string;
   transactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
   derivedPublicKey?: string;
+  deleteKey?: boolean;
 }
 
 export interface IdentityDeriveQueryParams {
@@ -245,6 +246,7 @@ export interface IdentityDeriveQueryParams {
   publicKey?: string;
   transactionSpendingLimitResponse?: string;
   derivedPublicKey?: string;
+  deleteKey?: boolean;
 }
 
 export interface AuthorizeDerivedKeyParams {
