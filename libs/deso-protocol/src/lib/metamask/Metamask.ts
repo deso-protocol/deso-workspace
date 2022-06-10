@@ -1,4 +1,5 @@
 import { Node } from '../Node/Node';
+import * as sha256 from 'sha256';
 import { Identity } from '../identity/Identity';
 import { ec } from 'elliptic';
 import { ethers } from 'ethers';
@@ -49,15 +50,40 @@ export class Metamask {
     const authorizedDerivedKeySignature = derivedKeyPair.sign(
       response.TransactionHex
     );
+    const transactionBytes = new Buffer(response.TransactionHex, 'hex');
+    const transactionHash = new Buffer(sha256.x2(transactionBytes), 'hex');
+    const sig = derivedKeyPair.sign(transactionHash);
+    const signatureBytes = new Buffer(sig.toDER());
+    const signatureLength = uvarint64ToBuf(signatureBytes.length);
 
-    const hexToSign = Buffer.from(
-      authorizedDerivedKeySignature.toDER()
-    ).toString('hex');
+    const signedTransactionBytes = Buffer.concat([
+      // This slice is bad. We need to remove the existing signature length field prior to appending the new one.
+      // Once we have frontend transaction construction we won't need to do this.
+      transactionBytes.slice(0, -1),
+      signatureLength,
+      signatureBytes,
+    ]);
+    console.log('response', response.TransactionHex);
+    console.log({
+      t: transactionBytes.slice(0, -1),
+      signatureLength,
+      signatureBytes,
+    });
+    console.log(signedTransactionBytes);
+    console.log(signedTransactionBytes.toString('hex'));
+
+    const submissionResponse = await Transactions.submitTransaction(
+      signedTransactionBytes.toString('hex')
+    );
+
+    // const hexToSign = Buffer.from(
+    //   authorizedDerivedKeySignature.toDER()
+    // ).toString('hex');
 
     // console.log(authorizedDerivedKeySignature.toDER('hex'));
     // console.log(hexToSign);
     // console.log(hexToSign);
-    const submissionResponse = await Transactions.submitTransaction(hexToSign);
+    // console.log(submissionResponse);
     // console.log(submissionResponse);
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
     // if (ens) {
@@ -197,4 +223,17 @@ export const uint64ToBufBigEndian = (uint: number): Buffer => {
     result.push(0);
   }
   return new Buffer(result.reverse());
+};
+
+export const uvarint64ToBuf = (uint: number): Buffer => {
+  const result = [];
+
+  while (uint >= 0x80) {
+    result.push((uint & 0xff) | 0x80);
+    uint >>>= 7;
+  }
+
+  result.push(uint | 0);
+
+  return new Buffer(result);
 };
