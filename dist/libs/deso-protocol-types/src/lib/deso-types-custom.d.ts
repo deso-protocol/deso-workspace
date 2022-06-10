@@ -208,6 +208,8 @@ export interface IdentityDeriveParams {
     publicKey?: string;
     transactionSpendingLimitResponse?: TransactionSpendingLimitResponse;
     derivedPublicKey?: string;
+    deleteKey?: boolean;
+    expirationDays?: number;
 }
 export interface IdentityDeriveQueryParams {
     callback?: string;
@@ -215,6 +217,8 @@ export interface IdentityDeriveQueryParams {
     publicKey?: string;
     transactionSpendingLimitResponse?: string;
     derivedPublicKey?: string;
+    deleteKey?: boolean;
+    expirationDays?: number;
 }
 export interface AuthorizeDerivedKeyParams {
     OwnerPublicKeyBase58Check?: string;
@@ -230,6 +234,7 @@ export interface AuthorizeDerivedKeyParams {
     ExtraData?: {
         [k: string]: string;
     };
+    ExpirationDays?: number;
 }
 export declare enum DAOCoinLimitOrderOperationTypeString {
     DAOCoinLimitOrderOperationTypeStringASK = "ASK",
