@@ -22,10 +22,14 @@ export const Login = () => {
   }, []);
 
   const getProfile = async () => {
-    const user = await deso.user.getSingleProfile({
-      PublicKeyBase58Check: deso.identity.getUserKey() as string,
-    });
-    setUser(user);
+    try {
+      const user = await deso.user.getSingleProfile({
+        PublicKeyBase58Check: deso.identity.getUserKey() as string,
+      });
+      setUser(user);
+    } catch (e) {
+      //
+    }
   };
 
   const login = async () => {

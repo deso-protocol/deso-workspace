@@ -6,7 +6,6 @@ import { ethers } from 'ethers';
 import { getSpendingLimits, PUBLIC_KEY_PREFIXES } from './Metamask.helper';
 import * as bs58check from 'bs58check';
 import {
-  AuthorizeDerivedKeyParams,
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
 } from 'deso-protocol-types';
@@ -63,28 +62,11 @@ export class Metamask {
       signatureLength,
       signatureBytes,
     ]);
-    console.log('response', response.TransactionHex);
-    console.log({
-      t: transactionBytes.slice(0, -1),
-      signatureLength,
-      signatureBytes,
-    });
-    console.log(signedTransactionBytes);
-    console.log(signedTransactionBytes.toString('hex'));
 
+    console.log({ r: response.TransactionHex });
     const submissionResponse = await Transactions.submitTransaction(
       signedTransactionBytes.toString('hex')
     );
-
-    // const hexToSign = Buffer.from(
-    //   authorizedDerivedKeySignature.toDER()
-    // ).toString('hex');
-
-    // console.log(authorizedDerivedKeySignature.toDER('hex'));
-    // console.log(hexToSign);
-    // console.log(hexToSign);
-    // console.log(submissionResponse);
-    // console.log(submissionResponse);
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
     // if (ens) {
     //   await this.social.updateProfile({
