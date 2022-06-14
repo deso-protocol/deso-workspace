@@ -4,6 +4,8 @@ import {
   AppendExtraDataResponse,
   GetTxnResponse,
   SubmitTransactionResponse,
+  TransactionSpendingLimit,
+  TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 
 export class Transactions {
@@ -26,8 +28,27 @@ export class Transactions {
     return (await axios.post(`${uri}/append-extra-data`, request)).data;
   }
 
-  public static getTransactionSpending(request: AppendExtraDataRequest) {
+  public static async getTransactionSpending(request: AppendExtraDataRequest) {
     const uri = localStorage.getItem('node_uri');
-    return axios.post(`${uri}/get-transaction-spending`, request);
+    return (await axios.post(`${uri}/get-transaction-spending`, request)).data;
+  }
+  public static async getTransactionSpendingLimitHexString(
+    request: Partial<any>
+  ): Promise<{ HexString: string }> {
+    const uri = localStorage.getItem('node_uri');
+    return (
+      await axios.post(
+        `https://node.deso.org/api/v0/get-transaction-spending-limit-hex-string`,
+        { TransactionSpendingLimit: request }
+      )
+    ).data;
+  }
+  public static async getTransactionSpendingLimitResponseFromHex(
+    transactionSpendingLimitHex: string
+  ) {
+    const uri = localStorage.getItem('node_uri');
+    await axios.get(
+      `${uri}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
+    );
   }
 }

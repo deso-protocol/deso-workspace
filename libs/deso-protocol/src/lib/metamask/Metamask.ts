@@ -3,20 +3,26 @@ import * as sha256 from 'sha256';
 import { Identity } from '../identity/Identity';
 import { ec } from 'elliptic';
 import { ethers } from 'ethers';
-import { getSpendingLimits, PUBLIC_KEY_PREFIXES } from './Metamask.helper';
+import {
+  getSpendingLimitsForMetamask,
+  PUBLIC_KEY_PREFIXES,
+  uint64ToBufBigEndian,
+  uvarint64ToBuf,
+} from './Metamask.helper';
 import * as bs58check from 'bs58check';
 import {
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
+  SubmitTransactionResponse,
 } from 'deso-protocol-types';
 import { Social } from '../social/Social';
 
 import { User } from '../user/User';
 import { Transactions } from '../transaction/Transaction';
-const BLOCK: Readonly<number> = 999999999999;
 
 export class Metamask {
   private node: Node;
+  private BLOCK: Readonly<number> = 999999999999;
   private identity: Identity;
   private social: Social;
   private user: User;
@@ -27,47 +33,10 @@ export class Metamask {
     this.user = user;
   }
 
-  public async main() {
-    const { derivedPublicKeyBase58Check, derivedKeyPair } =
-      await this.generateDerivedKey();
+  public async getENS(address: string): Promise<string | null> {
+    const provider = this.getProvider();
+    const ens = await provider.lookupAddress(address);
 
-    const { signature, message } = await this.generateMessage(
-      derivedKeyPair.getPublic().encode('hex', true),
-      getSpendingLimits()
-    );
-
-    const publicDesoAddress =
-      await this.getMetaMaskMasterPublicKeyFromSignature(signature, message);
-
-    const response = await this.authorizeDerivedKeyBackEndRequest(
-      publicDesoAddress,
-      derivedPublicKeyBase58Check,
-      signature,
-      getSpendingLimits()
-    );
-
-    const authorizedDerivedKeySignature = derivedKeyPair.sign(
-      response.TransactionHex
-    );
-    const transactionBytes = new Buffer(response.TransactionHex, 'hex');
-    const transactionHash = new Buffer(sha256.x2(transactionBytes), 'hex');
-    const sig = derivedKeyPair.sign(transactionHash);
-    const signatureBytes = new Buffer(sig.toDER());
-    const signatureLength = uvarint64ToBuf(signatureBytes.length);
-
-    const signedTransactionBytes = Buffer.concat([
-      // This slice is bad. We need to remove the existing signature length field prior to appending the new one.
-      // Once we have frontend transaction construction we won't need to do this.
-      transactionBytes.slice(0, -1),
-      signatureLength,
-      signatureBytes,
-    ]);
-
-    console.log({ r: response.TransactionHex });
-    const submissionResponse = await Transactions.submitTransaction(
-      signedTransactionBytes.toString('hex')
-    );
-    // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
     // if (ens) {
     //   await this.social.updateProfile({
     //     UpdaterPublicKeyBase58Check:
@@ -76,8 +45,130 @@ export class Metamask {
     //     NewUsername: ens,
     //   });
     // }
+    return ens;
   }
 
+  /**
+   * Flow for new deso users looking to sign in with metamask
+   */
+  public async signInWithMetamaskNewUser() {
+    // generate a random derived key
+    const { derivedPublicKeyBase58Check, derivedKeyPair } =
+      await this.generateDerivedKey();
+
+    // fetch a spending limit hex string based off of the permissions you're allowing
+    const spendingLimitHexString =
+      await Transactions.getTransactionSpendingLimitHexString(
+        getSpendingLimitsForMetamask()
+      );
+    //  we can now generate the message and sign it
+    const { signature, message } = await this.generateMessageAndSignature(
+      derivedKeyPair,
+      spendingLimitHexString.HexString
+    );
+    // once we have the signature we can fetch the public key from it
+    const publicDesoAddress =
+      await this.getMetaMaskMasterPublicKeyFromSignature(signature, message);
+
+    // we now have all the arguments to generate an authorize derived key transaction
+    const response = await this.authorizeDerivedKeyBackEndRequest(
+      publicDesoAddress,
+      derivedPublicKeyBase58Check,
+      signature,
+      spendingLimitHexString
+    );
+    // convert it to a byte array, sign it, submit it
+    this.signAndSubmitTransactionBytes(response.TransactionHex, derivedKeyPair);
+
+    // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
+  }
+
+  /**
+   * @returns derivedPublicKeyBase58Check Base58 encoded derived public key
+   * @returns derivedKeyPairKey pair object that handles the public private key logic for the derived key
+   * Generates a new derived key
+   */
+  private async generateDerivedKey(): Promise<{
+    derivedPublicKeyBase58Check: string;
+    derivedKeyPair: ec.KeyPair;
+  }> {
+    const e = new ec('secp256k1');
+    // 1.1 goal of this is to generate a random derived key
+    const entropy = ethers.utils.randomBytes(16);
+    const dMnemonic = ethers.utils.entropyToMnemonic(entropy);
+    const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
+    // 1.2 turn it into a deso key
+    const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
+    const derivedKeyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
+    const desoKey = derivedKeyPair.getPublic().encode('array', true);
+    const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
+    const derivedPublicKeyBase58Check = bs58check.encode(prefixAndKey);
+    return { derivedPublicKeyBase58Check, derivedKeyPair };
+  }
+
+  /**
+   *
+   * @param derivedKeyPair Key pair object that handles the public private key logic
+   * @param spendingLimits determines what the derived key will be able to do for the user
+   * @returns message: a byte array representation of the public key, expiration block for the derived key, and spending limits
+   * @returns signature: the the signed message by the derivedKeyPair object
+   * generates a spending limits message and signature for authorizing a derived key
+   */
+  private async generateMessageAndSignature(
+    derivedKeyPair: ec.KeyPair,
+    spendingLimits: string
+  ): Promise<any> {
+    const numBlocksBeforeExpiration = this.BLOCK;
+    const message = [
+      ...ethers.utils.toUtf8Bytes(
+        derivedKeyPair.getPublic().encode('hex', true)
+      ),
+      ...ethers.utils.toUtf8Bytes(
+        uint64ToBufBigEndian(numBlocksBeforeExpiration).toString('hex')
+      ),
+      ...ethers.utils.toUtf8Bytes(spendingLimits),
+    ];
+    const provider = this.getProvider();
+    const signature = await provider.getSigner().signMessage(message);
+    return { message, signature };
+  }
+
+  /**
+   *
+   * @param transactionHex transaction representation from the authorized derived key construction endpoint
+   * @param keyPair
+   * @returns a submit transaction response
+   * submits the authorize derived key transaction, if successful the derived key will now be active.
+   */
+  private async signAndSubmitTransactionBytes(
+    transactionHex: string,
+    derivedKeyPair: ec.KeyPair
+  ): Promise<SubmitTransactionResponse> {
+    const transactionBytes = new Buffer(transactionHex, 'hex');
+    const transactionHash = new Buffer(sha256.x2(transactionBytes), 'hex');
+    const sig = derivedKeyPair.sign(transactionHash);
+    const signatureBytes = new Buffer(sig.toDER());
+    const signatureLength = uvarint64ToBuf(signatureBytes.length);
+
+    const signedTransactionBytes = Buffer.concat([
+      transactionBytes.slice(0, -1),
+      signatureLength,
+      signatureBytes,
+    ]);
+
+    const submissionResponse = await Transactions.submitTransaction(
+      signedTransactionBytes.toString('hex')
+    );
+    return submissionResponse;
+  }
+
+  /**
+   *
+   * @param signature a signature from the metamask account that we can extract the public key from
+   * @param message the raw message that's included in the signature, needed to pull out the public key
+   * @returns
+   * extracts the public key from a signature and then encodes it to base58 aka a deso public key
+   */
   private async getMetaMaskMasterPublicKeyFromSignature(
     signature: string,
     message: string
@@ -101,89 +192,32 @@ export class Metamask {
     return encodedDesoKey;
   }
 
+  /**
+   *
+   * @param OwnerPublicKeyBase58Check the master public deso key
+   * @param DerivedPublicKeyBase58Check the derived deso key
+   * @param AccessSignature  signature including public key, block expiration, and spending limits hex
+   * @param TransactionSpendingLimits spending limits object
+   * @returns a constructed authorize derived key transaction that can now be signed by the derived key
+   * construct a authorize derived key transaction
+   */
   private async authorizeDerivedKeyBackEndRequest(
     OwnerPublicKeyBase58Check: string,
     DerivedPublicKeyBase58Check: string,
     AccessSignature: string,
     TransactionSpendingLimits: any
   ): Promise<AuthorizeDerivedKeyResponse> {
-    const TransactionSpendingLimitHex = new Buffer(
-      JSON.stringify(TransactionSpendingLimits)
-    ).toString('hex');
     const limits: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check,
       DerivedPublicKeyBase58Check,
       DerivedKeySignature: true,
-      ExpirationBlock: BLOCK,
+      ExpirationBlock: this.BLOCK,
       MinFeeRateNanosPerKB: 1000,
       AccessSignature: AccessSignature.slice(2),
-      TransactionSpendingLimitHex,
+      TransactionSpendingLimitHex: TransactionSpendingLimits.HexString,
     };
+
     return this.user.authorizeDerivedKeyWithoutIdentity(limits, false);
-  }
-
-  // private generateDkTemp() {
-  //   const e = new ec('secp256k1');
-  //   const derivedKeyPair = e.keyFromPrivate(
-  //     '32abae6b92a979038402b15ec7dbb016538746d93d428378b699dc0636aa177d',
-  //     'hex'
-  //   );
-  //   const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
-  //   const desoKey = derivedKeyPair.getPublic().encode('array', true);
-  //   const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
-  //   const derivedPublicKeyBase58Check = bs58check.encode(prefixAndKey);
-  //   return { derivedPublicKeyBase58Check, derivedKeyPair };
-  // }
-
-  private async generateDerivedKey(): Promise<{
-    derivedPublicKeyBase58Check: string;
-    derivedKeyPair: ec.KeyPair;
-  }> {
-    const e = new ec('secp256k1');
-    // 1.1 goal of this is to generate a random derived key
-    const entropy = ethers.utils.randomBytes(16);
-    const dMnemonic = ethers.utils.entropyToMnemonic(entropy);
-    const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
-    // 1.2 turn it into a deso key
-    const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
-    const derivedKeyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
-    const desoKey = derivedKeyPair.getPublic().encode('array', true);
-    const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
-    const derivedPublicKeyBase58Check = bs58check.encode(prefixAndKey);
-    return { derivedPublicKeyBase58Check, derivedKeyPair };
-  }
-
-  private async generateMessage(
-    derivedPublicKeyBase58Check: string,
-    spendingLimits: any
-  ): Promise<any> {
-    console.log('=>', derivedPublicKeyBase58Check);
-    const numBlocksBeforeExpiration = BLOCK;
-    const spendingLimitHex = new Buffer(
-      JSON.stringify(spendingLimits)
-    ).toString('hex');
-    const message = [
-      ...ethers.utils.toUtf8Bytes(derivedPublicKeyBase58Check),
-      ...ethers.utils.toUtf8Bytes(
-        uint64ToBufBigEndian(numBlocksBeforeExpiration).toString('hex')
-      ),
-      ...ethers.utils.toUtf8Bytes(spendingLimitHex),
-    ];
-    const provider = this.getProvider();
-    const signature = await provider.getSigner().signMessage(message);
-    return { message, signature };
-  }
-
-  private async signMessage(message: Uint8Array) {
-    const provider = this.getProvider();
-    const signer = provider.getSigner();
-    return await signer.signMessage(message);
-  }
-
-  public async getENS(address: string): Promise<string | null> {
-    const provider = this.getProvider();
-    const ens = await provider.lookupAddress(address);
-    return ens;
   }
 
   private getProvider = (): ethers.providers.Web3Provider => {
@@ -193,29 +227,3 @@ export class Metamask {
     return provider;
   };
 }
-
-export const uint64ToBufBigEndian = (uint: number): Buffer => {
-  const result = [];
-  while (BigInt(uint) >= BigInt(0xff)) {
-    result.push(Number(BigInt(uint) & BigInt(0xff)));
-    uint = Number(BigInt(uint) >> BigInt(8));
-  }
-  result.push(Number(BigInt(uint) | BigInt(0)));
-  while (result.length < 8) {
-    result.push(0);
-  }
-  return new Buffer(result.reverse());
-};
-
-export const uvarint64ToBuf = (uint: number): Buffer => {
-  const result = [];
-
-  while (uint >= 0x80) {
-    result.push((uint & 0xff) | 0x80);
-    uint >>>= 7;
-  }
-
-  result.push(uint | 0);
-
-  return new Buffer(result);
-};

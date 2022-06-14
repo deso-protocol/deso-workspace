@@ -10,7 +10,7 @@ export const metamaskChapter = {
     parentRoute: ParentRoutes.metamask,
     title: 'Metamask sign in',
     route: '/metamask/signin',
-    method: deso.metamask.main,
+    method: deso.metamask.signInWithMetamaskNewUser,
     githubSource: [],
     documentation: [],
     component: function () {
@@ -24,7 +24,7 @@ export const metamaskChapter = {
               demo={true}
               testnet={true}
               method={{
-                methodName: 'deso.metamask.signin()',
+                methodName: 'deso.metamask.signInWithMetamaskNewUser()',
                 params: () => null,
                 method: this.method,
               }}
