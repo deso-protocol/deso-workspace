@@ -130,6 +130,8 @@ export class Identity {
           )
         : undefined,
       derivedPublicKey: params.derivedPublicKey,
+      deleteKey: params.deleteKey,
+      expirationDays: params.expirationDays,
     };
     const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler({

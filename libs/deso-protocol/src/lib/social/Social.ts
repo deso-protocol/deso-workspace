@@ -27,6 +27,7 @@ import {
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { User } from '../user/User';
+import { assignDefaults, AssignDefaultsInterface } from '../../utils/utils';
 
 export class Social {
   private node: Node;
@@ -146,22 +147,10 @@ export class Social {
   public async updateProfile(
     request: Partial<UpdateProfileRequest>
   ): Promise<UpdateProfileResponse> {
-    throw Error('todo');
     const endpoint = 'update-profile';
     const response: UpdateProfileResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-    // const profile = (await this.user.getSingleProfile({
-    //   PublicKeyBase58Check: request.ProfilePublicKeyBase58Check,
-    // })).Profile;
-    //   const oy = {
-    // NewUsername: profile?.Username,
-    // NewDescription: profile?.Description,
-    // // NewProfilePic: profile.,
-    // NewCreatorBasisPoints: profile.,
-    // MinFeeRateNanosPerKB: 1000
-    //   }
-    response.TransactionHex;
     return await this.identity
       .submitTransaction(response.TransactionHex)
       .then(() => response)

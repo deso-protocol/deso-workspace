@@ -67,7 +67,7 @@ export const metaDataChapter = {
             <Page
               demo={true}
               method={{
-                methodName: 'deso.nft.getExchangeRate()',
+                methodName: 'deso.metaData.getExchangeRate()',
                 params: this.params,
                 method: this.method,
               }}
@@ -109,7 +109,7 @@ export const metaDataChapter = {
             <Page
               demo={true}
               method={{
-                methodName: 'deso.nft.burnNft(request)',
+                methodName: 'deso.metaData.getAppState(request)',
                 params: this.params,
                 method: this.method,
               }}

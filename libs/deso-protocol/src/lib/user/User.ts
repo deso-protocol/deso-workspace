@@ -1,25 +1,25 @@
-import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
 import axios from 'axios';
 import {
-  GetUsersResponse,
-  GetUsersStatelessRequest,
-  GetSingleProfileResponse,
-  GetSingleProfileRequest,
-  GetProfilesRequest,
-  GetProfilesResponse,
-  GetUserMetadataRequest,
-  GetUserMetadataResponse,
-  DeletePIIRequest,
-  BlockPublicKeyRequest,
-  GetUserDerivedKeysRequest,
-  BlockPublicKeyResponse,
-  GetUserDerivedKeysResponse,
+  AuthorizeDerivedKeyParams,
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
-  AuthorizeDerivedKeyParams,
+  BlockPublicKeyRequest,
+  BlockPublicKeyResponse,
+  DeletePIIRequest,
+  GetProfilesRequest,
+  GetProfilesResponse,
+  GetSingleProfileRequest,
+  GetSingleProfileResponse,
+  GetUserDerivedKeysRequest,
+  GetUserDerivedKeysResponse,
+  GetUserMetadataRequest,
+  GetUserMetadataResponse,
+  GetUsersResponse,
+  GetUsersStatelessRequest,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/utils';
+import { Identity } from '../identity/Identity';
+import { Node } from '../Node/Node';
 export class User {
   private node: Node;
   private identity: Identity;
@@ -112,22 +112,13 @@ export class User {
   }
 
   public async authorizeDerivedKeyWithoutIdentity(
-    request: Partial<AuthorizeDerivedKeyRequest>,
-    broadcast: boolean
+    request: Partial<AuthorizeDerivedKeyRequest>
   ): Promise<AuthorizeDerivedKeyResponse> {
     const endpoint = 'authorize-derived-key';
     const apiResponse: AuthorizeDerivedKeyResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-    if (!broadcast) {
-      return apiResponse;
-    }
-    return await this.identity
-      .submitTransaction(apiResponse.TransactionHex)
-      .then(() => apiResponse)
-      .catch(() => {
-        throw Error('something went wrong while signing');
-      });
+    return apiResponse;
   }
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,

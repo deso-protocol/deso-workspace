@@ -228,7 +228,7 @@ export class Metamask {
       TransactionSpendingLimitHex: TransactionSpendingLimits.HexString,
     };
 
-    return this.user.authorizeDerivedKeyWithoutIdentity(limits, false);
+    return this.user.authorizeDerivedKeyWithoutIdentity(limits);
   }
 
   private getProvider = (): ethers.providers.Web3Provider => {
