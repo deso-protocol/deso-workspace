@@ -23,7 +23,7 @@ import {
   TransferNFTRequest,
   UpdateNFTRequest,
 } from 'deso-protocol-types';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { PageSection } from './PageSections';
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 

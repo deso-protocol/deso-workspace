@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-globals */
-import { LoggedIn } from '../../../threads/Threads.state';
 import Deso from 'deso-protocol';
 import { GetSingleProfileResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { LoggedIn } from '../../../threads/Threads.state';
 
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const Login = () => {

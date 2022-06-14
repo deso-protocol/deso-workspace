@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { CHAPTERS } from './Chapter.models';
-import { Page } from '../Read/Page';
+import { Page } from '../CustomChapters/Page';
 import { PageSection } from './PageSections';
 import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
 import Deso from 'deso-protocol';
@@ -17,7 +17,6 @@ import {
   DAOCoinLimitOrderOperationTypeString,
   NFTLimitOperationString,
 } from 'deso-protocol-types';
-import { Nft } from 'libs/deso-protocol/src/lib/nft/Nft';
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 // deso.user.getSingleProfile;
 // deso.user.getSingleProfilePicture;

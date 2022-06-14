@@ -6,7 +6,7 @@ import {
 } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import { ParentRoutes } from '../../services/utils';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 

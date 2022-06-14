@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   CreateFollowTxnStatelessRequest,
   CreateFollowTxnStatelessResponse,
@@ -23,7 +24,6 @@ import {
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
-import axios from 'axios';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { User } from '../user/User';

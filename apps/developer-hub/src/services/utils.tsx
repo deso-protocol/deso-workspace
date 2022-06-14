@@ -124,10 +124,15 @@ export const jsonBlock = (
     );
   }
 };
-export const ClickHereSnippet = (
-  onclick: (...params: any) => any,
-  toCallText: string
-) => {
+export interface ClickHereSnippetProps {
+  onclick: (...params: any) => any;
+  toCallText: string;
+}
+
+export const ClickHereSnippet = ({
+  onclick,
+  toCallText,
+}: ClickHereSnippetProps) => {
   return (
     <div>
       Click{' '}

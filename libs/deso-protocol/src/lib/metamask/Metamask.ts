@@ -1,24 +1,29 @@
-import { Node } from '../Node/Node';
-import * as sha256 from 'sha256';
-import { Identity } from '../identity/Identity';
-import { ec } from 'elliptic';
-import { ethers } from 'ethers';
-import {
-  getSpendingLimitsForMetamask,
-  PUBLIC_KEY_PREFIXES,
-  uint64ToBufBigEndian,
-  uvarint64ToBuf,
-} from './Metamask.helper';
 import * as bs58check from 'bs58check';
 import {
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
   SubmitTransactionResponse,
 } from 'deso-protocol-types';
+import { ec } from 'elliptic';
+import { ethers } from 'ethers';
+import * as sha256 from 'sha256';
+import { Identity } from '../identity/Identity';
+import { Node } from '../Node/Node';
 import { Social } from '../social/Social';
-
-import { User } from '../user/User';
 import { Transactions } from '../transaction/Transaction';
+import { User } from '../user/User';
+import {
+  getSpendingLimitsForMetamask,
+  PUBLIC_KEY_PREFIXES,
+  uint64ToBufBigEndian,
+  uvarint64ToBuf,
+} from './Metamask.helper';
+
+export interface MetaMaskInitResponse {
+  derivedKeyPair: ec.KeyPair;
+  derivedPublicKeyBase58Check: string;
+  submissionResponse: SubmitTransactionResponse;
+}
 
 export class Metamask {
   private node: Node;
@@ -33,25 +38,28 @@ export class Metamask {
     this.user = user;
   }
 
-  public async getENS(address: string): Promise<string | null> {
+  public async getENS(EthereumAddress: string): Promise<string | null> {
     const provider = this.getProvider();
-    const ens = await provider.lookupAddress(address);
+    const ens = await provider.lookupAddress(EthereumAddress);
 
-    // if (ens) {
-    //   await this.social.updateProfile({
-    //     UpdaterPublicKeyBase58Check:
-    //       'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog',
-    //     MinFeeRateNanosPerKB: 1000,
-    //     NewUsername: ens,
-    //   });
-    // }
     return ens;
+  }
+  public async populateProfile(EthereumAddress: string): Promise<any> {
+    const ens = await this.getENS(EthereumAddress);
+
+    if (ens) {
+      await this.social.updateProfile({
+        UpdaterPublicKeyBase58Check: EthereumAddress,
+        MinFeeRateNanosPerKB: 1000,
+        NewUsername: ens,
+      });
+    }
   }
 
   /**
    * Flow for new deso users looking to sign in with metamask
    */
-  public async signInWithMetamaskNewUser() {
+  public async signInWithMetamaskNewUser(): Promise<MetaMaskInitResponse> {
     // generate a random derived key
     const { derivedPublicKeyBase58Check, derivedKeyPair } =
       await this.generateDerivedKey();
@@ -78,8 +86,12 @@ export class Metamask {
       spendingLimitHexString
     );
     // convert it to a byte array, sign it, submit it
-    this.signAndSubmitTransactionBytes(response.TransactionHex, derivedKeyPair);
+    const submissionResponse = await this.signAndSubmitTransactionBytes(
+      response.TransactionHex,
+      derivedKeyPair
+    );
 
+    return { derivedKeyPair, derivedPublicKeyBase58Check, submissionResponse };
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
   }
 
@@ -93,11 +105,9 @@ export class Metamask {
     derivedKeyPair: ec.KeyPair;
   }> {
     const e = new ec('secp256k1');
-    // 1.1 goal of this is to generate a random derived key
     const entropy = ethers.utils.randomBytes(16);
     const dMnemonic = ethers.utils.entropyToMnemonic(entropy);
     const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
-    // 1.2 turn it into a deso key
     const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
     const derivedKeyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
     const desoKey = derivedKeyPair.getPublic().encode('array', true);
@@ -185,6 +195,7 @@ export class Metamask {
       publicKeyUncompressedHexWith0x.slice(2),
       'hex'
     );
+
     const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
     const key = messagingPublicKey.getPublic().encode('array', true);
     const desoKey = Uint8Array.from([...prefix, ...key]);

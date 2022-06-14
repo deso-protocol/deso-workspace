@@ -1,9 +1,9 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
-import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import Deso from 'deso-protocol';
 import { GetAppStateRequest } from 'deso-protocol-types';
-import { Page } from '../Read/Page';
+import { Route } from 'react-router-dom';
+import { DEZO_DOG, ParentRoutes } from '../../services/utils';
+import { Page } from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const metaDataChapter = {

@@ -18,7 +18,7 @@ import {
   ParentRoutes,
   TYLER,
 } from '../../services/utils';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
