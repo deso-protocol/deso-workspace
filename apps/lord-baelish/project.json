@@ -1,0 +1,39 @@
+{
+  "root": "apps/lord-baelish",
+  "sourceRoot": "apps/lord-baelish/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/lord-baelish",
+        "main": "apps/lord-baelish/src/index.ts",
+        "tsConfig": "apps/lord-baelish/tsconfig.app.json",
+        "assets": ["apps/lord-baelish/*.md"]
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "lord-baelish:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/lord-baelish/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/lord-baelish"],
+      "options": {
+        "jestConfig": "apps/lord-baelish/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

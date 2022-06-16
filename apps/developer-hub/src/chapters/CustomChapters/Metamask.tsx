@@ -29,14 +29,14 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
     setMetaMaskResponse(metamaskResponse);
   };
   const populateProfile = async () => {
-    if (metamaskResponse) {
-      metamaskResponse
-      const metamaskResponse = await deso.metamask.populateProfile(
-        '0x8b9C35C79AF5319C70dd9A3E3850F368822ED64E'
-      );
-    }
+    // if (metamaskResponse) {
+    //   metamaskResponse
+    //   const metamaskResponse = await deso.metamask.populateProfile(
+    //     '0x8b9C35C79AF5319C70dd9A3E3850F368822ED64E'
+    //   );
+    // }
   };
-  
+
   return (
     <ChapterTemplate
       tabs={[
