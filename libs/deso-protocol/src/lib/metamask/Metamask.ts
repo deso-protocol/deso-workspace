@@ -2,6 +2,7 @@ import * as bs58check from 'bs58check';
 import {
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
+  MetaMaskInitResponse,
   SubmitTransactionResponse,
 } from 'deso-protocol-types';
 import { ec } from 'elliptic';
@@ -18,12 +19,6 @@ import {
   uint64ToBufBigEndian,
   uvarint64ToBuf,
 } from './Metamask.helper';
-
-export interface MetaMaskInitResponse {
-  derivedKeyPair: ec.KeyPair;
-  derivedPublicKeyBase58Check: string;
-  submissionResponse: SubmitTransactionResponse;
-}
 
 export class Metamask {
   private node: Node;
@@ -44,9 +39,9 @@ export class Metamask {
 
     return ens;
   }
-  public async populateProfile(EthereumAddress: string): Promise<any> {
-    const ens = await this.getENS(EthereumAddress);
 
+  public async populateProfile(EthereumAddress: string): Promise<void> {
+    const ens = await this.getENS(EthereumAddress);
     if (ens) {
       await this.social.updateProfile({
         UpdaterPublicKeyBase58Check: EthereumAddress,
@@ -90,8 +85,15 @@ export class Metamask {
       response.TransactionHex,
       derivedKeyPair
     );
-
-    return { derivedKeyPair, derivedPublicKeyBase58Check, submissionResponse };
+    const ethereumAddress: string = await this.getProvider()
+      .getSigner()
+      .getAddress();
+    return {
+      derivedKeyPair,
+      derivedPublicKeyBase58Check,
+      ethereumAddress,
+      submissionResponse,
+    };
     // const ens = await this.getENS('0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c');
   }
 
@@ -127,7 +129,7 @@ export class Metamask {
   private async generateMessageAndSignature(
     derivedKeyPair: ec.KeyPair,
     spendingLimits: string
-  ): Promise<any> {
+  ): Promise<{ message: number[]; signature: string }> {
     const numBlocksBeforeExpiration = this.BLOCK;
     const message = [
       ...ethers.utils.toUtf8Bytes(
@@ -181,7 +183,7 @@ export class Metamask {
    */
   private async getMetaMaskMasterPublicKeyFromSignature(
     signature: string,
-    message: string
+    message: number[]
   ): Promise<string> {
     const e = new ec('secp256k1');
     const arrayify = ethers.utils.arrayify;

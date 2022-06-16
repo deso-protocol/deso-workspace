@@ -29,7 +29,6 @@ export class User {
   }
   public async getUserStateless(
     request: Partial<GetUsersStatelessRequest>
-    // PublicKeysBase58Check: string | string[]
   ): Promise<GetUsersResponse> {
     return (
       await axios.post(`${this.node.getUri()}/get-users-stateless`, request)
@@ -49,6 +48,7 @@ export class User {
     ).data;
     return response;
   }
+
   public async getProfiles(
     request: Partial<GetProfilesRequest>
   ): Promise<GetProfilesResponse> {
@@ -97,6 +97,7 @@ export class User {
       JWT,
     });
   }
+
   public async getUserDerivedKeys(
     request: Partial<GetUserDerivedKeysRequest>
   ): Promise<GetUserDerivedKeysResponse> {
@@ -120,6 +121,7 @@ export class User {
     ).data;
     return apiResponse;
   }
+
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
     broadcast: boolean
@@ -156,7 +158,6 @@ export class User {
     if (!broadcast) {
       return apiResponse;
     }
-    console.log('hello?');
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex)
       .then(() => apiResponse)

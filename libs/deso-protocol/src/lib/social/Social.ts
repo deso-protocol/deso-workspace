@@ -21,13 +21,13 @@ import {
   SendDiamondsRequest,
   SendDiamondsResponse,
   SendMessageStatelessRequest,
+  TransactionOptions,
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { User } from '../user/User';
-import { assignDefaults, AssignDefaultsInterface } from '../../utils/utils';
 
 export class Social {
   private node: Node;
@@ -145,12 +145,14 @@ export class Social {
   }
 
   public async updateProfile(
-    request: Partial<UpdateProfileRequest>
+    request: Partial<UpdateProfileRequest>,
+    options: TransactionOptions = { broadcast: true }
   ): Promise<UpdateProfileResponse> {
     const endpoint = 'update-profile';
     const response: UpdateProfileResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
+    if (!options.broadcast) return response;
     return await this.identity
       .submitTransaction(response.TransactionHex)
       .then(() => response)

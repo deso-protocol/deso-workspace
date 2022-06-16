@@ -1,4 +1,7 @@
 import Deso from 'deso-protocol';
+import { MetaMaskInitResponse } from 'deso-protocol-types';
+import { ec } from 'elliptic';
+import { useState } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { PageNavigation } from '../../components/layout/PageNavigation';
 import { ClickHereSnippet, HUB } from '../../services/utils';
@@ -16,10 +19,24 @@ export interface MetamaskProps {
 }
 const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
+  const [metamaskResponseObject, setMetaMaskResponse] =
+    useState<MetaMaskInitResponse | null>(null);
   const signInWithMetamask = async () => {
     const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
-    console.log(metamaskResponse);
+    metamaskResponse.derivedKeyPair = {
+      hidden: 'note this object was truncated since its too long to print ',
+    } as unknown as ec.KeyPair;
+    setMetaMaskResponse(metamaskResponse);
   };
+  const populateProfile = async () => {
+    if (metamaskResponse) {
+      metamaskResponse
+      const metamaskResponse = await deso.metamask.populateProfile(
+        '0x8b9C35C79AF5319C70dd9A3E3850F368822ED64E'
+      );
+    }
+  };
+  
   return (
     <ChapterTemplate
       tabs={[
@@ -45,7 +62,7 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                   </div>
                   <CopyBlock
                     codeBlock
-                    text={'import deso from deso'}
+                    text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();`}
                     language={'tsx'}
                     wrapLines={true}
                     theme={nord}
@@ -53,6 +70,23 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                   <ClickHereSnippet
                     toCallText="click here to generate an account from metamask"
                     onclick={signInWithMetamask}
+                  />
+                  <div className="max-h-[450px]  overflow-auto">
+                    <CopyBlock
+                      codeBlock
+                      text={JSON.stringify(metamaskResponse, null, 2)}
+                      language={'tsx'}
+                      wrapLines={true}
+                      theme={nord}
+                    />
+                  </div>
+                  <div>populate Profile with ENS</div>
+                  <CopyBlock
+                    codeBlock
+                    text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();`}
+                    language={'tsx'}
+                    wrapLines={true}
+                    theme={nord}
                   />
                 </>
               )}

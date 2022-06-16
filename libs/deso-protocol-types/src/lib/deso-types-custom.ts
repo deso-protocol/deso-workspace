@@ -1,4 +1,9 @@
-import { TransactionFee, TransactionSpendingLimitResponse } from './deso-types';
+import { ec } from 'elliptic';
+import {
+  SubmitTransactionResponse,
+  TransactionFee,
+  TransactionSpendingLimitResponse,
+} from './deso-types';
 
 export interface GetApproveResponse {
   id?: string;
@@ -327,4 +332,15 @@ export enum TxnString {
   TxnStringDAOCoinTransfer = 'DAO_COIN_TRANSFER',
   TxnStringDAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
   TxnStringUndefined = 'TXN_UNDEFINED',
+}
+
+export interface MetaMaskInitResponse {
+  derivedKeyPair: ec.KeyPair;
+  derivedPublicKeyBase58Check: string;
+  submissionResponse: SubmitTransactionResponse;
+  ethereumAddress: string;
+}
+
+export interface TransactionOptions {
+  broadcast?: boolean;
 }
