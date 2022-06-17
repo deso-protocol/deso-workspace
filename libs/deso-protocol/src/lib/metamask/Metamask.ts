@@ -26,11 +26,19 @@ export class Metamask {
   private identity: Identity;
   private social: Social;
   private user: User;
-  constructor(node: Node, identity: Identity, social: Social, user: User) {
+  private transactions: Transactions;
+  constructor(
+    node: Node,
+    identity: Identity,
+    social: Social,
+    user: User,
+    transactions: Transactions
+  ) {
     this.node = node;
     this.identity = identity;
     this.social = social;
     this.user = user;
+    this.transactions = transactions;
   }
 
   public async getENS(EthereumAddress: string): Promise<string | null> {
@@ -61,7 +69,7 @@ export class Metamask {
 
     // fetch a spending limit hex string based off of the permissions you're allowing
     const spendingLimitHexString =
-      await Transactions.getTransactionSpendingLimitHexString(
+      await this.transactions.getTransactionSpendingLimitHexString(
         getSpendingLimitsForMetamask()
       );
     //  we can now generate the message and sign it
@@ -168,7 +176,7 @@ export class Metamask {
       signatureBytes,
     ]);
 
-    const submissionResponse = await Transactions.submitTransaction(
+    const submissionResponse = await this.transactions.submitTransaction(
       signedTransactionBytes.toString('hex')
     );
     return submissionResponse;

@@ -1,16 +1,16 @@
-import { Route } from 'react-router-dom';
-import { ParentRoutes, TYLER } from '../../services/utils';
-import Page from '../CustomChapters/Page';
 import Deso from 'deso-protocol';
-import { PageSection } from './PageSections';
-import { CHAPTERS } from './Chapter.models';
 import {
   CreatorCoinLimitOperationString,
   DAOCoinLimitOperationString,
   IdentityDeriveParams,
   NFTLimitOperationString,
 } from 'deso-protocol-types';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+import { Route } from 'react-router-dom';
+import { ParentRoutes, TYLER } from '../../services/utils';
+import Page from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
+import { PageSection } from './PageSections';
+const deso = new Deso();
 export const identityChapter = {
   IDENTITY_LOGIN: {
     parentRoute: ParentRoutes.identity,

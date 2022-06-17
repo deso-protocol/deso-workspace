@@ -1,13 +1,4 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
 import Deso from 'deso-protocol';
-import {
-  ParentRoutes,
-  TYLER,
-  DEZO_DOG,
-  SAMPLE_POST,
-  SAMPLE_NFT_POST,
-} from '../../services/utils';
 import {
   AcceptNFTBidRequest,
   AcceptNFTTransferRequest,
@@ -23,9 +14,18 @@ import {
   TransferNFTRequest,
   UpdateNFTRequest,
 } from 'deso-protocol-types';
+import { Route } from 'react-router-dom';
+import {
+  DEZO_DOG,
+  ParentRoutes,
+  SAMPLE_NFT_POST,
+  SAMPLE_POST,
+  TYLER,
+} from '../../services/utils';
 import Page from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 
 export const nftChapter = {
   GET_NFTS_FOR_USER: {

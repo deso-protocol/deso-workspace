@@ -3,7 +3,6 @@ import {
   DAOCoinLimitOrderOperationTypeString,
   DAOCoinLimitOrderWithCancelOrderIDRequest,
   DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
-  DAOCoinMarketOrderWithQuantityRequest,
   DAOCoinRequest,
   GetDAOCoinLimitOrdersRequest,
   GetTransactorDAOCoinLimitOrdersRequest,
@@ -14,7 +13,7 @@ import { ParentRoutes } from '../../services/utils';
 import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const daoChapter = {
   DAO_COIN: {
     parentRoute: ParentRoutes.dao,

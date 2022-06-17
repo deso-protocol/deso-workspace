@@ -1,18 +1,17 @@
-import { GetPostsForPublicKeyResponse } from 'deso-protocol-types';
 import { Avatar, CardHeader } from '@mui/material';
 import Card from '@mui/material/Card';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
 import {
-  SampleAppMyUserInfo,
   MyUserInfoType,
+  SampleAppMyUserInfo,
 } from '../../recoil/AppState.atoms';
+import { DesoContext } from '../../services/DesoContext';
 export interface CreatePostProps {
   publicKey: string;
 }
 const DisplayPosts = ({ publicKey }: CreatePostProps) => {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const [posts, setPosts] = useState<ReactElement[]>([]);
   const user = useRecoilValue<MyUserInfoType | null>(SampleAppMyUserInfo);
   useEffect(() => {

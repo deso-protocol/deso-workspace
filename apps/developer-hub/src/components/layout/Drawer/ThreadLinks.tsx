@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   forumRoute,
   getForumPosts,
   groupBy,
-  HUB,
   ThreadCategory,
 } from '../../../services/utils';
-import { PostEntryResponse } from 'deso-protocol-types';
 import { DrawerLink } from './DrawerLink';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 
 export interface ThreadLinksProps {
   openedPanels: any;

@@ -1,23 +1,22 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
-import { Page } from '../CustomChapters/Page';
-import { PageSection } from './PageSections';
-import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
-  GetSingleProfileRequest,
-  GetUsersStatelessRequest,
-  GetProfilesRequest,
-  GetUserMetadataRequest,
-  DeletePIIRequest,
-  BlockPublicKeyRequest,
   AuthorizeDerivedKeyParams,
+  BlockPublicKeyRequest,
   CreatorCoinLimitOperationString,
   DAOCoinLimitOperationString,
-  DAOCoinLimitOrderOperationTypeString,
+  DeletePIIRequest,
+  GetProfilesRequest,
+  GetSingleProfileRequest,
+  GetUserMetadataRequest,
+  GetUsersStatelessRequest,
   NFTLimitOperationString,
 } from 'deso-protocol-types';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+import { Route } from 'react-router-dom';
+import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
+import { Page } from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
+import { PageSection } from './PageSections';
+const deso = new Deso();
 // deso.user.getSingleProfile;
 // deso.user.getSingleProfilePicture;
 export const userChapter = {

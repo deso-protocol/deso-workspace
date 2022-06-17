@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { ReactElement, useEffect, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { ReactElement, useContext, useEffect, useRef, useState } from 'react';
+import { CopyBlock, nord } from 'react-code-blocks';
 import { PageNavigation } from '../../components/layout/PageNavigation';
-import { desoService } from '../ChapterHelper/Chapter.atom';
+import { DesoContext } from '../../services/DesoContext';
+import { HUB, IMPORT_CODE, jsonBlock } from '../../services/utils';
+import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
 import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
-import { HUB, IMPORT_CODE, jsonBlock, timeout } from '../../services/utils';
 import {
   CommonPageSectionTitles,
   PageSection,
 } from '../ChapterHelper/PageSections';
-import { CopyBlock, nord } from 'react-code-blocks';
-import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 export interface PageProps {
   selectedChapter: Chapter;
   method?: {
@@ -37,7 +36,8 @@ export const Page = ({
   testnet = false,
 }: PageProps) => {
   const filePicker = useRef(null);
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
+  console.log('deso => ', deso);
   const [response, setResponse] = useState<any | null>(null);
   const [chapterTitle, setChapterTitle] = useState<string>('');
   useEffect(() => {

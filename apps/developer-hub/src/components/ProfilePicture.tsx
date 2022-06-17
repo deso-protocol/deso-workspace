@@ -5,7 +5,7 @@ export interface ProfilePictureProps {
   publicKey: string;
   className?: string;
 }
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const ProfilePicture = ({
   publicKey,
   className = '',

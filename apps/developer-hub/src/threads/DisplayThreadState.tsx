@@ -1,9 +1,9 @@
-import { ThreadState } from '../services/utils';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Menu, MenuItem } from '@mui/material';
 import Deso from 'deso-protocol';
-import { useEffect, useState } from 'react';
 import { GetSinglePostResponse } from 'deso-protocol-types';
+import { useEffect, useState } from 'react';
+import { ThreadState } from '../services/utils';
 export interface ThreadStateProps {
   state: ThreadState;
   PostHashHex: string;
@@ -15,7 +15,7 @@ const bgColors = {
   [ThreadState.REMOVED]: 'bg-[#000]',
   [ThreadState.RESOLVED]: 'bg-[#5f5f5f] ',
 };
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const DisplayThreadState = ({
   state,
   PostHashHex,

@@ -5,7 +5,7 @@ import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import { Page } from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const metaDataChapter = {
   HEALTH_CHECK: {
     parentRoute: ParentRoutes.metaData,

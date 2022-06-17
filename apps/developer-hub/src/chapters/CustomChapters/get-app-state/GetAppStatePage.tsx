@@ -5,12 +5,11 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { DesoContext } from '../../../services/DesoContext';
 
-import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { desoService } from '../../ChapterHelper/Chapter.atom';
+import { useContext, useEffect, useState } from 'react';
 export const GetAppStatePage = () => {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const [nodes, setNodes] = useState<any[]>([]);
   useEffect(() => {
     deso.metaData

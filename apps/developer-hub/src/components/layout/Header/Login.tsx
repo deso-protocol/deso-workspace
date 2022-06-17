@@ -1,15 +1,16 @@
 /* eslint-disable no-restricted-globals */
-import Deso from 'deso-protocol';
 import { GetSingleProfileResponse } from 'deso-protocol-types';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { DesoContext } from '../../../services/DesoContext';
 import { LoggedIn } from '../../../threads/Threads.state';
 
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+// const deso = new Deso();
 export const Login = () => {
   const [userKey, setUserKey] = useState('');
   const [user, setUser] = useState<GetSingleProfileResponse | null>(null);
   const [loggedIn, setLoggedIn] = useRecoilState(LoggedIn);
+  const deso = useContext(DesoContext);
   useEffect(() => {
     const userKey = deso.identity.getUserKey();
     if (userKey) {
@@ -37,7 +38,6 @@ export const Login = () => {
     setUserKey(deso.identity.getUserKey() ?? '');
     setLoggedIn(true);
     getProfile();
-    location.reload();
   };
 
   const logout = async () => {

@@ -3,10 +3,9 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import { Tooltip } from '@mui/material';
 import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
-import { StatementTypeEnum } from './Statement';
 import { Votes } from './votes';
 
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export interface ResponsesProps {
   PostHashHex: string;
 }

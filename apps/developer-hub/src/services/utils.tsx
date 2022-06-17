@@ -1,14 +1,14 @@
+import axios from 'axios';
 import {
   LoginUser,
   PostEntryResponse,
   SubmitPostRequest,
 } from 'deso-protocol-types';
-import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
 import Deso from 'deso-protocol';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 
 export enum ThreadCategory {
   GENERAL = 'GENERAL',
@@ -159,7 +159,7 @@ export function groupBy(array: any[], key: string) {
 }
 
 export const IMPORT_CODE: Readonly<string> = `import Deso from 'deso-protocol';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 `;
 
 export function timeout(ms: number) {

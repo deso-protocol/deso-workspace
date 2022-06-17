@@ -1,4 +1,3 @@
-import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
   BuyOrSellCreatorCoinRequest,
@@ -6,10 +5,11 @@ import {
   TransferCreatorCoinRequest,
 } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
+import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import { Page } from '../CustomChapters/Page';
-import { PageSection } from './PageSections';
 import { CHAPTERS } from './Chapter.models';
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+import { PageSection } from './PageSections';
+const deso = new Deso();
 export const walletChapter = {
   SEND_DESO: {
     parentRoute: ParentRoutes.wallet,

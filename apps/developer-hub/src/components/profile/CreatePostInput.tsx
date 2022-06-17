@@ -1,15 +1,10 @@
-import * as React from 'react';
-import { Button, TextField, Tooltip } from '@mui/material';
-import { LoginUser } from 'deso-protocol-types';
-import { SampleAppLoggedInUser } from '../../recoil/AppState.atoms';
+import { Button, TextField } from '@mui/material';
+import { useContext, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { useState } from 'react';
-import {
-  desoService,
-  PublicKey,
-} from '../../chapters/ChapterHelper/Chapter.atom';
+import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
+import { DesoContext } from '../../services/DesoContext';
 export default function CreatePostInput() {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const myPublicKey = useRecoilValue(PublicKey);
   const [postBody, setPostBody] = useState<string | null>(null);
   const createPost = () => {

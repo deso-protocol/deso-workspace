@@ -1,9 +1,9 @@
-import Deso from 'deso-protocol';
 import { MetaMaskInitResponse } from 'deso-protocol-types';
 import { ec } from 'elliptic';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { PageNavigation } from '../../components/layout/PageNavigation';
+import { DesoContext } from '../../services/DesoContext';
 import { ClickHereSnippet, HUB } from '../../services/utils';
 import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
@@ -17,17 +17,19 @@ export interface MetamaskProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
 export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
+  const deso = useContext(DesoContext);
   const [metamaskResponseObject, setMetaMaskResponse] =
     useState<MetaMaskInitResponse | null>(null);
   const signInWithMetamask = async () => {
+    console.log(deso);
     const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
     metamaskResponse.derivedKeyPair = {
       hidden: 'note this object was truncated since its too long to print ',
     } as unknown as ec.KeyPair;
     setMetaMaskResponse(metamaskResponse);
   };
+
   const populateProfile = async () => {
     // if (metamaskResponse) {
     //   metamaskResponse
@@ -46,11 +48,9 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
             <>
               {PageSection(
                 `${selectedChapter.title}`,
-                <>
-                  <div>
-                    Allows a user with an ethereum account to sign into DeSo.{' '}
-                  </div>
-                </>
+                <div>
+                  Allows a user with an ethereum account to sign into DeSo.{' '}
+                </div>
               )}
 
               {PageSection(
@@ -72,13 +72,13 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                     onclick={signInWithMetamask}
                   />
                   <div className="max-h-[450px]  overflow-auto">
-                    <CopyBlock
+                    {/* <CopyBlock
                       codeBlock
                       text={JSON.stringify(metamaskResponse, null, 2)}
                       language={'tsx'}
                       wrapLines={true}
                       theme={nord}
-                    />
+                    /> */}
                   </div>
                   <div>populate Profile with ENS</div>
                   <CopyBlock

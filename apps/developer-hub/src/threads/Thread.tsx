@@ -1,10 +1,10 @@
-import { Statement, StatementTypeEnum } from './Statement';
-import { ReactElement, useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
+import { ReactElement, useEffect, useState } from 'react';
+import { Statement, StatementTypeEnum } from './Statement';
 export interface ThreadProps {
   PostHashHex: string;
 }
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const Thread = ({ PostHashHex }: ThreadProps) => {
   const [thread, setThread] = useState<ReactElement | null>(null);
   const [responses, setResponses] = useState<ReactElement[]>([]);

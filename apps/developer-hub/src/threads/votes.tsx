@@ -5,7 +5,7 @@ export interface VotesProps {
   PostHashHex: string;
 }
 
-const deso = new Deso({ nodeUri: 'http://deso-seed-3.io:18501' });
+const deso = new Deso();
 export const Votes = ({ PostHashHex }: VotesProps) => {
   const [upVotes, setUpVotes] = useState(0);
   const [liked, setLiked] = useState(false);

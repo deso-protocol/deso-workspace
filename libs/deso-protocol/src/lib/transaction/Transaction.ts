@@ -9,53 +9,67 @@ import {
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 
+import { Node } from '../Node/Node';
+
 export class Transactions {
-  public static async submitTransaction(
+  private node: Node;
+  constructor(node: Node) {
+    this.node = node;
+  }
+
+  public async submitTransaction(
     TransactionHex: string
   ): Promise<SubmitTransactionResponse> {
-    const uri = localStorage.getItem('node_uri');
-    return (await axios.post(`${uri}/submit-transaction`, { TransactionHex }))
-      .data;
-  }
-
-  public static async getTransaction(
-    TxnHashHex: string
-  ): Promise<GetTxnResponse> {
-    const uri = localStorage.getItem('node_uri');
-    return (await axios.post(`${uri}/get-txn`, { TxnHashHex })).data;
-  }
-
-  public static async appendExtraData(
-    request: AppendExtraDataRequest
-  ): Promise<AppendExtraDataResponse> {
-    const uri = localStorage.getItem('node_uri');
-    return (await axios.post(`${uri}/append-extra-data`, request)).data;
-  }
-
-  public static async getTransactionSpending(
-    request: AppendExtraDataRequest
-  ): Promise<GetTransactionSpendingResponse> {
-    const uri = localStorage.getItem('node_uri');
-    return (await axios.post(`${uri}/get-transaction-spending`, request)).data;
-  }
-
-  public static async getTransactionSpendingLimitHexString(
-    request: string
-  ): Promise<GetTransactionSpendingLimitHexStringResponse> {
-    const uri = localStorage.getItem('node_uri');
     return (
-      await axios.post(`${uri}/get-transaction-spending-limit-hex-string`, {
-        TransactionSpendingLimit: request,
+      await axios.post(`${this.node.getUri()}/submit-transaction`, {
+        TransactionHex,
       })
     ).data;
   }
 
-  public static async getTransactionSpendingLimitResponseFromHex(
+  public async getTransaction(TxnHashHex: string): Promise<GetTxnResponse> {
+    return (await axios.post(`${this.node.getUri()}/get-txn`, { TxnHashHex }))
+      .data;
+  }
+
+  public async appendExtraData(
+    request: AppendExtraDataRequest
+  ): Promise<AppendExtraDataResponse> {
+    return (
+      await axios.post(`${this.node.getUri()}/append-extra-data`, request)
+    ).data;
+  }
+
+  public async getTransactionSpending(
+    request: AppendExtraDataRequest
+  ): Promise<GetTransactionSpendingResponse> {
+    return (
+      await axios.post(
+        `${this.node.getUri()}/get-transaction-spending`,
+        request
+      )
+    ).data;
+  }
+
+  public async getTransactionSpendingLimitHexString(
+    request: string
+  ): Promise<GetTransactionSpendingLimitHexStringResponse> {
+    console.log(this);
+    return (
+      await axios.post(
+        `${this.node.getUri()}/get-transaction-spending-limit-hex-string`,
+        {
+          TransactionSpendingLimit: request,
+        }
+      )
+    ).data;
+  }
+
+  public async getTransactionSpendingLimitResponseFromHex(
     transactionSpendingLimitHex: string
   ): Promise<TransactionSpendingLimitResponse> {
-    const uri = localStorage.getItem('node_uri');
     return await axios.get(
-      `${uri}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
+      `${this.node.getUri()}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
     );
   }
 }

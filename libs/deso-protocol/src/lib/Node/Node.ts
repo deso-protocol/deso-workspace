@@ -1,14 +1,17 @@
 import { BASE_URI } from '../state/BaseUri';
 
 export class Node {
+  private nodeURI = '';
+
   public getUri(): string {
-    return localStorage.getItem('node_uri') || BASE_URI;
+    return this.nodeURI || BASE_URI;
   }
+
   public setUri(uri: string): void {
-    localStorage.setItem('node_uri', uri);
+    this.nodeURI = uri;
   }
+
   constructor(uri?: string) {
-    console.log(uri ?? BASE_URI);
     this.setUri(uri ?? BASE_URI);
   }
 }

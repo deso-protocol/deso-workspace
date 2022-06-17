@@ -1,33 +1,47 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import {
+  DerivedPrivateUserInfo,
+  GetDecryptMessagesResponse,
+} from 'deso-protocol-types';
 import { Transactions } from '../transaction/Transaction';
 import { IframeMethods } from './IdentityHelper';
-import { DerivedPrivateUserInfo, GetDecryptMessagesResponse } from 'deso-protocol-types';
 
-export const iFrameHandler = (info: Payload): Promise<any> => {
+export const iFrameHandler = (
+  info: Payload,
+  transactions: Transactions
+): Promise<any> => {
   return new Promise((resolve, reject) => {
     const windowHandler = (event: any) => {
-      handlers(event, windowHandler, {
-        ...info,
-        data: { ...info.data, resolve, reject },
-      });
+      handlers(
+        event,
+        windowHandler,
+        {
+          ...info,
+          data: { ...info.data, resolve, reject },
+        },
+        transactions
+      );
     };
     window.addEventListener('message', windowHandler);
   });
 };
 
-type Payload = { iFrameMethod: IframeMethods; data?: any };
+type Payload = {
+  iFrameMethod: IframeMethods;
+  data?: any;
+};
 
 export const handlers = async (
   event: any,
   windowHandler: any,
-  info: Payload
+  info: Payload,
+  transactions: Transactions
 ): Promise<any> => {
   if (info.iFrameMethod === 'sign') {
     if (event?.data?.payload?.signedTransactionHex) {
-      return Transactions.submitTransaction(
-        event?.data?.payload?.signedTransactionHex
-      )
-        .then((res) => {
+      return transactions
+        .submitTransaction(event?.data?.payload?.signedTransactionHex)
+        .then((res: any) => {
           if (info?.data?.prompt?.close) {
             info.data.prompt.close();
           }
@@ -40,6 +54,7 @@ export const handlers = async (
         });
     }
   }
+
   if (info.iFrameMethod === 'decrypt') {
     if (!event?.data?.payload?.decryptedHexes) {
       return;
@@ -66,8 +81,6 @@ export const handlers = async (
   if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
     info.data.prompt?.close();
     info.data.resolve(true);
-    localStorage.setItem('login_user', '');
-    localStorage.setItem('login_key', '');
   }
 
   if (info.iFrameMethod === 'jwt') {
