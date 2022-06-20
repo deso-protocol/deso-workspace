@@ -72,7 +72,7 @@ export const handlers = async (
 
   if (info.iFrameMethod === 'login' && event.data.method === 'login') {
     const key = event?.data?.payload?.publicKeyAdded;
-    const user = JSON.stringify(event.data.payload.users[key]);
+    const user = event.data.payload.users[key];
     info.data.prompt?.close();
     info.data.resolve({ key, user });
     window.removeEventListener('message', windowHandler);

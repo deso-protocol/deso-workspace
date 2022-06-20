@@ -33,7 +33,7 @@ export const postChapter = {
     method: deso.posts.submitPost,
     params: () => {
       return {
-        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        UpdaterPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         BodyObj: {
           Body: `Checking out the developer hub`,
           VideoURLs: [],

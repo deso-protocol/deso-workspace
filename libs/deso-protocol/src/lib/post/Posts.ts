@@ -1,6 +1,7 @@
+import axios from 'axios';
 import {
-  GetDiamondsForPostRequest,
   AppendExtraDataRequest,
+  GetDiamondsForPostRequest,
   GetDiamondsForPostResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
@@ -17,14 +18,14 @@ import {
   GetSinglePostResponse,
   HotFeedPageRequest,
   HotFeedPageResponse,
+  RequestOptions,
   SubmitPostRequest,
   SubmitPostResponse,
 } from 'deso-protocol-types';
-import axios from 'axios';
+import { throwErrors } from '../../utils/utils';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
-import { throwErrors } from '../../utils/utils';
 export class Posts {
   static transaction: Transactions;
   private node: Node;
@@ -47,8 +48,10 @@ export class Posts {
 
   public async submitPost(
     request: Partial<SubmitPostRequest>,
+    options?: RequestOptions,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ): Promise<SubmitPostResponse> {
+    console.log({ request, options, extraData });
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
@@ -63,13 +66,14 @@ export class Posts {
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex, extraData)
+      .submitTransaction(apiResponse.TransactionHex, options, extraData)
       .then((txn) => {
-        apiResponse.PostHashHex = txn.data.TxnHashHex;
+        console.log(txn);
+        apiResponse.PostHashHex = txn.TxnHashHex;
         return apiResponse;
       })
-      .catch(() => {
-        throw Error('something went wrong while signing');
+      .catch((e) => {
+        throw Error(`something went wrong while signing ${e}`);
       });
   }
 

@@ -103,7 +103,7 @@ export const notificationChapter = {
     method: deso.notification.setNotificationMetadata,
     params: () => {
       return {
-        PublicKeyBase58Check: localStorage.getItem('login_key'),
+        PublicKeyBase58Check: localStorage.getItem('deso_user_key'),
       } as Partial<SetNotificationMetadataRequest>;
     },
     component: function () {

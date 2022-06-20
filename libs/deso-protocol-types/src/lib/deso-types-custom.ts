@@ -341,6 +341,6 @@ export interface MetaMaskInitResponse {
   ethereumAddress: string;
 }
 
-export interface TransactionOptions {
+export interface RequestOptions {
   broadcast?: boolean;
 }

@@ -7,6 +7,7 @@ import {
   IdentityDeriveParams,
   IdentityDeriveQueryParams,
   LoginUser,
+  RequestOptions,
   SendMessageStatelessRequest,
 } from 'deso-protocol-types';
 import { convertExtraDataToHex } from '../../utils/utils';
@@ -50,6 +51,9 @@ export class Identity {
       const key = localStorage.getItem('deso_user_key');
       if (user) {
         this.setUser(JSON.parse(user));
+        const oy = JSON.parse(user);
+        console.log(oy);
+        console.log('user', this.getUser());
       }
       if (key) {
         this.setLoggedInKey(key);
@@ -76,9 +80,10 @@ export class Identity {
   public getUser(): LoginUser | null {
     return this.loggedInUser;
   }
+
   private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
-    if (this.host === 'browser') {
+    if (this.host === 'browser' && user) {
       localStorage.setItem('deso_user', JSON.stringify(user));
     }
   }
@@ -214,8 +219,13 @@ export class Identity {
 
   public async submitTransaction(
     TransactionHex: string,
+    options: RequestOptions = { broadcast: true },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
+    // don't submit the transaction, instead just return the api response from the
+    // previous call
+    if (options?.broadcast === false) return;
+    // server app? then you can't call the iframe
     if (this.host === 'server') throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
       TransactionHex = (
@@ -231,7 +241,7 @@ export class Identity {
       return callIdentityMethodAndExecute(
         TransactionHex,
         'sign',
-        this.getUser(),
+        user,
         this.transactions
       );
     } else {

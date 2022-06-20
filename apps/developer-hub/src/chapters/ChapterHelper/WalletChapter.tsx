@@ -18,7 +18,9 @@ export const walletChapter = {
     method: deso.wallet.sendDesoRequest,
     params: () => {
       return {
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        SenderPublicKeyBase58Check: localStorage.getItem(
+          'deso_user_key'
+        ) as string,
         RecipientPublicKeyOrUsername: DEZO_DOG,
         AmountNanos: 1,
         MinFeeRateNanosPerKB: 1000,
@@ -65,7 +67,7 @@ export const walletChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
         CreatorPublicKeyBase58Check: DEZO_DOG,
         OperationType: 'buy',
@@ -110,7 +112,9 @@ export const walletChapter = {
     method: deso.wallet.transferCreatorCoin,
     params: () => {
       return {
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        SenderPublicKeyBase58Check: localStorage.getItem(
+          'deso_user_key'
+        ) as string,
         CreatorPublicKeyBase58Check: DEZO_DOG,
         CreatorCoinToTransferNanos: 10,
         ReceiverUsernameOrPublicKeyBase58Check: DEZO_DOG,

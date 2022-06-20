@@ -16,6 +16,7 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
+  RequestOptions,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/utils';
 import { Identity } from '../identity/Identity';
@@ -125,7 +126,7 @@ export class User {
 
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
-    broadcast: boolean
+    options?: RequestOptions
   ): Promise<AuthorizeDerivedKeyResponse> {
     throwErrors(['MinFeeRateNanosPerKB'], request);
     const derivedPrivateUser = await this.identity.derive({
@@ -158,12 +159,8 @@ export class User {
       )
     ).data;
 
-    if (!broadcast) {
-      return apiResponse;
-    }
-
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex)
+      .submitTransaction(apiResponse.TransactionHex, options)
       .then(() => apiResponse)
       .catch(() => {
         throw Error('something went wrong while signing');

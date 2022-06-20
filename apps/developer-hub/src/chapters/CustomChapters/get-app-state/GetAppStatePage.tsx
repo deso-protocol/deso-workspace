@@ -14,7 +14,7 @@ export const GetAppStatePage = () => {
   useEffect(() => {
     deso.metaData
       .getAppState({
-        PublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        PublicKeyBase58Check: localStorage.getItem('deso_user_key') as string,
       })
       .then((response) => {
         setNodes(

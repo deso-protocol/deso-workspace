@@ -18,10 +18,10 @@ import {
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
   MessageContactResponse,
+  RequestOptions,
   SendDiamondsRequest,
   SendDiamondsResponse,
   SendMessageStatelessRequest,
-  TransactionOptions,
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
@@ -40,7 +40,10 @@ export class Social {
     this.identity = identity;
   }
 
-  public async sendMessage(request: Partial<SendMessageStatelessRequest>) {
+  public async sendMessage(
+    request: Partial<SendMessageStatelessRequest>,
+    options?: RequestOptions
+  ) {
     const encryptedMessage = await this.identity.encrypt(request);
     request.EncryptedMessageText = encryptedMessage;
     if (!request.MinFeeRateNanosPerKB) {
@@ -49,11 +52,15 @@ export class Social {
     const response = (
       await axios.post(`${this.node.getUri()}/send-message-stateless`, request)
     ).data;
-    return await this.identity.submitTransaction(response.TransactionHex);
+    return await this.identity.submitTransaction(
+      response.TransactionHex,
+      options
+    );
   }
 
   public async createFollowTxnStateless(
-    request: CreateFollowTxnStatelessRequest
+    request: CreateFollowTxnStatelessRequest,
+    options?: RequestOptions
   ): Promise<CreateFollowTxnStatelessResponse> {
     if (!request.FollowerPublicKeyBase58Check) {
       throw Error('FollowerPublicKeyBase58Check is undefined');
@@ -71,7 +78,10 @@ export class Social {
         request
       )
     ).data;
-    return await this.identity.submitTransaction(response.TransactionHex);
+    return await this.identity.submitTransaction(
+      response.TransactionHex,
+      options
+    );
   }
 
   public async getFollowsStateless(
@@ -146,15 +156,14 @@ export class Social {
 
   public async updateProfile(
     request: Partial<UpdateProfileRequest>,
-    options: TransactionOptions = { broadcast: true }
+    options?: RequestOptions
   ): Promise<UpdateProfileResponse> {
     const endpoint = 'update-profile';
     const response: UpdateProfileResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
-    if (!options.broadcast) return response;
     return await this.identity
-      .submitTransaction(response.TransactionHex)
+      .submitTransaction(response.TransactionHex, options)
       .then(() => response)
       .catch(() => {
         throw Error('something went wrong while signing');
@@ -162,14 +171,15 @@ export class Social {
   }
 
   public async sendDiamonds(
-    request: Partial<SendDiamondsRequest>
+    request: Partial<SendDiamondsRequest>,
+    options?: RequestOptions
   ): Promise<SendDiamondsResponse> {
     const endpoint = 'send-diamonds';
     const response = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
-      .submitTransaction(response.TransactionHex)
+      .submitTransaction(response.TransactionHex, options)
       .then(() => response)
       .catch(() => {
         throw Error('something went wrong while signing');
@@ -177,14 +187,15 @@ export class Social {
   }
 
   public async createLikeStateless(
-    request: Partial<CreateLikeStatelessRequest>
+    request: Partial<CreateLikeStatelessRequest>,
+    options?: RequestOptions
   ): Promise<CreateLikeStatelessResponse> {
     const endpoint = 'create-like-stateless';
     const response = await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
-      .submitTransaction(response.TransactionHex)
+      .submitTransaction(response.TransactionHex, options)
       .then(() => response)
       .catch(() => {
         throw Error('something went wrong while signing');
