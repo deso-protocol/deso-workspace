@@ -1,47 +1,39 @@
-import Deso from 'deso-protocol';
-import { ec } from 'elliptic';
+import * as cors from 'cors';
+import { Deso } from 'deso-protocol';
+import { RequestFundsFromLordBaelish } from 'deso-protocol-types';
 import { ethers } from 'ethers';
 import * as express from 'express';
-
-export interface SendFundsRequest {
-  signature: any;
-}
-
 const app = express();
-app.use(express.json());
-const PORT: Readonly<number> = 3000;
-app.post('/send-funds', (req, res) => {
-  console.log('hello?');
-  console.log(req.body);
-  res.send('hello');
-});
 
-export function lordBaelish(): string {
-  const deso = new Deso();
-  return 'lord-baelish';
-}
+app.use(express.json());
+app.use(cors());
+
+const PORT: Readonly<number> = 3000;
+const deso = new Deso({ identityConfig: { host: 'server' } });
+
+app.post('/send-funds', async (req, res) => {
+  const body: RequestFundsFromLordBaelish = req.body;
+  const response = await getKeyFromSignature(body.message, body.signature);
+  const provider = ethers.getDefaultProvider();
+  let balance = await (
+    await provider.getBalance(body.publicAddress)
+  ).toString();
+  balance = ethers.utils.formatEther(balance);
+  res.send({ response, balance });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
 
-const getKeyFromSignature = (message: number[], signature: string) => {
-  const e = new ec('secp256k1');
-  const arrayify = ethers.utils.arrayify;
-  const messageHash = arrayify(ethers.utils.hashMessage(message));
-  const publicKeyUncompressedHexWith0x = ethers.utils.recoverPublicKey(
-    messageHash,
-    signature
+const getKeyFromSignature = async (message: number[], signature: string) => {
+  const response = await deso.metamask.getMetaMaskMasterPublicKeyFromSignature(
+    signature,
+    message
   );
-
-  const messagingPublicKey = e.keyFromPublic(
-    publicKeyUncompressedHexWith0x.slice(2),
-    'hex'
-  );
-
-  // const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
-  // const key = messagingPublicKey.getPublic().encode('array', true);
-  // const desoKey = Uint8Array.from([...prefix, ...key]);
-  // const encodedDesoKey = bs58check.encode(desoKey);
-  // return encodedDesoKey;
+  return response;
 };
+
+export function lordBaelish(): string {
+  return 'lord-baelish';
+}

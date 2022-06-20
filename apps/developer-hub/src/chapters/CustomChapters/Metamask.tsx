@@ -80,13 +80,16 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                       theme={nord}
                     /> */}
                   </div>
-                  <div>populate Profile with ENS</div>
                   <CopyBlock
                     codeBlock
-                    text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();`}
+                    text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.populateProfile();`}
                     language={'tsx'}
                     wrapLines={true}
                     theme={nord}
+                  />
+                  <ClickHereSnippet
+                    toCallText="populate Profile with ENS"
+                    onclick={signInWithMetamask}
                   />
                 </>
               )}

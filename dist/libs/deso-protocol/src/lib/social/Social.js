@@ -76,9 +76,11 @@ class Social {
         const endpoint = 'is-hodling-public-key';
         return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
     }
-    async updateProfile(request) {
+    async updateProfile(request, options = { broadcast: true }) {
         const endpoint = 'update-profile';
         const response = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
+        if (!options.broadcast)
+            return response;
         return await this.identity
             .submitTransaction(response.TransactionHex)
             .then(() => response)

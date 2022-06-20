@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DAOCoinLimitOrderOperationTypeString = exports.TransactionType = exports.NFTLimitOperationString = exports.DAOCoinLimitOperationString = exports.CreatorCoinLimitOperationString = exports.DeSoNetwork = void 0;
+exports.TxnString = exports.DAOCoinLimitOrderOperationTypeString = exports.TransactionType = exports.NFTLimitOperationString = exports.DAOCoinLimitOperationString = exports.CreatorCoinLimitOperationString = exports.DeSoNetwork = void 0;
 var DeSoNetwork;
 (function (DeSoNetwork) {
     DeSoNetwork["mainnet"] = "mainnet";
@@ -65,4 +65,34 @@ var DAOCoinLimitOrderOperationTypeString;
     DAOCoinLimitOrderOperationTypeString["DAOCoinLimitOrderOperationTypeStringASK"] = "ASK";
     DAOCoinLimitOrderOperationTypeString["DAOCoinLimitOrderOperationTypeStringBID"] = "BID";
 })(DAOCoinLimitOrderOperationTypeString = exports.DAOCoinLimitOrderOperationTypeString || (exports.DAOCoinLimitOrderOperationTypeString = {}));
+var TxnString;
+(function (TxnString) {
+    TxnString["TxnStringUnset"] = "UNSET";
+    TxnString["TxnStringBlockReward"] = "BLOCK_REWARD";
+    TxnString["TxnStringBasicTransfer"] = "BASIC_TRANSFER";
+    TxnString["TxnStringBitcoinExchange"] = "BITCOIN_EXCHANGE";
+    TxnString["TxnStringPrivateMessage"] = "PRIVATE_MESSAGE";
+    TxnString["TxnStringSubmitPost"] = "SUBMIT_POST";
+    TxnString["TxnStringUpdateProfile"] = "UPDATE_PROFILE";
+    TxnString["TxnStringUpdateBitcoinUSDExchangeRate"] = "UPDATE_BITCOIN_USD_EXCHANGE_RATE";
+    TxnString["TxnStringFollow"] = "FOLLOW";
+    TxnString["TxnStringLike"] = "LIKE";
+    TxnString["TxnStringCreatorCoin"] = "CREATOR_COIN";
+    TxnString["TxnStringSwapIdentity"] = "SWAP_IDENTITY";
+    TxnString["TxnStringUpdateGlobalParams"] = "UPDATE_GLOBAL_PARAMS";
+    TxnString["TxnStringCreatorCoinTransfer"] = "CREATOR_COIN_TRANSFER";
+    TxnString["TxnStringCreateNFT"] = "CREATE_NFT";
+    TxnString["TxnStringUpdateNFT"] = "UPDATE_NFT";
+    TxnString["TxnStringAcceptNFTBid"] = "ACCEPT_NFT_BID";
+    TxnString["TxnStringNFTBid"] = "NFT_BID";
+    TxnString["TxnStringNFTTransfer"] = "NFT_TRANSFER";
+    TxnString["TxnStringAcceptNFTTransfer"] = "ACCEPT_NFT_TRANSFER";
+    TxnString["TxnStringBurnNFT"] = "BURN_NFT";
+    TxnString["TxnStringAuthorizeDerivedKey"] = "AUTHORIZE_DERIVED_KEY";
+    TxnString["TxnStringMessagingGroup"] = "MESSAGING_GROUP";
+    TxnString["TxnStringDAOCoin"] = "DAO_COIN";
+    TxnString["TxnStringDAOCoinTransfer"] = "DAO_COIN_TRANSFER";
+    TxnString["TxnStringDAOCoinLimitOrder"] = "DAO_COIN_LIMIT_ORDER";
+    TxnString["TxnStringUndefined"] = "TXN_UNDEFINED";
+})(TxnString = exports.TxnString || (exports.TxnString = {}));
 //# sourceMappingURL=deso-types-custom.js.map

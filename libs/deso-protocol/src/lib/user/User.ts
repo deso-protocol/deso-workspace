@@ -27,6 +27,7 @@ export class User {
     this.node = node;
     this.identity = identity;
   }
+
   public async getUserStateless(
     request: Partial<GetUsersStatelessRequest>
   ): Promise<GetUsersResponse> {
@@ -148,6 +149,7 @@ export class User {
       TransactionFees: request.TransactionFees,
       MinFeeRateNanosPerKB: request.MinFeeRateNanosPerKB,
     };
+
     const endpoint = 'authorize-derived-key';
     const apiResponse: AuthorizeDerivedKeyResponse = (
       await axios.post(
@@ -155,9 +157,11 @@ export class User {
         authorizeDerivedKeyRequest
       )
     ).data;
+
     if (!broadcast) {
       return apiResponse;
     }
+
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex)
       .then(() => apiResponse)

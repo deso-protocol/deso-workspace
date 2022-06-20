@@ -52,7 +52,9 @@ export class Deso {
       this.transaction
     );
 
-    this.identity.initialize();
+    if (this.identity.host === 'browser') {
+      this.identity.initialize();
+    }
   }
   public node: Node;
   public transaction: Transactions;
@@ -93,7 +95,9 @@ export class Deso {
       this.user,
       this.transaction
     );
-    this.identity.initialize();
+    if (this.identity.host === 'browser') {
+      this.identity.initialize();
+    }
   }
 }
 export default Deso;

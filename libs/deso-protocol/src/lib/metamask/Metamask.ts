@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as bs58check from 'bs58check';
 import {
   AuthorizeDerivedKeyRequest,
@@ -59,6 +60,23 @@ export class Metamask {
     }
   }
 
+  public async getFundsForNewUsers(
+    signature: string,
+    message: number[],
+    publicAddress: string
+  ) {
+    return (
+      await axios.post(`http://localhost:3000/send-funds`, {
+        signature,
+        message,
+        publicAddress,
+      })
+    ).data;
+  }
+  public async testAPI() {
+    await axios.get('http://localhost:3000/test');
+  }
+
   /**
    * Flow for new deso users looking to sign in with metamask
    */
@@ -77,6 +95,8 @@ export class Metamask {
       derivedKeyPair,
       spendingLimitHexString.HexString
     );
+    const publicEthAddress = await this.getProvider().getSigner().getAddress();
+    this.getFundsForNewUsers(signature, message, publicEthAddress);
     // once we have the signature we can fetch the public key from it
     const publicDesoAddress =
       await this.getMetaMaskMasterPublicKeyFromSignature(signature, message);
@@ -189,7 +209,7 @@ export class Metamask {
    * @returns
    * extracts the public key from a signature and then encodes it to base58 aka a deso public key
    */
-  private async getMetaMaskMasterPublicKeyFromSignature(
+  public async getMetaMaskMasterPublicKeyFromSignature(
     signature: string,
     message: number[]
   ): Promise<string> {

@@ -1,4 +1,4 @@
-import { CreateFollowTxnStatelessRequest, CreateFollowTxnStatelessResponse, CreateLikeStatelessRequest, CreateLikeStatelessResponse, GetDecryptMessagesResponse, GetDiamondsForPublicKeyRequest, GetDiamondsForPublicKeyResponse, GetFollowsResponse, GetFollowsStatelessRequest, GetHodlersForPublicKeyRequest, GetHodlersForPublicKeyResponse, GetMessagesStatelessRequest, IsFolllowingPublicKeyResponse, IsFollowingPublicKeyRequest, IsHodlingPublicKeyRequest, IsHodlingPublicKeyResponse, SendDiamondsRequest, SendDiamondsResponse, SendMessageStatelessRequest, UpdateProfileRequest, UpdateProfileResponse } from 'deso-protocol-types';
+import { CreateFollowTxnStatelessRequest, CreateFollowTxnStatelessResponse, CreateLikeStatelessRequest, CreateLikeStatelessResponse, GetDecryptMessagesResponse, GetDiamondsForPublicKeyRequest, GetDiamondsForPublicKeyResponse, GetFollowsResponse, GetFollowsStatelessRequest, GetHodlersForPublicKeyRequest, GetHodlersForPublicKeyResponse, GetMessagesStatelessRequest, IsFolllowingPublicKeyResponse, IsFollowingPublicKeyRequest, IsHodlingPublicKeyRequest, IsHodlingPublicKeyResponse, SendDiamondsRequest, SendDiamondsResponse, SendMessageStatelessRequest, TransactionOptions, UpdateProfileRequest, UpdateProfileResponse } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { User } from '../user/User';
@@ -15,7 +15,7 @@ export declare class Social {
     getDiamondsForPublicKey(request: Partial<GetDiamondsForPublicKeyRequest>): Promise<GetDiamondsForPublicKeyResponse>;
     isFollowingPublicKey(request: Partial<IsFollowingPublicKeyRequest>): Promise<IsFolllowingPublicKeyResponse>;
     isHodlingPublicKey(request: Partial<IsHodlingPublicKeyRequest>): Promise<IsHodlingPublicKeyResponse>;
-    updateProfile(request: Partial<UpdateProfileRequest>): Promise<UpdateProfileResponse>;
+    updateProfile(request: Partial<UpdateProfileRequest>, options?: TransactionOptions): Promise<UpdateProfileResponse>;
     sendDiamonds(request: Partial<SendDiamondsRequest>): Promise<SendDiamondsResponse>;
     createLikeStateless(request: Partial<CreateLikeStatelessRequest>): Promise<CreateLikeStatelessResponse>;
 }

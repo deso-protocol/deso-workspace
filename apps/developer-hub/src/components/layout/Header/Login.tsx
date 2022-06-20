@@ -38,6 +38,7 @@ export const Login = () => {
     setUserKey(deso.identity.getUserKey() ?? '');
     setLoggedIn(true);
     getProfile();
+    location.reload();
   };
 
   const logout = async () => {

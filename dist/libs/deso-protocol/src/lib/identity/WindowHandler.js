@@ -1,25 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handlers = exports.iFrameHandler = void 0;
-/* eslint-disable @typescript-eslint/ban-types */
-const Transaction_1 = require("../transaction/Transaction");
-const iFrameHandler = (info) => {
+const iFrameHandler = (info, transactions) => {
     return new Promise((resolve, reject) => {
         const windowHandler = (event) => {
             (0, exports.handlers)(event, windowHandler, {
                 ...info,
                 data: { ...info.data, resolve, reject },
-            });
+            }, transactions);
         };
         window.addEventListener('message', windowHandler);
     });
 };
 exports.iFrameHandler = iFrameHandler;
-const handlers = async (event, windowHandler, info) => {
+const handlers = async (event, windowHandler, info, transactions) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     if (info.iFrameMethod === 'sign') {
         if ((_b = (_a = event === null || event === void 0 ? void 0 : event.data) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.signedTransactionHex) {
-            return Transaction_1.Transactions.submitTransaction((_d = (_c = event === null || event === void 0 ? void 0 : event.data) === null || _c === void 0 ? void 0 : _c.payload) === null || _d === void 0 ? void 0 : _d.signedTransactionHex)
+            return transactions
+                .submitTransaction((_d = (_c = event === null || event === void 0 ? void 0 : event.data) === null || _c === void 0 ? void 0 : _c.payload) === null || _d === void 0 ? void 0 : _d.signedTransactionHex)
                 .then((res) => {
                 var _a, _b;
                 if ((_b = (_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.prompt) === null || _b === void 0 ? void 0 : _b.close) {
@@ -57,8 +56,6 @@ const handlers = async (event, windowHandler, info) => {
     if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
         (_o = info.data.prompt) === null || _o === void 0 ? void 0 : _o.close();
         info.data.resolve(true);
-        localStorage.setItem('login_user', '');
-        localStorage.setItem('login_key', '');
     }
     if (info.iFrameMethod === 'jwt') {
         if (event.data.payload.jwt) {

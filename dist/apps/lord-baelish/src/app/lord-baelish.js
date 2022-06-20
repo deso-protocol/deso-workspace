@@ -1,36 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lordBaelish = void 0;
+const cors = require("cors");
 const deso_protocol_1 = require("deso-protocol");
-const elliptic_1 = require("elliptic");
 const ethers_1 = require("ethers");
 const express = require("express");
 const app = express();
 app.use(express.json());
+app.use(cors());
 const PORT = 3000;
-app.post('/send-funds', (req, res) => {
-    console.log('hello?');
-    console.log(req.body);
-    res.send('hello');
+const deso = new deso_protocol_1.Deso({ identityConfig: { host: 'server' } });
+app.post('/send-funds', async (req, res) => {
+    const body = req.body;
+    const response = await getKeyFromSignature(body.message, body.signature);
+    const provider = ethers_1.ethers.getDefaultProvider();
+    let balance = await (await provider.getBalance(body.publicAddress)).toString();
+    balance = ethers_1.ethers.utils.formatEther(balance);
+    res.send({ response, balance });
 });
-function lordBaelish() {
-    const deso = new deso_protocol_1.default();
-    return 'lord-baelish';
-}
-exports.lordBaelish = lordBaelish;
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
 });
-const getKeyFromSignature = (message, signature) => {
-    const e = new elliptic_1.ec('secp256k1');
-    const arrayify = ethers_1.ethers.utils.arrayify;
-    const messageHash = arrayify(ethers_1.ethers.utils.hashMessage(message));
-    const publicKeyUncompressedHexWith0x = ethers_1.ethers.utils.recoverPublicKey(messageHash, signature);
-    const messagingPublicKey = e.keyFromPublic(publicKeyUncompressedHexWith0x.slice(2), 'hex');
-    // const prefix = PUBLIC_KEY_PREFIXES.testnet.deso;
-    // const key = messagingPublicKey.getPublic().encode('array', true);
-    // const desoKey = Uint8Array.from([...prefix, ...key]);
-    // const encodedDesoKey = bs58check.encode(desoKey);
-    // return encodedDesoKey;
+const getKeyFromSignature = async (message, signature) => {
+    const response = await deso.metamask.getMetaMaskMasterPublicKeyFromSignature(signature, message);
+    return response;
 };
+function lordBaelish() {
+    return 'lord-baelish';
+}
+exports.lordBaelish = lordBaelish;
 //# sourceMappingURL=lord-baelish.js.map

@@ -1,7 +1,12 @@
-import { AppendExtraDataRequest, AppendExtraDataResponse, GetTxnResponse, SubmitTransactionResponse } from 'deso-protocol-types';
+import { AppendExtraDataRequest, AppendExtraDataResponse, GetTransactionSpendingLimitHexStringResponse, GetTransactionSpendingResponse, GetTxnResponse, SubmitTransactionResponse, TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import { Node } from '../Node/Node';
 export declare class Transactions {
-    static submitTransaction(TransactionHex: string): Promise<SubmitTransactionResponse>;
-    static getTransaction(TxnHashHex: string): Promise<GetTxnResponse>;
-    static appendExtraData(request: AppendExtraDataRequest): Promise<AppendExtraDataResponse>;
-    static getTransactionSpending(request: AppendExtraDataRequest): Promise<import("axios").AxiosResponse<any, any>>;
+    private node;
+    constructor(node: Node);
+    submitTransaction(TransactionHex: string): Promise<SubmitTransactionResponse>;
+    getTransaction(TxnHashHex: string): Promise<GetTxnResponse>;
+    appendExtraData(request: AppendExtraDataRequest): Promise<AppendExtraDataResponse>;
+    getTransactionSpending(request: AppendExtraDataRequest): Promise<GetTransactionSpendingResponse>;
+    getTransactionSpendingLimitHexString(request: string): Promise<GetTransactionSpendingLimitHexStringResponse>;
+    getTransactionSpendingLimitResponseFromHex(transactionSpendingLimitHex: string): Promise<TransactionSpendingLimitResponse>;
 }

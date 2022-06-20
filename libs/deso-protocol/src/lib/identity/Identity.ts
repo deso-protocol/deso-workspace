@@ -20,25 +20,42 @@ import {
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
 import { requestDerive, requestLogin, requestLogout } from './WindowPrompts';
-
+const SERVER_ERROR: Readonly<string> =
+  'You cannot call identity Iframe in a sever application';
 export interface IdentityConfig {
   node: Node;
   uri?: string;
   network?: DeSoNetwork;
+  host?: 'browser' | 'server';
 }
 
 export class Identity {
   private node: Node;
   private network: DeSoNetwork;
-  private identityUri = 'identity_uri';
+  private identityUri = BASE_IDENTITY_URI;
   private loggedInUser: LoginUser | null = null;
   private loggedInKey = '';
   private transactions: Transactions;
-  constructor(config: IdentityConfig, transactions: Transactions) {
-    this.node = config.node;
-    this.network = config.network || DeSoNetwork.mainnet;
-    this.setUri(config.uri ?? BASE_IDENTITY_URI);
+  public host: 'browser' | 'server';
+  constructor(
+    { host = 'browser', node, network, uri }: IdentityConfig,
+    transactions: Transactions
+  ) {
+    this.host = host;
+    this.node = node;
+    this.network = network || DeSoNetwork.mainnet;
     this.transactions = transactions;
+    if (this.host === 'browser') {
+      const user = localStorage.getItem('deso_user');
+      const key = localStorage.getItem('deso_user_key');
+      if (user) {
+        this.setUser(JSON.parse(user));
+      }
+      if (key) {
+        this.setLoggedInKey(key);
+      }
+    }
+    this.setUri(uri ?? BASE_IDENTITY_URI);
   }
 
   public getUri(): string {
@@ -47,6 +64,9 @@ export class Identity {
 
   public setUri(uri: string): void {
     this.identityUri = uri;
+    if (this.host === 'browser') {
+      localStorage.setItem('deso_identity_uri', this.identityUri);
+    }
   }
 
   public getIframe(): HTMLIFrameElement {
@@ -56,9 +76,11 @@ export class Identity {
   public getUser(): LoginUser | null {
     return this.loggedInUser;
   }
-
   private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
+    if (this.host === 'browser') {
+      localStorage.setItem('deso_user', JSON.stringify(user));
+    }
   }
 
   public getUserKey(): string | null {
@@ -67,10 +89,15 @@ export class Identity {
 
   private setLoggedInKey(key: string) {
     this.loggedInKey = key;
+    if (this.host === 'browser') {
+      localStorage.setItem('deso_user_key', key);
+    }
   }
   //  end of getters/ setters
 
   public async initialize(): Promise<any> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
+
     if (this.getIframe()) {
       return;
     }
@@ -99,6 +126,7 @@ export class Identity {
   public async login(
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     const prompt = requestLogin(accessLevel, this.getUri(), this.isTestnet());
     const { key, user } = await iFrameHandler(
       {
@@ -113,6 +141,7 @@ export class Identity {
   }
 
   public async logout(publicKey: string): Promise<boolean> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
@@ -132,6 +161,7 @@ export class Identity {
   public async derive(
     params: IdentityDeriveParams
   ): Promise<DerivedPrivateUserInfo> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
       webview: params.webview,
@@ -158,6 +188,7 @@ export class Identity {
   }
 
   private setIdentityFrame(createNewIdentityFrame = false): void {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     let frame = document.getElementById('identity');
     if (frame && createNewIdentityFrame) {
       frame.remove();
@@ -185,6 +216,7 @@ export class Identity {
     TransactionHex: string,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
       TransactionHex = (
         await this.transactions.appendExtraData({
@@ -216,6 +248,7 @@ export class Identity {
   public async decrypt(
     encryptedMessages: GetDecryptMessagesRequest[]
   ): Promise<GetDecryptMessagesResponse[]> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       await this.login();
@@ -232,6 +265,7 @@ export class Identity {
   public async encrypt(
     request: Partial<SendMessageStatelessRequest>
   ): Promise<string> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     request.RecipientPublicKeyBase58Check;
     let user = this.getUser();
     if (!user) {
@@ -247,6 +281,7 @@ export class Identity {
   }
 
   public async getJwt(): Promise<string> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       user = (await this.login()).user;

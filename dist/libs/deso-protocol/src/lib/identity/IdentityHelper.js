@@ -4,9 +4,10 @@ exports.getIframe = exports.approveSignAndSubmit = exports.callIdentityMethodAnd
 const utils_1 = require("../../utils/utils");
 const WindowHandler_1 = require("./WindowHandler");
 const WindowPrompts_1 = require("./WindowPrompts");
-const callIdentityMethodAndExecute = (attributeValue, method) => {
+const callIdentityMethodAndExecute = async (attributeValue, method, user, transactions) => {
     var _a;
-    const user = JSON.parse(localStorage.getItem('login_user'));
+    if (!user)
+        return;
     const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
     const request = {
         id: (0, utils_1.uuid)(),
@@ -23,12 +24,12 @@ const callIdentityMethodAndExecute = (attributeValue, method) => {
     return (0, WindowHandler_1.iFrameHandler)({
         iFrameMethod: method,
         data: getParams(method, attributeValue),
-    });
+    }, transactions);
 };
 exports.callIdentityMethodAndExecute = callIdentityMethodAndExecute;
-const approveSignAndSubmit = (transactionHex, uri, testnet) => {
+const approveSignAndSubmit = (transactionHex, uri, transactions, testnet) => {
     const prompt = (0, WindowPrompts_1.requestApproval)(transactionHex, uri, testnet);
-    return (0, WindowHandler_1.iFrameHandler)({ iFrameMethod: 'sign', data: { prompt } });
+    return (0, WindowHandler_1.iFrameHandler)({ iFrameMethod: 'sign', data: { prompt } }, transactions);
 };
 exports.approveSignAndSubmit = approveSignAndSubmit;
 const getIframe = () => {

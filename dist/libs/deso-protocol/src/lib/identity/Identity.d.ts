@@ -1,19 +1,28 @@
-import { Node } from '../Node/Node';
 import { AppendExtraDataRequest, DerivedPrivateUserInfo, DeSoNetwork, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
+import { Node } from '../Node/Node';
+import { Transactions } from '../transaction/Transaction';
 export interface IdentityConfig {
     node: Node;
     uri?: string;
     network?: DeSoNetwork;
+    host?: 'browser' | 'server';
 }
 export declare class Identity {
     private node;
     private network;
-    constructor(config: IdentityConfig);
+    private identityUri;
+    private loggedInUser;
+    private loggedInKey;
+    private transactions;
+    host: 'browser' | 'server';
+    constructor({ host, node, network, uri }: IdentityConfig, transactions: Transactions);
     getUri(): string;
     setUri(uri: string): void;
     getIframe(): HTMLIFrameElement;
     getUser(): LoginUser | null;
+    private setUser;
     getUserKey(): string | null;
+    private setLoggedInKey;
     initialize(): Promise<any>;
     login(accessLevel?: string): Promise<{
         user: LoginUser;
