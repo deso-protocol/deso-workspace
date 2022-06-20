@@ -219,9 +219,10 @@ export class Identity {
 
   public async submitTransaction(
     TransactionHex: string,
-    options: RequestOptions = { broadcast: true },
+    options: RequestOptions = { broadcast: false },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
+    console.log(options);
     // don't submit the transaction, instead just return the api response from the
     // previous call
     if (options?.broadcast === false) return;

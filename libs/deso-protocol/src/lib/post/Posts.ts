@@ -68,8 +68,9 @@ export class Posts {
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options, extraData)
       .then((txn) => {
-        console.log(txn);
-        apiResponse.PostHashHex = txn.TxnHashHex;
+        if (txn) {
+          apiResponse.PostHashHex = txn.TxnHashHex;
+        }
         return apiResponse;
       })
       .catch((e) => {
