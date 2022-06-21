@@ -22,7 +22,7 @@ import {
 import { iFrameHandler } from './WindowHandler';
 import { requestDerive, requestLogin, requestLogout } from './WindowPrompts';
 const SERVER_ERROR: Readonly<string> =
-  'You cannot call identity Iframe in a sever application';
+  'You cannot call identity Iframe in a sever application, in the options parameter set broadcast to false';
 export interface IdentityConfig {
   node: Node;
   uri?: string;
@@ -219,10 +219,9 @@ export class Identity {
 
   public async submitTransaction(
     TransactionHex: string,
-    options: RequestOptions = { broadcast: false },
+    options: RequestOptions = { broadcast: this.host === 'browser' },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
-    console.log(options);
     // don't submit the transaction, instead just return the api response from the
     // previous call
     if (options?.broadcast === false) return;

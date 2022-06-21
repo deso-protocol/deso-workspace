@@ -48,7 +48,7 @@ const handlers = async (event, windowHandler, info, transactions) => {
     }
     if (info.iFrameMethod === 'login' && event.data.method === 'login') {
         const key = (_l = (_k = event === null || event === void 0 ? void 0 : event.data) === null || _k === void 0 ? void 0 : _k.payload) === null || _l === void 0 ? void 0 : _l.publicKeyAdded;
-        const user = JSON.stringify(event.data.payload.users[key]);
+        const user = event.data.payload.users[key];
         (_m = info.data.prompt) === null || _m === void 0 ? void 0 : _m.close();
         info.data.resolve({ key, user });
         window.removeEventListener('message', windowHandler);

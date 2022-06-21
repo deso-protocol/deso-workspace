@@ -7,7 +7,7 @@ const BaseUri_1 = require("../state/BaseUri");
 const IdentityHelper_1 = require("./IdentityHelper");
 const WindowHandler_1 = require("./WindowHandler");
 const WindowPrompts_1 = require("./WindowPrompts");
-const SERVER_ERROR = 'You cannot call identity Iframe in a sever application';
+const SERVER_ERROR = 'You cannot call identity Iframe in a sever application, in the options parameter set broadcast to false';
 class Identity {
     constructor({ host = 'browser', node, network, uri }, transactions) {
         this.identityUri = BaseUri_1.BASE_IDENTITY_URI;
@@ -16,14 +16,30 @@ class Identity {
         this.host = host;
         this.node = node;
         this.network = network || deso_protocol_types_1.DeSoNetwork.mainnet;
-        this.setUri(uri !== null && uri !== void 0 ? uri : BaseUri_1.BASE_IDENTITY_URI);
         this.transactions = transactions;
+        if (this.host === 'browser') {
+            const user = localStorage.getItem('deso_user');
+            const key = localStorage.getItem('deso_user_key');
+            if (user) {
+                this.setUser(JSON.parse(user));
+                const oy = JSON.parse(user);
+                console.log(oy);
+                console.log('user', this.getUser());
+            }
+            if (key) {
+                this.setLoggedInKey(key);
+            }
+        }
+        this.setUri(uri !== null && uri !== void 0 ? uri : BaseUri_1.BASE_IDENTITY_URI);
     }
     getUri() {
         return this.identityUri;
     }
     setUri(uri) {
         this.identityUri = uri;
+        if (this.host === 'browser') {
+            localStorage.setItem('deso_identity_uri', this.identityUri);
+        }
     }
     getIframe() {
         return (0, IdentityHelper_1.getIframe)();
@@ -33,12 +49,18 @@ class Identity {
     }
     setUser(user) {
         this.loggedInUser = user;
+        if (this.host === 'browser' && user) {
+            localStorage.setItem('deso_user', JSON.stringify(user));
+        }
     }
     getUserKey() {
         return this.loggedInKey;
     }
     setLoggedInKey(key) {
         this.loggedInKey = key;
+        if (this.host === 'browser') {
+            localStorage.setItem('deso_user_key', key);
+        }
     }
     //  end of getters/ setters
     async initialize() {
@@ -138,7 +160,12 @@ class Identity {
             root.appendChild(frame);
         }
     }
-    async submitTransaction(TransactionHex, extraData) {
+    async submitTransaction(TransactionHex, options = { broadcast: this.host === 'browser' }, extraData) {
+        // don't submit the transaction, instead just return the api response from the
+        // previous call
+        if ((options === null || options === void 0 ? void 0 : options.broadcast) === false)
+            return;
+        // server app? then you can't call the iframe
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
         if ((extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData) && Object.keys(extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData).length > 0) {
@@ -150,7 +177,7 @@ class Identity {
         const user = this.getUser();
         // user exists no need to approve
         if (user) {
-            return (0, IdentityHelper_1.callIdentityMethodAndExecute)(TransactionHex, 'sign', this.getUser(), this.transactions);
+            return (0, IdentityHelper_1.callIdentityMethodAndExecute)(TransactionHex, 'sign', user, this.transactions);
         }
         else {
             // user does not exist  get approval

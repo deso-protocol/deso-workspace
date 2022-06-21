@@ -1,4 +1,4 @@
-import { AppendExtraDataRequest, DerivedPrivateUserInfo, DeSoNetwork, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, SendMessageStatelessRequest } from 'deso-protocol-types';
+import { AppendExtraDataRequest, DerivedPrivateUserInfo, DeSoNetwork, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, RequestOptions, SendMessageStatelessRequest } from 'deso-protocol-types';
 import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
 export interface IdentityConfig {
@@ -31,7 +31,7 @@ export declare class Identity {
     logout(publicKey: string): Promise<boolean>;
     derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo>;
     private setIdentityFrame;
-    submitTransaction(TransactionHex: string, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<any>;
+    submitTransaction(TransactionHex: string, options?: RequestOptions, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<any>;
     decrypt(encryptedMessages: GetDecryptMessagesRequest[]): Promise<GetDecryptMessagesResponse[]>;
     encrypt(request: Partial<SendMessageStatelessRequest>): Promise<string>;
     getJwt(): Promise<string>;

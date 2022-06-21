@@ -11,7 +11,7 @@ class Posts {
     async getPostsForPublicKey(request) {
         return (await axios_1.default.post(`${this.node.getUri()}/get-posts-for-public-key`, request)).data;
     }
-    async submitPost(request, extraData) {
+    async submitPost(request, options, extraData) {
         if (!request.UpdaterPublicKeyBase58Check) {
             throw Error('UpdaterPublicKeyBase58Check is required');
         }
@@ -23,13 +23,15 @@ class Posts {
         }
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
         return await this.identity
-            .submitTransaction(apiResponse.TransactionHex, extraData)
+            .submitTransaction(apiResponse.TransactionHex, options, extraData)
             .then((txn) => {
-            apiResponse.PostHashHex = txn.data.TxnHashHex;
+            if (txn) {
+                apiResponse.PostHashHex = txn.TxnHashHex;
+            }
             return apiResponse;
         })
-            .catch(() => {
-            throw Error('something went wrong while signing');
+            .catch((e) => {
+            throw Error(`something went wrong while signing ${e.message}`);
         });
     }
     async getPostsStateless(request) {

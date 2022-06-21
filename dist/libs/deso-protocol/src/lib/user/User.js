@@ -72,7 +72,7 @@ class User {
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return apiResponse;
     }
-    async authorizeDerivedKey(request, broadcast) {
+    async authorizeDerivedKey(request, options) {
         (0, utils_1.throwErrors)(['MinFeeRateNanosPerKB'], request);
         const derivedPrivateUser = await this.identity.derive({
             publicKey: this.identity.getUserKey() || undefined,
@@ -94,11 +94,8 @@ class User {
         };
         const endpoint = 'authorize-derived-key';
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)).data;
-        if (!broadcast) {
-            return apiResponse;
-        }
         return await this.identity
-            .submitTransaction(apiResponse.TransactionHex)
+            .submitTransaction(apiResponse.TransactionHex, options)
             .then(() => apiResponse)
             .catch(() => {
             throw Error('something went wrong while signing');

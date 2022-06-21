@@ -1,5 +1,3 @@
-export interface RequestFundsFromLordBaelish {
-  signature: string;
-  message: number[];
-  publicAddress: string;
+export interface SmartServiceInterface {
+  todo: any;
 }

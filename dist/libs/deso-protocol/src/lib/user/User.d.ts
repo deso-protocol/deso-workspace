@@ -1,4 +1,4 @@
-import { AuthorizeDerivedKeyParams, AuthorizeDerivedKeyRequest, AuthorizeDerivedKeyResponse, BlockPublicKeyRequest, BlockPublicKeyResponse, DeletePIIRequest, GetProfilesRequest, GetProfilesResponse, GetSingleProfileRequest, GetSingleProfileResponse, GetUserDerivedKeysRequest, GetUserDerivedKeysResponse, GetUserMetadataRequest, GetUserMetadataResponse, GetUsersResponse, GetUsersStatelessRequest } from 'deso-protocol-types';
+import { AuthorizeDerivedKeyParams, AuthorizeDerivedKeyRequest, AuthorizeDerivedKeyResponse, BlockPublicKeyRequest, BlockPublicKeyResponse, DeletePIIRequest, GetProfilesRequest, GetProfilesResponse, GetSingleProfileRequest, GetSingleProfileResponse, GetUserDerivedKeysRequest, GetUserDerivedKeysResponse, GetUserMetadataRequest, GetUserMetadataResponse, GetUsersResponse, GetUsersStatelessRequest, RequestOptions } from 'deso-protocol-types';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 export declare class User {
@@ -14,5 +14,5 @@ export declare class User {
     blockPublicKey(request: Partial<BlockPublicKeyRequest>): Promise<BlockPublicKeyResponse>;
     getUserDerivedKeys(request: Partial<GetUserDerivedKeysRequest>): Promise<GetUserDerivedKeysResponse>;
     authorizeDerivedKeyWithoutIdentity(request: Partial<AuthorizeDerivedKeyRequest>): Promise<AuthorizeDerivedKeyResponse>;
-    authorizeDerivedKey(request: Partial<AuthorizeDerivedKeyParams>, broadcast: boolean): Promise<AuthorizeDerivedKeyResponse>;
+    authorizeDerivedKey(request: Partial<AuthorizeDerivedKeyParams>, options?: RequestOptions): Promise<AuthorizeDerivedKeyResponse>;
 }

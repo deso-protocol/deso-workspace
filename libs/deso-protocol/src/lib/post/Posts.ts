@@ -51,7 +51,6 @@ export class Posts {
     options?: RequestOptions,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ): Promise<SubmitPostResponse> {
-    console.log({ request, options, extraData });
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
@@ -73,8 +72,8 @@ export class Posts {
         }
         return apiResponse;
       })
-      .catch((e) => {
-        throw Error(`something went wrong while signing ${e}`);
+      .catch((e: Error) => {
+        throw Error(`something went wrong while signing ${e.message}`);
       });
   }
 
