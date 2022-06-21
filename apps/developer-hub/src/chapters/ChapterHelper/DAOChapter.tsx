@@ -89,7 +89,7 @@ export const daoChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.dao.TransferDAOCoin(request)`,
+                methodName: `deso.dao.transferDAOCoin(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -138,7 +138,7 @@ export const daoChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.dao.CreateDAOCoinLimitOrder(request)`,
+                methodName: `deso.dao.createDAOCoinLimitOrder(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -179,7 +179,7 @@ export const daoChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.dao.CancelDAOCoinLimitOrder(request)`,
+                methodName: `deso.dao.cancelDAOCoinLimitOrder(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -220,7 +220,7 @@ export const daoChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.dao.GetDAOCoinLimitOrders(request)`,
+                methodName: `deso.dao.getDAOCoinLimitOrders(request)`,
                 params: this.params,
                 method: this.method,
               }}
@@ -265,7 +265,7 @@ export const daoChapter = {
           element={
             <Page
               method={{
-                methodName: `deso.dao.GetTransactorDAOCoinLimitOrders(request)`,
+                methodName: `deso.dao.getTransactorDAOCoinLimitOrders(request)`,
                 params: this.params,
                 method: this.method,
               }}
