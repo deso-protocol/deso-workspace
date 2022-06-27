@@ -8,7 +8,10 @@ export declare class Posts {
     private identity;
     constructor(node: Node, identity: Identity);
     getPostsForPublicKey(request: Partial<GetPostsForPublicKeyRequest>): Promise<GetPostsForPublicKeyResponse>;
-    submitPost(request: Partial<SubmitPostRequest>, options?: RequestOptions, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<SubmitPostResponse>;
+    submitPost(request: Partial<SubmitPostRequest>, options?: RequestOptions, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<{
+        constructedTransactionResponse: SubmitPostResponse;
+        submittedTransactionResponse: any;
+    }>;
     getPostsStateless(request: Partial<GetPostsStatelessRequest>): Promise<GetPostsStatelessResponse>;
     getSinglePost(request: Partial<GetSinglePostRequest>): Promise<GetSinglePostResponse>;
     getHotFeed(request: Partial<HotFeedPageRequest>): Promise<HotFeedPageResponse>;

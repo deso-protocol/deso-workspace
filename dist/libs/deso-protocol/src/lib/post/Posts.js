@@ -21,14 +21,14 @@ class Posts {
         if (!request.MinFeeRateNanosPerKB) {
             request.MinFeeRateNanosPerKB = 1500;
         }
-        const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
+        const constructedTransactionResponse = (await axios_1.default.post(`${this.node.getUri()}/submit-post`, request)).data;
         return await this.identity
-            .submitTransaction(apiResponse.TransactionHex, options, extraData)
-            .then((txn) => {
-            if (txn) {
-                apiResponse.PostHashHex = txn.TxnHashHex;
-            }
-            return apiResponse;
+            .submitTransaction(constructedTransactionResponse.TransactionHex, options, extraData)
+            .then((submittedTransactionResponse) => {
+            return {
+                constructedTransactionResponse,
+                submittedTransactionResponse,
+            };
         })
             .catch((e) => {
             throw Error(`something went wrong while signing ${e.message}`);

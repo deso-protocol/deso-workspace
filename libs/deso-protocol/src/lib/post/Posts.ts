@@ -50,7 +50,10 @@ export class Posts {
     request: Partial<SubmitPostRequest>,
     options?: RequestOptions,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ): Promise<SubmitPostResponse> {
+  ): Promise<{
+    constructedTransactionResponse: SubmitPostResponse;
+    submittedTransactionResponse: any;
+  }> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
@@ -61,16 +64,20 @@ export class Posts {
       request.MinFeeRateNanosPerKB = 1500;
     }
 
-    const apiResponse: SubmitPostResponse = (
+    const constructedTransactionResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex, options, extraData)
-      .then((txn) => {
-        if (txn) {
-          apiResponse.PostHashHex = txn.TxnHashHex;
-        }
-        return apiResponse;
+      .submitTransaction(
+        constructedTransactionResponse.TransactionHex,
+        options,
+        extraData
+      )
+      .then((submittedTransactionResponse) => {
+        return {
+          constructedTransactionResponse,
+          submittedTransactionResponse,
+        };
       })
       .catch((e: Error) => {
         throw Error(`something went wrong while signing ${e.message}`);
