@@ -25,8 +25,13 @@ class Posts {
         return await this.identity
             .submitTransaction(apiResponse.TransactionHex, extraData)
             .then((txn) => {
-            apiResponse.PostHashHex = txn.data.TxnHashHex;
-            return apiResponse;
+            return {
+                ...apiResponse,
+                ...{
+                    PostHashHex: txn.data.TxnHashHex,
+                    PostEntryResponse: txn.data.PostEntryResponse,
+                }
+            };
         })
             .catch(() => {
             throw Error('something went wrong while signing');
