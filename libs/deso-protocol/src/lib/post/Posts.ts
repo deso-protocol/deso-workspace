@@ -19,6 +19,7 @@ import {
   HotFeedPageResponse,
   SubmitPostRequest,
   SubmitPostResponse,
+  PostEntryResponse
 } from 'deso-protocol-types';
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
@@ -48,7 +49,7 @@ export class Posts {
   public async submitPost(
     request: Partial<SubmitPostRequest>,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ): Promise<SubmitPostResponse> {
+  ): Promise<SubmitPostResponse & { PostEntryResponse: PostEntryResponse }> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
@@ -65,8 +66,13 @@ export class Posts {
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, extraData)
       .then((txn) => {
-        apiResponse.PostHashHex = txn.data.TxnHashHex;
-        return apiResponse;
+        return {
+          ...apiResponse,
+          ...{
+            PostHashHex: txn.data.TxnHashHex,
+            PostEntryResponse: txn.data.PostEntryResponse,
+          }
+        };
       })
       .catch(() => {
         throw Error('something went wrong while signing');
