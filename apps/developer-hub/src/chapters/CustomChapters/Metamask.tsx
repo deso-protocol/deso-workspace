@@ -7,6 +7,7 @@ import { DesoContext } from '../../services/DesoContext';
 import { ClickHereSnippet, HUB } from '../../services/utils';
 import { AllThreadsONPage } from '../../threads/AllThreadsOnPage';
 import { Chapter, ChapterNavigation } from '../ChapterHelper/Chapter.models';
+
 import ChapterTemplate from '../ChapterHelper/ChapterTemplate';
 import {
   CommonPageSectionTitles,
@@ -22,7 +23,6 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
   const [metamaskResponseObject, setMetaMaskResponse] =
     useState<MetaMaskInitResponse | null>(null);
   const signInWithMetamask = async () => {
-    console.log(deso);
     const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
     metamaskResponse.derivedKeyPair = {
       hidden: 'note this object was truncated since its too long to print ',

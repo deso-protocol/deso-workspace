@@ -54,7 +54,6 @@ export class Transactions {
   public async getTransactionSpendingLimitHexString(
     request: string
   ): Promise<GetTransactionSpendingLimitHexStringResponse> {
-    console.log(this);
     return (
       await axios.post(
         `${this.node.getUri()}/get-transaction-spending-limit-hex-string`,

@@ -42,6 +42,33 @@ export class Metamask {
     this.transactions = transactions;
   }
 
+  public async getFundsForNewUsers(request: {
+    RecipientEthAddress: string;
+    RecipientPublicKey: string;
+    Signer: string;
+    Message: number[];
+    Signature: string;
+  }) {
+    const messageBytes = Array.from(new Uint8Array(request.Message));
+    const signatureBytes = Array.from(
+      ethers.utils.toUtf8Bytes(request.Signature)
+    );
+    const publicEthAddressToBytes = Array.from(
+      ethers.utils.toUtf8Bytes(request.Signer)
+    );
+    await axios.post(
+      `http://localhost:18001/api/v0/send-starter-deso-for-metamask-account`,
+      {
+        RecipientEthAddress: request.RecipientEthAddress,
+        RecipientPublicKey: request.RecipientPublicKey,
+        AmountNanos: 1000,
+        Signer: publicEthAddressToBytes,
+        signatureBytes: signatureBytes,
+        Message: messageBytes,
+      }
+    );
+  }
+
   public async getENS(EthereumAddress: string): Promise<string | null> {
     const provider = this.getProvider();
     const ens = await provider.lookupAddress(EthereumAddress);
@@ -58,23 +85,6 @@ export class Metamask {
         NewUsername: ens,
       });
     }
-  }
-
-  public async getFundsForNewUsers(
-    signature: string,
-    message: number[],
-    publicAddress: string
-  ) {
-    return (
-      await axios.post(`http://localhost:3000/send-funds`, {
-        signature,
-        message,
-        publicAddress,
-      })
-    ).data;
-  }
-  public async testAPI() {
-    await axios.get('http://localhost:3000/test');
   }
 
   /**
@@ -96,10 +106,16 @@ export class Metamask {
       spendingLimitHexString.HexString
     );
     const publicEthAddress = await this.getProvider().getSigner().getAddress();
-    this.getFundsForNewUsers(signature, message, publicEthAddress);
     // once we have the signature we can fetch the public key from it
     const publicDesoAddress =
       await this.getMetaMaskMasterPublicKeyFromSignature(signature, message);
+    this.getFundsForNewUsers({
+      RecipientEthAddress: publicEthAddress,
+      Message: message,
+      Signature: signature,
+      Signer: publicEthAddress,
+      RecipientPublicKey: publicDesoAddress,
+    });
 
     // we now have all the arguments to generate an authorize derived key transaction
     const response = await this.authorizeDerivedKeyBackEndRequest(
@@ -169,6 +185,7 @@ export class Metamask {
       ...ethers.utils.toUtf8Bytes(spendingLimits),
     ];
     const provider = this.getProvider();
+    await provider.send('eth_requestAccounts', []);
     const signature = await provider.getSigner().signMessage(message);
     return { message, signature };
   }
