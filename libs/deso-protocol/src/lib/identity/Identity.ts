@@ -51,9 +51,6 @@ export class Identity {
       const key = localStorage.getItem('deso_user_key');
       if (user) {
         this.setUser(JSON.parse(user));
-        const oy = JSON.parse(user);
-        console.log(oy);
-        console.log('user', this.getUser());
       }
       if (key) {
         this.setLoggedInKey(key);

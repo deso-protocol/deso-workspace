@@ -14,12 +14,14 @@ import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
+import * as Utils from './lib/utils/utils';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
 }
 
 export class Deso {
+  static utils = Utils;
   constructor(config?: Partial<DesoConfig>) {
     this.node = new Node(config?.nodeUri);
     this.transaction = new Transactions(this.node);
