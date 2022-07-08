@@ -150,12 +150,7 @@ export class Identity {
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(
-      publicKey,
-      this.getUri(),
-      this.isTestnet(),
-      {}
-    );
+    const prompt = requestLogout(publicKey, this.getUri(), this.isTestnet());
     const successful = await iFrameHandler(
       {
         iFrameMethod: 'logout',
