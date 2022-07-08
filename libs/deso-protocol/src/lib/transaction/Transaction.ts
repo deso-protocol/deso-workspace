@@ -11,7 +11,7 @@ import {
 import * as sha256 from 'sha256';
 
 import { Node } from '../Node/Node';
-import { getKeyPair, uvarint64ToBuf } from '../utils/utils';
+import { getKeyPair, uvarint64ToBuf } from '../utils/Utils';
 
 export class Transactions {
   private node: Node;

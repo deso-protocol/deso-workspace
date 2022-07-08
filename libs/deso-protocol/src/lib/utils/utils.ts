@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { ec as EC } from 'elliptic';
-import * as HDKey from 'hdkey';
+import HDKey from 'hdkey';
 export const uvarint64ToBuf = (uint: number): Buffer => {
   const result: number[] = [];
 
@@ -21,7 +21,7 @@ export const getKeyPair = async ({
   const ec = new EC('secp256k1');
   const seed = bip39.mnemonicToSeedSync(mnemonic);
   console.log('seed', seed);
-  const hdKey = HDKey.fromMasterSeed(seed).derive("m/44'/0'/0'/0/0", false);
+  const hdKey = HDKey.fromMasterSeed(seed).derive("m/44'/0'/0'/0/0");
   const seedHex = hdKey.privateKey.toString('hex');
   return ec.keyFromPrivate(seedHex);
 };
