@@ -1,9 +1,9 @@
+import axios from 'axios';
 import {
   LoginUser,
   PostEntryResponse,
   SubmitPostRequest,
 } from 'deso-protocol-types';
-import axios from 'axios';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 
@@ -44,6 +44,7 @@ export enum ParentRoutes {
   transactions = 'transactions',
   user = 'user',
   wallet = 'wallet',
+  metamask = 'metamask',
 }
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';
@@ -123,10 +124,15 @@ export const jsonBlock = (
     );
   }
 };
-export const ClickHereSnippet = (
-  onclick: (...params: any) => any,
-  toCallText: string
-) => {
+export interface ClickHereSnippetProps {
+  onclick: (...params: any) => any;
+  toCallText: string;
+}
+
+export const ClickHereSnippet = ({
+  onclick,
+  toCallText,
+}: ClickHereSnippetProps) => {
   return (
     <div>
       Click{' '}

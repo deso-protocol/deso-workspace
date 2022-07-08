@@ -1,14 +1,12 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
-import { ThreadCategory, ThreadState } from '../services/utils';
-import { StatementTypeEnum } from './Statement';
-import { CircularProgress } from '@mui/material';
-import { timeout } from '../services/utils';
 import { useRecoilState } from 'recoil';
+import { ThreadCategory, ThreadState, timeout } from '../services/utils';
+import { StatementTypeEnum } from './Statement';
 import { LoggedIn } from './Threads.state';
 export interface CreateThreadOnChain {
   PostHashHex: string;

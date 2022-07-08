@@ -1,7 +1,7 @@
 import Deso from 'deso-protocol';
-import { ReactElement, useEffect, useReducer, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { ThreadCategory, timeout } from '../services/utils';
+import { ThreadCategory } from '../services/utils';
 import { Statement, StatementTypeEnum } from './Statement';
 import { Thread } from './Thread';
 import { LoggedIn } from './Threads.state';

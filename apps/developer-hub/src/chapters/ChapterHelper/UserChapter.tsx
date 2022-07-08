@@ -1,23 +1,21 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
-import { Page } from '../Read/Page';
-import { PageSection } from './PageSections';
-import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
-  GetSingleProfileRequest,
-  GetUsersStatelessRequest,
-  GetProfilesRequest,
-  GetUserMetadataRequest,
-  DeletePIIRequest,
-  BlockPublicKeyRequest,
   AuthorizeDerivedKeyParams,
+  BlockPublicKeyRequest,
   CreatorCoinLimitOperationString,
   DAOCoinLimitOperationString,
-  DAOCoinLimitOrderOperationTypeString,
+  DeletePIIRequest,
+  GetProfilesRequest,
+  GetSingleProfileRequest,
+  GetUserMetadataRequest,
+  GetUsersStatelessRequest,
   NFTLimitOperationString,
 } from 'deso-protocol-types';
-import { Nft } from 'libs/deso-protocol/src/lib/nft/Nft';
+import { Route } from 'react-router-dom';
+import { DEZO_DOG, ParentRoutes, RUSSIA, TYLER } from '../../services/utils';
+import { Page } from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
+import { PageSection } from './PageSections';
 const deso = new Deso();
 // deso.user.getSingleProfile;
 // deso.user.getSingleProfilePicture;
@@ -366,12 +364,12 @@ export const userChapter = {
             CREATE_NFT: 10,
           },
           CreatorCoinOperationLimitMap: {
-            'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s': {
+            BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
               [CreatorCoinLimitOperationString.BUY]: 10,
-            }
+            },
           },
           DAOCoinOperationLimitMap: {
-            'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s': {
+            BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
               [DAOCoinLimitOperationString.TRANSFER]: 10,
             },
             [publicKey]: {
@@ -381,37 +379,38 @@ export const userChapter = {
               [DAOCoinLimitOperationString.DISABLE_MINTING]: 1,
               [DAOCoinLimitOperationString.BURN]: 21908,
               [DAOCoinLimitOperationString.TRANSFER]: 10,
-            }
+            },
           },
           NFTOperationLimitMap: {
-            "01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b": {
-              0: {
-                [NFTLimitOperationString.ACCEPT_BID]: 1,
-                [NFTLimitOperationString.ACCEPT_TRANSFER]: 2,
-                [NFTLimitOperationString.BID]: 190283,
-                [NFTLimitOperationString.BURN]: 12,
-                [NFTLimitOperationString.TRANSFER]: 1,
-                [NFTLimitOperationString.UPDATE]: 190238,
-                [NFTLimitOperationString.ANY]: 1,
+            '01855d9ca9c54d797e53df0954204ae7d744c98fe853bc846f5663459ac9cb7b':
+              {
+                0: {
+                  [NFTLimitOperationString.ACCEPT_BID]: 1,
+                  [NFTLimitOperationString.ACCEPT_TRANSFER]: 2,
+                  [NFTLimitOperationString.BID]: 190283,
+                  [NFTLimitOperationString.BURN]: 12,
+                  [NFTLimitOperationString.TRANSFER]: 1,
+                  [NFTLimitOperationString.UPDATE]: 190238,
+                  [NFTLimitOperationString.ANY]: 1,
+                },
+                1: {
+                  [NFTLimitOperationString.UPDATE]: 2,
+                },
               },
-              1: {
-                [NFTLimitOperationString.UPDATE]: 2
-              }
-            }
           },
           DAOCoinLimitOrderLimitMap: {
-            "DESO": {
+            DESO: {
               BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 10,
             },
             BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
-              "DESO": 5,
+              DESO: 5,
             },
             [TYLER]: {
               BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: 1092,
-            }
-          }
+            },
+          },
         },
-        Memo: "deso developer hub derived key",
+        Memo: 'deso developer hub derived key',
       } as Partial<AuthorizeDerivedKeyParams>;
     },
     method: deso.user.authorizeDerivedKey,
@@ -434,9 +433,7 @@ export const userChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>
-                  Authorize a derived key.
-                </div>
+                <div>Authorize a derived key.</div>
               )}
               chapters={CHAPTERS}
               selectedChapter={this}

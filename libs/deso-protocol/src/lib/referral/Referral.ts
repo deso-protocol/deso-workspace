@@ -35,4 +35,5 @@ export class Referral {
     const endpoint = 'get-referral-info-for-referral-hash';
     return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
   }
+
 }

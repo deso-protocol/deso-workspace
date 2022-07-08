@@ -11,5 +11,5 @@
   ],
   "plugins": [],
   "inputSourceMap": false,
-  "sourceMaps": false
+  "sourceMaps": true
 }

@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import CircleIcon from '@mui/icons-material/Circle';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Deso from 'deso-protocol';
 import { ReactElement, useEffect, useState } from 'react';
 import { ProfilePicture } from '../components/ProfilePicture';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { StatementTypeEnum } from './Statement';
-import { Responses } from './Responses';
-import { DisplayThreadState } from './DisplayThreadState';
 import { ThreadState } from '../services/utils';
+import { DisplayThreadState } from './DisplayThreadState';
+import { Responses } from './Responses';
+import { StatementTypeEnum } from './Statement';
 export interface ReplyOptionsProps {
   PostHashHex: string;
   posterKey: string;

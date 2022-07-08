@@ -1,15 +1,16 @@
 /* eslint-disable no-restricted-globals */
-import { LoggedIn } from '../../../threads/Threads.state';
-import Deso from 'deso-protocol';
 import { GetSingleProfileResponse } from 'deso-protocol-types';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { DesoContext } from '../../../services/DesoContext';
+import { LoggedIn } from '../../../threads/Threads.state';
 
-const deso = new Deso();
+// const deso = new Deso();
 export const Login = () => {
   const [userKey, setUserKey] = useState('');
   const [user, setUser] = useState<GetSingleProfileResponse | null>(null);
   const [loggedIn, setLoggedIn] = useRecoilState(LoggedIn);
+  const deso = useContext(DesoContext);
   useEffect(() => {
     const userKey = deso.identity.getUserKey();
     if (userKey) {
@@ -22,10 +23,14 @@ export const Login = () => {
   }, []);
 
   const getProfile = async () => {
-    const user = await deso.user.getSingleProfile({
-      PublicKeyBase58Check: deso.identity.getUserKey() as string,
-    });
-    setUser(user);
+    try {
+      const user = await deso.user.getSingleProfile({
+        PublicKeyBase58Check: deso.identity.getUserKey() as string,
+      });
+      setUser(user);
+    } catch (e) {
+      //
+    }
   };
 
   const login = async () => {

@@ -1,12 +1,18 @@
 {
   "name": "deso-protocol",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "type": "commonjs",
   "dependencies": {
-    "deso-protocol-types": "0.3.1",
+    "deso-protocol-types": "0.3.2",
     "tus-js-client": "^2.3.1",
     "axios": "^0.25.0",
-    "tslib": "^2.4.0"
+    "tslib": "^2.4.0",
+    "ethers": "^5.6.6",
+    "elliptic": "^6.5.4",
+    "bs58check": "^2.1.2",
+    "sha256": "^0.2.0",
+    "@types/elliptic": "^6.4.14",
+    "@types/bs58check": "^2.1.0"
   },
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"

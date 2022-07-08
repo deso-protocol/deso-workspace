@@ -1,28 +1,28 @@
+import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
-import Avatar from '@mui/material/Avatar';
-import { ReactElement, useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import {
-  SampleAppMyUserInfo,
-  SampleAppMyFollowersInfo,
-  SampleAppMyProfilePicture,
-  MyUserInfoType,
-} from '../../recoil/AppState.atoms';
-import CreatePostInput from './CreatePostInput';
-import { getFollowerCount } from '../../services/utils';
-import UserActions from '../UserActions';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
 } from 'deso-protocol-types';
-import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
+import { ReactElement, useContext, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import {
+  MyUserInfoType,
+  SampleAppMyFollowersInfo,
+  SampleAppMyProfilePicture,
+  SampleAppMyUserInfo,
+} from '../../recoil/AppState.atoms';
+import { DesoContext } from '../../services/DesoContext';
+import { getFollowerCount } from '../../services/utils';
+import UserActions from '../UserActions';
+import CreatePostInput from './CreatePostInput';
 export interface DisplayUserProps {
   publicKey: string;
   isMyAccount: boolean;
 }
 const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const [user, setUser] = useRecoilState<MyUserInfoType | null>(
     SampleAppMyUserInfo
   );

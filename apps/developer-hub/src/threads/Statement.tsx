@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/ban-types */
 import { Tooltip } from '@mui/material';
+import Deso from 'deso-protocol';
 import { PostEntryResponse } from 'deso-protocol-types';
 import { ReactElement, useEffect, useState } from 'react';
 import { ProfilePicture } from '../components/ProfilePicture';
-import { ThreadCategory, ThreadState, timeout } from '../services/utils';
+import { ThreadCategory, ThreadState } from '../services/utils';
 import { CreateThreadOnChain } from './CreateThreadOnChain';
-import { ThreadThumbnail } from './ThreadThumbnail';
 import { Responses } from './Responses';
-import Deso from 'deso-protocol';
+import { ThreadThumbnail } from './ThreadThumbnail';
 
 export enum StatementTypeEnum {
   Question = 'Question',

@@ -18,7 +18,7 @@ import {
   ParentRoutes,
   TYLER,
 } from '../../services/utils';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { CommonPageSectionTitles, PageSection } from './PageSections';
 const deso = new Deso();
@@ -75,7 +75,7 @@ export const socialChapter = {
     params: () => {
       return {
         NumToFetch: 25,
-        PublicKeyBase58Check: localStorage.getItem('login_key'),
+        PublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         FetchAfterPublicKeyBase58Check: '',
         HoldersOnly: false,
         FollowersOnly: false,
@@ -121,7 +121,7 @@ export const socialChapter = {
     params: () => {
       return {
         IsUnfollow: true,
-        FollowedPublicKeyBase58Check: localStorage.getItem('login_key'),
+        FollowedPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         FollowerPublicKeyBase58Check: TYLER,
       } as CreateFollowTxnStatelessRequest;
     },
@@ -332,7 +332,7 @@ export const socialChapter = {
     params: () => {
       return {
         RecipientPublicKeyBase58Check: DEZO_DOG,
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        SenderPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         MessageText: 'Ogres are like onions.',
       } as SendMessageStatelessRequest;
     },
@@ -372,7 +372,7 @@ export const socialChapter = {
     ],
     params: () => {
       return {
-        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        UpdaterPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         ProfilePublicKeyBase58Check: '',
         NewUsername: '',
         MinFeeRateNanosPerKB: 1000,
@@ -418,7 +418,7 @@ export const socialChapter = {
     params: () => {
       return {
         ReceiverPublicKeyBase58Check: DEZO_DOG,
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        SenderPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         DiamondPostHashHex: DOGS_LOVE_DIAMONDS_POST,
         DiamondLevel: 1,
         MinFeeRateNanosPerKB: 1000,
@@ -461,7 +461,7 @@ export const socialChapter = {
     ],
     params: () => {
       return {
-        ReaderPublicKeyBase58Check: localStorage.getItem('login_key'),
+        ReaderPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         LikedPostHashHex:
           'f7ea512c2435f233c948f761f7596d95190ed3c3c908fc21609535eca33e3a14',
         MinFeeRateNanosPerKB: 1000,

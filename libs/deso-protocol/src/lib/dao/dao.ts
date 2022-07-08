@@ -9,6 +9,7 @@ import {
   GetDAOCoinLimitOrdersRequest,
   GetDAOCoinLimitOrdersResponse,
   GetTransactorDAOCoinLimitOrdersRequest,
+  RequestOptions,
   TransactionConstructionResponse,
   TransferDAOCoinRequest,
   TransferDAOCoinResponse,
@@ -28,13 +29,17 @@ export class DAO {
   private async executeTransaction<
     REQUEST,
     RESPONSE extends TransactionConstructionResponse
-  >(request: Partial<REQUEST>, endpoint: string): Promise<RESPONSE> {
+  >(
+    request: Partial<REQUEST>,
+    endpoint: string,
+    options?: RequestOptions
+  ): Promise<RESPONSE> {
     request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
     const response = (
       await axios.post<RESPONSE>(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
-      .submitTransaction(response.TransactionHex)
+      .submitTransaction(response.TransactionHex, options)
       .then(() => response);
   }
 
@@ -48,27 +53,31 @@ export class DAO {
   }
 
   public async DAOCoin(
-    request: Partial<DAOCoinRequest>
+    request: Partial<DAOCoinRequest>,
+    options?: RequestOptions
   ): Promise<DAOCoinResponse> {
     // TODO: validate partial
     return this.executeTransaction<DAOCoinRequest, DAOCoinResponse>(
       request,
-      'dao-coin'
+      'dao-coin',
+      options
     );
   }
 
   public async transferDAOCoin(
-    request: Partial<TransferDAOCoinRequest>
+    request: Partial<TransferDAOCoinRequest>,
+    options?: RequestOptions
   ): Promise<TransferDAOCoinResponse> {
     // TODO: validate partial
     return this.executeTransaction<
       TransferDAOCoinRequest,
       TransferDAOCoinResponse
-    >(request, 'transfer-dao-coin');
+    >(request, 'transfer-dao-coin', options);
   }
 
   public async createDAOCoinLimitOrder(
-    request: Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>
+    request: Partial<DAOCoinLimitOrderWithExchangeRateAndQuantityRequest>,
+    options?: RequestOptions
   ): Promise<DAOCoinLimitOrderResponse> {
     if (!request.BuyingDAOCoinCreatorPublicKeyBase58Check) {
       request.BuyingDAOCoinCreatorPublicKeyBase58Check = '';
@@ -80,17 +89,18 @@ export class DAO {
     return this.executeTransaction<
       DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
       DAOCoinLimitOrderResponse
-    >(request, 'create-dao-coin-limit-order');
+    >(request, 'create-dao-coin-limit-order', options);
   }
 
   public async cancelDAOCoinLimitOrder(
-    request: Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>
+    request: Partial<DAOCoinLimitOrderWithCancelOrderIDRequest>,
+    options?: RequestOptions
   ): Promise<DAOCoinLimitOrderResponse> {
     // TODO: validate partial
     return this.executeTransaction<
       DAOCoinLimitOrderWithCancelOrderIDRequest,
       DAOCoinLimitOrderResponse
-    >(request, 'cancel-dao-coin-limit-order');
+    >(request, 'cancel-dao-coin-limit-order', options);
   }
 
   public async getDAOCoinLimitOrders(

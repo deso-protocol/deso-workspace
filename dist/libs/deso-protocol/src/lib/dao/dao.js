@@ -7,25 +7,25 @@ class DAO {
         this.node = node;
         this.identity = identity;
     }
-    async executeTransaction(request, endpoint) {
+    async executeTransaction(request, endpoint, options) {
         request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
         const response = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return await this.identity
-            .submitTransaction(response.TransactionHex)
+            .submitTransaction(response.TransactionHex, options)
             .then(() => response);
     }
     async executePost(request, endpoint) {
         return (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
-    async DAOCoin(request) {
+    async DAOCoin(request, options) {
         // TODO: validate partial
-        return this.executeTransaction(request, 'dao-coin');
+        return this.executeTransaction(request, 'dao-coin', options);
     }
-    async transferDAOCoin(request) {
+    async transferDAOCoin(request, options) {
         // TODO: validate partial
-        return this.executeTransaction(request, 'transfer-dao-coin');
+        return this.executeTransaction(request, 'transfer-dao-coin', options);
     }
-    async createDAOCoinLimitOrder(request) {
+    async createDAOCoinLimitOrder(request, options) {
         if (!request.BuyingDAOCoinCreatorPublicKeyBase58Check) {
             request.BuyingDAOCoinCreatorPublicKeyBase58Check = '';
         }
@@ -33,11 +33,11 @@ class DAO {
             request.SellingDAOCoinCreatorPublicKeyBase58Check = '';
         }
         // TODO: validate partial
-        return this.executeTransaction(request, 'create-dao-coin-limit-order');
+        return this.executeTransaction(request, 'create-dao-coin-limit-order', options);
     }
-    async cancelDAOCoinLimitOrder(request) {
+    async cancelDAOCoinLimitOrder(request, options) {
         // TODO: validate partial
-        return this.executeTransaction(request, 'cancel-dao-coin-limit-order');
+        return this.executeTransaction(request, 'cancel-dao-coin-limit-order', options);
     }
     async getDAOCoinLimitOrders(request) {
         if (!request.DAOCoin2CreatorPublicKeyBase58CheckOrUsername) {

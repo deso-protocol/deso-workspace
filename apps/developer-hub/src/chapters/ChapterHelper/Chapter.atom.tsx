@@ -1,4 +1,3 @@
-import Deso from 'deso-protocol';
 import { LoginUser } from 'deso-protocol-types';
 import { atom } from 'recoil';
 import { recoilPersist } from 'recoil-persist';
@@ -8,12 +7,6 @@ export const PublicKey = atom<string>({
   key: 'publicKey',
   // deso dog in the scenario they dont have an account
   default: DEZO_DOG,
-  effects_UNSTABLE: [persistAtom],
-});
-
-export const desoService = atom<Deso>({
-  key: 'desoService',
-  default: new Deso(),
   effects_UNSTABLE: [persistAtom],
 });
 

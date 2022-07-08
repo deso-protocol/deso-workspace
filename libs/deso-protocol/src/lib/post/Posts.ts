@@ -1,6 +1,7 @@
+import axios from 'axios';
 import {
-  GetDiamondsForPostRequest,
   AppendExtraDataRequest,
+  GetDiamondsForPostRequest,
   GetDiamondsForPostResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
@@ -17,15 +18,14 @@ import {
   GetSinglePostResponse,
   HotFeedPageRequest,
   HotFeedPageResponse,
+  RequestOptions,
   SubmitPostRequest,
   SubmitPostResponse,
-  PostEntryResponse
 } from 'deso-protocol-types';
-import axios from 'axios';
+import { throwErrors } from '../../utils/utils';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
-import { throwErrors } from '../../utils/utils';
 export class Posts {
   static transaction: Transactions;
   private node: Node;
@@ -48,8 +48,12 @@ export class Posts {
 
   public async submitPost(
     request: Partial<SubmitPostRequest>,
+    options?: RequestOptions,
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ): Promise<SubmitPostResponse & { PostEntryResponse: PostEntryResponse }> {
+  ): Promise<{
+    constructedTransactionResponse: SubmitPostResponse;
+    submittedTransactionResponse: any;
+  }> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
     }
@@ -60,22 +64,23 @@ export class Posts {
       request.MinFeeRateNanosPerKB = 1500;
     }
 
-    const apiResponse: SubmitPostResponse = (
+    const constructedTransactionResponse: SubmitPostResponse = (
       await axios.post(`${this.node.getUri()}/submit-post`, request)
     ).data;
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex, extraData)
-      .then((txn) => {
+      .submitTransaction(
+        constructedTransactionResponse.TransactionHex,
+        options,
+        extraData
+      )
+      .then((submittedTransactionResponse) => {
         return {
-          ...apiResponse,
-          ...{
-            PostHashHex: txn.data.TxnHashHex,
-            PostEntryResponse: txn.data.PostEntryResponse,
-          }
+          constructedTransactionResponse,
+          submittedTransactionResponse,
         };
       })
-      .catch(() => {
-        throw Error('something went wrong while signing');
+      .catch((e: Error) => {
+        throw Error(`something went wrong while signing ${e.message}`);
       });
   }
 

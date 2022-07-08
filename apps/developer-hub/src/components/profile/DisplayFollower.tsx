@@ -1,23 +1,22 @@
+import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
-import Avatar from '@mui/material/Avatar';
 
-import { ReactElement, useEffect, useState } from 'react';
-import { MyUserInfoType, FollowerInfoType } from '../../recoil/AppState.atoms';
-import { getFollowerCount } from '../../services/utils';
-import DisplayMessages from './DisplayMessages';
 import {
   GetFollowsResponse,
   GetSingleProfileResponse,
 } from 'deso-protocol-types';
-import { useRecoilValue } from 'recoil';
-import { desoService } from '../../chapters/ChapterHelper/Chapter.atom';
+import { ReactElement, useContext, useEffect, useState } from 'react';
+import { FollowerInfoType, MyUserInfoType } from '../../recoil/AppState.atoms';
+import { DesoContext } from '../../services/DesoContext';
+import { getFollowerCount } from '../../services/utils';
+import DisplayMessages from './DisplayMessages';
 export interface DisplayUserProps {
   publicKey: string;
 }
 
 const DisplayFollower = ({ publicKey }: DisplayUserProps) => {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const [profileDescriptionCard, setCard] = useState<ReactElement | null>(null);
   const [follower, setFollower] = useState<FollowerInfoType | null>(null);
   const [followerPicture, setFollowerPicture] = useState<string | null>(null);

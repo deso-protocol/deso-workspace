@@ -1,25 +1,26 @@
-import { Identity } from '../identity/Identity';
-import { Node } from '../Node/Node';
 import axios from 'axios';
 import {
-  GetUsersResponse,
-  GetUsersStatelessRequest,
-  GetSingleProfileResponse,
-  GetSingleProfileRequest,
-  GetProfilesRequest,
-  GetProfilesResponse,
-  GetUserMetadataRequest,
-  GetUserMetadataResponse,
-  DeletePIIRequest,
-  BlockPublicKeyRequest,
-  GetUserDerivedKeysRequest,
-  BlockPublicKeyResponse,
-  GetUserDerivedKeysResponse,
+  AuthorizeDerivedKeyParams,
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
-  AuthorizeDerivedKeyParams,
+  BlockPublicKeyRequest,
+  BlockPublicKeyResponse,
+  DeletePIIRequest,
+  GetProfilesRequest,
+  GetProfilesResponse,
+  GetSingleProfileRequest,
+  GetSingleProfileResponse,
+  GetUserDerivedKeysRequest,
+  GetUserDerivedKeysResponse,
+  GetUserMetadataRequest,
+  GetUserMetadataResponse,
+  GetUsersResponse,
+  GetUsersStatelessRequest,
+  RequestOptions,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/utils';
+import { Identity } from '../identity/Identity';
+import { Node } from '../Node/Node';
 export class User {
   private node: Node;
   private identity: Identity;
@@ -27,9 +28,9 @@ export class User {
     this.node = node;
     this.identity = identity;
   }
+
   public async getUserStateless(
     request: Partial<GetUsersStatelessRequest>
-    // PublicKeysBase58Check: string | string[]
   ): Promise<GetUsersResponse> {
     return (
       await axios.post(`${this.node.getUri()}/get-users-stateless`, request)
@@ -49,6 +50,7 @@ export class User {
     ).data;
     return response;
   }
+
   public async getProfiles(
     request: Partial<GetProfilesRequest>
   ): Promise<GetProfilesResponse> {
@@ -97,6 +99,7 @@ export class User {
       JWT,
     });
   }
+
   public async getUserDerivedKeys(
     request: Partial<GetUserDerivedKeysRequest>
   ): Promise<GetUserDerivedKeysResponse> {
@@ -111,40 +114,53 @@ export class User {
     });
   }
 
+  public async authorizeDerivedKeyWithoutIdentity(
+    request: Partial<AuthorizeDerivedKeyRequest>
+  ): Promise<AuthorizeDerivedKeyResponse> {
+    const endpoint = 'authorize-derived-key';
+    const apiResponse: AuthorizeDerivedKeyResponse = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
+  }
+
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
-    broadcast: boolean,
+    options?: RequestOptions
   ): Promise<AuthorizeDerivedKeyResponse> {
-    throwErrors(["MinFeeRateNanosPerKB"], request);
+    throwErrors(['MinFeeRateNanosPerKB'], request);
     const derivedPrivateUser = await this.identity.derive({
       publicKey: this.identity.getUserKey() || undefined,
-      transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
+      transactionSpendingLimitResponse:
+        request.TransactionSpendingLimitResponse,
       derivedPublicKey: request.DerivedPublicKeyBase58Check,
-      deleteKey: request.DeleteKey,
-      expirationDays: request.ExpirationDays,
     });
     const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
-      DerivedPublicKeyBase58Check: derivedPrivateUser.derivedPublicKeyBase58Check,
+      DerivedPublicKeyBase58Check:
+        derivedPrivateUser.derivedPublicKeyBase58Check,
       ExpirationBlock: derivedPrivateUser.expirationBlock,
       AccessSignature: derivedPrivateUser.accessSignature,
       DeleteKey: request.DeleteKey,
       ExtraData: request.ExtraData,
-      TransactionSpendingLimitHex: derivedPrivateUser.transactionSpendingLimitHex,
+      TransactionSpendingLimitHex:
+        derivedPrivateUser.transactionSpendingLimitHex,
       Memo: request.Memo,
       AppName: request.AppName,
       TransactionFees: request.TransactionFees,
       MinFeeRateNanosPerKB: request.MinFeeRateNanosPerKB,
     };
+
     const endpoint = 'authorize-derived-key';
     const apiResponse: AuthorizeDerivedKeyResponse = (
-      await axios.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)
+      await axios.post(
+        `${this.node.getUri()}/${endpoint}`,
+        authorizeDerivedKeyRequest
+      )
     ).data;
-    if (!broadcast) {
-      return apiResponse;
-    }
+
     return await this.identity
-      .submitTransaction(apiResponse.TransactionHex)
+      .submitTransaction(apiResponse.TransactionHex, options)
       .then(() => apiResponse)
       .catch(() => {
         throw Error('something went wrong while signing');

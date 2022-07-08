@@ -1,9 +1,9 @@
-import { ThreadState } from '../services/utils';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Menu, MenuItem } from '@mui/material';
 import Deso from 'deso-protocol';
-import { useEffect, useState } from 'react';
 import { GetSinglePostResponse } from 'deso-protocol-types';
+import { useEffect, useState } from 'react';
+import { ThreadState } from '../services/utils';
 export interface ThreadStateProps {
   state: ThreadState;
   PostHashHex: string;

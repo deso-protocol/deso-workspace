@@ -1,4 +1,5 @@
 import { AppendExtraDataRequest } from 'deso-protocol-types';
+
 export const uuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0,
@@ -31,7 +32,7 @@ export const throwErrors = <G, K extends keyof G>(
   requiredAttributes.forEach((attrName: K) => {
     const doesExist = request[attrName];
     if (!doesExist) {
-      throw Error(`${attrName} is required`);
+      throw Error(`${attrName as string} is required`);
     }
   });
 };
@@ -53,3 +54,4 @@ export interface AssignDefaultsInterface<G, K extends keyof G> {
   name: K;
   default: G[K];
 }
+// export const;

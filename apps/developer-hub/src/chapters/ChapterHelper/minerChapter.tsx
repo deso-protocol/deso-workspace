@@ -1,12 +1,12 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
-import { DEZO_DOG, ParentRoutes } from '../../services/utils';
 import Deso from 'deso-protocol';
 import {
   GetBlockTemplateRequest,
   SubmitBlockRequest,
 } from 'deso-protocol-types';
-import Page from '../Read/Page';
+import { Route } from 'react-router-dom';
+import { DEZO_DOG, ParentRoutes } from '../../services/utils';
+import Page from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 const deso = new Deso();
 export const minerChapter = {
@@ -66,7 +66,7 @@ export const minerChapter = {
         BlockID: '1',
         ExtraNonce: 2,
         Header: ['not a real byte array'],
-        PublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        PublicKeyBase58Check: localStorage.getItem('deso_user_key') as string,
       } as SubmitBlockRequest;
     },
     component: function () {

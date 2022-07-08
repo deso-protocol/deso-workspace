@@ -16,7 +16,7 @@ import {
   RUSSIA,
   SAMPLE_POST,
 } from '../../services/utils';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 
@@ -33,7 +33,7 @@ export const postChapter = {
     method: deso.posts.submitPost,
     params: () => {
       return {
-        UpdaterPublicKeyBase58Check: localStorage.getItem('login_key'),
+        UpdaterPublicKeyBase58Check: localStorage.getItem('deso_user_key'),
         BodyObj: {
           Body: `Checking out the developer hub`,
           VideoURLs: [],

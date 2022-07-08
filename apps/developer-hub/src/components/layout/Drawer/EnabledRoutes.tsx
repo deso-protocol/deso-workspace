@@ -15,6 +15,7 @@ export const getEnabledRoutes = (): string[] => {
       'transactions',
       'user',
       'wallet',
+      'metamask',
     ].includes(p)
   );
 };

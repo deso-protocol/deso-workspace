@@ -6,7 +6,7 @@ import {
 } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
 import { DEZO_DOG, ParentRoutes, TYLER } from '../../services/utils';
-import Page from '../Read/Page';
+import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 const deso = new Deso();
@@ -103,7 +103,7 @@ export const notificationChapter = {
     method: deso.notification.setNotificationMetadata,
     params: () => {
       return {
-        PublicKeyBase58Check: localStorage.getItem('login_key'),
+        PublicKeyBase58Check: localStorage.getItem('deso_user_key'),
       } as Partial<SetNotificationMetadataRequest>;
     },
     component: function () {

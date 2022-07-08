@@ -1,4 +1,9 @@
-import { TransactionFee, TransactionSpendingLimitResponse } from './deso-types';
+import { ec } from 'elliptic';
+import {
+  SubmitTransactionResponse,
+  TransactionFee,
+  TransactionSpendingLimitResponse,
+} from './deso-types';
 
 export interface GetApproveResponse {
   id?: string;
@@ -298,4 +303,44 @@ export interface DAOCoinLimitOrderWithExchangeRateAndQuantityRequest {
   OperationType: string;
   MinFeeRateNanosPerKB?: number;
   TransactionFees: TransactionFee[] | null;
+}
+export enum TxnString {
+  TxnStringUnset = 'UNSET',
+  TxnStringBlockReward = 'BLOCK_REWARD',
+  TxnStringBasicTransfer = 'BASIC_TRANSFER',
+  TxnStringBitcoinExchange = 'BITCOIN_EXCHANGE',
+  TxnStringPrivateMessage = 'PRIVATE_MESSAGE',
+  TxnStringSubmitPost = 'SUBMIT_POST',
+  TxnStringUpdateProfile = 'UPDATE_PROFILE',
+  TxnStringUpdateBitcoinUSDExchangeRate = 'UPDATE_BITCOIN_USD_EXCHANGE_RATE',
+  TxnStringFollow = 'FOLLOW',
+  TxnStringLike = 'LIKE',
+  TxnStringCreatorCoin = 'CREATOR_COIN',
+  TxnStringSwapIdentity = 'SWAP_IDENTITY',
+  TxnStringUpdateGlobalParams = 'UPDATE_GLOBAL_PARAMS',
+  TxnStringCreatorCoinTransfer = 'CREATOR_COIN_TRANSFER',
+  TxnStringCreateNFT = 'CREATE_NFT',
+  TxnStringUpdateNFT = 'UPDATE_NFT',
+  TxnStringAcceptNFTBid = 'ACCEPT_NFT_BID',
+  TxnStringNFTBid = 'NFT_BID',
+  TxnStringNFTTransfer = 'NFT_TRANSFER',
+  TxnStringAcceptNFTTransfer = 'ACCEPT_NFT_TRANSFER',
+  TxnStringBurnNFT = 'BURN_NFT',
+  TxnStringAuthorizeDerivedKey = 'AUTHORIZE_DERIVED_KEY',
+  TxnStringMessagingGroup = 'MESSAGING_GROUP',
+  TxnStringDAOCoin = 'DAO_COIN',
+  TxnStringDAOCoinTransfer = 'DAO_COIN_TRANSFER',
+  TxnStringDAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
+  TxnStringUndefined = 'TXN_UNDEFINED',
+}
+
+export interface MetaMaskInitResponse {
+  derivedKeyPair: ec.KeyPair;
+  derivedPublicKeyBase58Check: string;
+  submissionResponse: SubmitTransactionResponse;
+  ethereumAddress: string;
+}
+
+export interface RequestOptions {
+  broadcast?: boolean;
 }

@@ -5,7 +5,7 @@ import { ReactElement } from 'react';
 import { Link, Link as MaterialLink } from '@mui/material';
 import { PageSection } from './PageSections';
 import { PageNavigation } from '../../components/layout/PageNavigation';
-import { GetAppStatePage } from '../Read/get-app-state/GetAppStatePage';
+import { GetAppStatePage } from '../CustomChapters/get-app-state/GetAppStatePage';
 import { postChapter } from './PostsChapter';
 import { userChapter } from './UserChapter';
 import { identityChapter } from './IdentityChapters';
@@ -19,12 +19,13 @@ import { adminChapter } from './adminChapter';
 import { metaDataChapter } from './metaDataChapter';
 import { nftChapter } from './nftChapter';
 import { ParentRoutes } from '../../services/utils';
-import { PageProps } from '../Read/Page';
+import { PageProps } from '../CustomChapters/Page';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { transactionChapter } from './TransactionsChapter';
 import { walletChapter } from './WalletChapter';
 import { daoChapter } from './DAOChapter';
 import { RecentThreads } from '../../threads/RecentThreads';
+import { metamaskChapter } from './MetamaskChapter';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -46,6 +47,7 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...userChapter,
   ...walletChapter,
   ...daoChapter,
+  ...metamaskChapter,
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',

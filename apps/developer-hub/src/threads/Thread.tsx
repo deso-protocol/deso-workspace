@@ -1,6 +1,6 @@
-import { Statement, StatementTypeEnum } from './Statement';
-import { ReactElement, useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
+import { ReactElement, useEffect, useState } from 'react';
+import { Statement, StatementTypeEnum } from './Statement';
 export interface ThreadProps {
   PostHashHex: string;
 }

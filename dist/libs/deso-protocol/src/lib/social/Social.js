@@ -8,16 +8,16 @@ class Social {
         this.node = node;
         this.identity = identity;
     }
-    async sendMessage(request) {
+    async sendMessage(request, options) {
         const encryptedMessage = await this.identity.encrypt(request);
         request.EncryptedMessageText = encryptedMessage;
         if (!request.MinFeeRateNanosPerKB) {
             request.MinFeeRateNanosPerKB = 1000;
         }
         const response = (await axios_1.default.post(`${this.node.getUri()}/send-message-stateless`, request)).data;
-        return await this.identity.submitTransaction(response.TransactionHex);
+        return await this.identity.submitTransaction(response.TransactionHex, options);
     }
-    async createFollowTxnStateless(request) {
+    async createFollowTxnStateless(request, options) {
         if (!request.FollowerPublicKeyBase58Check) {
             throw Error('FollowerPublicKeyBase58Check is undefined');
         }
@@ -29,7 +29,7 @@ class Social {
         }
         request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
         const response = (await axios_1.default.post(`${this.node.getUri()}/create-follow-txn-stateless`, request)).data;
-        return await this.identity.submitTransaction(response.TransactionHex);
+        return await this.identity.submitTransaction(response.TransactionHex, options);
     }
     async getFollowsStateless(request) {
         const endpoint = 'get-follows-stateless';
@@ -76,31 +76,31 @@ class Social {
         const endpoint = 'is-hodling-public-key';
         return await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request);
     }
-    async updateProfile(request) {
+    async updateProfile(request, options) {
         const endpoint = 'update-profile';
         const response = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return await this.identity
-            .submitTransaction(response.TransactionHex)
+            .submitTransaction(response.TransactionHex, options)
             .then(() => response)
             .catch(() => {
             throw Error('something went wrong while signing');
         });
     }
-    async sendDiamonds(request) {
+    async sendDiamonds(request, options) {
         const endpoint = 'send-diamonds';
         const response = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return await this.identity
-            .submitTransaction(response.TransactionHex)
+            .submitTransaction(response.TransactionHex, options)
             .then(() => response)
             .catch(() => {
             throw Error('something went wrong while signing');
         });
     }
-    async createLikeStateless(request) {
+    async createLikeStateless(request, options) {
         const endpoint = 'create-like-stateless';
         const response = await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return await this.identity
-            .submitTransaction(response.TransactionHex)
+            .submitTransaction(response.TransactionHex, options)
             .then(() => response)
             .catch(() => {
             throw Error('something went wrong while signing');

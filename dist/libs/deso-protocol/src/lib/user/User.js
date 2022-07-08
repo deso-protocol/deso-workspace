@@ -8,9 +8,7 @@ class User {
         this.node = node;
         this.identity = identity;
     }
-    async getUserStateless(request
-    // PublicKeysBase58Check: string | string[]
-    ) {
+    async getUserStateless(request) {
         return (await axios_1.default.post(`${this.node.getUri()}/get-users-stateless`, request)).data;
     }
     getSingleProfilePicture(PublicKeyBase58Check) {
@@ -69,14 +67,17 @@ class User {
             JWT,
         });
     }
-    async authorizeDerivedKey(request, broadcast) {
-        (0, utils_1.throwErrors)(["MinFeeRateNanosPerKB"], request);
+    async authorizeDerivedKeyWithoutIdentity(request) {
+        const endpoint = 'authorize-derived-key';
+        const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
+        return apiResponse;
+    }
+    async authorizeDerivedKey(request, options) {
+        (0, utils_1.throwErrors)(['MinFeeRateNanosPerKB'], request);
         const derivedPrivateUser = await this.identity.derive({
             publicKey: this.identity.getUserKey() || undefined,
             transactionSpendingLimitResponse: request.TransactionSpendingLimitResponse,
             derivedPublicKey: request.DerivedPublicKeyBase58Check,
-            deleteKey: request.DeleteKey,
-            expirationDays: request.ExpirationDays,
         });
         const authorizeDerivedKeyRequest = {
             OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
@@ -93,11 +94,8 @@ class User {
         };
         const endpoint = 'authorize-derived-key';
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, authorizeDerivedKeyRequest)).data;
-        if (!broadcast) {
-            return apiResponse;
-        }
         return await this.identity
-            .submitTransaction(apiResponse.TransactionHex)
+            .submitTransaction(apiResponse.TransactionHex, options)
             .then(() => apiResponse)
             .catch(() => {
             throw Error('something went wrong while signing');

@@ -1,11 +1,20 @@
 {
   "name": "deso-protocol",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "type": "commonjs",
   "dependencies": {
-    "deso-protocol-types": "0.3.1",
-    "tus-js-client": "^2.3.1",
+    "@types/bs58check": "^2.1.0",
+    "@types/elliptic": "^6.4.14",
     "axios": "^0.25.0",
-    "tslib": "^2.4.0"
+    "bs58check": "^2.1.2",
+    "deso-protocol-types": "0.3.2",
+    "elliptic": "^6.5.4",
+    "ethers": "^5.6.6",
+    "sha256": "^0.2.0",
+    "tslib": "^2.4.0",
+    "tus-js-client": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/hdkey": "^2.0.1"
   }
 }

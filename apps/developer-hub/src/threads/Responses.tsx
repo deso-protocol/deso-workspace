@@ -3,7 +3,6 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import { Tooltip } from '@mui/material';
 import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
-import { StatementTypeEnum } from './Statement';
 import { Votes } from './votes';
 
 const deso = new Deso();

@@ -1,13 +1,4 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
 import Deso from 'deso-protocol';
-import {
-  ParentRoutes,
-  TYLER,
-  DEZO_DOG,
-  SAMPLE_POST,
-  SAMPLE_NFT_POST,
-} from '../../services/utils';
 import {
   AcceptNFTBidRequest,
   AcceptNFTTransferRequest,
@@ -23,7 +14,16 @@ import {
   TransferNFTRequest,
   UpdateNFTRequest,
 } from 'deso-protocol-types';
-import Page from '../Read/Page';
+import { Route } from 'react-router-dom';
+import {
+  DEZO_DOG,
+  ParentRoutes,
+  SAMPLE_NFT_POST,
+  SAMPLE_POST,
+  TYLER,
+} from '../../services/utils';
+import Page from '../CustomChapters/Page';
+import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
 const deso = new Deso();
 
@@ -36,7 +36,7 @@ export const nftChapter = {
     params: () => {
       return {
         UserPublicKeyBase58Check:
-          (localStorage.getItem('login_key') as string) || DEZO_DOG,
+          (localStorage.getItem('deso_user_key') as string) || DEZO_DOG,
       } as GetNFTsForUserRequest;
     },
     githubSource: [],
@@ -308,7 +308,7 @@ export const nftChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
         NFTPostHashHex: SAMPLE_NFT_POST,
         NumCopies: 1,
@@ -354,7 +354,7 @@ export const nftChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
         NFTPostHashHex: SAMPLE_NFT_POST,
         SerialNumber: 1,
@@ -397,7 +397,7 @@ export const nftChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
         NFTPostHashHex: SAMPLE_NFT_POST,
         SerialNumber: 1,
@@ -442,7 +442,7 @@ export const nftChapter = {
     params: () => {
       return {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
         BidderPublicKeyBase58Check: DEZO_DOG,
         NFTPostHashHex: SAMPLE_NFT_POST,
@@ -485,7 +485,9 @@ export const nftChapter = {
     method: deso.nft.transferNft,
     params: () => {
       return {
-        SenderPublicKeyBase58Check: localStorage.getItem('login_key') as string,
+        SenderPublicKeyBase58Check: localStorage.getItem(
+          'deso_user_key'
+        ) as string,
         ReceiverPublicKeyBase58Check: TYLER,
         NFTPostHashHex: SAMPLE_NFT_POST,
         SerialNumber: 1,
@@ -529,7 +531,7 @@ export const nftChapter = {
         NFTPostHashHex: SAMPLE_NFT_POST,
         SerialNumber: 1,
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
       } as AcceptNFTTransferRequest;
     },
@@ -574,7 +576,7 @@ export const nftChapter = {
         NFTPostHashHex: SAMPLE_NFT_POST,
         SerialNumber: 1,
         UpdaterPublicKeyBase58Check: localStorage.getItem(
-          'login_key'
+          'deso_user_key'
         ) as string,
       } as BurnNFTRequest;
     },

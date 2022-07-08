@@ -1,17 +1,23 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import { RecoilRoot } from "recoil";
+import Deso from 'deso-protocol';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { RecoilRoot } from 'recoil';
+import App from './App';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
+import { DesoContext } from './services/DesoContext';
 
 ReactDOM.render(
   <React.StrictMode>
-    <RecoilRoot>
-      <App />
-    </RecoilRoot>
+    <DesoContext.Provider
+      value={new Deso({ nodeUri: 'http://deso-seed-3.io:18501 a' })}
+    >
+      <RecoilRoot>
+        <App />
+      </RecoilRoot>
+    </DesoContext.Provider>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

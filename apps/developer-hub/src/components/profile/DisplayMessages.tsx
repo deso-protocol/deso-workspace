@@ -1,26 +1,24 @@
 import { Button } from '@mui/material';
 
 import Avatar from '@mui/material/Avatar';
-import { ReactElement, useEffect, useState } from 'react';
+import { LoginUser } from 'deso-protocol-types';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import { PublicKey } from '../../chapters/ChapterHelper/Chapter.atom';
 import {
   SampleAppDecryptedHexes,
   SampleAppLoggedInUser,
   SampleAppMyProfilePicture,
 } from '../../recoil/AppState.atoms';
-import {
-  desoService,
-  PublicKey,
-} from '../../chapters/ChapterHelper/Chapter.atom';
+import { DesoContext } from '../../services/DesoContext';
 import { SendMessage } from './SendMessage';
-import { LoginUser } from 'deso-protocol-types';
 
 export interface DisplayMessagesProps {
   publicKey: string;
 }
 
 const DisplayMessages = ({ publicKey }: DisplayMessagesProps) => {
-  const deso = useRecoilValue(desoService);
+  const deso = useContext(DesoContext);
   const myPublicKey = useRecoilValue(PublicKey);
   const [showMessages, setShowMessages] = useState<boolean>(false);
   const [threadCard, setThreadCard] = useState<ReactElement[] | null>(null);
