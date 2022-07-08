@@ -13,7 +13,12 @@ export const requestApproval = (
   transactionHex: string,
   uri: string,
   testnet: boolean = false,
-  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  }
 ): Window => {
   const prompt = window.open(
     `${uri}/approve?tx=${transactionHex}${getTestnetQueryParam(testnet)}`,
@@ -28,7 +33,12 @@ export const requestLogin = (
   uri: string,
 
   testnet: boolean = false,
-  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  }
 ): Window => {
   const prompt = window.open(
     `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${getTestnetQueryParam(
@@ -44,7 +54,12 @@ export const requestLogout = (
   publicKey: string,
   uri: string,
   testnet: boolean = false,
-  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  }
 ): Window => {
   const prompt = window.open(
     `${uri}/logout?publicKey=${publicKey}${getTestnetQueryParam(testnet)}`,
@@ -58,7 +73,12 @@ export const requestDerive = (
   params: IdentityDeriveQueryParams,
   uri: string,
   testnet: boolean = false,
-  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  }
 ) => {
   const queryParams = Object.entries(params || {})
     .filter(([_, value]) => value !== null && value !== undefined)
