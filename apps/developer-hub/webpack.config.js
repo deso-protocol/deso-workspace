@@ -6,6 +6,8 @@ module.exports = (config, context) => {
     ...config.resolve.fallback,
     stream: require.resolve('stream-browserify'),
     buffer: require.resolve('buffer'),
+    crypto: require.resolve('crypto-browserify'),
+    assert: require.resolve('assert/'),
   };
   return {
     ...config,
