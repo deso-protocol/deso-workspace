@@ -10,11 +10,11 @@ NOTE: The library is in beta and under development so not all functionality is a
 ## Installation
 Install using your preferred package manager:
 ```sh
-npm i deso-protocol deso-protocol-types
+npm i deso-protocol
 ```
 or
 ```sh
-yarn add deso-protocol deso-protocol-types
+yarn add deso-protocol
 ```
 
 If you are using typescript, you may optionally add types for backend schemas
