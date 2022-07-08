@@ -9,4 +9,6 @@ export declare class Transactions {
     getTransactionSpending(request: AppendExtraDataRequest): Promise<GetTransactionSpendingResponse>;
     getTransactionSpendingLimitHexString(request: string): Promise<GetTransactionSpendingLimitHexStringResponse>;
     getTransactionSpendingLimitResponseFromHex(transactionSpendingLimitHex: string): Promise<TransactionSpendingLimitResponse>;
+    signWithLocalKey(): Promise<void>;
 }
+export declare const signTransaction: (transactionHex: string) => Promise<string>;

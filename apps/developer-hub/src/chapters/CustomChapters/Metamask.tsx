@@ -1,5 +1,4 @@
 import { MetaMaskInitResponse } from 'deso-protocol-types';
-import { ec } from 'elliptic';
 import { useContext, useState } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
 import { PageNavigation } from '../../components/layout/PageNavigation';
@@ -23,11 +22,11 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
   const [metamaskResponseObject, setMetaMaskResponse] =
     useState<MetaMaskInitResponse | null>(null);
   const signInWithMetamask = async () => {
-    const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
-    metamaskResponse.derivedKeyPair = {
-      hidden: 'note this object was truncated since its too long to print ',
-    } as unknown as ec.KeyPair;
-    setMetaMaskResponse(metamaskResponse);
+    // const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
+    // metamaskResponse.derivedKeyPair = {
+    //   hidden: 'note this object was truncated since its too long to print ',
+    // } as unknown as ec.KeyPair;
+    // setMetaMaskResponse(metamaskResponse);
   };
 
   const populateProfile = async () => {

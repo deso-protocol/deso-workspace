@@ -3,7 +3,6 @@ import { DAO } from './lib/dao/dao';
 import { Identity, IdentityConfig } from './lib/identity/Identity';
 import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
-import { Metamask } from './lib/metamask/Metamask';
 import { Miner } from './lib/miner/Miner';
 import { Nft } from './lib/nft/Nft';
 import { Node } from './lib/Node/Node';
@@ -14,14 +13,15 @@ import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
-import * as Utils from './lib/utils/Utils';
+
+export { Metamask } from './lib/metamask/Metamask';
+export * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
 }
 
 export class Deso {
-  static utils = Utils;
   constructor(config?: Partial<DesoConfig>) {
     this.node = new Node(config?.nodeUri);
     this.transaction = new Transactions(this.node);
@@ -46,14 +46,6 @@ export class Deso {
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
 
-    this.metamask = new Metamask(
-      this.node,
-      this.identity,
-      this.social,
-      this.user,
-      this.transaction
-    );
-
     if (this.identity.host === 'browser') {
       this.identity.initialize();
     }
@@ -73,7 +65,6 @@ export class Deso {
   public posts: Posts;
   public wallet: Wallet;
   public referral: Referral;
-  public metamask: Metamask;
 
   reinitialize(): void {
     this.transaction = new Transactions(this.node);
@@ -90,13 +81,6 @@ export class Deso {
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
 
-    this.metamask = new Metamask(
-      this.node,
-      this.identity,
-      this.social,
-      this.user,
-      this.transaction
-    );
     if (this.identity.host === 'browser') {
       this.identity.initialize();
     }

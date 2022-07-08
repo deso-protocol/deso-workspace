@@ -13,11 +13,13 @@ import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
+import * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
     nodeUri?: string;
     identityConfig?: Partial<IdentityConfig>;
 }
 export declare class Deso {
+    static utils: typeof Utils;
     constructor(config?: Partial<DesoConfig>);
     node: Node;
     transaction: Transactions;

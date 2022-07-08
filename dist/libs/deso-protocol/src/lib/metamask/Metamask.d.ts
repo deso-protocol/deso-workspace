@@ -12,10 +12,15 @@ export declare class Metamask {
     private user;
     private transactions;
     constructor(node: Node, identity: Identity, social: Social, user: User, transactions: Transactions);
+    getFundsForNewUsers(request: {
+        RecipientEthAddress: string;
+        RecipientPublicKey: string;
+        Signer: string;
+        Message: number[];
+        Signature: string;
+    }): Promise<void>;
     getENS(EthereumAddress: string): Promise<string | null>;
     populateProfile(EthereumAddress: string): Promise<void>;
-    getFundsForNewUsers(signature: string, message: number[], publicAddress: string): Promise<any>;
-    testAPI(): Promise<void>;
     /**
      * Flow for new deso users looking to sign in with metamask
      */

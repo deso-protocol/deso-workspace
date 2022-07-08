@@ -22,9 +22,6 @@ class Identity {
             const key = localStorage.getItem('deso_user_key');
             if (user) {
                 this.setUser(JSON.parse(user));
-                const oy = JSON.parse(user);
-                console.log(oy);
-                console.log('user', this.getUser());
             }
             if (key) {
                 this.setLoggedInKey(key);
@@ -47,9 +44,10 @@ class Identity {
     getUser() {
         return this.loggedInUser;
     }
-    setUser(user) {
+    setUser(user, logout = false) {
         this.loggedInUser = user;
-        if (this.host === 'browser' && user) {
+        if ((this.host === 'browser' && user) ||
+            (this.host === 'browser' && logout)) {
             localStorage.setItem('deso_user', JSON.stringify(user));
         }
     }
@@ -110,7 +108,7 @@ class Identity {
             iFrameMethod: 'logout',
             data: { prompt },
         }, this.transactions);
-        this.setUser(null);
+        this.setUser(null, true);
         this.setLoggedInKey('');
         return successful;
     }

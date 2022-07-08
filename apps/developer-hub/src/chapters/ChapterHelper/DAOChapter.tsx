@@ -1,4 +1,4 @@
-import Deso from 'deso-protocol';
+// import Deso from 'deso-protocol';
 import {
   DAOCoinLimitOrderOperationTypeString,
   DAOCoinLimitOrderWithCancelOrderIDRequest,
@@ -9,10 +9,12 @@ import {
   TransferDAOCoinRequest,
 } from 'deso-protocol-types';
 import { Route } from 'react-router-dom';
+import DesoDrawer from '../../components/layout/Drawer/Drawer';
 import { ParentRoutes } from '../../services/utils';
 import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
+import Deso, { Utils, Metamask } from 'deso-protocol';
 const deso = new Deso();
 export const daoChapter = {
   DAO_COIN: {
