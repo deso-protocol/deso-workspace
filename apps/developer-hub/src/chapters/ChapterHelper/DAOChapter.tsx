@@ -14,7 +14,7 @@ import { ParentRoutes } from '../../services/utils';
 import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
-import Deso, { Utils, Metamask } from 'deso-protocol';
+import Deso from 'deso-protocol';
 const deso = new Deso();
 export const daoChapter = {
   DAO_COIN: {

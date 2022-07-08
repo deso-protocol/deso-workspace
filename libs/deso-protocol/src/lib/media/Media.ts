@@ -15,8 +15,6 @@ import {
   uploadImageHelper,
   uploadVideoToCloudFlare,
 } from './Media.Helper';
-// import * as tus from 'tus-js-client';
-// import { uploadVideo } from './Tus.config';
 export class Media {
   private node: Node;
   private identity: Identity;

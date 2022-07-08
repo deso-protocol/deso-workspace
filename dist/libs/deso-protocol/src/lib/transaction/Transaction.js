@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signTransaction = exports.Transactions = void 0;
+exports.Transactions = void 0;
 const axios_1 = require("axios");
-const sha256 = require("sha256");
-const Utils_1 = require("../utils/Utils");
 class Transactions {
     constructor(node) {
         this.node = node;
@@ -34,22 +32,27 @@ class Transactions {
     async signWithLocalKey() { }
 }
 exports.Transactions = Transactions;
-const signTransaction = async (transactionHex) => {
-    const privateKey = await (0, Utils_1.getKeyPair)({
-        mnemonic: 'weather noble barely volume bind lemon raven cruel diamond hover siren canvas',
-    });
-    const transactionBytes = Buffer.from(transactionHex, 'hex');
-    const transactionHash = Buffer.from(sha256.x2(transactionBytes), 'hex');
-    const signature = privateKey.sign(transactionHash, { canonical: true });
-    const signatureBytes = Buffer.from(signature.toDER());
-    const signatureLength = (0, Utils_1.uvarint64ToBuf)(signatureBytes.length);
-    // If transaction is signed with a derived key, use DeSo-DER recoverable signature encoding.
-    const signedTransactionBytes = Buffer.concat([
-        transactionBytes.slice(0, -1),
-        signatureLength,
-        signatureBytes,
-    ]);
-    return signedTransactionBytes.toString('hex');
-};
-exports.signTransaction = signTransaction;
+// export const signTransaction = async (
+//   transactionHex: string
+// ): Promise<string> => {
+//   const privateKey = await getKeyPair({
+//     mnemonic:
+//       'weather noble barely volume bind lemon raven cruel diamond hover siren canvas',
+//   });
+//   const transactionBytes = Buffer.from(transactionHex, 'hex');
+//   const transactionHash = Buffer.from(
+//     sha256.x2(transactionBytes) as string,
+//     'hex'
+//   );
+//   const signature = privateKey.sign(transactionHash, { canonical: true });
+//   const signatureBytes = Buffer.from(signature.toDER());
+//   const signatureLength = uvarint64ToBuf(signatureBytes.length);
+//   // If transaction is signed with a derived key, use DeSo-DER recoverable signature encoding.
+//   const signedTransactionBytes = Buffer.concat([
+//     transactionBytes.slice(0, -1),
+//     signatureLength,
+//     signatureBytes,
+//   ]);
+//   return signedTransactionBytes.toString('hex');
+// };
 //# sourceMappingURL=Transaction.js.map

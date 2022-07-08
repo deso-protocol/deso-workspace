@@ -6,7 +6,6 @@ const dao_1 = require("./lib/dao/dao");
 const Identity_1 = require("./lib/identity/Identity");
 const Media_1 = require("./lib/media/Media");
 const MetaData_1 = require("./lib/meta-data/MetaData");
-const Metamask_1 = require("./lib/metamask/Metamask");
 const Miner_1 = require("./lib/miner/Miner");
 const Nft_1 = require("./lib/nft/Nft");
 const Node_1 = require("./lib/Node/Node");
@@ -17,7 +16,6 @@ const Social_1 = require("./lib/social/Social");
 const Transaction_1 = require("./lib/transaction/Transaction");
 const User_1 = require("./lib/user/User");
 const Wallet_1 = require("./lib/wallet/Wallet");
-const Utils = require("./lib/utils/Utils");
 class Deso {
     constructor(config) {
         this.node = new Node_1.Node(config === null || config === void 0 ? void 0 : config.nodeUri);
@@ -38,7 +36,6 @@ class Deso {
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
             this.identity.initialize();
         }
@@ -57,13 +54,11 @@ class Deso {
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
             this.identity.initialize();
         }
     }
 }
 exports.Deso = Deso;
-Deso.utils = Utils;
 exports.default = Deso;
 //# sourceMappingURL=index.js.map

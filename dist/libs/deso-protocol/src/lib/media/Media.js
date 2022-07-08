@@ -4,8 +4,6 @@ exports.Media = void 0;
 const axios_1 = require("axios");
 const utils_1 = require("../../utils/utils");
 const Media_Helper_1 = require("./Media.Helper");
-// import * as tus from 'tus-js-client';
-// import { uploadVideo } from './Tus.config';
 class Media {
     constructor(node, identity) {
         this.node = node;

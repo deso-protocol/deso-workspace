@@ -14,8 +14,8 @@ import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
 
-export { Metamask } from './lib/metamask/Metamask';
-export * as Utils from './lib/utils/Utils';
+// export { Metamask } from './lib/metamask/Metamask';
+// export * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;

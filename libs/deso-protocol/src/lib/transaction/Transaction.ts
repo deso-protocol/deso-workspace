@@ -8,10 +8,8 @@ import {
   SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
-import * as sha256 from 'sha256';
 
 import { Node } from '../Node/Node';
-import { getKeyPair, uvarint64ToBuf } from '../utils/Utils';
 
 export class Transactions {
   private node: Node;
@@ -76,29 +74,29 @@ export class Transactions {
   public async signWithLocalKey() {}
 }
 
-export const signTransaction = async (
-  transactionHex: string
-): Promise<string> => {
-  const privateKey = await getKeyPair({
-    mnemonic:
-      'weather noble barely volume bind lemon raven cruel diamond hover siren canvas',
-  });
-  const transactionBytes = Buffer.from(transactionHex, 'hex');
-  const transactionHash = Buffer.from(
-    sha256.x2(transactionBytes) as string,
-    'hex'
-  );
-  const signature = privateKey.sign(transactionHash, { canonical: true });
-  const signatureBytes = Buffer.from(signature.toDER());
-  const signatureLength = uvarint64ToBuf(signatureBytes.length);
+// export const signTransaction = async (
+//   transactionHex: string
+// ): Promise<string> => {
+//   const privateKey = await getKeyPair({
+//     mnemonic:
+//       'weather noble barely volume bind lemon raven cruel diamond hover siren canvas',
+//   });
+//   const transactionBytes = Buffer.from(transactionHex, 'hex');
+//   const transactionHash = Buffer.from(
+//     sha256.x2(transactionBytes) as string,
+//     'hex'
+//   );
+//   const signature = privateKey.sign(transactionHash, { canonical: true });
+//   const signatureBytes = Buffer.from(signature.toDER());
+//   const signatureLength = uvarint64ToBuf(signatureBytes.length);
 
-  // If transaction is signed with a derived key, use DeSo-DER recoverable signature encoding.
+//   // If transaction is signed with a derived key, use DeSo-DER recoverable signature encoding.
 
-  const signedTransactionBytes = Buffer.concat([
-    transactionBytes.slice(0, -1),
-    signatureLength,
-    signatureBytes,
-  ]);
+//   const signedTransactionBytes = Buffer.concat([
+//     transactionBytes.slice(0, -1),
+//     signatureLength,
+//     signatureBytes,
+//   ]);
 
-  return signedTransactionBytes.toString('hex');
-};
+//   return signedTransactionBytes.toString('hex');
+// };
