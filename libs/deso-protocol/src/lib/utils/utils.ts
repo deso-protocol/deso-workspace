@@ -20,7 +20,6 @@ export const getKeyPair = async ({
 }): Promise<EC.KeyPair> => {
   const ec = new EC('secp256k1');
   const seed = bip39.mnemonicToSeedSync(mnemonic);
-  console.log('seed', seed);
   const hdKey = HDKey.fromMasterSeed(seed).derive("m/44'/0'/0'/0/0");
   const seedHex = hdKey.privateKey.toString('hex');
   return ec.keyFromPrivate(seedHex);

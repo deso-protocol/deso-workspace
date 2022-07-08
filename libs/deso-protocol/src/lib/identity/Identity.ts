@@ -78,9 +78,12 @@ export class Identity {
     return this.loggedInUser;
   }
 
-  private setUser(user: LoginUser | null): void {
+  private setUser(user: LoginUser | null, logout: boolean = false): void {
     this.loggedInUser = user;
-    if (this.host === 'browser' && user) {
+    if (
+      (this.host === 'browser' && user) ||
+      (this.host === 'browser' && logout)
+    ) {
       localStorage.setItem('deso_user', JSON.stringify(user));
     }
   }
@@ -155,7 +158,7 @@ export class Identity {
       },
       this.transactions
     );
-    this.setUser(null);
+    this.setUser(null, true);
     this.setLoggedInKey('');
     return successful;
   }
