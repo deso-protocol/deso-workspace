@@ -2,6 +2,7 @@ import { DAO } from './lib/dao/dao';
 import { Identity, IdentityConfig } from './lib/identity/Identity';
 import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
+import { Metamask } from './lib/metamask/Metamask';
 import { Miner } from './lib/miner/Miner';
 import { Nft } from './lib/nft/Nft';
 import { Node } from './lib/Node/Node';
@@ -12,6 +13,7 @@ import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
+import * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
     nodeUri?: string;
     identityConfig?: Partial<IdentityConfig>;
@@ -33,6 +35,8 @@ export declare class Deso {
     posts: Posts;
     wallet: Wallet;
     referral: Referral;
+    Metamask: Metamask;
+    utils: typeof Utils;
     reinitialize(): void;
 }
 export default Deso;
