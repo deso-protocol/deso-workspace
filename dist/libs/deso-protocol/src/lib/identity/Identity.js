@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Identity = void 0;
 const deso_protocol_types_1 = require("deso-protocol-types");
-const utils_1 = require("../../utils/utils");
+const Utils_1 = require("../../utils/Utils");
 const BaseUri_1 = require("../state/BaseUri");
 const IdentityHelper_1 = require("./IdentityHelper");
 const WindowHandler_1 = require("./WindowHandler");
@@ -175,7 +175,7 @@ class Identity {
     }
     async guardFeatureSupport() {
         const payload = await (0, IdentityHelper_1.callIdentityMethodAndExecute)(undefined, 'info', this.getUser(), this.transactions);
-        if (true /*!payload.hasStorageAccess || !payload.browserSupported*/) {
+        if (!payload.hasStorageAccess || !payload.browserSupported) {
             const iframe = (0, IdentityHelper_1.getIframe)();
             iframe.style.display = 'block';
             const storageGranted = await (0, WindowHandler_1.iFrameHandler)({
@@ -199,7 +199,7 @@ class Identity {
         if ((extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData) && Object.keys(extraData === null || extraData === void 0 ? void 0 : extraData.ExtraData).length > 0) {
             TransactionHex = (await this.transactions.appendExtraData({
                 TransactionHex: TransactionHex,
-                ExtraData: (0, utils_1.convertExtraDataToHex)(extraData).ExtraData,
+                ExtraData: (0, Utils_1.convertExtraDataToHex)(extraData).ExtraData,
             })).TransactionHex;
         }
         const user = this.getUser();

@@ -17,11 +17,7 @@ const Social_1 = require("./lib/social/Social");
 const Transaction_1 = require("./lib/transaction/Transaction");
 const User_1 = require("./lib/user/User");
 const Wallet_1 = require("./lib/wallet/Wallet");
-<<<<<<< HEAD
 const Utils = require("./lib/utils/Utils");
-=======
-const Utils = require("./lib/utils/utils");
->>>>>>> Guard browser storage access with tap to unlock wallet
 class Deso {
     constructor(config) {
         this.utils = Utils;
@@ -72,6 +68,5 @@ class Deso {
     }
 }
 exports.Deso = Deso;
-Deso.utils = Utils;
 exports.default = Deso;
 //# sourceMappingURL=index.js.map
