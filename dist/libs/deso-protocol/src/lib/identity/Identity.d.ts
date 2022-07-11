@@ -14,6 +14,7 @@ export declare class Identity {
     private loggedInUser;
     private loggedInKey;
     private transactions;
+    private storageGranted;
     host: 'browser' | 'server';
     constructor({ host, node, network, uri }: IdentityConfig, transactions: Transactions);
     getUri(): string;
@@ -31,6 +32,7 @@ export declare class Identity {
     logout(publicKey: string): Promise<boolean>;
     derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo>;
     private setIdentityFrame;
+    private guardFeatureSupport;
     submitTransaction(TransactionHex: string, options?: RequestOptions, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<any>;
     decrypt(encryptedMessages: GetDecryptMessagesRequest[]): Promise<GetDecryptMessagesResponse[]>;
     encrypt(request: Partial<SendMessageStatelessRequest>): Promise<string>;

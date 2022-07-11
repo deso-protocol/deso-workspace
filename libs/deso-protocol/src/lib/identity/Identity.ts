@@ -10,7 +10,7 @@ import {
   RequestOptions,
   SendMessageStatelessRequest,
 } from 'deso-protocol-types';
-import { convertExtraDataToHex } from '../../utils/utils';
+import { convertExtraDataToHex } from '../../utils/Utils';
 import { Node } from '../Node/Node';
 import { BASE_IDENTITY_URI } from '../state/BaseUri';
 import { Transactions } from '../transaction/Transaction';
@@ -37,6 +37,7 @@ export class Identity {
   private loggedInUser: LoginUser | null = null;
   private loggedInKey = '';
   private transactions: Transactions;
+  private storageGranted = false;
   public host: 'browser' | 'server';
   constructor(
     { host = 'browser', node, network, uri }: IdentityConfig,
@@ -120,11 +121,10 @@ export class Identity {
             },
             this.getUri()
           );
-          resolve(event.data);
         }
       };
       window.addEventListener('message', windowHandler);
-      this.setIdentityFrame(true);
+      resolve(this.setIdentityFrame(true));
     });
   }
 
@@ -132,6 +132,11 @@ export class Identity {
     accessLevel = '4'
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
+
+    if (!this.storageGranted) {
+      await this.guardFeatureSupport();
+    }
+
     const prompt = requestLogin(accessLevel, this.getUri(), this.isTestnet());
     const { key, user } = await iFrameHandler(
       {
@@ -192,29 +197,69 @@ export class Identity {
     return derivedPrivateUser;
   }
 
-  private setIdentityFrame(createNewIdentityFrame = false): void {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
-    let frame = document.getElementById('identity');
-    if (frame && createNewIdentityFrame) {
-      frame.remove();
+  private async setIdentityFrame(
+    createNewIdentityFrame = false
+  ): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (this.host === 'server') throw Error(SERVER_ERROR);
+      let frame = document.getElementById('identity');
+      if (frame && createNewIdentityFrame) {
+        frame.remove();
+      }
+      if (!createNewIdentityFrame) {
+        resolve(true);
+      }
+      frame = document.createElement('iframe');
+      frame.setAttribute('src', `${this.getUri()}/embed?v=2`);
+      frame.setAttribute('id', 'identity');
+      frame.style.width = '100%';
+      frame.style.height = '100vh';
+      frame.style.position = 'fixed';
+      frame.style.zIndex = '1000';
+      frame.style.display = 'none';
+      frame.style.left = '0';
+      frame.style.right = '0';
+      frame.style.top = '0';
+
+      frame.addEventListener('error', reject);
+
+      frame.addEventListener('load', () => {
+        if (this.getUserKey()) {
+          resolve(this.guardFeatureSupport());
+        } else {
+          resolve(true);
+        }
+      });
+      const root = document.getElementsByTagName('body')[0];
+      if (root && frame) {
+        root.appendChild(frame);
+      }
+    });
+  }
+
+  private async guardFeatureSupport(): Promise<boolean> {
+    const payload = await callIdentityMethodAndExecute(
+      undefined,
+      'info',
+      this.getUser(),
+      this.transactions
+    );
+    if (true /*!payload.hasStorageAccess || !payload.browserSupported*/) {
+      const iframe = getIframe();
+      iframe.style.display = 'block';
+      const storageGranted = await iFrameHandler(
+        {
+          iFrameMethod: 'storageGranted',
+        },
+        this.transactions
+      );
+
+      if (storageGranted) {
+        this.storageGranted = true;
+        iframe.style.display = 'none';
+      }
     }
-    if (!createNewIdentityFrame) {
-      return;
-    }
-    frame = document.createElement('iframe');
-    frame.setAttribute('src', `${this.getUri()}/embed?v=2`);
-    frame.setAttribute('id', 'identity');
-    frame.style.width = '100vh';
-    frame.style.height = '100vh';
-    frame.style.position = 'fixed';
-    frame.style.zIndex = '1000';
-    frame.style.display = 'none';
-    frame.style.left = '0';
-    frame.style.top = '0';
-    const root = document.getElementsByTagName('body')[0];
-    if (root) {
-      root.appendChild(frame);
-    }
+    return true;
   }
 
   public async submitTransaction(

@@ -1,17 +1,19 @@
 import { LoginUser } from 'deso-protocol-types';
-import { uuid } from '../../utils/utils';
+import { uuid } from '../../utils/Utils';
 import { Transactions } from '../transaction/Transaction';
 import { iFrameHandler } from './WindowHandler';
 import { requestApproval } from './WindowPrompts';
 
 export type IframeMethods =
-  | 'sign'
-  | 'encrypt'
   | 'decrypt'
+  | 'derive'
+  | 'encrypt'
+  | 'info'
   | 'jwt'
   | 'login'
   | 'logout'
-  | 'derive';
+  | 'sign'
+  | 'storageGranted';
 
 export const callIdentityMethodAndExecute = async (
   attributeValue: unknown,

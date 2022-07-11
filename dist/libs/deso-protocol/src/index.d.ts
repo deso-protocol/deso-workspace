@@ -13,12 +13,18 @@ import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
+<<<<<<< HEAD
 import * as Utils from './lib/utils/Utils';
+=======
+import * as Utils from './lib/utils/utils';
+>>>>>>> Guard browser storage access with tap to unlock wallet
 export interface DesoConfig {
     nodeUri?: string;
     identityConfig?: Partial<IdentityConfig>;
+    onIdentityInitialized?: () => void;
 }
 export declare class Deso {
+    static utils: typeof Utils;
     constructor(config?: Partial<DesoConfig>);
     node: Node;
     transaction: Transactions;

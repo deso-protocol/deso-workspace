@@ -13,6 +13,7 @@ class Identity {
         this.identityUri = BaseUri_1.BASE_IDENTITY_URI;
         this.loggedInUser = null;
         this.loggedInKey = '';
+        this.storageGranted = false;
         this.host = host;
         this.node = node;
         this.network = network || deso_protocol_types_1.DeSoNetwork.mainnet;
@@ -78,16 +79,18 @@ class Identity {
                         service: 'identity',
                         payload: {},
                     }, this.getUri());
-                    resolve(event.data);
                 }
             };
             window.addEventListener('message', windowHandler);
-            this.setIdentityFrame(true);
+            resolve(this.setIdentityFrame(true));
         });
     }
     async login(accessLevel = '4') {
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
+        if (!this.storageGranted) {
+            await this.guardFeatureSupport();
+        }
         const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.isTestnet());
         const { key, user } = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'login',
@@ -133,30 +136,57 @@ class Identity {
         }, this.transactions);
         return derivedPrivateUser;
     }
-    setIdentityFrame(createNewIdentityFrame = false) {
-        if (this.host === 'server')
-            throw Error(SERVER_ERROR);
-        let frame = document.getElementById('identity');
-        if (frame && createNewIdentityFrame) {
-            frame.remove();
+    async setIdentityFrame(createNewIdentityFrame = false) {
+        return new Promise((resolve, reject) => {
+            if (this.host === 'server')
+                throw Error(SERVER_ERROR);
+            let frame = document.getElementById('identity');
+            if (frame && createNewIdentityFrame) {
+                frame.remove();
+            }
+            if (!createNewIdentityFrame) {
+                resolve(true);
+            }
+            frame = document.createElement('iframe');
+            frame.setAttribute('src', `${this.getUri()}/embed?v=2`);
+            frame.setAttribute('id', 'identity');
+            frame.style.width = '100%';
+            frame.style.height = '100vh';
+            frame.style.position = 'fixed';
+            frame.style.zIndex = '1000';
+            frame.style.display = 'none';
+            frame.style.left = '0';
+            frame.style.right = '0';
+            frame.style.top = '0';
+            frame.addEventListener('error', reject);
+            frame.addEventListener('load', () => {
+                if (this.getUserKey()) {
+                    resolve(this.guardFeatureSupport());
+                }
+                else {
+                    resolve(true);
+                }
+            });
+            const root = document.getElementsByTagName('body')[0];
+            if (root && frame) {
+                root.appendChild(frame);
+            }
+        });
+    }
+    async guardFeatureSupport() {
+        const payload = await (0, IdentityHelper_1.callIdentityMethodAndExecute)(undefined, 'info', this.getUser(), this.transactions);
+        if (true /*!payload.hasStorageAccess || !payload.browserSupported*/) {
+            const iframe = (0, IdentityHelper_1.getIframe)();
+            iframe.style.display = 'block';
+            const storageGranted = await (0, WindowHandler_1.iFrameHandler)({
+                iFrameMethod: 'storageGranted',
+            }, this.transactions);
+            if (storageGranted) {
+                this.storageGranted = true;
+                iframe.style.display = 'none';
+            }
         }
-        if (!createNewIdentityFrame) {
-            return;
-        }
-        frame = document.createElement('iframe');
-        frame.setAttribute('src', `${this.getUri()}/embed?v=2`);
-        frame.setAttribute('id', 'identity');
-        frame.style.width = '100vh';
-        frame.style.height = '100vh';
-        frame.style.position = 'fixed';
-        frame.style.zIndex = '1000';
-        frame.style.display = 'none';
-        frame.style.left = '0';
-        frame.style.top = '0';
-        const root = document.getElementsByTagName('body')[0];
-        if (root) {
-            root.appendChild(frame);
-        }
+        return true;
     }
     async submitTransaction(TransactionHex, options = { broadcast: this.host === 'browser' }, extraData) {
         // don't submit the transaction, instead just return the api response from the

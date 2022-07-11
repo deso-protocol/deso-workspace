@@ -7,7 +7,7 @@ import {
   GetReferralInfoForUserRequest,
   GetReferralInfoForUserResponse,
 } from 'deso-protocol-types';
-import { throwErrors } from '../../utils/utils';
+import { throwErrors } from '../../utils/Utils';
 export class Referral {
   private node: Node;
   private identity: Identity;

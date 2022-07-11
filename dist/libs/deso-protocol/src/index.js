@@ -17,7 +17,11 @@ const Social_1 = require("./lib/social/Social");
 const Transaction_1 = require("./lib/transaction/Transaction");
 const User_1 = require("./lib/user/User");
 const Wallet_1 = require("./lib/wallet/Wallet");
+<<<<<<< HEAD
 const Utils = require("./lib/utils/Utils");
+=======
+const Utils = require("./lib/utils/utils");
+>>>>>>> Guard browser storage access with tap to unlock wallet
 class Deso {
     constructor(config) {
         this.utils = Utils;
@@ -41,7 +45,10 @@ class Deso {
         this.referral = new Referral_1.Referral(this.node, this.identity);
         this.Metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
-            this.identity.initialize();
+            this.identity.initialize().then(() => {
+                var _a;
+                (_a = config === null || config === void 0 ? void 0 : config.onIdentityInitialized) === null || _a === void 0 ? void 0 : _a.call(config);
+            });
         }
     }
     reinitialize() {
@@ -65,5 +72,6 @@ class Deso {
     }
 }
 exports.Deso = Deso;
+Deso.utils = Utils;
 exports.default = Deso;
 //# sourceMappingURL=index.js.map

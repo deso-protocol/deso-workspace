@@ -3,6 +3,7 @@
   "version": "0.4.14",
   "type": "commonjs",
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^0.25.0",
     "deso-protocol-types": "0.3.2",
     "@types/bs58check": "^2.1.0",
@@ -20,6 +21,21 @@
     "assert": "^2.0.0",
     "ethers": "^5.6.6",
     "sha256": "^0.2.0"
+=======
+    "@types/bs58check": "^2.1.0",
+    "@types/elliptic": "^6.4.14",
+    "axios": "^0.25.0",
+    "bs58check": "^2.1.2",
+    "deso-protocol-types": "0.3.2",
+    "elliptic": "^6.5.4",
+    "ethers": "^5.6.6",
+    "sha256": "^0.2.0",
+    "tslib": "^2.4.0",
+    "tus-js-client": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/hdkey": "^2.0.1"
+>>>>>>> Guard browser storage access with tap to unlock wallet
   },
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"

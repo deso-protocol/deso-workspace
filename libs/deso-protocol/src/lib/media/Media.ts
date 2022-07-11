@@ -9,7 +9,7 @@ import {
 } from 'deso-protocol-types';
 import { Node } from '../Node/Node';
 import { Identity } from '../identity/Identity';
-import { throwErrors } from '../../utils/utils';
+import { throwErrors } from '../../utils/Utils';
 import {
   selectFile,
   uploadImageHelper,
