@@ -17,7 +17,6 @@ import * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
     nodeUri?: string;
     identityConfig?: Partial<IdentityConfig>;
-    onIdentityInitialized?: () => void;
 }
 export declare class Deso {
     constructor(config?: Partial<DesoConfig>);

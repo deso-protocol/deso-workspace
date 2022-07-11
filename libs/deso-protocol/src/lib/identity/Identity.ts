@@ -28,6 +28,12 @@ export interface IdentityConfig {
   uri?: string;
   network?: DeSoNetwork;
   host?: 'browser' | 'server';
+  // Provides a hook that can be used to notify the consuming application that
+  // deso identity is fully initialized and granted the required storage access.
+  // Useful for delaying work until after it's known that the users browser is
+  // supported. Note that storage access is only checked if their is a logged
+  // in user. Otherwise, we check it when the user attempts to log in.
+  onIdentityInitialized?: () => void;
 }
 
 export class Identity {

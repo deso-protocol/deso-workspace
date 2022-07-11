@@ -6,6 +6,7 @@ export interface IdentityConfig {
     uri?: string;
     network?: DeSoNetwork;
     host?: 'browser' | 'server';
+    onIdentityInitialized?: () => void;
 }
 export declare class Identity {
     private node;

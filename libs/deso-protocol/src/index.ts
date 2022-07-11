@@ -21,12 +21,6 @@ import * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
-  // Provides a hook that can be used to notify the consuming application that
-  // deso identity is fully initialized and granted the required storage access.
-  // Useful for delaying work until after it's known that the users browser is
-  // supported. Note that storage access is only checked if their is a logged
-  // in user. Otherwise, we check it when the user attempts to log in.
-  onIdentityInitialized?: () => void;
 }
 
 export class Deso {
@@ -63,7 +57,7 @@ export class Deso {
 
     if (this.identity.host === 'browser') {
       this.identity.initialize().then(() => {
-        config?.onIdentityInitialized?.();
+        config?.identityConfig?.onIdentityInitialized?.();
       })
     }
   }
