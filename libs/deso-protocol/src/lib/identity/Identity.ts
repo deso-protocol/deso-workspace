@@ -244,7 +244,7 @@ export class Identity {
       this.getUser(),
       this.transactions
     );
-    if (true /*!payload.hasStorageAccess || !payload.browserSupported*/) {
+    if (!payload.hasStorageAccess || !payload.browserSupported) {
       const iframe = getIframe();
       iframe.style.display = 'block';
       const storageGranted = await iFrameHandler(
