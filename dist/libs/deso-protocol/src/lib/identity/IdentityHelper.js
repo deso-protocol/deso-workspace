@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getIframe = exports.approveSignAndSubmit = exports.callIdentityMethodAndExecute = void 0;
-const utils_1 = require("../../utils/utils");
+const Utils_1 = require("../../utils/Utils");
 const WindowHandler_1 = require("./WindowHandler");
 const WindowPrompts_1 = require("./WindowPrompts");
 const callIdentityMethodAndExecute = async (attributeValue, method, user, transactions) => {
@@ -10,7 +10,7 @@ const callIdentityMethodAndExecute = async (attributeValue, method, user, transa
         return;
     const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
     const request = {
-        id: (0, utils_1.uuid)(),
+        id: (0, Utils_1.uuid)(),
         service: 'identity',
         method: method,
         payload: {

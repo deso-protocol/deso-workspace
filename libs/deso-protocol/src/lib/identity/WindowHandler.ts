@@ -97,9 +97,20 @@ export const handlers = async (
       window.removeEventListener('message', windowHandler);
     }
   }
+
   if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
     info.data.prompt?.close();
     info.data.resolve(event.data.payload as DerivedPrivateUserInfo);
     window.removeEventListener('derive', windowHandler);
+  }
+
+  if (info.iFrameMethod === 'info') {
+    info.data.resolve(event.data.payload);
+    window.removeEventListener('info', windowHandler);
+  }
+
+  if (info.iFrameMethod === 'storageGranted' && event.data.method === 'storageGranted') {
+    info.data.resolve(true);
+    window.removeEventListener('storageGranted', windowHandler);
   }
 };

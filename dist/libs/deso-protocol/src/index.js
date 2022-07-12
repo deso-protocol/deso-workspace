@@ -41,7 +41,10 @@ class Deso {
         this.referral = new Referral_1.Referral(this.node, this.identity);
         this.Metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
-            this.identity.initialize();
+            this.identity.initialize().then(() => {
+                var _a, _b;
+                (_b = (_a = config === null || config === void 0 ? void 0 : config.identityConfig) === null || _a === void 0 ? void 0 : _a.onIdentityInitialized) === null || _b === void 0 ? void 0 : _b.call(_a);
+            });
         }
     }
     reinitialize() {

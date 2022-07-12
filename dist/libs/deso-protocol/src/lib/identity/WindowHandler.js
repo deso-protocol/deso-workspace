@@ -75,6 +75,14 @@ const handlers = async (event, windowHandler, info, transactions) => {
         info.data.resolve(event.data.payload);
         window.removeEventListener('derive', windowHandler);
     }
+    if (info.iFrameMethod === 'info') {
+        info.data.resolve(event.data.payload);
+        window.removeEventListener('info', windowHandler);
+    }
+    if (info.iFrameMethod === 'storageGranted' && event.data.method === 'storageGranted') {
+        info.data.resolve(true);
+        window.removeEventListener('storageGranted', windowHandler);
+    }
 };
 exports.handlers = handlers;
 //# sourceMappingURL=WindowHandler.js.map

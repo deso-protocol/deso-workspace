@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Media = void 0;
 const axios_1 = require("axios");
-const utils_1 = require("../../utils/utils");
+const Utils_1 = require("../../utils/Utils");
 const Media_Helper_1 = require("./Media.Helper");
 class Media {
     constructor(node, identity) {
@@ -17,7 +17,7 @@ class Media {
                 request.file = file;
             }
         }
-        (0, utils_1.throwErrors)(['UserPublicKeyBase58Check', 'file'], request);
+        (0, Utils_1.throwErrors)(['UserPublicKeyBase58Check', 'file'], request);
         if (request.file && request.file.type.startsWith('image/')) {
             return (0, Media_Helper_1.uploadImageHelper)(request, this.node, JWT);
         }
@@ -31,7 +31,7 @@ class Media {
         return (0, Media_Helper_1.uploadVideoToCloudFlare)(`${this.node.getUri()}/${endpoint}`, request.file);
     }
     async getVideoStatus(request) {
-        (0, utils_1.throwErrors)(['videoId'], request);
+        (0, Utils_1.throwErrors)(['videoId'], request);
         const endpoint = 'get-video-status';
         return await axios_1.default.get(`${this.node.getUri()}/${endpoint}/${request.videoId}`);
     }

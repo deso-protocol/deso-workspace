@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Posts = void 0;
 const axios_1 = require("axios");
-const utils_1 = require("../../utils/utils");
+const Utils_1 = require("../../utils/Utils");
 class Posts {
     constructor(node, identity) {
         this.node = node;
@@ -39,7 +39,7 @@ class Posts {
         return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
     async getSinglePost(request) {
-        (0, utils_1.throwErrors)(['PostHashHex'], request);
+        (0, Utils_1.throwErrors)(['PostHashHex'], request);
         const endpoint = 'get-single-post';
         return await (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
     }
