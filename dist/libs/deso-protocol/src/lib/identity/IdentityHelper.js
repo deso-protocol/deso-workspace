@@ -6,17 +6,17 @@ const WindowHandler_1 = require("./WindowHandler");
 const WindowPrompts_1 = require("./WindowPrompts");
 const callIdentityMethodAndExecute = async (attributeValue, method, user, transactions) => {
     var _a;
-    if (!user)
-        return;
-    const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
+    const userParams = user ? {
+        accessLevelHmac: user.accessLevelHmac,
+        encryptedSeedHex: user.encryptedSeedHex,
+        accessLevel: user.accessLevel,
+    } : {};
     const request = {
         id: (0, Utils_1.uuid)(),
         service: 'identity',
         method: method,
         payload: {
-            accessLevelHmac,
-            encryptedSeedHex,
-            accessLevel,
+            ...userParams,
             ...getParams(method, attributeValue),
         },
     };

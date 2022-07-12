@@ -104,7 +104,7 @@ export const handlers = async (
     window.removeEventListener('derive', windowHandler);
   }
 
-  if (info.iFrameMethod === 'info') {
+  if (info.iFrameMethod === 'info' && event.data.payload) {
     info.data.resolve(event.data.payload);
     window.removeEventListener('info', windowHandler);
   }
