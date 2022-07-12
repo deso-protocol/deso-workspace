@@ -21,16 +21,17 @@ export const callIdentityMethodAndExecute = async (
   user: LoginUser | null,
   transactions: Transactions
 ): Promise<any> => {
-  if (!user) return;
-  const { accessLevelHmac, encryptedSeedHex, accessLevel } = user;
+  const userParams = user ? {
+    accessLevelHmac: user.accessLevelHmac,
+    encryptedSeedHex: user.encryptedSeedHex,
+    accessLevel: user.accessLevel,
+  }: {};
   const request = {
     id: uuid(),
     service: 'identity',
     method: method,
     payload: {
-      accessLevelHmac,
-      encryptedSeedHex,
-      accessLevel,
+      ...userParams,
       ...getParams(method, attributeValue),
     },
   };
