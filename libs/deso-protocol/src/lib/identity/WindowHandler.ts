@@ -84,7 +84,7 @@ export const handlers = async (
   }
 
   if (info.iFrameMethod === 'jwt') {
-    if (event.data.payload.jwt) {
+    if (event.data.payload?.jwt) {
       info.data.prompt?.close();
       info.data.resolve(event.data.payload.jwt);
       window.removeEventListener('message', windowHandler);
