@@ -1,6 +1,7 @@
 import { AppendExtraDataRequest, DerivedPrivateUserInfo, DeSoNetwork, GetDecryptMessagesRequest, GetDecryptMessagesResponse, IdentityDeriveParams, LoginUser, RequestOptions, SendMessageStatelessRequest } from 'deso-protocol-types';
 import { Node } from '../Node/Node';
 import { Transactions } from '../transaction/Transaction';
+import { WindowFeatures } from './WindowPrompts';
 export interface IdentityConfig {
     node: Node;
     uri?: string;
@@ -26,12 +27,12 @@ export declare class Identity {
     getUserKey(): string | null;
     private setLoggedInKey;
     initialize(): Promise<any>;
-    login(accessLevel?: string): Promise<{
+    login(accessLevel?: string, windowFeatures?: WindowFeatures): Promise<{
         user: LoginUser;
         key: string;
     }>;
-    logout(publicKey: string): Promise<boolean>;
-    derive(params: IdentityDeriveParams): Promise<DerivedPrivateUserInfo>;
+    logout(publicKey: string, windowFeatures?: WindowFeatures): Promise<boolean>;
+    derive(params: IdentityDeriveParams, windowFeatures?: WindowFeatures): Promise<DerivedPrivateUserInfo>;
     private setIdentityFrame;
     private guardFeatureSupport;
     submitTransaction(TransactionHex: string, options?: RequestOptions, extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>): Promise<any>;

@@ -14,7 +14,7 @@ const iFrameHandler = (info, transactions) => {
 };
 exports.iFrameHandler = iFrameHandler;
 const handlers = async (event, windowHandler, info, transactions) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
     if (info.iFrameMethod === 'sign') {
         if ((_b = (_a = event === null || event === void 0 ? void 0 : event.data) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.signedTransactionHex) {
             return transactions
@@ -58,8 +58,8 @@ const handlers = async (event, windowHandler, info, transactions) => {
         info.data.resolve(true);
     }
     if (info.iFrameMethod === 'jwt') {
-        if (event.data.payload.jwt) {
-            (_p = info.data.prompt) === null || _p === void 0 ? void 0 : _p.close();
+        if ((_p = event.data.payload) === null || _p === void 0 ? void 0 : _p.jwt) {
+            (_q = info.data.prompt) === null || _q === void 0 ? void 0 : _q.close();
             info.data.resolve(event.data.payload.jwt);
             window.removeEventListener('message', windowHandler);
         }
@@ -71,7 +71,7 @@ const handlers = async (event, windowHandler, info, transactions) => {
         }
     }
     if (info.iFrameMethod === 'derive' && event.data.method === 'derive') {
-        (_q = info.data.prompt) === null || _q === void 0 ? void 0 : _q.close();
+        (_r = info.data.prompt) === null || _r === void 0 ? void 0 : _r.close();
         info.data.resolve(event.data.payload);
         window.removeEventListener('derive', windowHandler);
     }

@@ -20,7 +20,12 @@ import {
   getIframe,
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
-import { requestDerive, requestLogin, requestLogout } from './WindowPrompts';
+import {
+  requestDerive,
+  requestLogin,
+  requestLogout,
+  WindowFeatures,
+} from './WindowPrompts';
 const SERVER_ERROR: Readonly<string> =
   'You cannot call identity Iframe in a sever application, in the options parameter set broadcast to false';
 export interface IdentityConfig {
@@ -135,7 +140,8 @@ export class Identity {
   }
 
   public async login(
-    accessLevel = '4'
+    accessLevel = '4',
+    windowFeatures?: WindowFeatures
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
@@ -143,7 +149,12 @@ export class Identity {
       await this.guardFeatureSupport();
     }
 
-    const prompt = requestLogin(accessLevel, this.getUri(), this.isTestnet());
+    const prompt = requestLogin(
+      accessLevel,
+      this.getUri(),
+      this.isTestnet(),
+      windowFeatures
+    );
     const { key, user } = await iFrameHandler(
       {
         iFrameMethod: 'login',
@@ -156,12 +167,20 @@ export class Identity {
     return { user, key };
   }
 
-  public async logout(publicKey: string): Promise<boolean> {
+  public async logout(
+    publicKey: string,
+    windowFeatures?: WindowFeatures
+  ): Promise<boolean> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(publicKey, this.getUri(), this.isTestnet());
+    const prompt = requestLogout(
+      publicKey,
+      this.getUri(),
+      this.isTestnet(),
+      windowFeatures
+    );
     const successful = await iFrameHandler(
       {
         iFrameMethod: 'logout',
@@ -175,7 +194,8 @@ export class Identity {
   }
 
   public async derive(
-    params: IdentityDeriveParams
+    params: IdentityDeriveParams,
+    windowFeatures?: WindowFeatures
   ): Promise<DerivedPrivateUserInfo> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
     const queryParams: IdentityDeriveQueryParams = {
@@ -191,7 +211,12 @@ export class Identity {
       deleteKey: params.deleteKey,
       expirationDays: params.expirationDays,
     };
-    const prompt = requestDerive(queryParams, this.getUri(), this.isTestnet());
+    const prompt = requestDerive(
+      queryParams,
+      this.getUri(),
+      this.isTestnet(),
+      windowFeatures
+    );
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler(
       {
         iFrameMethod: 'derive',

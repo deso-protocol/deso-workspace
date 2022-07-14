@@ -2,7 +2,7 @@ import { LoginUser } from 'deso-protocol-types';
 import { uuid } from '../../utils/Utils';
 import { Transactions } from '../transaction/Transaction';
 import { iFrameHandler } from './WindowHandler';
-import { requestApproval } from './WindowPrompts';
+import { requestApproval, WindowFeatures } from './WindowPrompts';
 
 export type IframeMethods =
   | 'decrypt'
@@ -21,11 +21,13 @@ export const callIdentityMethodAndExecute = async (
   user: LoginUser | null,
   transactions: Transactions
 ): Promise<any> => {
-  const userParams = user ? {
-    accessLevelHmac: user.accessLevelHmac,
-    encryptedSeedHex: user.encryptedSeedHex,
-    accessLevel: user.accessLevel,
-  }: {};
+  const userParams = user
+    ? {
+        accessLevelHmac: user.accessLevelHmac,
+        encryptedSeedHex: user.encryptedSeedHex,
+        accessLevel: user.accessLevel,
+      }
+    : {};
   const request = {
     id: uuid(),
     service: 'identity',
@@ -49,9 +51,10 @@ export const approveSignAndSubmit = (
   transactionHex: string,
   uri: string,
   transactions: Transactions,
-  testnet?: boolean
+  testnet?: boolean,
+  windowFeatures?: WindowFeatures
 ): Promise<any> => {
-  const prompt = requestApproval(transactionHex, uri, testnet);
+  const prompt = requestApproval(transactionHex, uri, testnet, windowFeatures);
   return iFrameHandler(
     { iFrameMethod: 'sign', data: { prompt } },
     transactions

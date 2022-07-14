@@ -85,13 +85,13 @@ class Identity {
             resolve(this.setIdentityFrame(true));
         });
     }
-    async login(accessLevel = '4') {
+    async login(accessLevel = '4', windowFeatures) {
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
         if (!this.storageGranted) {
             await this.guardFeatureSupport();
         }
-        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.isTestnet());
+        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.isTestnet(), windowFeatures);
         const { key, user } = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'login',
             data: { prompt },
@@ -100,13 +100,13 @@ class Identity {
         this.setLoggedInKey(key);
         return { user, key };
     }
-    async logout(publicKey) {
+    async logout(publicKey, windowFeatures) {
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
         if (typeof publicKey !== 'string') {
             throw Error('publicKey needs to be type of string');
         }
-        const prompt = (0, WindowPrompts_1.requestLogout)(publicKey, this.getUri(), this.isTestnet());
+        const prompt = (0, WindowPrompts_1.requestLogout)(publicKey, this.getUri(), this.isTestnet(), windowFeatures);
         const successful = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'logout',
             data: { prompt },
@@ -115,7 +115,7 @@ class Identity {
         this.setLoggedInKey('');
         return successful;
     }
-    async derive(params) {
+    async derive(params, windowFeatures) {
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
         const queryParams = {
@@ -129,7 +129,7 @@ class Identity {
             deleteKey: params.deleteKey,
             expirationDays: params.expirationDays,
         };
-        const prompt = (0, WindowPrompts_1.requestDerive)(queryParams, this.getUri(), this.isTestnet());
+        const prompt = (0, WindowPrompts_1.requestDerive)(queryParams, this.getUri(), this.isTestnet(), windowFeatures);
         const derivedPrivateUser = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'derive',
             data: { prompt },

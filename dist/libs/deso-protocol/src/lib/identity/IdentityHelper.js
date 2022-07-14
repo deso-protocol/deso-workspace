@@ -6,11 +6,13 @@ const WindowHandler_1 = require("./WindowHandler");
 const WindowPrompts_1 = require("./WindowPrompts");
 const callIdentityMethodAndExecute = async (attributeValue, method, user, transactions) => {
     var _a;
-    const userParams = user ? {
-        accessLevelHmac: user.accessLevelHmac,
-        encryptedSeedHex: user.encryptedSeedHex,
-        accessLevel: user.accessLevel,
-    } : {};
+    const userParams = user
+        ? {
+            accessLevelHmac: user.accessLevelHmac,
+            encryptedSeedHex: user.encryptedSeedHex,
+            accessLevel: user.accessLevel,
+        }
+        : {};
     const request = {
         id: (0, Utils_1.uuid)(),
         service: 'identity',
@@ -27,8 +29,8 @@ const callIdentityMethodAndExecute = async (attributeValue, method, user, transa
     }, transactions);
 };
 exports.callIdentityMethodAndExecute = callIdentityMethodAndExecute;
-const approveSignAndSubmit = (transactionHex, uri, transactions, testnet) => {
-    const prompt = (0, WindowPrompts_1.requestApproval)(transactionHex, uri, testnet);
+const approveSignAndSubmit = (transactionHex, uri, transactions, testnet, windowFeatures) => {
+    const prompt = (0, WindowPrompts_1.requestApproval)(transactionHex, uri, testnet, windowFeatures);
     return (0, WindowHandler_1.iFrameHandler)({ iFrameMethod: 'sign', data: { prompt } }, transactions);
 };
 exports.approveSignAndSubmit = approveSignAndSubmit;

@@ -31,7 +31,6 @@ export const requestApproval = (
 export const requestLogin = (
   accessLevel = '4',
   uri: string,
-
   testnet: boolean = false,
   { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
     top: 0,
