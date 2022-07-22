@@ -6,7 +6,7 @@ export declare class User {
     private identity;
     constructor(node: Node, identity: Identity);
     getUserStateless(request: Partial<GetUsersStatelessRequest>): Promise<GetUsersResponse>;
-    getSingleProfilePicture(PublicKeyBase58Check: string): string;
+    getSingleProfilePicture(PublicKeyBase58Check: string, fallbackImageUrl?: string): string;
     getSingleProfile(request: Partial<GetSingleProfileRequest>): Promise<GetSingleProfileResponse>;
     getProfiles(request: Partial<GetProfilesRequest>): Promise<GetProfilesResponse>;
     getUserMetadata(request: Partial<GetUserMetadataRequest>): Promise<GetUserMetadataResponse>;
