@@ -11,8 +11,8 @@ class User {
     async getUserStateless(request) {
         return (await axios_1.default.post(`${this.node.getUri()}/get-users-stateless`, request)).data;
     }
-    getSingleProfilePicture(PublicKeyBase58Check) {
-        return `${this.node.getUri()}/get-single-profile-picture/${PublicKeyBase58Check}`;
+    getSingleProfilePicture(PublicKeyBase58Check, fallbackImageUrl) {
+        return `${this.node.getUri()}/get-single-profile-picture/${PublicKeyBase58Check}${fallbackImageUrl ? `?fallback=${fallbackImageUrl}` : ''}`;
     }
     async getSingleProfile(request) {
         const endpoint = 'get-single-profile';
