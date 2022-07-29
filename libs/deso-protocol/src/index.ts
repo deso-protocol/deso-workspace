@@ -16,7 +16,7 @@ import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
 import * as Utils from './lib/utils/Utils';
 
-// export { Metamask } from './lib/metamask/Metamask';
+export { Metamask } from './lib/metamask/Metamask';
 // export * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
@@ -58,7 +58,7 @@ export class Deso {
     if (this.identity.host === 'browser') {
       this.identity.initialize().then(() => {
         config?.identityConfig?.onIdentityInitialized?.();
-      })
+      });
     }
   }
   public node: Node;

@@ -22,20 +22,15 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
   const [metamaskResponseObject, setMetaMaskResponse] =
     useState<MetaMaskInitResponse | null>(null);
   const signInWithMetamask = async () => {
+    console.log('oy?');
+    const key = deso.identity.getUserKey();
+    if (!key) return;
+    deso.Metamask.desoKeyToEthereumKey(key);
     // const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
     // metamaskResponse.derivedKeyPair = {
     //   hidden: 'note this object was truncated since its too long to print ',
     // } as unknown as ec.KeyPair;
     // setMetaMaskResponse(metamaskResponse);
-  };
-
-  const populateProfile = async () => {
-    // if (metamaskResponse) {
-    //   metamaskResponse
-    //   const metamaskResponse = await deso.metamask.populateProfile(
-    //     '0x8b9C35C79AF5319C70dd9A3E3850F368822ED64E'
-    //   );
-    // }
   };
 
   return (
@@ -61,26 +56,6 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                   </div>
                   <CopyBlock
                     codeBlock
-                    text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();`}
-                    language={'tsx'}
-                    wrapLines={true}
-                    theme={nord}
-                  />
-                  <ClickHereSnippet
-                    toCallText="click here to generate an account from metamask"
-                    onclick={signInWithMetamask}
-                  />
-                  <div className="max-h-[450px]  overflow-auto">
-                    {/* <CopyBlock
-                      codeBlock
-                      text={JSON.stringify(metamaskResponse, null, 2)}
-                      language={'tsx'}
-                      wrapLines={true}
-                      theme={nord}
-                    /> */}
-                  </div>
-                  <CopyBlock
-                    codeBlock
                     text={`const deso = new Deso()\nconst metamaskResponse = await deso.metamask.populateProfile();`}
                     language={'tsx'}
                     wrapLines={true}
@@ -92,25 +67,6 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                   />
                 </>
               )}
-              {/* {(demo &&
-                PageSection(
-                  CommonPageSectionTitles.TRY_IT_OUT,
-                  <div>
-                    Click{' '}
-                    <span
-                      className="cursor-pointer text-[#1776cf] hover:text-[#fff]"
-                      onClick={executeApiCall}
-                    >
-                      here
-                    </span>{' '}
-                    to call {selectedChapter.title}.{' '}
-                    {(response &&
-                      typeof method?.customResponse === 'function' &&
-                      method?.customResponse()) ||
-                      jsonBlock(response || '')}
-                  </div>
-                )) ||
-                'Demo coming soon'} */}
             </>
           ),
         },
