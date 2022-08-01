@@ -1,11 +1,9 @@
 import { Route } from 'react-router-dom';
 import { PageSection } from './PageSections';
 import { DEZO_DOG, ParentRoutes } from '../../services/utils';
-import { Ethereum } from '../CustomChapters/Ethereum';
 import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import Deso from 'deso-protocol';
-import { ethers } from 'ethers';
 const deso = new Deso();
 const getKeyPair = async () => {
   return await deso.utils.generateKey();
@@ -37,7 +35,7 @@ export const ethereumChapter = {
 
   GET_DESO_ADDRESS_FROM_ETH_SIGNATURE: {
     parentRoute: ParentRoutes.ethereum,
-    title: 'Get Deso Address From eth Signature',
+    title: 'Get Deso Address From Eth Signature',
     route: '/ethereum/get-deso-address-from-signature',
     githubSource: [],
     documentation: [],

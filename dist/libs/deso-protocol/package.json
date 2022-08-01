@@ -1,6 +1,6 @@
 {
   "name": "deso-protocol",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "type": "commonjs",
   "dependencies": {
     "axios": "^0.25.0",
@@ -19,7 +19,8 @@
     "buffer": "^6.0.3",
     "assert": "^2.0.0",
     "ethers": "^5.6.6",
-    "sha256": "^0.2.0"
+    "sha256": "^0.2.0",
+    "sha3": "^2.1.4"
   },
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"
