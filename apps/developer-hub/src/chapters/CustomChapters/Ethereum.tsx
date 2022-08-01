@@ -17,20 +17,15 @@ export interface MetamaskProps {
   selectedChapter: Chapter;
   chapters: ChapterNavigation;
 }
-export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
+export const Ethereum = ({ selectedChapter, chapters }: MetamaskProps) => {
   const deso = useContext(DesoContext);
   const [metamaskResponseObject, setMetaMaskResponse] =
     useState<MetaMaskInitResponse | null>(null);
-  const signInWithMetamask = async () => {
-    console.log('oy?');
+
+  const updateUsernameToENS = async () => {
     const key = deso.identity.getUserKey();
     if (!key) return;
-    deso.Metamask.desoKeyToEthereumKey(key);
-    // const metamaskResponse = await deso.metamask.signInWithMetamaskNewUser();
-    // metamaskResponse.derivedKeyPair = {
-    //   hidden: 'note this object was truncated since its too long to print ',
-    // } as unknown as ec.KeyPair;
-    // setMetaMaskResponse(metamaskResponse);
+    deso.ethereum.updateProfileUserNameToEns();
   };
 
   return (
@@ -42,9 +37,7 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
             <>
               {PageSection(
                 `${selectedChapter.title}`,
-                <div>
-                  Allows a user with an ethereum account to sign into DeSo.{' '}
-                </div>
+                <div>Update a user's username to their ENS if it exists</div>
               )}
 
               {PageSection(
@@ -63,7 +56,7 @@ export const Metamask = ({ selectedChapter, chapters }: MetamaskProps) => {
                   />
                   <ClickHereSnippet
                     toCallText="populate Profile with ENS"
-                    onclick={signInWithMetamask}
+                    onclick={updateUsernameToENS}
                   />
                 </>
               )}

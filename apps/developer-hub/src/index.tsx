@@ -9,9 +9,7 @@ import { DesoContext } from './services/DesoContext';
 
 ReactDOM.render(
   <React.StrictMode>
-    <DesoContext.Provider
-      value={new Deso({ nodeUri: 'http://deso-seed-3.io:18501 a' })}
-    >
+    <DesoContext.Provider value={new Deso()}>
       <RecoilRoot>
         <App />
       </RecoilRoot>

@@ -3,6 +3,7 @@ export const getEnabledRoutes = (): string[] => {
   return Object.keys(ParentRoutes).filter((p) =>
     [
       'dao',
+      'ethereum',
       'identity',
       'metaData',
       'media',
@@ -14,8 +15,8 @@ export const getEnabledRoutes = (): string[] => {
       'social',
       'transactions',
       'user',
+      'utilities',
       'wallet',
-      'metamask',
     ].includes(p)
   );
 };
