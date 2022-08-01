@@ -54,6 +54,7 @@
     "recoil-persist": "^4.0.0",
     "regenerator-runtime": "0.13.7",
     "sha256": "^0.2.0",
+    "sha3": "^2.1.4",
     "slate": "^0.77.2",
     "slate-history": "^0.66.0",
     "slate-react": "^0.77.3",

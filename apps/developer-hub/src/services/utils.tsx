@@ -6,7 +6,6 @@ import {
 } from 'deso-protocol-types';
 import { ReactElement } from 'react';
 import { CopyBlock, nord } from 'react-code-blocks';
-
 import Deso from 'deso-protocol';
 const deso = new Deso();
 
@@ -18,6 +17,7 @@ export enum ThreadCategory {
   CLIENT = 'CLIENT',
   HUB = 'HUB',
 }
+
 export enum ThreadState {
   PENDING = 'PENDING',
   RESOLVED = 'RESOLVED',
@@ -25,11 +25,13 @@ export enum ThreadState {
   REMOVED = 'REMOVED',
   OPEN = 'OPEN',
 }
+
 export enum ParentRoutes {
   identity = 'identity',
   admin = 'admin',
   buyDeso = 'buy deso',
   dao = 'dao',
+  ethereum = 'ethereum',
   landing = 'landing',
   media = 'media',
   metaData = 'metaData',
@@ -43,9 +45,10 @@ export enum ParentRoutes {
   social = 'social',
   transactions = 'transactions',
   user = 'user',
+  utilities = 'utilities',
   wallet = 'wallet',
-  metamask = 'metamask',
 }
+
 export const TYLER: Readonly<string> =
   'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog';
 export const RUSSIA: Readonly<string> =
@@ -95,6 +98,7 @@ export const getSourceFromGithub = async (
   );
   return blocks;
 };
+
 export const jsonBlock = (
   json: string | any | HTMLElement | undefined,
   lang = 'json'
@@ -104,26 +108,31 @@ export const jsonBlock = (
   }
   if (json instanceof String || lang === 'html') {
     return (
-      <CopyBlock
-        codeBlock
-        text={json}
-        language={lang}
-        wrapLines={true}
-        theme={nord}
-      />
+      <div className="max-h-[600px] overflow-auto">
+        <CopyBlock
+          codeBlock
+          text={json}
+          language={lang}
+          wrapLines={true}
+          theme={nord}
+        />
+      </div>
     );
   } else {
     return (
-      <CopyBlock
-        codeBlock
-        text={JSON.stringify(json, null, 2)}
-        language={lang}
-        wrapLines={true}
-        theme={nord}
-      />
+      <div className="max-h-[600px] overflow-auto">
+        <CopyBlock
+          codeBlock
+          text={JSON.stringify(json, null, 2)}
+          language={lang}
+          wrapLines={true}
+          theme={nord}
+        />
+      </div>
     );
   }
 };
+
 export interface ClickHereSnippetProps {
   onclick: (...params: any) => any;
   toCallText: string;
@@ -165,11 +174,13 @@ const deso = new Deso();
 export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
 export interface CreateNewThreadOnHub {
   Body: string;
   Title: string;
   Category: ThreadCategory;
 }
+
 export const createNewThread = ({
   Body,
   Category,
@@ -191,12 +202,12 @@ export const createNewThread = ({
   };
   deso.posts.submitPost(request);
 };
+
 export const getForumPosts = async () => {
   const response = await deso.posts.getPostsForPublicKey({
     PublicKeyBase58Check: HUB,
     NumToFetch: 1000,
   });
-
   return response.Posts?.filter(isForumThread) ?? [];
 };
 
@@ -210,6 +221,7 @@ const isForumThread = (p: PostEntryResponse) => {
     ThreadCategory.HUB,
   ].includes(category as ThreadCategory);
 };
+
 export const forumRoute = (p: PostEntryResponse) => {
   return `/forum/${p.PostExtraData['Category']}/${p.Body}`
     .replace(' ', '')

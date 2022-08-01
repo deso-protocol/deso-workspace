@@ -52,8 +52,7 @@ export const Page = ({
     }
     const methodToCall = method.method.bind(bind ? (deso as any)[bind] : deso);
 
-    const response = await methodToCall(method.params());
-    console.log(response);
+    const response = await methodToCall(await method.params());
     setResponse(response);
   };
 
@@ -72,19 +71,21 @@ export const Page = ({
                     See additional parameters{' '}
                     {chapters.documentationToLink(selectedChapter)}{' '}
                   </div>
-                  <CopyBlock
-                    codeBlock
-                    text={`${IMPORT_CODE}const request = ${
-                      typeof method?.params() === 'string'
-                        ? method.params()
-                        : JSON.stringify(method?.params(), null, 2)
-                    };\n const response = await ${
-                      method?.methodName as string
-                    };`}
-                    language={'tsx'}
-                    wrapLines={true}
-                    theme={nord}
-                  />
+                  <div className="max-h-[400px] overflow-auto">
+                    <CopyBlock
+                      codeBlock
+                      text={`${IMPORT_CODE}const request = ${
+                        typeof method?.params() === 'string'
+                          ? method.params()
+                          : JSON.stringify(method?.params(), null, 2)
+                      };\n const response = await ${
+                        method?.methodName as string
+                      };`}
+                      language={'tsx'}
+                      wrapLines={true}
+                      theme={nord}
+                    />
+                  </div>
                 </>
               )}
               {(demo &&

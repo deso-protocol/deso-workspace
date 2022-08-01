@@ -24,18 +24,16 @@ export const ThreadLinks = ({
   const getThreads = async () => {
     const forumPosts = await await getForumPosts();
     const threads =
-      forumPosts
-        // .filter((p) => p.Body === 'General')
-        .map((p, index) => {
-          return (
-            <DrawerLink
-              category={p.PostExtraData['Category'] as ThreadCategory}
-              index={`${index}`}
-              to={forumRoute(p)}
-              title={p.Body}
-            />
-          );
-        }) ?? [];
+      forumPosts.map((p, index) => {
+        return (
+          <DrawerLink
+            category={p.PostExtraData['Category'] as ThreadCategory}
+            index={`${index}`}
+            to={forumRoute(p)}
+            title={p.Body}
+          />
+        );
+      }) ?? [];
     const groupedThreads = groupBy(threads, 'category');
     const threadsToDisplay = Object.entries(groupedThreads)
       .sort()

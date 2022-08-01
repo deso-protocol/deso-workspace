@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Deso = void 0;
+exports.Deso = exports.Metamask = void 0;
 const Admin_1 = require("./lib/admin/Admin");
 const dao_1 = require("./lib/dao/dao");
 const Identity_1 = require("./lib/identity/Identity");
 const Media_1 = require("./lib/media/Media");
 const MetaData_1 = require("./lib/meta-data/MetaData");
-const Metamask_1 = require("./lib/metamask/Metamask");
+const Ethereum_1 = require("./lib/metamask/Ethereum");
 const Miner_1 = require("./lib/miner/Miner");
 const Nft_1 = require("./lib/nft/Nft");
 const Node_1 = require("./lib/Node/Node");
@@ -18,6 +18,8 @@ const Transaction_1 = require("./lib/transaction/Transaction");
 const User_1 = require("./lib/user/User");
 const Wallet_1 = require("./lib/wallet/Wallet");
 const Utils = require("./lib/utils/Utils");
+var Ethereum_2 = require("./lib/metamask/Ethereum");
+Object.defineProperty(exports, "Metamask", { enumerable: true, get: function () { return Ethereum_2.Ethereum; } });
 class Deso {
     constructor(config) {
         this.utils = Utils;
@@ -39,7 +41,7 @@ class Deso {
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.Metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
+        this.ethereum = new Ethereum_1.Ethereum(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
             this.identity.initialize().then(() => {
                 var _a, _b;
@@ -61,7 +63,7 @@ class Deso {
         this.posts = new Posts_1.Posts(this.node, this.identity);
         this.wallet = new Wallet_1.Wallet(this.node, this.identity);
         this.referral = new Referral_1.Referral(this.node, this.identity);
-        this.Metamask = new Metamask_1.Metamask(this.node, this.identity, this.social, this.user, this.transaction);
+        this.ethereum = new Ethereum_1.Ethereum(this.node, this.identity, this.social, this.user, this.transaction);
         if (this.identity.host === 'browser') {
             this.identity.initialize();
         }

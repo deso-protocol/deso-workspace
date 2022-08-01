@@ -3,7 +3,7 @@ import { DAO } from './lib/dao/dao';
 import { Identity, IdentityConfig } from './lib/identity/Identity';
 import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
-import { Metamask } from './lib/metamask/Metamask';
+import { Ethereum } from './lib/metamask/Ethereum';
 import { Miner } from './lib/miner/Miner';
 import { Nft } from './lib/nft/Nft';
 import { Node } from './lib/Node/Node';
@@ -16,7 +16,7 @@ import { User } from './lib/user/User';
 import { Wallet } from './lib/wallet/Wallet';
 import * as Utils from './lib/utils/Utils';
 
-// export { Metamask } from './lib/metamask/Metamask';
+export { Ethereum as Metamask } from './lib/metamask/Ethereum';
 // export * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
@@ -47,7 +47,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
-    this.Metamask = new Metamask(
+    this.ethereum = new Ethereum(
       this.node,
       this.identity,
       this.social,
@@ -58,7 +58,7 @@ export class Deso {
     if (this.identity.host === 'browser') {
       this.identity.initialize().then(() => {
         config?.identityConfig?.onIdentityInitialized?.();
-      })
+      });
     }
   }
   public node: Node;
@@ -76,7 +76,7 @@ export class Deso {
   public posts: Posts;
   public wallet: Wallet;
   public referral: Referral;
-  public Metamask: Metamask;
+  public ethereum: Ethereum;
   public utils = Utils;
 
   reinitialize(): void {
@@ -93,7 +93,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
-    this.Metamask = new Metamask(
+    this.ethereum = new Ethereum(
       this.node,
       this.identity,
       this.social,
