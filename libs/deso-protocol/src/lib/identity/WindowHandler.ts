@@ -109,7 +109,10 @@ export const handlers = async (
     window.removeEventListener('info', windowHandler);
   }
 
-  if (info.iFrameMethod === 'storageGranted' && event.data.method === 'storageGranted') {
+  if (
+    info.iFrameMethod === 'storageGranted' &&
+    event.data.method === 'storageGranted'
+  ) {
     info.data.resolve(true);
     window.removeEventListener('storageGranted', windowHandler);
   }
