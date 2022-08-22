@@ -7,7 +7,7 @@ const iFrameHandler = (info, transactions) => {
             (0, exports.handlers)(event, windowHandler, {
                 ...info,
                 data: { ...info.data, resolve, reject },
-            }, transactions);
+            }, transactions).catch((e) => reject(e));
         };
         window.addEventListener('message', windowHandler);
     });
@@ -28,8 +28,9 @@ const handlers = async (event, windowHandler, info, transactions) => {
                 info.data.resolve(res);
                 return res;
             })
-                .catch(() => {
+                .catch((e) => {
                 window.removeEventListener('message', windowHandler);
+                throw Error('something went wrong with submitting the transaction');
             });
         }
     }
@@ -79,7 +80,8 @@ const handlers = async (event, windowHandler, info, transactions) => {
         info.data.resolve(event.data.payload);
         window.removeEventListener('info', windowHandler);
     }
-    if (info.iFrameMethod === 'storageGranted' && event.data.method === 'storageGranted') {
+    if (info.iFrameMethod === 'storageGranted' &&
+        event.data.method === 'storageGranted') {
         info.data.resolve(true);
         window.removeEventListener('storageGranted', windowHandler);
     }
