@@ -1,5 +1,3 @@
-
-
 # Deso Workspace
 
 ![Deso](./deso.jpg)
@@ -7,26 +5,35 @@
 `deso-workspace` is a monorepo containing convenience libraries for working with the [deso blockchain](https://deso.org)
 
 NOTE: The library is in beta and under development so not all functionality is available yet. Future updates may also have breaking changes.
+
 ## Installation
+
 Install using your preferred package manager:
+
 ```sh
 npm i deso-protocol
 ```
+
 or
+
 ```sh
 yarn add deso-protocol
 ```
 
 If you are using typescript, you may optionally add types for backend schemas
+
 ```sh
 npm i deso-protocol-types
 ```
+
 or
+
 ```sh
 yarn add deso-protocol-types
 ```
 
 ## Usage
+
 Check out the [deso developer hub](https://hub.deso.org) for demos and examples.
 
 ## Contributing
@@ -107,8 +114,6 @@ Run `nx graph` to see a diagram of the dependencies of your projects.
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-
 
 ## ☁ Nx Cloud
 
