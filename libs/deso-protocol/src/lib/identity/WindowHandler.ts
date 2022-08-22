@@ -20,7 +20,7 @@ export const iFrameHandler = (
           data: { ...info.data, resolve, reject },
         },
         transactions
-      );
+      ).catch((e) => reject(e));
     };
     window.addEventListener('message', windowHandler);
   });
@@ -49,8 +49,9 @@ export const handlers = async (
           info.data.resolve(res);
           return res;
         })
-        .catch(() => {
+        .catch((e) => {
           window.removeEventListener('message', windowHandler);
+          throw Error('something went wrong with submitting the transaction');
         });
     }
   }

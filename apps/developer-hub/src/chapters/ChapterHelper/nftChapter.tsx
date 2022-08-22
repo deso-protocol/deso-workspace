@@ -399,7 +399,8 @@ export const nftChapter = {
         UpdaterPublicKeyBase58Check: localStorage.getItem(
           'deso_user_key'
         ) as string,
-        NFTPostHashHex: SAMPLE_NFT_POST,
+        NFTPostHashHex:
+          '0d810c8f27387bceca8e896f394d0fcb6f91279c0d9a3b8ce108dfe43b1f7aa0',
         SerialNumber: 1,
         BidAmountNanos: 100,
         MinFeeRateNanosPerKB: 1000,
@@ -412,7 +413,7 @@ export const nftChapter = {
           path={this.route}
           element={
             <Page
-              demo={false}
+              demo={true}
               method={{
                 methodName: 'deso.nft.createNftBid(request)',
                 params: this.params,

@@ -37,7 +37,6 @@ export const Page = ({
 }: PageProps) => {
   const filePicker = useRef(null);
   const deso = useContext(DesoContext);
-  console.log('deso => ', deso);
   const [response, setResponse] = useState<any | null>(null);
   const [chapterTitle, setChapterTitle] = useState<string>('');
   useEffect(() => {
@@ -51,7 +50,6 @@ export const Page = ({
       return;
     }
     const methodToCall = method.method.bind(bind ? (deso as any)[bind] : deso);
-
     const response = await methodToCall(await method.params());
     setResponse(response);
   };
