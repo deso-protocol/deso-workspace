@@ -16,8 +16,16 @@ const requestLogin = (accessLevel = '4', uri, testnet = false, { top = 0, left =
     left: 0,
     width: 800,
     height: 1000,
-}) => {
-    const prompt = window.open(`${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${getTestnetQueryParam(testnet)}`, null, `toolbar=no, width=${width}, height=${height}, top=${top}, left=${left}, popup=1`);
+}, queryParams) => {
+    let queryString = '';
+    if (queryParams) {
+        queryString = Object.keys(queryParams)
+            .map((param, i) => {
+            return `&${param}=${queryParams[param]}`;
+        })
+            .join('');
+    }
+    const prompt = window.open(`${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${queryString}${getTestnetQueryParam(testnet)}`, null, `toolbar=no, width=${width}, height=${height}, top=${top}, left=${left}, popup=1`);
     return prompt;
 };
 exports.requestLogin = requestLogin;
