@@ -37,10 +37,11 @@ export const requestLogin = (
     left: 0,
     width: 800,
     height: 1000,
-  }
+  },
+  queryParams?: `&${string}`
 ): Window => {
   const prompt = window.open(
-    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${getTestnetQueryParam(
+    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${queryParams}${getTestnetQueryParam(
       testnet
     )}`,
     null as unknown as any,
