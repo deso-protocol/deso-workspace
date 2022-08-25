@@ -38,10 +38,18 @@ export const requestLogin = (
     width: 800,
     height: 1000,
   },
-  queryParams?: `&${string}`
+  queryParams?: { [key: string]: string }
 ): Window => {
+  let queryString = '';
+  if (queryParams) {
+    queryString = Object.keys(queryParams)
+      .map((param, i) => {
+        return `&${param}=${queryParams[param]}`;
+      })
+      .join('');
+  }
   const prompt = window.open(
-    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${queryParams}${getTestnetQueryParam(
+    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${queryString}${getTestnetQueryParam(
       testnet
     )}`,
     null as unknown as any,

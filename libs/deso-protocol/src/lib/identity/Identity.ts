@@ -142,7 +142,7 @@ export class Identity {
   public async login(
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
-    queryParams?: `&${string}`
+    queryParams?: { [key: string]: string }
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
