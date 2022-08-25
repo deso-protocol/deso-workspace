@@ -141,7 +141,8 @@ export class Identity {
 
   public async login(
     accessLevel = '4',
-    windowFeatures?: WindowFeatures
+    windowFeatures?: WindowFeatures,
+    queryParams?: { [key: string]: string }
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
@@ -153,7 +154,8 @@ export class Identity {
       accessLevel,
       this.getUri(),
       this.isTestnet(),
-      windowFeatures
+      windowFeatures,
+      queryParams
     );
     const { key, user } = await iFrameHandler(
       {
