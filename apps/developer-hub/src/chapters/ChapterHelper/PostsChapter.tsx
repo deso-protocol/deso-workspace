@@ -3,6 +3,7 @@ import {
   GetDiamondsForPostRequest,
   GetLikesForPostRequest,
   GetPostsDiamondedBySenderForReceiverRequest,
+  GetPostsForPublicKeyRequest,
   GetPostsStatelessRequest,
   GetQuoteRepostsForPostRequest,
   GetRepostsForPostRequest,
@@ -64,6 +65,46 @@ export const postChapter = {
     },
   },
 
+  GET_POSTS_FOR_PUBLIC_KEY: {
+    parentRoute: ParentRoutes.posts,
+    title: 'Get posts for Public Key',
+    route: '/post/get-posts-stateless',
+    method: deso.posts.getPostsForPublicKey,
+    params: () => {
+      return {
+        PublicKeyBase58Check: DEZO_DOG,
+        ReaderPublicKeyBase58Check: DEZO_DOG,
+        NumToFetch: 20,
+      } as Partial<GetPostsForPublicKeyRequest>;
+    },
+    documentation: [],
+    githubSource: [],
+    component: function () {
+      return (
+        <Route
+          key={this.title}
+          path={this.route}
+          element={
+            <Page
+              demo={true}
+              method={{
+                methodName: `deso.posts.getPostsForPublicKey(request)`,
+                params: this.params,
+                method: this.method,
+              }}
+              pretext={PageSection(
+                this.title,
+                <div>Get Posts for public Key.</div>
+              )}
+              chapters={CHAPTERS}
+              selectedChapter={this}
+            />
+          }
+        ></Route>
+      );
+    },
+  },
+
   GET_POSTS_STATELESS: {
     parentRoute: ParentRoutes.posts,
     title: 'Get posts Stateless',
@@ -87,10 +128,7 @@ export const postChapter = {
                 params: this.params,
                 method: this.method,
               }}
-              pretext={PageSection(
-                this.title,
-                <div>Create a submit post transaction and submit it.</div>
-              )}
+              pretext={PageSection(this.title, <div>Get Posts.</div>)}
               chapters={CHAPTERS}
               selectedChapter={this}
             />
@@ -141,7 +179,7 @@ export const postChapter = {
     documentation: [],
     method: deso.posts.getHotFeed,
     params: () => {
-      return { ResponseLimit: 20 } as HotFeedPageRequest;
+      return { ResponseLimit: -400 } as HotFeedPageRequest;
     },
     githubSource: [],
     component: function () {
