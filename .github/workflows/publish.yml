@@ -2,8 +2,9 @@ name: 'publish'
 description: 'Deploys a patch anytime the library is updated'
 author: 'Tyler Fischer'
 
-runs: using: 'node12'
-main: '.github/scripts/publish.js'
+runs:
+  using: 'node12'
+  main: '.github/scripts/publish.js'
 
 env:
   NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
