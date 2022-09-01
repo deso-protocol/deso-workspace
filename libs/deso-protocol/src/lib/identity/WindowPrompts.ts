@@ -43,9 +43,8 @@ export const requestLogin = (
   let queryString = '';
   if (queryParams) {
     queryString = Object.keys(queryParams)
-      .map((param, i) => {
-        return `&${param}=${queryParams[param]}`;
-      })
+      .filter((param) => !!queryParams[param])
+      .map((param, i) => `&${param}=${queryParams[param]}`)
       .join('');
   }
   const prompt = window.open(
@@ -108,4 +107,26 @@ export const requestDerive = (
 
 const getTestnetQueryParam = (testnet?: boolean, excludeAmp?: boolean) => {
   return `${testnet ? `${excludeAmp ? '' : '&'}testnet=true` : ''}`;
+};
+
+export interface IdentityPromptConfig {
+  path: string;
+  windowFeatures: WindowFeatures;
+  queryParams: {
+    [key: string]: string;
+  };
+}
+export const openIdentityTo = (config: IdentityPromptConfig) => {
+  // assume some defaults so users don't need to constantly set this
+  const DefaultQueryParams = {
+    accessLevel: '4',
+    testnet: false,
+  };
+  // if they provide params combine the 2 or override
+  const queryParams = { ...DefaultQueryParams, ...config.queryParams };
+
+  const queryString = Object.keys(queryParams)
+    .filter((param) => !!queryParams[param])
+    .map((param, i) => `&${param}=${queryParams[param]}`)
+    .join('');
 };

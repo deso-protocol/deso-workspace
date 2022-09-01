@@ -142,7 +142,9 @@ export class Identity {
   public async login(
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
-    queryParams?: { [key: string]: string }
+    queryParams?: { [key: string]: string },
+
+    path: '/log-in' | '/get-free-deso' | '/verify-phone-number' = '/log-in'
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
