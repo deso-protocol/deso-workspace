@@ -1,0 +1,23 @@
+name: 'publish'
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release:
+    name: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: node
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org
+      - name: publish
+        run: npm version patch -m "Patch in process"
+        working-directory: my-package
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
