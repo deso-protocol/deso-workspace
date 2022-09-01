@@ -6,7 +6,8 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "publish": "npm run .github/scripts/publish.js"
   },
   "husky": {
     "hooks": {
