@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  publish_job:
+    runs-on: ubuntu-latest
+    name: publishing
+    steps:
+      - name: publish
+      - uses: ./
+        # id:
+        # uses: octocat/hello-world-javascript-action@v1.1
+        # with:
+        #   who-to-greet: 'Mona the Octocat'
+      # Use the output from the `hello` step
