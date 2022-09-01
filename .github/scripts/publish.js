@@ -1,4 +1,1 @@
-const main = async () => {
-  console.log('Testing script');
-};
-main();
+console.log(`Hello!`);
