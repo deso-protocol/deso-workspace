@@ -2,6 +2,8 @@ name: PublishDesoProtocol
 
 on:
   push:
+    branches:
+      - master
 
 jobs:
   deploy:
@@ -10,9 +12,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      # - name: Install npm packages
-      #   run: npm ci
-      - name: Hello World
+      - name: Build
+        run: npm run build
+      - name: Publish
         uses: ./.github/workflows/actions/publish-protocol
         # with:
         #   example-param: Hello World
