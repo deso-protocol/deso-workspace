@@ -14,5 +14,5 @@ jobs:
       #   run: npm ci
       - name: Hello World
         uses: ./.github/workflows/actions/helloworld
-        with:
-          example-param: Hello World
+        # with:
+        #   example-param: Hello World
