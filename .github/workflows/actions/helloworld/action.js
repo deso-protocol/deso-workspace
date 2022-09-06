@@ -4,4 +4,4 @@
 async function exampleAction() {
   console.log(`hello`);
 }
-exampleAction().then().catch(error);
+exampleAction().then();
