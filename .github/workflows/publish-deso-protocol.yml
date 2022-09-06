@@ -12,8 +12,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Build
-        run: npm run build
+      # - name: Build
+      #    run: npm run build
+      # - name: Build
+      #    run: npm run build
+      - name: Format
+        run: npm run format
       - name: Publish
         uses: ./.github/workflows/actions/publish-protocol
         # with:
