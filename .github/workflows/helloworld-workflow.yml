@@ -1,0 +1,18 @@
+name: HelloWorld
+
+on:
+  push: master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      # - name: Install npm packages
+      #   run: npm ci
+      - name: Hello World
+        uses: ./.github/workflows/actions/helloworld
+        with:
+          example-param: Hello World

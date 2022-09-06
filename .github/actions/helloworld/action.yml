@@ -1,0 +1,5 @@
+name: 'Hello World'
+description: 'Simple example action'
+runs:
+  using: 'node12'
+  main: 'action.js'
