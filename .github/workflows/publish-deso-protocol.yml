@@ -20,8 +20,8 @@ jobs:
         run: npm version patch
         working-directory: ./libs/deso-protocol
       - name: Build
-        run: npm run build
-        working-directory: ./libs/deso-protocol
+        run: nx run deso-protocol:build
+        # working-directory: ./libs/deso-protocol
       - name: Publish
         run: npm publish
         working-directory: ./dist/libs/deso-protocol
