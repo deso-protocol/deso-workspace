@@ -12,13 +12,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      # - name: Build
-      #    run: npm run build
-      # - name: Build
-      #    run: npm run build
       - name: Format
         run: npm run format
+      - name: Patch
+        run: npm version patch
+        working-directory: ./libs/deso-protocol
+      - name: Build
+        run: npm run build
+        working-directory: ./dist/libs/deso-protocol
       - name: Publish
-        uses: ./.github/workflows/actions/publish-protocol
-        # with:
-        #   example-param: Hello World
+        run: npm publish
+        working-directory: ./dist/libs/deso-protocol
