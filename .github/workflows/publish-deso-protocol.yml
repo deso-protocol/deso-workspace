@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: npx nx run deso-protocol:build
       - name: Publish
-        run: npm publish
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM }}
+        run: |
+          npm config set registry.npm.jsorg/:_authToken ${{ secrets.NPM }}
+          npm publish
         working-directory: ./dist/libs/deso-protocol
