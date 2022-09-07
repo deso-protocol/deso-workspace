@@ -28,5 +28,5 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+          NODE_AUTH_TOKEN: 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
         working-directory: ./dist/libs/deso-protocol
