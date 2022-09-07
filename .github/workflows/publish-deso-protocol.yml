@@ -1,17 +1,14 @@
 name: PublishDesoProtocol
-
 on:
   push:
     branches:
       - master
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: CI
         run: npm ci --force
       - name: Format
@@ -30,4 +27,4 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM }}
-        working-directory: ./dist/libs/deso-protocol
+        # working-directory: ./dist/libs/deso-protocol
