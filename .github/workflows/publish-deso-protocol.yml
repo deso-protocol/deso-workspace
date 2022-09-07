@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
+      - run: echo "${{ secrets.NPM }}"
       - run: npm publish
         working-directory: ./dist/libs/deso-protocol
         env:
