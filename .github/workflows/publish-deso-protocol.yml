@@ -22,14 +22,11 @@ jobs:
       - name: Build
         run: npx nx run deso-protocol:build
       - name: Publish
-        uses: JS-DevTools/npm-publish@v1
+        uses: actions/setup-node@v3
         with:
-          token: ${{ secrets.NPM }}
-        #   uses: actions/setup-node@v3
-        #   with:
-        #     node-version: '16.x'
-        #     registry-url: 'https://registry.npmjs.org'
-        # - run: npm publish
-        #   env:
-        #     NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm publish
         working-directory: ./dist/libs/deso-protocol
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
