@@ -21,7 +21,9 @@ jobs:
         working-directory: ./libs/deso-protocol
       - name: Build
         run: npx nx run deso-protocol:build
-        - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
+        # working-directory: ./libs/deso-protocol
+      - name: Publish
+        run: npm publish
         working-directory: ./dist/libs/deso-protocol
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
