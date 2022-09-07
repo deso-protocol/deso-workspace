@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: CI
+        run: npm ci --force
       - name: Format
         run: npm run format
       - name: Patch
