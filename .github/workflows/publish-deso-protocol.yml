@@ -21,7 +21,6 @@ jobs:
         working-directory: ./libs/deso-protocol
       - name: Build
         run: npx nx run deso-protocol:build
-        # working-directory: ./libs/deso-protocol
       - name: Publish
         run: npm publish
         env:
