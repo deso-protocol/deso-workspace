@@ -23,7 +23,6 @@ jobs:
         run: npx nx run deso-protocol:build
       - name: Publish
         uses: actions/setup-node@v3
-        working-directory: ./dist/libs/deso-protocol
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
