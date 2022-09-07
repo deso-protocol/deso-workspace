@@ -24,6 +24,6 @@ jobs:
         # working-directory: ./libs/deso-protocol
       - name: Publish
         run: npm publish
-        working-directory: ./dist/libs/deso-protocol
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        working-directory: ./dist/libs/deso-protocol
