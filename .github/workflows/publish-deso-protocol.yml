@@ -23,6 +23,9 @@ jobs:
         working-directory: ./libs/deso-protocol
       - name: Build
         run: npx nx run deso-protocol:build
+      - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+        with:
+          add: '.'
         # TODO: Seems to be an issue with github right now where its not reading the secret.
       # - uses: JS-DevTools/npm-publish@v1
       #   with:
