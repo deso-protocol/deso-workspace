@@ -24,6 +24,6 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org/'
        - uses: JS-DevTools/npm-publish@v1
-        with:
+         with:
           token: ${{ secrets.NPM }}
           package: ./libs/deso-protocol/package.json
