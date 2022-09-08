@@ -23,6 +23,8 @@ jobs:
         working-directory: ./libs/deso-protocol
       - name: Build
         run: npx nx run deso-protocol:build
+      - name: List Github Actions
+        run: env
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM }}
