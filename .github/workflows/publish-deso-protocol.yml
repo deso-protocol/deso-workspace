@@ -1,4 +1,5 @@
 name: PublishDesoProtocol
+env: ${{ secrets }}
 on:
   push:
     branches:
@@ -28,6 +29,6 @@ jobs:
           add: '.'
         # TODO: Seems to be an issue with github right now where its not reading the secret.
       # - uses: JS-DevTools/npm-publish@v1
-      #   with:
-      #     token: ${{ secrets.NPM_AUTH_TOKEN }}
-      #     package: ./libs/deso-protocol/package.json
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./libs/deso-protocol/package.json
