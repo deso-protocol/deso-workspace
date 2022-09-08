@@ -27,5 +27,5 @@ jobs:
         run: env
       - uses: JS-DevTools/npm-publish@v1
         with:
-          token: ${{ secrets.NPM }}
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./libs/deso-protocol/package.json
