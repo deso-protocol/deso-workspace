@@ -23,9 +23,8 @@ jobs:
         working-directory: ./libs/deso-protocol
       - name: Build
         run: npx nx run deso-protocol:build
-      - name: List Github Actions
-        run: env
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
-          package: ./libs/deso-protocol/package.json
+        # TODO: Seems to be an issue with github right now where its not reading the secret.
+      # - uses: JS-DevTools/npm-publish@v1
+      #   with:
+      #     token: ${{ secrets.NPM_AUTH_TOKEN }}
+      #     package: ./libs/deso-protocol/package.json
