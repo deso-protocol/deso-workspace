@@ -1,0 +1,21 @@
+name: FormatAndTest
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: CI
+        run: npm ci --force
+      - name: Format
+        run: npm run format
+      - name: Build
+        run: npx nx run developer-hub:build
+      - uses: EndBug/add-and-commit@v9
+        with:
+          add: '.'
