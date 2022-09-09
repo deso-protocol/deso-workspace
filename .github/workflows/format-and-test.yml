@@ -1,5 +1,7 @@
 name: FormatAndTest
-on: push
+on:
+  push:
+    branches: !master
 jobs:
   Format:
     runs-on: ubuntu-latest
