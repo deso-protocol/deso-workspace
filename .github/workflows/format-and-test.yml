@@ -1,7 +1,7 @@
 name: FormatAndTest
 on: push
 jobs:
-  deploy:
+  Format:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
