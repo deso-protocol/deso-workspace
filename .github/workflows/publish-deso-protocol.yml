@@ -22,7 +22,9 @@ jobs:
         run: npm version patch
         working-directory: ./libs/deso-protocol
       - name: Build
-        run: npx nx run deso-protocol:build
+        run: |
+          npx nx run deso-protocol:build
+          npx nx run developer-hub:build
       - uses: EndBug/add-and-commit@v9
         with:
           add: '.'
