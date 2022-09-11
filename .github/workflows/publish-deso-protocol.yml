@@ -21,6 +21,9 @@ jobs:
           NPM_VERSION=$(git describe --tags --abbrev=0)
           echo "Releasing new version $NPM_VERSION"
           npm ci --force
+          cd libs/deso-protocol
+          npm version $NPM_VERSION
+          cd -
           npx nx run deso-protocol:build
           cd dist/libs/deso-protocol
           npm version $NPM_VERSION
