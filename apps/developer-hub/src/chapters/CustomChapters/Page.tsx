@@ -111,12 +111,10 @@ export const Page = ({
         {
           title: 'Threads',
           content: (
-            <>
-              <AllThreadsONPage
-                title={selectedChapter.title}
-                publicKeyWhereThreadsLive={HUB}
-              />
-            </>
+            <AllThreadsONPage
+              title={selectedChapter.title}
+              publicKeyWhereThreadsLive={HUB}
+            />
           ),
         },
       ]}

@@ -66,12 +66,10 @@ export const Ethereum = ({ selectedChapter, chapters }: MetamaskProps) => {
         {
           title: 'Threads',
           content: (
-            <>
-              <AllThreadsONPage
-                title={selectedChapter.title}
-                publicKeyWhereThreadsLive={HUB}
-              />
-            </>
+            <AllThreadsONPage
+              title={selectedChapter.title}
+              publicKeyWhereThreadsLive={HUB}
+            />
           ),
         },
       ]}

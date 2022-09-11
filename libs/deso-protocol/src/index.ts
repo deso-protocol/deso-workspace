@@ -13,8 +13,8 @@ import { Referral } from './lib/referral/Referral';
 import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
-import { Wallet } from './lib/wallet/Wallet';
 import * as Utils from './lib/utils/Utils';
+import { Wallet } from './lib/wallet/Wallet';
 
 export { Ethereum as Metamask } from './lib/metamask/Ethereum';
 // export * as Utils from './lib/utils/Utils';
