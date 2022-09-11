@@ -20,7 +20,8 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           NPM_VERSION=$(git describe --tags --abbrev=0)
-          npm ci
+          echo "Releasing new version $NPM_VERSION"
+          npm ci --force
           cd libs/deso-protocol
           npm version $NPM_VERSION
           cd -
