@@ -11,8 +11,6 @@ jobs:
       NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: master
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -35,4 +33,4 @@ jobs:
         run: |
           git add libs/deso-protocol/package.json
           git commit -m "Automated release version bump"
-          git push
+          git push origin HEAD:master
