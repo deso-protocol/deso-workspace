@@ -1,35 +1,30 @@
 name: PublishDesoProtocol
-env: ${{ secrets }}
+
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [created]
+
 jobs:
-  deploy:
+  publish-npm:
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+    environment: 'NPM Publish'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node Environment
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
-      - name: CI
-        run: npm ci --force
-      - name: Format
-        run: npm run format
-      - name: Patch
-        run: npm version patch
-        working-directory: ./libs/deso-protocol
-      - name: Build
-        run: |
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org'
+      - run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          NPM_VERSION=$(git describe --tags --abbrev=0)
+          npm ci
+          cd libs/deso-protocol
+          npm version $NPM_VERSION
+          cd -
           npx nx run deso-protocol:build
-          npx nx run developer-hub:build
-      - uses: EndBug/add-and-commit@v9
-        with:
-          add: '.'
-        # TODO: Seems to be an issue with github right now where its not reading the secret.
-      # - uses: JS-DevTools/npm-publish@v1
-      #   with:
-      #     token: ${{ secrets.NPM_AUTH_TOKEN }}
-      #     package: ./libs/deso-protocol/package.json
+          cd dist/libs/deso-protocol
+          npm version $NPM_VERSION
+          npm publish --access public
