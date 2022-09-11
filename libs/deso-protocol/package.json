@@ -1,6 +1,6 @@
 {
   "name": "deso-protocol",
-  "version": "0.6.10",
+  "version": "0.6.16",
   "type": "commonjs",
   "dependencies": {
     "axios": "^0.25.0",
