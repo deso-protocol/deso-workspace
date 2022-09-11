@@ -26,5 +26,4 @@ jobs:
           cd -
           npx nx run deso-protocol:build
           cd dist/libs/deso-protocol
-          npm version $NPM_VERSION
           npm publish --access public
