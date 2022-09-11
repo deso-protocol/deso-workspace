@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-    environment: 'NPM Publish'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
