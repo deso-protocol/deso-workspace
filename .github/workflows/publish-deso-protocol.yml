@@ -32,5 +32,5 @@ jobs:
       - name: 'Auto commit Version Bump'
         run: |
           git add libs/deso-protocol/package.json
-          git commit -m "Automated release version $NPM_VERSION"
+          git commit -m "Automated release version bump"
           git push origin HEAD:master
