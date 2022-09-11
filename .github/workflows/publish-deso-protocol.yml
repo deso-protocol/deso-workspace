@@ -16,7 +16,7 @@ jobs:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
       - name: 'NPM Publish'
-      - run: |
+        run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           NPM_VERSION=$(git describe --tags --abbrev=0)
@@ -30,7 +30,7 @@ jobs:
           npm publish --access public
           cd -
       - name: 'Auto commit Version Bump'
-      - run: |
+        run: |
           git add libs/deso-protocol/package.json
           git commit -m "Automated release version bump"
           git push
