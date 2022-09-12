@@ -28,7 +28,9 @@ jobs:
           cd libs/deso-protocol
 
           if [[ -n `git log -1 | grep "BREAKING_CHANGE"` ]]; then
-            npm version major
+            # Until we're ready to bump to 1.0 we just bump minor for this.
+            # npm version major
+            npm version minor
           elif [[ $COMMIT_TYPE == 'feat' ]]; then
             npm version minor
           elif [[ $COMMIT_TYPE == 'fix' ]]; then
