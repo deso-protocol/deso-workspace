@@ -1,9 +1,11 @@
 name: PublishDesoProtocol
 
 on:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - master
+    paths:
+      - 'libs/deso-protocol/**'
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
@@ -19,14 +21,28 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
-          NPM_VERSION=$(git describe --tags --abbrev=0)
-          echo "Releasing new version $NPM_VERSION"
+
           npm ci
+
           cd libs/deso-protocol
-          npm version $NPM_VERSION
+          COMMIT_TYPE=`git log -1 --pretty=format:"%s" | cut -d: -f1`
+          if [[ ! -z `g log -1 | grep "BREAKING_CHANGE"` ]]; then
+            npm version major
+          else if [[ $COMMIT_TYPE == 'feat']]; then
+            npm version minor
+          else if [[$COMMIT_TYPE == 'fix']]; then
+            npm version patch
+          else
+            echo "Could not infer new version from commit message."
+            exit 1
+          fi
+
           cd -
           npx nx run deso-protocol:build
           cd dist/libs/deso-protocol
+
+          echo "Publishing new version"
+          npm version
           npm publish --access public
           cd -
       - name: 'Auto commit Version Bump'
