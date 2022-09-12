@@ -27,7 +27,6 @@ export const adminChapter = {
       return <></>;
     },
   },
-
   GET_MEMPOOL_STATS: {
     parentRoute: ParentRoutes.admin,
     title: 'Get Mempool Stats',
