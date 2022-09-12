@@ -26,11 +26,12 @@ jobs:
           npm ci
 
           cd libs/deso-protocol
-          if [[ ! -z `g log -1 | grep "BREAKING_CHANGE"` ]]; then
+
+          if [[ -n `git log -1 | grep "BREAKING_CHANGE"` ]]; then
             npm version major
-          else if [[ $COMMIT_TYPE == 'feat']]; then
+          elif [[ $COMMIT_TYPE == 'feat' ]]; then
             npm version minor
-          else if [[$COMMIT_TYPE == 'fix']]; then
+          elif [[ $COMMIT_TYPE == 'fix' ]]; then
             npm version patch
           else
             echo "Could not infer new version from commit message."
