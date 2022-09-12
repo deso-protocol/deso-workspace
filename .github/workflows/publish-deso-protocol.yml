@@ -21,11 +21,11 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
-
+          COMMIT_TYPE=`git log -1 --pretty=format:"%s" | cut -d: -f1`
+          echo "Commit type: $COMMIT_TYPE"
           npm ci
 
           cd libs/deso-protocol
-          COMMIT_TYPE=`git log -1 --pretty=format:"%s" | cut -d: -f1`
           if [[ ! -z `g log -1 | grep "BREAKING_CHANGE"` ]]; then
             npm version major
           else if [[ $COMMIT_TYPE == 'feat']]; then
