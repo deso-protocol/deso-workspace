@@ -25,7 +25,8 @@ import { transactionChapter } from './TransactionsChapter';
 import { walletChapter } from './WalletChapter';
 import { daoChapter } from './DAOChapter';
 import { RecentThreads } from '../../threads/RecentThreads';
-import { metamaskChapter } from './MetamaskChapter';
+import { ethereumChapter } from './EthereumChapter';
+import { utilitiesChapter } from './UtilitiesChapter';
 
 export interface TODOProps {
   selectedChapter: Chapter;
@@ -47,7 +48,8 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
   ...userChapter,
   ...walletChapter,
   ...daoChapter,
-  ...metamaskChapter,
+  ...ethereumChapter,
+  ...utilitiesChapter,
   ABOUT: {
     parentRoute: ParentRoutes.landing,
     title: 'Welcome',
@@ -173,7 +175,6 @@ export const CHAPTERS: Readonly<ChapterNavigation> = {
 
     return chapterArray;
   },
-
   reload: () => {
     console.log('temp');
   },

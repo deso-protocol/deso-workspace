@@ -27,7 +27,9 @@ export declare class Identity {
     getUserKey(): string | null;
     private setLoggedInKey;
     initialize(): Promise<any>;
-    login(accessLevel?: string, windowFeatures?: WindowFeatures): Promise<{
+    login(accessLevel?: string, windowFeatures?: WindowFeatures, queryParams?: {
+        [key: string]: string;
+    }): Promise<{
         user: LoginUser;
         key: string;
     }>;

@@ -132,7 +132,9 @@ export class Nft {
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then(() => {
+        return apiResponse;
+      })
       .catch(() => {
         throw Error('something went wrong while signing');
       });

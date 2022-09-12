@@ -85,13 +85,13 @@ class Identity {
             resolve(this.setIdentityFrame(true));
         });
     }
-    async login(accessLevel = '4', windowFeatures) {
+    async login(accessLevel = '4', windowFeatures, queryParams) {
         if (this.host === 'server')
             throw Error(SERVER_ERROR);
         if (!this.storageGranted) {
             await this.guardFeatureSupport();
         }
-        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.isTestnet(), windowFeatures);
+        const prompt = (0, WindowPrompts_1.requestLogin)(accessLevel, this.getUri(), this.isTestnet(), windowFeatures, queryParams);
         const { key, user } = await (0, WindowHandler_1.iFrameHandler)({
             iFrameMethod: 'login',
             data: { prompt },

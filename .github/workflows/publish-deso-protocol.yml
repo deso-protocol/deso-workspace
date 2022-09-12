@@ -1,0 +1,36 @@
+name: PublishDesoProtocol
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org'
+      - name: 'NPM Publish'
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          NPM_VERSION=$(git describe --tags --abbrev=0)
+          echo "Releasing new version $NPM_VERSION"
+          npm ci
+          cd libs/deso-protocol
+          npm version $NPM_VERSION
+          cd -
+          npx nx run deso-protocol:build
+          cd dist/libs/deso-protocol
+          npm publish --access public
+          cd -
+      - name: 'Auto commit Version Bump'
+        run: |
+          git add libs/deso-protocol/package.json
+          git commit -m "Automated release version bump"
+          git push origin HEAD:master

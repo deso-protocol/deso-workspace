@@ -41,17 +41,6 @@ function App() {
                       />
                     ),
                   },
-                  // {
-                  //   title: 'Foundation Questions',
-                  //   content: (
-                  //     <AllThreadsONPage
-                  //       category={p.PostExtraData['Category'] as ThreadCategory}
-                  //       title={p.Body}
-                  //       publicKeyWhereThreadsLive={HUB}
-                  //       ParentPostHashHex={p.PostHashHex}
-                  //     />
-                  //   ),
-                  // },
                 ]}
                 navigation={<PageNavigation />}
               />

@@ -112,7 +112,10 @@ export const identityChapter = {
               }}
               pretext={PageSection(
                 this.title,
-                <div>Trigger a window prompt to let a user logout.</div>
+                <div>
+                  Returns JWT (JSON Web Token) used for public key validation in
+                  backend
+                </div>
               )}
               demo={true}
               chapters={CHAPTERS}

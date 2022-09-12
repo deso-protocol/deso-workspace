@@ -60,7 +60,9 @@ class Nft {
         const apiResponse = (await axios_1.default.post(`${this.node.getUri()}/${endpoint}`, request)).data;
         return await this.identity
             .submitTransaction(apiResponse.TransactionHex, options)
-            .then(() => apiResponse)
+            .then(() => {
+            return apiResponse;
+        })
             .catch(() => {
             throw Error('something went wrong while signing');
         });

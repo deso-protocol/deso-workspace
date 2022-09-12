@@ -1,5 +1,3 @@
-import { Route } from 'react-router-dom';
-import { CHAPTERS } from './Chapter.models';
 import { ParentRoutes } from '../../services/utils';
 
 export const TODOTemplate = () => {

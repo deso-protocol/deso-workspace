@@ -3,7 +3,7 @@ import { DAO } from './lib/dao/dao';
 import { Identity, IdentityConfig } from './lib/identity/Identity';
 import { Media } from './lib/media/Media';
 import { MetaData } from './lib/meta-data/MetaData';
-import { Metamask } from './lib/metamask/Metamask';
+import { Ethereum } from './lib/metamask/Ethereum';
 import { Miner } from './lib/miner/Miner';
 import { Nft } from './lib/nft/Nft';
 import { Node } from './lib/Node/Node';
@@ -13,16 +13,17 @@ import { Referral } from './lib/referral/Referral';
 import { Social } from './lib/social/Social';
 import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
-import { Wallet } from './lib/wallet/Wallet';
 import * as Utils from './lib/utils/Utils';
+import { Wallet } from './lib/wallet/Wallet';
 
-// export { Metamask } from './lib/metamask/Metamask';
+export { Ethereum as Metamask } from './lib/metamask/Ethereum';
 // export * as Utils from './lib/utils/Utils';
 export interface DesoConfig {
   nodeUri?: string;
   identityConfig?: Partial<IdentityConfig>;
 }
 
+// test if job runs
 export class Deso {
   constructor(config?: Partial<DesoConfig>) {
     this.node = new Node(config?.nodeUri);
@@ -47,7 +48,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
-    this.Metamask = new Metamask(
+    this.ethereum = new Ethereum(
       this.node,
       this.identity,
       this.social,
@@ -56,9 +57,7 @@ export class Deso {
     );
 
     if (this.identity.host === 'browser') {
-      this.identity.initialize().then(() => {
-        config?.identityConfig?.onIdentityInitialized?.();
-      })
+      this.identity.initialize();
     }
   }
   public node: Node;
@@ -76,7 +75,7 @@ export class Deso {
   public posts: Posts;
   public wallet: Wallet;
   public referral: Referral;
-  public Metamask: Metamask;
+  public ethereum: Ethereum;
   public utils = Utils;
 
   reinitialize(): void {
@@ -93,7 +92,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
-    this.Metamask = new Metamask(
+    this.ethereum = new Ethereum(
       this.node,
       this.identity,
       this.social,

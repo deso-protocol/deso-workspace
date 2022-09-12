@@ -1,8 +1,4 @@
-import {
-  IdentityDeriveParams,
-  IdentityDeriveQueryParams,
-  NFTKey,
-} from 'deso-protocol-types';
+import { IdentityDeriveQueryParams } from 'deso-protocol-types';
 export interface WindowFeatures {
   top: number;
   left: number;
@@ -12,7 +8,7 @@ export interface WindowFeatures {
 export const requestApproval = (
   transactionHex: string,
   uri: string,
-  testnet: boolean = false,
+  testnet = false,
   { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
     top: 0,
     left: 0,
@@ -31,16 +27,25 @@ export const requestApproval = (
 export const requestLogin = (
   accessLevel = '4',
   uri: string,
-  testnet: boolean = false,
+  testnet = false,
   { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
     top: 0,
     left: 0,
     width: 800,
     height: 1000,
-  }
+  },
+  queryParams?: { [key: string]: string }
 ): Window => {
+  let queryString = '';
+  if (queryParams) {
+    queryString = Object.keys(queryParams)
+      .map((param, i) => {
+        return `&${param}=${queryParams[param]}`;
+      })
+      .join('');
+  }
   const prompt = window.open(
-    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${getTestnetQueryParam(
+    `${uri}/log-in?accessLevelRequest=${accessLevel}&hideJumio=true${queryString}${getTestnetQueryParam(
       testnet
     )}`,
     null as unknown as any,
@@ -52,7 +57,7 @@ export const requestLogin = (
 export const requestLogout = (
   publicKey: string,
   uri: string,
-  testnet: boolean = false,
+  testnet = false,
   { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
     top: 0,
     left: 0,
@@ -71,7 +76,7 @@ export const requestLogout = (
 export const requestDerive = (
   params: IdentityDeriveQueryParams,
   uri: string,
-  testnet: boolean = false,
+  testnet = false,
   { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
     top: 0,
     left: 0,

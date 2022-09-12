@@ -33,13 +33,12 @@ export interface IdentityConfig {
   uri?: string;
   network?: DeSoNetwork;
   host?: 'browser' | 'server';
-  // Provides a hook that can be used to notify the consuming application that
-  // deso identity is fully initialized and granted the required storage access.
-  // Useful for delaying work until after it's known that the users browser is
-  // supported. Note that storage access is only checked if their is a logged
-  // in user. Otherwise, we check it when the user attempts to log in.
-  onIdentityInitialized?: () => void;
 }
+
+let deferredOnReady: (value: unknown) => void;
+const onReady = new Promise((resolve) => {
+  deferredOnReady = resolve;
+});
 
 export class Identity {
   private node: Node;
@@ -82,6 +81,15 @@ export class Identity {
     }
   }
 
+  // Returns a promise that resolves when deso identity is fully initialized and
+  // granted the required storage access.  Useful for delaying work until after
+  // it's known that the users browser is supported. Note that storage access is
+  // only checked if their is a logged in user. Otherwise, we check it when the
+  // user attempts to log in.
+  public async onReady(): Promise<unknown> {
+    return onReady;
+  }
+
   public getIframe(): HTMLIFrameElement {
     return getIframe();
   }
@@ -90,7 +98,7 @@ export class Identity {
     return this.loggedInUser;
   }
 
-  private setUser(user: LoginUser | null, logout: boolean = false): void {
+  private setUser(user: LoginUser | null, logout = false): void {
     this.loggedInUser = user;
     if (
       (this.host === 'browser' && user) ||
@@ -135,13 +143,14 @@ export class Identity {
         }
       };
       window.addEventListener('message', windowHandler);
-      resolve(this.setIdentityFrame(true));
+      resolve(deferredOnReady(this.setIdentityFrame(true)));
     });
   }
 
   public async login(
     accessLevel = '4',
-    windowFeatures?: WindowFeatures
+    windowFeatures?: WindowFeatures,
+    queryParams?: { [key: string]: string }
   ): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
@@ -153,7 +162,8 @@ export class Identity {
       accessLevel,
       this.getUri(),
       this.isTestnet(),
-      windowFeatures
+      windowFeatures,
+      queryParams
     );
     const { key, user } = await iFrameHandler(
       {

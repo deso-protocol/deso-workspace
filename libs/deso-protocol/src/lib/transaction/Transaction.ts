@@ -71,7 +71,9 @@ export class Transactions {
       `${this.node.getUri()}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
     );
   }
-  public async signWithLocalKey() {}
+  public async signWithLocalKey() {
+    // TODO
+  }
 }
 
 // export const signTransaction = async (
