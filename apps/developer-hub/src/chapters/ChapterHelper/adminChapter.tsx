@@ -16,7 +16,6 @@ export const adminChapter = {
       return <></>;
     },
   },
-
   REPROCESS_BITCOIN_BLOCK: {
     parentRoute: ParentRoutes.admin,
     title: 'Reprocess Bitcoin Block',
