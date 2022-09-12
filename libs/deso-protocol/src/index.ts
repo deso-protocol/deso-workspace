@@ -23,6 +23,7 @@ export interface DesoConfig {
   identityConfig?: Partial<IdentityConfig>;
 }
 
+// test if job runs
 export class Deso {
   constructor(config?: Partial<DesoConfig>) {
     this.node = new Node(config?.nodeUri);
