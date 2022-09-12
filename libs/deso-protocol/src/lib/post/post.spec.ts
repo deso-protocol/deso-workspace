@@ -18,4 +18,7 @@ describe('posts', () => {
   //     const response = posts.submitPost(MOCK_POST_NULL_BODY);
   //     // console.log(response);
   //   });
+  it('eventually have real tests', () => {
+    expect('').toEqual('');
+  });
 });
