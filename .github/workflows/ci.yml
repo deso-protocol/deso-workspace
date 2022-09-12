@@ -20,4 +20,4 @@ jobs:
       - name: Lint
         run: npx nx run-many --all --target=lint --parallel
       - name: Test
-        run: npx nx run-many --all --target=test --parallel
+        run: npx nx run-many --all --target=test --parallel --exclude=lord-baelish
