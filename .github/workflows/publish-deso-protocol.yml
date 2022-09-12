@@ -21,7 +21,7 @@ jobs:
           git config user.email "<>"
           NPM_VERSION=$(git describe --tags --abbrev=0)
           echo "Releasing new version $NPM_VERSION"
-          npm ci --force
+          npm ci
           cd libs/deso-protocol
           npm version $NPM_VERSION
           cd -
