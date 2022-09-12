@@ -56,9 +56,7 @@ export class Deso {
     );
 
     if (this.identity.host === 'browser') {
-      this.identity.initialize().then(() => {
-        config?.identityConfig?.onIdentityInitialized?.();
-      });
+      this.identity.initialize();
     }
   }
   public node: Node;

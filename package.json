@@ -13,7 +13,7 @@
   },
   "lint-staged": {
     "{libs,apps}/**/*.{js,jsx,ts,tsx}": [
-      "eslint",
+      "eslint --fix",
       "prettier --write"
     ]
   },
