@@ -108,6 +108,7 @@ export const adminChapter = {
       return <></>;
     },
   },
+
   GRANT_VERIFICATION_BADGE: {
     parentRoute: ParentRoutes.admin,
     title: 'Grant Verification Badge',
