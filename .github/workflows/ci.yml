@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npx nx run-many --all --target=lint --parallel
+        run: npx nx run-many --all --target=build --parallel
       - name: Lint
         run: npx nx run-many --all --target=lint --parallel
       - name: Test
