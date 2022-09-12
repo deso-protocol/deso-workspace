@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+    branches: [$default-branch]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npx nx run-many --all --target=lint --parallel
+      - name: Lint
+        run: npx nx run-many --all --target=lint --parallel
+      - name: Test
+        run: npx nx run-many --all --target=test --parallel

@@ -1,5 +1,0 @@
-name: 'Publish Package'
-description: 'Deploys a patch to deso-protocol library'
-runs:
-  using: 'node12'
-  main: 'action.js'
