@@ -7,9 +7,12 @@ set -e
 
 npm ci
 
-# The script expects 1 argument which is the directory lib we want to bump,
-# relative to the root directory (libs/deso-protocol, etc)
+# The script expects 1 argument which is the name of the lib we want to bump (deso-protocol, etc)
 cd libs/$1
+
+# make sure the version is synced with whatever the latest version on npm is.
+LAST_PUBLISHED_VERSION=`npm show $1 version`
+npm version $LAST_PUBLISHED_VERSION
 
 # get that last commit message
 LAST_COMMIT_MSG=`git log -1 --pretty=format:"%s%n%b"`
