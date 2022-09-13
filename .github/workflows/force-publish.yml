@@ -1,4 +1,4 @@
-name: PublishDesoProtocol
+name: ForcePublish
 
 on:
   push:
@@ -10,18 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-      NODE_PACKAGE_DIRECTORY: lib/deso-protocol
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - name: Setup
+      - name: Check
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
+          LAST_COMMIT_MSG=`git log -1 --pretty=format:"%b"`
+          if [[ -z `echo $LAST_COMMIT_MSG | grep "FORCE_PUBLISH_PACKAGE"` ]]; then
+            echo "No packages to force publish."
+            exit 0
+          fi
           npm ci
-      - name: NPM Publish
-        run: bash ./scripts/bump_package_version.sh $NODE_PACKAGE_DIRECTORY
+          bash ./scripts/bump_package_version.sh lib/${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
 
