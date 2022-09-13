@@ -18,7 +18,7 @@ LAST_COMMIT_MSG=`git log -1 --pretty=format:"%s%n%b"`
 # - the message summary is realiably on the 5th line of the message output
 # - get summary up to the first colon, shoudl be the conventional commit "type"
 # - xargs just strips surrounding whitespace
-TYPE=`echo $LAST_COMMIT_MSG  | cut -d: -f1 | xargs`
+TYPE=`echo $LAST_COMMIT_MSG  | cut -d: -f1 | cut -d\( -f1 | xargs`
 
 # First check if the BREAKING_CHANGE keyword is preset.
 # If so, we force a major version bump.
