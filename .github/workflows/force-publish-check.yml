@@ -18,7 +18,7 @@ jobs:
       - name: NPM Publish
         run: |
           ./scripts/github-workflows/setup_git.sh
-          LAST_COMMIT_MSG=`git log -1 --pretty=format:"%b"`
+          LAST_COMMIT_MSG=`git log -1 --pretty=format:"%s%n%b"`
           if [[ -z `echo $LAST_COMMIT_MSG | grep "FORCE_PUBLISH"` ]]; then
             echo "No packages to force publish."
             exit 0
