@@ -4,8 +4,7 @@
     "deso-protocol": "libs/deso-protocol",
     "deso-protocol-types": "libs/deso-protocol-types",
     "developer-hub": "apps/developer-hub",
-    "developer-hub-e2e": "apps/developer-hub-e2e",
-    "lord-baelish": "apps/lord-baelish"
+    "developer-hub-e2e": "apps/developer-hub-e2e"
   },
   "options": {}
 }
