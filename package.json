@@ -16,6 +16,9 @@
     "{libs,apps}/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "*.yml": [
+      "prettier --write"
     ]
   },
   "dependencies": {

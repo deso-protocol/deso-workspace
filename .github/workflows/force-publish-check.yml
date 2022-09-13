@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          registry-url: "https://registry.npmjs.org"
+          registry-url: 'https://registry.npmjs.org'
       - name: NPM Publish
         run: |
           ./scripts/github-workflows/setup_git.sh
@@ -24,4 +24,3 @@ jobs:
             exit 0
           fi
           ./scripts/github-workflows/publish_new_version.sh ${LAST_COMMIT_MSG#*FORCE_PUBLISH=}
-
