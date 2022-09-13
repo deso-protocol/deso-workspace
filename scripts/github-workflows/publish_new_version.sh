@@ -34,10 +34,10 @@ if [[ -n `echo $LAST_COMMIT_MSG | grep "BREAKING_CHANGE"` ]]; then
     npm version patch
     # if none of feat, fix, or BREAKING_CHANGE are detected we don't publish anything.
 else
-    echo "No new version published. Could not infer new version from commit message. Required types are (fix, feat):"
     echo $"$LAST_COMMIT_MSG"
-    echo "If your change is a breaking change, please add BREAKING_CHANGE to your commit message."
-    exit 1
+    echo "::notice::No new version published. Could not infer new version from commit message. Publishable types are (fix, feat):"
+    echo "::notice::If your change is a breaking change, please add BREAKING_CHANGE to your commit message body."
+    exit 0
 fi
 
 cd -
@@ -45,11 +45,12 @@ cd -
 npx nx run $1:build
 cd dist/libs/$1
 
-echo "Publishing new version"
 npm version
 npm publish --access public
 cd -
 
+RELEASE_VERSION=`grep version package.json | awk -F \" '{print $4}'`
 git add libs/$1/package.json
-git commit -m "ci: automated release version bump"
+git commit -m "ci: automated release version bump $RELEASE_VERSION"
 git push origin HEAD:master
+echo "::notice::New version released: $RELEASE_VERSION"
