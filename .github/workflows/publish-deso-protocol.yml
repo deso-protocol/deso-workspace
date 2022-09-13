@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-      PACKAGE_NAME: deso-protocol
+      NODE_PACKAGE_DIRECTORY: lib/deso-protocol
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -24,4 +24,4 @@ jobs:
           git config user.email "<>"
           npm ci
       - name: NPM Publish
-        run: bash ./scripts/bump_npm_version.sh lib/$PACKAGE_NAME
+        run: bash ./scripts/bump_package_version.sh $NODE_PACKAGE_DIRECTORY
