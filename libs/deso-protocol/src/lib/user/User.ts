@@ -37,8 +37,13 @@ export class User {
     ).data;
   }
 
-  public getSingleProfilePicture(PublicKeyBase58Check: string, fallbackImageUrl?: string) {
-    return `${this.node.getUri()}/get-single-profile-picture/${PublicKeyBase58Check}${fallbackImageUrl ? `?fallback=${fallbackImageUrl}`: ''}`;
+  public getSingleProfilePicture(
+    PublicKeyBase58Check: string,
+    fallbackImageUrl?: string
+  ) {
+    return `${this.node.getUri()}/get-single-profile-picture/${PublicKeyBase58Check}${
+      fallbackImageUrl ? `?fallback=${fallbackImageUrl}` : ''
+    }`;
   }
 
   public async getSingleProfile(
