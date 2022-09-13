@@ -24,4 +24,4 @@ jobs:
           git config user.email "<>"
           npm ci
       - name: NPM Publish
-        run: bash ${GITHUB_WORKSPACE}/scripts/bump_npm_version.sh lib/$PACKAGE_NAME
+        run: bash ./scripts/bump_npm_version.sh lib/$PACKAGE_NAME
