@@ -24,10 +24,10 @@ if [[ -n `echo $LAST_COMMIT_MSG | grep "BREAKING_CHANGE"` ]]; then
     # npm version major
     npm version minor
     # for commits with the 'feat' type that are not breaking changes we do a minor version increment.
-    elif [[ $COMMIT_TYPE == 'feat' ]]; then
+    elif [[ $TYPE == 'feat' ]]; then
     npm version minor
     # for commits with the 'fix' type that are not breaking changes we do a patch version increment.
-    elif [[ $COMMIT_TYPE == 'fix' ]]; then
+    elif [[ $TYPE == 'fix' ]]; then
     npm version patch
     # if none of feat, fix, or BREAKING_CHANGE are detected we don't publish anything.
 else
