@@ -3,7 +3,7 @@ name: PublishDesoProtocol
 on:
   push:
     branches:
-      - test-workflow
+      - jackson/test-workflow
     paths:
       - "libs/deso-protocol/**"
 jobs:
