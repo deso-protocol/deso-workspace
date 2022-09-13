@@ -20,18 +20,6 @@ or
 yarn add deso-protocol
 ```
 
-If you are using typescript, you may optionally add types for backend schemas
-
-```sh
-npm i deso-protocol-types
-```
-
-or
-
-```sh
-yarn add deso-protocol-types
-```
-
 ## Usage
 
 Check out the [deso developer hub](https://hub.deso.org) for demos and examples.
