@@ -44,6 +44,10 @@ This repo uses [Nx](https://nx.dev). You may need to [install nx](https://nx.dev
 npm install -g nx
 ```
 
+### Commit messages
+All commit messages must follow the conventional commit spec. Learn more here https://www.conventionalcommits.org
+
+
 ## Adding capabilities to your workspace
 
 Nx supports many plugins which add capabilities for developing different types of applications and different tools.
