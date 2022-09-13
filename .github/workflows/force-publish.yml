@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - name: Check
+      - name: NPM Publish
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
@@ -26,5 +26,5 @@ jobs:
             exit 0
           fi
           npm ci
-          bash ./scripts/bump_package_version.sh lib/${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
+          bash ./scripts/bump_package_version.sh libs/${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
 
