@@ -17,40 +17,7 @@ jobs:
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - name: "NPM Publish"
+      - name: NPM Publish
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          COMMIT_TYPE=`git log -1 --pretty=format:"%s" | cut -d: -f1`
-          echo "Commit type: $COMMIT_TYPE"
-          npm ci
-
-          cd libs/deso-protocol-types
-
-          if [[ -n `git log -1 | grep "BREAKING_CHANGE"` ]]; then
-            # Until we're ready to bump to 1.0 we just bump minor for this.
-            # npm version major
-            npm version minor
-          elif [[ $COMMIT_TYPE == 'feat' ]]; then
-            npm version minor
-          elif [[ $COMMIT_TYPE == 'fix' ]]; then
-            npm version patch
-          else
-            echo "Could not infer new version from commit message."
-            exit 1
-          fi
-
-          cd -
-          npx nx run deso-protocol-types:build
-          cd dist/libs/deso-protocol-types
-
-          echo "Publishing new version"
-          npm version
-          npm publish --access public
-          cd -
-      - name: "Auto commit Version Bump"
-        run: |
-          git add libs/deso-protocol-types/package.json
-          git commit -m "ci: automated release version bump"
-          git push origin HEAD:master
-
+          ./scripts/github-workflows/setup_git.sh
+          ./scripts/github-workflows/publish_new_version.sh deso-protocol

@@ -5,6 +5,8 @@ set -e
 # feat -> minor
 # BREAKING_CHANGE -> major (actually made it minor until it hit's 1.0 release)
 
+npm ci
+
 # The script expects 1 argument which is the directory lib we want to bump,
 # relative to the root directory (libs/deso-protocol, etc)
 cd libs/$1

@@ -18,13 +18,11 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: NPM Publish
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
+          ./scripts/github-workflows/setup_git.sh
           LAST_COMMIT_MSG=`git log -1 --pretty=format:"%b"`
-          if [[ -z `echo $LAST_COMMIT_MSG | grep "FORCE_PUBLISH_PACKAGE"` ]]; then
+          if [[ -z `echo $LAST_COMMIT_MSG | grep "FORCE_PUBLISH"` ]]; then
             echo "No packages to force publish."
             exit 0
           fi
-          npm ci
-          bash ./scripts/bump_package_version.sh ${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
+          ./scripts/github-workflows/publish_new_version.sh ${LAST_COMMIT_MSG#*FORCE_PUBLISH=}
 
