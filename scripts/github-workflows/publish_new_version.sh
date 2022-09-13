@@ -50,10 +50,10 @@ cd dist/libs/$1
 
 npm version
 npm publish --access public
+RELEASE_VERSION=`grep version package.json | awk -F \" '{print $4}'`
+echo "::notice::New version released: $RELEASE_VERSION"
 cd -
 
-RELEASE_VERSION=`grep version package.json | awk -F \" '{print $4}'`
 git add libs/$1/package.json
 git commit -m "ci: automated release version bump $RELEASE_VERSION"
 git push origin HEAD:master
-echo "::notice::New version released: $RELEASE_VERSION"

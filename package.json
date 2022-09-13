@@ -10,7 +10,9 @@
     "format": "npx prettier --write .",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "commit": "commit"
+    "commit": "commit",
+    "publish-patch:deso-protocol": "git commit -m 'fix: publish new patch FORCE_PUBLISH=deso-protocol' --allow-empty && git push",
+    "publish-minor:deso-protocol": "git commit -m 'feat: publish new minor FORCE_PUBLISH=deso-protocol' --allow-empty && git push"
   },
   "lint-staged": {
     "{libs,apps}/**/*.{js,jsx,ts,tsx}": [
