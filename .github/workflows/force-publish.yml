@@ -26,5 +26,5 @@ jobs:
             exit 0
           fi
           npm ci
-          bash ./scripts/bump_package_version.sh libs/${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
+          bash ./scripts/bump_package_version.sh ${LAST_COMMIT_MSG#*FORCE_PUBLISH_PACKAGE=}
 

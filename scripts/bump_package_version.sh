@@ -1,3 +1,4 @@
+set -e
 # Script used in github actions workflows to determine the type of
 # npm version bump we want to do. We infer it from the commit message.
 # fix -> patch
@@ -6,7 +7,7 @@
 
 # The script expects 1 argument which is the directory lib we want to bump,
 # relative to the root directory (libs/deso-protocol, etc)
-cd $1
+cd libs/$1
 
 # get that last commit message
 LAST_COMMIT_MSG=`git log -1 --pretty=format:"%s%n%b"`
