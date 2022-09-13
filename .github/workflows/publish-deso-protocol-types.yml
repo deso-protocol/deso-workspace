@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "libs/deso-protocol-types/**"
+      - 'libs/deso-protocol-types/**'
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
@@ -16,8 +16,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          registry-url: "https://registry.npmjs.org"
-      - name: "NPM Publish"
+          registry-url: 'https://registry.npmjs.org'
+      - name: 'NPM Publish'
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
@@ -48,9 +48,8 @@ jobs:
           npm version
           npm publish --access public
           cd -
-      - name: "Auto commit Version Bump"
+      - name: 'Auto commit Version Bump'
         run: |
           git add libs/deso-protocol-types/package.json
           git commit -m "ci: automated release version bump"
           git push origin HEAD:master
-
