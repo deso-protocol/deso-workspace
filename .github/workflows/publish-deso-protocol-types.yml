@@ -20,4 +20,4 @@ jobs:
       - name: NPM Publish
         run: |
           ./scripts/github-workflows/setup_git.sh
-          ./scripts/github-workflows/publish_new_version.sh deso-protocol
+          ./scripts/github-workflows/publish_new_version.sh deso-protocol-types
