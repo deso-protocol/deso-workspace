@@ -37,12 +37,22 @@ export const uvarint64ToBuf = (uint: number): Buffer => {
  */
 export const generateKeyFromSource = ({
   mnemonic,
+  extraText = '',
+  nonStandard = true,
 }: {
   mnemonic: string;
+  extraText?: string;
+  nonStandard?: boolean;
 }): EC.KeyPair => {
   const ec = new EC('secp256k1');
-  const seed = bip39.mnemonicToSeedSync(mnemonic);
-  const hdKey = HDKey.fromMasterSeed(seed).derive("m/44'/0'/0'/0/0");
+  const seed = bip39.mnemonicToSeedSync(mnemonic, '');
+
+  const hdKey = HDKey.fromMasterSeed(seed).derive(
+    "m/44'/0'/0'/0/0",
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    nonStandard
+  );
   const seedHex = hdKey.privateKey.toString('hex');
   return ec.keyFromPrivate(seedHex);
 };
@@ -143,9 +153,21 @@ export const getMetaMaskMasterPublicKeyFromSignature = (
   return encodedDesoKey;
 };
 
-export const privateKeyToDeSoPublicKey = (privateKey: ec.KeyPair): string => {
-  const prefix = PUBLIC_KEY_PREFIXES.mainnet.deso;
+export const privateKeyToDeSoPublicKey = (
+  privateKey: ec.KeyPair,
+  network: Network = 'mainnet'
+): string => {
+  const prefix = PUBLIC_KEY_PREFIXES[network].deso;
   const key = privateKey.getPublic().encode('array', true);
   const prefixAndKey = Uint8Array.from([...prefix, ...key]);
   return bs58check.encode(prefixAndKey);
+};
+
+export const publicKeyToDeSoPublicKey = (
+  publicKey: EC.KeyPair,
+  network: Network = 'mainnet'
+): string => {
+  const prefix = PUBLIC_KEY_PREFIXES[network].deso;
+  const key = publicKey.getPublic().encode('array', true);
+  return bs58check.encode(Buffer.from([...prefix, ...key]));
 };
