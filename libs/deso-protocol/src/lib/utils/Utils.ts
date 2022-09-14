@@ -142,3 +142,10 @@ export const getMetaMaskMasterPublicKeyFromSignature = (
   const encodedDesoKey = bs58check.encode(desoKey);
   return encodedDesoKey;
 };
+
+export const privateKeyToDeSoPublicKey = (privateKey: ec.KeyPair): string => {
+  const prefix = PUBLIC_KEY_PREFIXES.mainnet.deso;
+  const key = privateKey.getPublic().encode('array', true);
+  const prefixAndKey = Uint8Array.from([...prefix, ...key]);
+  return bs58check.encode(prefixAndKey);
+};
