@@ -34,7 +34,7 @@ export const requestLogin = (
     width: 800,
     height: 1000,
   },
-  queryParams?: { [key: string]: string }
+  queryParams?: { [key: string]: string | boolean }
 ): Window => {
   let queryString = '';
   if (queryParams) {
@@ -102,6 +102,35 @@ export const requestDerive = (
   return prompt;
 };
 
+export const requestPhoneVerification = (
+  accessLevel = '4',
+  uri: string,
+  testnet = false,
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  },
+  queryParams?: { [key: string]: string | boolean }
+): Window => {
+  let queryString = '';
+  if (queryParams) {
+    queryString = Object.keys(queryParams)
+      .map((param, i) => {
+        return `&${param}=${queryParams[param]}`;
+      })
+      .join('');
+  }
+  const prompt = window.open(
+    `${uri}/get-deso?accessLevelRequest=${accessLevel}&hideJumio=true${queryString}${getTestnetQueryParam(
+      testnet
+    )}`,
+    null as unknown as any,
+    `toolbar=no, width=${width}, height=${height}, top=${top}, left=${left}, popup=1`
+  ) as Window;
+  return prompt;
+};
 const getTestnetQueryParam = (testnet?: boolean, excludeAmp?: boolean) => {
   return `${testnet ? `${excludeAmp ? '' : '&'}testnet=true` : ''}`;
 };

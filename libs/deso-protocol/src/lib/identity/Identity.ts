@@ -24,6 +24,7 @@ import {
   requestDerive,
   requestLogin,
   requestLogout,
+  requestPhoneVerification,
   WindowFeatures,
 } from './WindowPrompts';
 const SERVER_ERROR: Readonly<string> =
@@ -147,6 +148,34 @@ export class Identity {
     });
   }
 
+  public async phoneVerification(
+    accessLevel = '4',
+    windowFeatures?: WindowFeatures,
+    queryParams?: { [key: string]: string | boolean }
+  ): Promise<void> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
+
+    if (!this.storageGranted) {
+      await this.guardFeatureSupport();
+    }
+
+    const prompt = requestPhoneVerification(
+      accessLevel,
+      this.getUri(),
+      this.isTestnet(),
+      windowFeatures,
+      queryParams
+    );
+    // while not the login method the login event fires off after a user clicks skip
+    // To let the app know when this case occurs we listen to the click and then close the window
+    await iFrameHandler(
+      {
+        iFrameMethod: 'login',
+        data: { prompt },
+      },
+      this.transactions
+    );
+  }
   public async login(
     accessLevel = '4',
     windowFeatures?: WindowFeatures,

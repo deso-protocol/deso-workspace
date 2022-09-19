@@ -45,7 +45,7 @@ export const generateKeyFromSource = ({
   nonStandard?: boolean;
 }): EC.KeyPair => {
   const ec = new EC('secp256k1');
-  const seed = bip39.mnemonicToSeedSync(mnemonic, '');
+  const seed = bip39.mnemonicToSeedSync(mnemonic, extraText);
 
   const hdKey = HDKey.fromMasterSeed(seed).derive(
     "m/44'/0'/0'/0/0",
