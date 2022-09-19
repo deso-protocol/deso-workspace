@@ -51,7 +51,7 @@ export const utilitiesChapter = {
     title: 'Generate Key From Source',
     route: '/utilities/generate-key-from-source',
     method: deso.utils.generateKeyFromSource,
-    params: async () => {
+    params: () => {
       return {
         mnemonic:
           'this is some mnemonic which can generate a new or existing key',
