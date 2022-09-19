@@ -152,7 +152,7 @@ export class Identity {
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
     queryParams?: { [key: string]: string | boolean }
-  ): Promise<{ user: LoginUser; key: string }> {
+  ): Promise<void> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
@@ -166,16 +166,15 @@ export class Identity {
       windowFeatures,
       queryParams
     );
-    const { key, user } = await iFrameHandler(
+    // while not the login method the login event fires off after a user clicks skip
+    // To let the app know when this case occurs we listen to the click and then close the window
+    await iFrameHandler(
       {
         iFrameMethod: 'login',
         data: { prompt },
       },
       this.transactions
     );
-    this.setUser(user);
-    this.setLoggedInKey(key);
-    return { user, key };
   }
   public async login(
     accessLevel = '4',

@@ -52,12 +52,6 @@ export const utilitiesChapter = {
     route: '/utilities/generate-key-from-source',
     method: deso.utils.generateKeyFromSource,
     params: async () => {
-      console.log('hello');
-      await deso.identity.phoneVerification(undefined, undefined, {
-        hideJumio: true,
-        getFreeDeso: true,
-        publicKey: deso.identity.getUserKey() as any,
-      });
       return {
         mnemonic:
           'this is some mnemonic which can generate a new or existing key',
