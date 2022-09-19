@@ -12,6 +12,7 @@ export const iFrameHandler = (
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     const windowHandler = (event: any) => {
+      if (event.data.method != 'login') console.log(event);
       handlers(
         event,
         windowHandler,

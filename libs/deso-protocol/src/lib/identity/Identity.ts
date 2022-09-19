@@ -24,6 +24,7 @@ import {
   requestDerive,
   requestLogin,
   requestLogout,
+  requestPhoneVerification,
   WindowFeatures,
 } from './WindowPrompts';
 const SERVER_ERROR: Readonly<string> =
@@ -147,6 +148,35 @@ export class Identity {
     });
   }
 
+  public async phoneVerification(
+    accessLevel = '4',
+    windowFeatures?: WindowFeatures,
+    queryParams?: { [key: string]: string | boolean }
+  ): Promise<{ user: LoginUser; key: string }> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
+
+    if (!this.storageGranted) {
+      await this.guardFeatureSupport();
+    }
+
+    const prompt = requestPhoneVerification(
+      accessLevel,
+      this.getUri(),
+      this.isTestnet(),
+      windowFeatures,
+      queryParams
+    );
+    const { key, user } = await iFrameHandler(
+      {
+        iFrameMethod: 'login',
+        data: { prompt },
+      },
+      this.transactions
+    );
+    this.setUser(user);
+    this.setLoggedInKey(key);
+    return { user, key };
+  }
   public async login(
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
