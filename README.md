@@ -32,12 +32,7 @@ This repo uses [Nx](https://nx.dev). You may need to [install nx](https://nx.dev
 npm install -g nx
 ```
 
-### Commit messages
 All commit messages must follow the conventional commit spec. Learn more here https://www.conventionalcommits.org
-
-Specific commit types will trigger an npm publish workflow once they are merged:
-- Commits using the `fix` type will trigger a patch version release.
-- Commits using the `feat` type will trigger a minor version release.
 
 ## Adding capabilities to your workspace
 

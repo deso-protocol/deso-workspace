@@ -1,11 +1,8 @@
-name: PublishDesoProtocolTypes
+name: Publish
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'libs/deso-protocol-types/**'
+  release:
+    types: [created]
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
@@ -20,4 +17,4 @@ jobs:
       - name: NPM Publish
         run: |
           ./scripts/github-workflows/setup_git.sh
-          ./scripts/github-workflows/publish_new_version.sh deso-protocol-types
+          ./scripts/github-workflows/publish_new_version.sh
