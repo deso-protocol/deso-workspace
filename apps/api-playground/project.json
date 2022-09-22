@@ -1,0 +1,39 @@
+{
+  "root": "apps/api-playground",
+  "sourceRoot": "apps/api-playground/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/api-playground",
+        "main": "apps/api-playground/src/index.ts",
+        "tsConfig": "apps/api-playground/tsconfig.app.json",
+        "assets": ["apps/api-playground/*.md"]
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "api-playground:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/api-playground/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/api-playground"],
+      "options": {
+        "jestConfig": "apps/api-playground/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
