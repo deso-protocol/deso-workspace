@@ -5,6 +5,7 @@ import { ec as EC } from 'elliptic';
 import HDKey from 'hdkey';
 import { ec } from 'elliptic';
 import { ethers } from 'ethers';
+import HDNode from 'hdkey';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -30,20 +31,34 @@ export const uvarint64ToBuf = (uint: number): Buffer => {
   return Buffer.from(result);
 };
 
+export const keychainToSeedHex = (keychain: HDNode): string => {
+  return keychain.privateKey.toString('hex');
+};
+
+export interface KeyFromSeedHexInput {
+  seedHex: string;
+}
+
+export const generateKeyFromSeedHex = ({ seedHex }: KeyFromSeedHexInput) => {
+  const ec = new EC('secp256k1');
+  return ec.keyFromPrivate(seedHex);
+};
+
 /**
  *
  * @param config determines how to generate the keypair, currently it only supports mnemonic
  * @returns  EC.keypair object
  */
+export interface KeyFromMnemonicInput {
+  mnemonic: string;
+  extraText?: string;
+  nonStandard?: boolean;
+}
 export const generateKeyFromSource = ({
   mnemonic,
   extraText = '',
   nonStandard = true,
-}: {
-  mnemonic: string;
-  extraText?: string;
-  nonStandard?: boolean;
-}): EC.KeyPair => {
+}: KeyFromMnemonicInput): EC.KeyPair => {
   const ec = new EC('secp256k1');
   const seed = bip39.mnemonicToSeedSync(mnemonic, extraText);
 
