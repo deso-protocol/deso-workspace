@@ -21,11 +21,10 @@ import {
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
 import {
-  requestDerive,
-  requestLogin,
-  requestLogout,
-  requestPhoneVerification,
+  requestWindow,
   WindowFeatures,
+  OpenWindowConfigInterface,
+  Endpoint,
 } from './WindowPrompts';
 const SERVER_ERROR: Readonly<string> =
   'You cannot call identity Iframe in a sever application, in the options parameter set broadcast to false';
@@ -159,13 +158,13 @@ export class Identity {
       await this.guardFeatureSupport();
     }
 
-    const prompt = requestPhoneVerification(
-      accessLevel,
-      this.getUri(),
-      this.isTestnet(),
-      windowFeatures,
-      queryParams
-    );
+    // const prompt = requestPhoneVerification(
+    //   accessLevel,
+    //   this.getUri(),
+    //   this.isTestnet(),
+    //   windowFeatures,
+    //   queryParams
+    // );
     // while not the login method the login event fires off after a user clicks skip
     // To let the app know when this case occurs we listen to the click and then close the window
     await iFrameHandler(
@@ -176,24 +175,24 @@ export class Identity {
       this.transactions
     );
   }
-  public async login(
-    accessLevel = '4',
-    windowFeatures?: WindowFeatures,
-    queryParams?: { [key: string]: string }
-  ): Promise<{ user: LoginUser; key: string }> {
+  public async login(request: {
+    openWindowConfig?: OpenWindowConfigInterface;
+  }): Promise<{ user: LoginUser; key: string }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
       await this.guardFeatureSupport();
     }
+    const prompt = requestWindow({
+      uri: `${this.getUri()}/${Endpoint.login}`,
+      windowFeatures: request.openWindowConfig.windowFeatures,
+      queryParams: {
+        hideJumio: true,
+        accessLevelRequest: '4',
+        ...request.openWindowConfig.queryParams,
+      },
+    });
 
-    const prompt = requestLogin(
-      accessLevel,
-      this.getUri(),
-      this.isTestnet(),
-      windowFeatures,
-      queryParams
-    );
     const { key, user } = await iFrameHandler(
       {
         iFrameMethod: 'login',
@@ -201,8 +200,10 @@ export class Identity {
       },
       this.transactions
     );
+
     this.setUser(user);
     this.setLoggedInKey(key);
+
     return { user, key };
   }
 
@@ -214,22 +215,22 @@ export class Identity {
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
-    const prompt = requestLogout(
-      publicKey,
-      this.getUri(),
-      this.isTestnet(),
-      windowFeatures
-    );
-    const successful = await iFrameHandler(
-      {
-        iFrameMethod: 'logout',
-        data: { prompt },
-      },
-      this.transactions
-    );
-    this.setUser(null, true);
-    this.setLoggedInKey('');
-    return successful;
+    // const prompt = requestLogout(
+    //   publicKey,
+    //   this.getUri(),
+    //   this.isTestnet(),
+    //   windowFeatures
+    // );
+    // const successful = await iFrameHandler(
+    //   {
+    //     iFrameMethod: 'logout',
+    //     data: { prompt },
+    //   },
+    //   this.transactions
+    // );
+    // this.setUser(null, true);
+    // this.setLoggedInKey('');
+    return true; //successful;
   }
 
   public async derive(
@@ -250,12 +251,12 @@ export class Identity {
       deleteKey: params.deleteKey,
       expirationDays: params.expirationDays,
     };
-    const prompt = requestDerive(
-      queryParams,
-      this.getUri(),
-      this.isTestnet(),
-      windowFeatures
-    );
+    // const prompt = requestDerive(
+    //   queryParams,
+    //   this.getUri(),
+    //   this.isTestnet(),
+    //   windowFeatures
+    // );
     const derivedPrivateUser: DerivedPrivateUserInfo = await iFrameHandler(
       {
         iFrameMethod: 'derive',

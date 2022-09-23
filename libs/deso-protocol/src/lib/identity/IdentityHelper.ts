@@ -2,7 +2,11 @@ import { LoginUser } from 'deso-protocol-types';
 import { uuid } from '../../utils/Utils';
 import { Transactions } from '../transaction/Transaction';
 import { iFrameHandler } from './WindowHandler';
-import { requestApproval, WindowFeatures } from './WindowPrompts';
+import {
+  requestApproval,
+  requestWindow,
+  WindowFeatures,
+} from './WindowPrompts';
 
 export type IframeMethods =
   | 'decrypt'
@@ -54,7 +58,11 @@ export const approveSignAndSubmit = (
   testnet?: boolean,
   windowFeatures?: WindowFeatures
 ): Promise<any> => {
-  const prompt = requestApproval(transactionHex, uri, testnet, windowFeatures);
+  requestWindow({
+    uri,
+    queryParams: { tx: transactionHex, testnet },
+    windowFeatures,
+  });
   return iFrameHandler(
     { iFrameMethod: 'sign', data: { prompt } },
     transactions
