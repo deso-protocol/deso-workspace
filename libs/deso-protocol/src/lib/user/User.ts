@@ -139,6 +139,7 @@ export class User {
       transactionSpendingLimitResponse:
         request.TransactionSpendingLimitResponse,
       derivedPublicKey: request.DerivedPublicKeyBase58Check,
+      deleteKey: request.DeleteKey || undefined,
     });
     const authorizeDerivedKeyRequest: Partial<AuthorizeDerivedKeyRequest> = {
       OwnerPublicKeyBase58Check: derivedPrivateUser.publicKeyBase58Check,
