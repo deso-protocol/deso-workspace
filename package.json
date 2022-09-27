@@ -82,9 +82,6 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
-    "@commitlint/prompt-cli": "^17.1.2",
     "@nrwl/cli": "13.8.3",
     "@nrwl/cypress": "13.8.3",
     "@nrwl/eslint-plugin-nx": "13.8.3",
