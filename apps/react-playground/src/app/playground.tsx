@@ -1,6 +1,7 @@
 import { Deso } from 'deso-protocol';
 import { GetExchangeRateResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
+import { Messaging } from './Widgets/MessagingPrototype/Messaging';
 export const Playground = () => {
   const [healthCheck, setHealthCheck] = useState(0);
   const [exchangeRate, setExchangeRate] = useState<GetExchangeRateResponse>(
@@ -15,6 +16,7 @@ export const Playground = () => {
   }, []);
   return (
     <>
+      <Messaging deso={deso} />
       <div>Node health check: {healthCheck}</div>
       {Object.entries(exchangeRate).map((k, v) => {
         return (
