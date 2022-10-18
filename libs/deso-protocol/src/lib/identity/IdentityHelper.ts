@@ -13,7 +13,8 @@ export type IframeMethods =
   | 'login'
   | 'logout'
   | 'sign'
-  | 'storageGranted';
+  | 'storageGranted'
+  | 'messagingGroup';
 
 export const callIdentityMethodAndExecute = async (
   attributeValue: unknown,

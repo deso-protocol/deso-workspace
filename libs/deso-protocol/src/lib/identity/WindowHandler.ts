@@ -113,6 +113,13 @@ export const handlers = async (
     window.removeEventListener('info', windowHandler);
   }
 
+  console.log(event.data);
+  if (
+    (info.iFrameMethod === 'messagingGroup', event.data.method === 'derive')
+  ) {
+    console.log(event.data);
+  }
+
   if (
     info.iFrameMethod === 'storageGranted' &&
     event.data.method === 'storageGranted'

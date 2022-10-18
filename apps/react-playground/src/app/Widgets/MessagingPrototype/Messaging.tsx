@@ -47,7 +47,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
             const response = await deso.user.authorizeDerivedKey({
               OwnerPublicKeyBase58Check: '',
               DerivedPublicKeyBase58Check: '',
-              AppName: 'Rarible',
+              AppName: 'APPName',
               ExpirationBlock: LIMIT,
               ExpirationDays: LIMIT,
               DeleteKey: false,
@@ -95,6 +95,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
           className={buttonClass}
           onClick={async () => {
             console.log('generate the default key');
+            console.log(deso.identity.getUserKey());
             const response = await deso.identity.messagingGroups(
               deso.identity.getUserKey() as string
             );

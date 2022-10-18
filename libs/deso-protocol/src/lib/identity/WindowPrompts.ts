@@ -153,7 +153,7 @@ export const requestMessagingGroups = (
   if (queryParams) {
     queryString = Object.keys(queryParams)
       .map((param, i) => {
-        return `${param}=${queryParams[param]}`;
+        return `${i === 0 ? '' : '&'}${param}=${queryParams[param]}`;
       })
       .join('');
   }
