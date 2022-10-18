@@ -17,14 +17,14 @@ export const Playground = () => {
   return (
     <>
       <Messaging deso={deso} />
-      <div>Node health check: {healthCheck}</div>
+      {/* <div>Node health check: {healthCheck}</div>
       {Object.entries(exchangeRate).map((k, v) => {
         return (
           <div className="">
             {k}: {v}
-          </div>
-        );
-      })}
+          </div> */}
+      {/* ); */}
+      {/* })} */}
     </>
   );
 };

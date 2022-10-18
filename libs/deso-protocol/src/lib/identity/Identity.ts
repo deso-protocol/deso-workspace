@@ -21,9 +21,11 @@ import {
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
 import {
+  MessagingGroupOperation,
   requestDerive,
   requestLogin,
   requestLogout,
+  requestMessagingGroups,
   requestPhoneVerification,
   WindowFeatures,
 } from './WindowPrompts';
@@ -417,6 +419,26 @@ export class Identity {
       this.getUser(),
       this.transactions
     );
+  }
+  public async messagingGroups(publicKeyBase58Check: string) {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
+
+    if (!this.storageGranted) {
+      await this.guardFeatureSupport();
+    }
+
+    const prompt = requestMessagingGroups(
+      this.getUri(),
+      this.isTestnet(),
+      undefined,
+      {
+        operation: MessagingGroupOperation.DEFAULT_KEY,
+        applicationMessagingPublicKeyBase58Check: publicKeyBase58Check,
+        updatedGroupKeyName: 'default-key',
+        updatedGroupOwnerPublicKeyBase58Check: publicKeyBase58Check,
+      }
+    );
+    return prompt;
   }
   private isTestnet(): boolean {
     return this.network === DeSoNetwork.testnet;

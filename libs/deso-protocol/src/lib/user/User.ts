@@ -172,4 +172,36 @@ export class User {
         throw Error('something went wrong while signing');
       });
   }
+
+  public async registerMessagingGroupKey(
+    request: Partial<{
+      OwnerPublicKeyBase58Check: string;
+      MessagingPublicKeyBase58Check: string;
+      MessagingGroupKeyName: string;
+      MessagingKeySignatureHex: string;
+      MessagingGroupMembers: MessagingGroupMemberResponse[];
+      ExtraData: any;
+      MinFeeRateNanosPerKB: number;
+    }>
+  ): Promise<any> {
+    const endpoint = '/api/v0/register-messaging-group-key';
+    const apiResponse: any = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
+  }
 }
+
+export type MessagingGroupMemberResponse = {
+  // GroupMemberPublicKeyBase58Check is the main public key of the group member.
+  GroupMemberPublicKeyBase58Check: string;
+
+  // GroupMemberKeyName is the key name of the member that we encrypt the group messaging public key to. The group
+  // messaging public key should not be confused with the GroupMemberPublicKeyBase58Check, the former is the public
+  // key of the whole group, while the latter is the public key of the group member.
+  GroupMemberKeyName: string;
+
+  // EncryptedKey is the encrypted private key corresponding to the group messaging public key that's encrypted
+  // to the member's registered messaging key labeled with GroupMemberKeyName.
+  EncryptedKey: string;
+};

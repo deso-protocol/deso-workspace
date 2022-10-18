@@ -115,7 +115,7 @@ export function decryptMessage(
   return '';
 }
 
-function decryptMessageFromEncryptedToApplicationGroupMessagingKey(
+export function decryptMessageFromEncryptedToApplicationGroupMessagingKey(
   encryptedApplicationGroupMessagingKey: string,
   applicationSeedHex: string,
   encryptedMessage: EncryptedMessage
@@ -174,7 +174,7 @@ function encryptMessage(
   };
 }
 
-function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
+export function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
   encryptedApplicationGroupMessagingKey: string,
   applicationSeedHex: string,
   recipientPublicKey: string,
