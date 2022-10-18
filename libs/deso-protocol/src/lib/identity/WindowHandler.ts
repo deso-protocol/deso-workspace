@@ -113,11 +113,13 @@ export const handlers = async (
     window.removeEventListener('info', windowHandler);
   }
 
-  console.log(event.data);
   if (
-    (info.iFrameMethod === 'messagingGroup', event.data.method === 'derive')
+    info.iFrameMethod === 'messagingGroup' &&
+    event.data.method === 'messagingGroup'
   ) {
-    console.log(event.data);
+    info.data.prompt?.close();
+    info.data.resolve(event.data.payload);
+    window.removeEventListener('message', windowHandler);
   }
 
   if (

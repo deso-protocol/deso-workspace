@@ -72,6 +72,12 @@ export const generateKeyFromSource = ({
   return ec.keyFromPrivate(seedHex);
 };
 
+export const privateKeyToSeedHex = (privateKey: string): string => {
+  const privateKeyBuffer = Buffer.from(privateKey, 'hex');
+  const hdKey = HDKey.fromMasterSeed(privateKeyBuffer);
+  return hdKey.privateKey.toString('hex');
+};
+
 export type Network = 'mainnet' | 'testnet';
 
 /**

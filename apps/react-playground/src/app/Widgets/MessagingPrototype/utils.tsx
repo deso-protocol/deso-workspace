@@ -1,6 +1,7 @@
 import sha256 from 'sha256';
 import { Buffer } from 'buffer';
 
+import HDNode from 'hdkey';
 import { ec as E } from 'elliptic';
 
 import {
@@ -420,7 +421,7 @@ export const decryptShared = function (
   return decrypt(sharedPrivateKey, encrypted, opts);
 };
 
-function seedHexToPrivateKey(seedHex: string): E.KeyPair {
+export function seedHexToPrivateKey(seedHex: string): E.KeyPair {
   return EC.keyFromPrivate(seedHex);
 }
 

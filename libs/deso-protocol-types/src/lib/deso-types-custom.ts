@@ -344,3 +344,11 @@ export interface MetaMaskInitResponse {
 export interface RequestOptions {
   broadcast?: boolean;
 }
+
+export type MessagingGroupPayload = {
+  messagingKeySignature: string;
+  encryptedToApplicationGroupMessagingPrivateKey: string;
+  encryptedToMembersGroupMessagingPrivateKey: string[];
+  messagingPublicKeyBase58Check: string;
+  encryptedMessagingKeyRandomness: string | undefined;
+};

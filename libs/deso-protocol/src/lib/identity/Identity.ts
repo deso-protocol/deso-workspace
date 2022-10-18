@@ -7,6 +7,7 @@ import {
   IdentityDeriveParams,
   IdentityDeriveQueryParams,
   LoginUser,
+  MessagingGroupPayload,
   RequestOptions,
   SendMessageStatelessRequest,
 } from 'deso-protocol-types';
@@ -420,7 +421,9 @@ export class Identity {
       this.transactions
     );
   }
-  public async messagingGroups(publicKeyBase58Check: string) {
+  public async messagingGroups(
+    publicKeyBase58Check: string
+  ): Promise<MessagingGroupPayload> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
@@ -438,7 +441,15 @@ export class Identity {
         updatedGroupOwnerPublicKeyBase58Check: publicKeyBase58Check,
       }
     );
-    return prompt;
+
+    const response = await iFrameHandler(
+      {
+        iFrameMethod: 'messagingGroup',
+        data: { prompt },
+      },
+      this.transactions
+    );
+    return response;
   }
   private isTestnet(): boolean {
     return this.network === DeSoNetwork.testnet;
