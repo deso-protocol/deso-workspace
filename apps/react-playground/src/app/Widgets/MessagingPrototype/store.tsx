@@ -1,4 +1,4 @@
-import { DERIVED_SEED_HEX } from './utils';
+import { DERIVED_SEED_HEX } from './constants';
 
 export const setSecretPrivateUserInfo = (payload: {
   derivedPublicKeyBase58Check: string;

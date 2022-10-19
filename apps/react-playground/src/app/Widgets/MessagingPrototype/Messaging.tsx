@@ -123,7 +123,10 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
         </div>
 
         <div className={containerClass}>
-          <button className={buttonClass} onClick={() => encrypt(deso, {})}>
+          <button
+            className={buttonClass}
+            onClick={() => encrypt(deso, {} as any)}
+          >
             step 5: encrypt
           </button>
           <div className={explainer}>
@@ -139,7 +142,10 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
         </div>
 
         <div className={containerClass}>
-          <button className={buttonClass} onClick={() => decrypt(deso, {})}>
+          <button
+            className={buttonClass}
+            onClick={() => decrypt(deso, {} as any)}
+          >
             step 6: decrypt
           </button>
           <div className={explainer}>
