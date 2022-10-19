@@ -422,7 +422,10 @@ export class Identity {
     );
   }
   public async messagingGroups(
-    publicKeyBase58Check: string
+    publicKeyBase58Check: string,
+    applicationMessagingPublicKeyBase58Check: string, // pass derived
+    messagingGroupOperation: MessagingGroupOperation,
+    updatedGroupKeyName = 'default-key'
   ): Promise<MessagingGroupPayload> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
@@ -435,9 +438,9 @@ export class Identity {
       this.isTestnet(),
       undefined,
       {
-        operation: MessagingGroupOperation.DEFAULT_KEY,
-        applicationMessagingPublicKeyBase58Check: publicKeyBase58Check,
-        updatedGroupKeyName: 'default-key',
+        operation: messagingGroupOperation,
+        applicationMessagingPublicKeyBase58Check,
+        updatedGroupKeyName,
         updatedGroupOwnerPublicKeyBase58Check: publicKeyBase58Check,
       }
     );

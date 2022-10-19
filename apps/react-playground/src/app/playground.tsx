@@ -1,7 +1,7 @@
 import { Deso } from 'deso-protocol';
 import { GetExchangeRateResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
-import { Messaging } from './Widgets/MessagingPrototype/Messaging';
+import { Messaging } from './Widgets/MessagingPrototype/messaging';
 export const Playground = () => {
   const [healthCheck, setHealthCheck] = useState(0);
   const [exchangeRate, setExchangeRate] = useState<GetExchangeRateResponse>(

@@ -16,6 +16,8 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
+  RegisterMessagingGroupKeyRequest,
+  RegisterMessagingGroupKeyResponse,
   RequestOptions,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/Utils';
@@ -174,17 +176,9 @@ export class User {
   }
 
   public async registerMessagingGroupKey(
-    request: Partial<{
-      OwnerPublicKeyBase58Check: string;
-      MessagingPublicKeyBase58Check: string;
-      MessagingGroupKeyName: string;
-      MessagingKeySignatureHex: string;
-      MessagingGroupMembers: MessagingGroupMemberResponse[];
-      ExtraData: any;
-      MinFeeRateNanosPerKB: number;
-    }>
-  ): Promise<any> {
-    const endpoint = '/api/v0/register-messaging-group-key';
+    request: Partial<RegisterMessagingGroupKeyRequest>
+  ): Promise<RegisterMessagingGroupKeyResponse> {
+    const endpoint = 'register-messaging-group-key';
     const apiResponse: any = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
