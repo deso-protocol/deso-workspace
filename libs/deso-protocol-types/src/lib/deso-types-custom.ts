@@ -352,3 +352,9 @@ export type MessagingGroupPayload = {
   messagingPublicKeyBase58Check: string;
   encryptedMessagingKeyRandomness: string | undefined;
 };
+
+export enum MessagingGroupOperation {
+  DEFAULT_KEY = 'DefaultKey',
+  CREATE_GROUP = 'CreateGroup',
+  ADD_MEMBERS = 'AddMembers',
+}

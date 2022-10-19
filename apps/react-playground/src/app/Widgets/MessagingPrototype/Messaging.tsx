@@ -1,6 +1,5 @@
 import Deso from 'deso-protocol';
 import {
-  AuthorizeDerivedKeyResponse,
   MessagingGroupPayload,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
@@ -9,13 +8,43 @@ import {
   encryptMessageFromEncryptedToApplicationGroupMessagingKey,
   seedHexToPrivateKey,
 } from './utils';
+const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
+const LIMIT: Readonly<number> = 1_000_000_000_000;
+const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
+  const PublicKeysBase58Check = deso.identity.getUserKey() as string;
+  const response = await deso.user.getUserStateless({
+    PublicKeysBase58Check: [PublicKeysBase58Check],
+  });
+  if (!response?.UserList) {
+    return false;
+  }
+  console.log(response.UserList[0].BalanceNanos > 0);
+  return response.UserList[0].BalanceNanos > 0;
+};
+const setSecretPrivateUserInfo = (payload: {
+  publicKeyBase58Check: string;
+  derivedSeedHex: string;
+}) => {
+  localStorage.setItem(DERIVED_SEED_HEX, JSON.stringify(payload));
+};
+const getSecretPrivateUserInfo = (): {
+  publicKeyBase58Check: string;
+  derivedSeedHex: string;
+} => {
+  return (
+    JSON.parse(localStorage.getItem(DERIVED_SEED_HEX) as string) ?? {
+      publicKeyBase58Check: '',
+      derivedSeedHex: '',
+    }
+  );
+};
 const buttonClass =
   'border border-black rounded-md p-3 bg-yellow-400 hover:bg-yellow-500 min-w-[250px] pb-1';
 const containerClass = 'min-h-[150px] border-b  mx-auto ';
 const USER_TO_SEND_MESSAGE_TO: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
 export const Messaging = ({ deso }: { deso: Deso }) => {
-  let authorizeDerivedKeyTransaction: AuthorizeDerivedKeyResponse | null = null;
+  // let authorizeDerivedKeyTransaction: AuthorizeDerivedKeyResponse | null = null;
   let messagingGroupPayload: MessagingGroupPayload | null = null;
   return (
     <div className="flex flex-col mt-10">
@@ -32,9 +61,21 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
       <div className={containerClass}>
         <button
           className={buttonClass}
+          onClick={() => {
+            deso.identity.phoneVerification();
+          }}
+        >
+          step 1: if the user does not have deso, they can get some through
+          phone verifications.
+        </button>
+      </div>
+      <div className={containerClass}>
+        <button
+          className={buttonClass}
           onClick={async () => {
-            console.log('step 1: authorize derived key');
-            const LIMIT: Readonly<number> = 1_000_000_000_000;
+            if (await alertUserIfNoFunds(deso)) {
+              return;
+            }
             const TransactionSpendingLimitResponse: TransactionSpendingLimitResponse =
               {
                 GlobalDESOLimit: 15 * 1e9,
@@ -48,59 +89,72 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
                 DAOCoinOperationLimitMap: {},
                 NFTOperationLimitMap: {},
               };
-
-            const response = await deso.user.authorizeDerivedKey({
-              OwnerPublicKeyBase58Check: '',
-              DerivedPublicKeyBase58Check: '',
-              AppName: 'APPName',
-              ExpirationBlock: LIMIT,
-              ExpirationDays: LIMIT,
-              DeleteKey: false,
-              MinFeeRateNanosPerKB: 1000,
-              TransactionSpendingLimitResponse,
-            });
-            authorizeDerivedKeyTransaction = response;
-            console.log('authorized derived key', response);
+            // TODO do we need this call to get the seed hex or can we just generate a key?
+            const { publicKeyBase58Check, derivedSeedHex } =
+              await deso.identity.derive({
+                publicKey: deso.identity.getUserKey() || undefined,
+                transactionSpendingLimitResponse:
+                  TransactionSpendingLimitResponse,
+                deleteKey: false,
+              });
+            setSecretPrivateUserInfo({ publicKeyBase58Check, derivedSeedHex });
           }}
         >
-          step 1: authorize derived key
-        </button>
-      </div>
-      <div className={containerClass}>
-        <button
-          className={buttonClass}
-          onClick={() => {
-            deso.identity.phoneVerification();
-          }}
-        >
-          step 2: if the user does not have deso, they can get some through
-          phone verifications.
+          step 2: authorize derived key
         </button>
       </div>
 
       <div className={containerClass}>
         <button
           className={buttonClass}
-          onClick={() => {
-            if (authorizeDerivedKeyTransaction) {
-              deso.transaction.submitTransaction(
-                authorizeDerivedKeyTransaction.TransactionHex
-              );
-            } else {
-              alert('need to first construct authorizeDerivedKey transaction');
-            }
+          onClick={async () => {
+            const TransactionSpendingLimitResponse: TransactionSpendingLimitResponse =
+              {
+                GlobalDESOLimit: 15 * 1e9,
+                DAOCoinLimitOrderLimitMap: {},
+                TransactionCountLimitMap: {
+                  PRIVATE_MESSAGE: LIMIT,
+                  MESSAGING_GROUP: LIMIT,
+                  AUTHORIZE_DERIVED_KEY: 1,
+                },
+                CreatorCoinOperationLimitMap: {},
+                DAOCoinOperationLimitMap: {},
+                NFTOperationLimitMap: {},
+              };
+            const { publicKeyBase58Check, derivedSeedHex } =
+              getSecretPrivateUserInfo();
+            const authorizeResponse = await deso.user.authorizeDerivedKey(
+              {
+                OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+                DerivedPublicKeyBase58Check: publicKeyBase58Check,
+                AppName: 'APPName',
+                ExpirationBlock: LIMIT,
+                DeleteKey: false,
+                MinFeeRateNanosPerKB: 1000,
+                TransactionSpendingLimitResponse,
+              },
+              { broadcast: false }
+            );
+            const signedTransaction = deso.utils.signTransaction(
+              derivedSeedHex,
+              authorizeResponse.TransactionHex,
+              true
+            );
+            const submitResponse =
+              deso.transaction.submitTransaction(signedTransaction);
+            console.log(submitResponse);
           }}
         >
-          step 3:Now that we have our authorize derive key transaction
-          constructed and enough DESO lets submit it
+          step: 3 authorize again
         </button>
       </div>
       <div>
         <button
           className={buttonClass}
           onClick={async () => {
-            console.log('generate the default key');
-            console.log(deso.identity.getUserKey());
+            if (await alertUserIfNoFunds(deso)) {
+              return;
+            }
             messagingGroupPayload = await deso.identity.messagingGroups(
               deso.identity.getUserKey() as string
             );
@@ -113,7 +167,10 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
       <div className={containerClass}>
         <button
           className={buttonClass}
-          onClick={() => {
+          onClick={async () => {
+            if (await alertUserIfNoFunds(deso)) {
+              return;
+            }
             console.log('encrypt');
 
             // encryptedApplicationGroupMessagingKey: string,
@@ -141,10 +198,13 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
       <div className={containerClass}>
         <button
           className={buttonClass}
-          onClick={() => {
+          onClick={async () => {
+            if (await alertUserIfNoFunds(deso)) {
+              return;
+            }
             if (messagingGroupPayload) {
               decryptMessageFromEncryptedToApplicationGroupMessagingKey(
-                messagingGroupPayload.encryptedMessagingKeyRandomness ?? '',
+                messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey,
                 deso.utils.privateKeyToSeedHex(
                   messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey
                 ),

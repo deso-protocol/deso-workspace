@@ -90,6 +90,7 @@ export const generateKey = async (
 ): Promise<{
   publicKeyBase58Check: string;
   keyPair: ec.KeyPair;
+  seedHex: string;
 }> => {
   const e = new ec('secp256k1');
   const entropy = ethers.utils.randomBytes(16);
@@ -97,10 +98,11 @@ export const generateKey = async (
   const dKeyChain = ethers.utils.HDNode.fromMnemonic(dMnemonic);
   const prefix = PUBLIC_KEY_PREFIXES[network].deso;
   const keyPair = e.keyFromPrivate(dKeyChain.privateKey); // gives us the keypair
+  const seedHex = privateKeyToSeedHex(dKeyChain.privateKey);
   const desoKey = keyPair.getPublic().encode('array', true);
   const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
   const publicKeyBase58Check = bs58check.encode(prefixAndKey);
-  return { publicKeyBase58Check, keyPair };
+  return { publicKeyBase58Check, keyPair, seedHex };
 };
 
 /**
@@ -157,6 +159,7 @@ export const getMetaMaskMasterPublicKeyFromSignature = (
   network: 'mainnet' | 'testnet' = 'mainnet'
 ): string => {
   const e = new ec('secp256k1');
+
   const arrayify = ethers.utils.arrayify;
   const messageHash = arrayify(ethers.utils.hashMessage(message));
   const publicKeyUncompressedHexWith0x = ethers.utils.recoverPublicKey(
@@ -191,4 +194,43 @@ export const publicKeyToDeSoPublicKey = (
   const prefix = PUBLIC_KEY_PREFIXES[network].deso;
   const key = publicKey.getPublic().encode('array', true);
   return bs58check.encode(Buffer.from([...prefix, ...key]));
+};
+
+export function seedHexToECKeyPair(seedHex: string): EC.KeyPair {
+  const ec = new EC('secp256k1');
+  return ec.keyFromPrivate(seedHex);
+}
+
+export const seedHexToPrivateKey = (seedHex: string): EC.KeyPair => {
+  const ec = new EC('secp256k1');
+  return ec.keyFromPrivate(seedHex);
+};
+
+export const signTransaction = (
+  seedHex: string,
+  transactionHex: string,
+  isDerivedKey: boolean
+): string => {
+  const privateKey = seedHexToPrivateKey(seedHex);
+
+  const transactionBytes = new Buffer(transactionHex, 'hex');
+  const transactionHash = new Buffer(sha256.x2(transactionBytes), 'hex');
+  const signature = privateKey.sign(transactionHash, { canonical: true });
+  const signatureBytes = new Buffer(signature.toDER());
+  const signatureLength = uvarint64ToBuf(signatureBytes.length);
+
+  // If transaction is signed with a derived key, use DeSo-DER recoverable signature encoding.
+  if (isDerivedKey) {
+    signatureBytes[0] += 1 + (signature.recoveryParam as number);
+  }
+
+  const signedTransactionBytes = Buffer.concat([
+    // This slice is bad. We need to remove the existing signature length field prior to appending the new one.
+    // Once we have frontend transaction construction we won't need to do this.
+    transactionBytes.slice(0, -1),
+    signatureLength,
+    signatureBytes,
+  ]);
+
+  return signedTransactionBytes.toString('hex');
 };
