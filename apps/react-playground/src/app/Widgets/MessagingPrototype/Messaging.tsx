@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   authorizeDerivedKey,
   encrypt,
@@ -15,16 +15,20 @@ import {
   getLoginResponse,
   getDerivedKeyResponse,
   setDefaultKey,
+  clearAllState,
 } from './store';
 import { buttonClass, containerClass, data, explainer } from './styles';
 import { StringifyObject } from './utils';
 
 export const Messaging = ({ deso }: { deso: Deso }) => {
+  useEffect(() => {
+    clearAllState();
+  }, []);
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
   const [requestDeriveResponse, setRequestDeriveResponse] = useState(
     getDerivedKeyResponse()
   );
-  const [authorizeDeriveKeyResponse, setAuthroizeDeriveKeyResponse] = useState(
+  const [authorizeDeriveKeyResponse, setAuthorizeDeriveKeyResponse] = useState(
     getAuthorizeDerivedKeyResponse()
   );
   const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
@@ -107,7 +111,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
             className={buttonClass}
             onClick={async () => {
               await authorizeDerivedKey(deso);
-              setAuthroizeDeriveKeyResponse(getAuthorizeDerivedKeyResponse());
+              setAuthorizeDeriveKeyResponse(getAuthorizeDerivedKeyResponse());
             }}
           >
             Authorize The Requested Derived Key
@@ -132,8 +136,9 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
             onClick={async () => {
               await generateDefaultKey(deso);
               const defaultKey = getDefaultKey();
+              console.log(defaultKey);
               if (defaultKey) {
-                setDefaultKey(defaultKey);
+                setGenerateDefaultKeyResponse(defaultKey);
               }
             }}
           >

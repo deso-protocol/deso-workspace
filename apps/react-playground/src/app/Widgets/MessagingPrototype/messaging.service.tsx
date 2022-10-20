@@ -103,14 +103,17 @@ export const generateDefaultKey = async (deso: Deso) => {
   let groupKey = messagingKeys.MessagingGroupEntries?.find(
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
+
   if (groupKey) {
     alert('messaging key already exists');
     setDefaultKey(groupKey);
+    console.log(groupKey);
     return;
   }
 
   const { derivedPublicKeyBase58Check, derivedSeedHex } =
     getDerivedKeyResponse();
+
   const messagingGroupPayload = await deso.identity.messagingGroups(
     deso.identity.getUserKey() as string,
     derivedPublicKeyBase58Check,

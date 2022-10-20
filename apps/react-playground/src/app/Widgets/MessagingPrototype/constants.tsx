@@ -21,4 +21,14 @@ export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
 export const DEFAULT_KEY: Readonly<string> = 'defaultKey';
 export const LOGIN_RESPONSE: Readonly<string> = 'loginResponse';
 export const GROUP_NAME: Readonly<string> = 'default-key';
+export const ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY: Readonly<string> =
+  'encryptedToApplicationGroupMessagingPrivateKey';
 export const LIMIT: Readonly<number> = 1_000_000_000_000;
+export const localStorageKeys: Readonly<string>[] = [
+  ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
+  GROUP_NAME,
+  LOGIN_RESPONSE,
+  DEFAULT_KEY,
+  DERIVED_SEED_HEX,
+  USER_TO_SEND_MESSAGE_TO,
+];

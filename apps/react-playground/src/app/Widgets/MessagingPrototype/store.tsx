@@ -3,7 +3,12 @@ import {
   LoginUser,
   MessagingGroupEntryResponse,
 } from 'deso-protocol-types';
-import { DEFAULT_KEY, DERIVED_SEED_HEX } from './constants';
+import {
+  DEFAULT_KEY,
+  DERIVED_SEED_HEX,
+  ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
+  localStorageKeys,
+} from './constants';
 //login
 export const setLoginResponse = (defaultKey: LoginUser) => {
   localStorage.setItem(DEFAULT_KEY, JSON.stringify(defaultKey));
@@ -68,7 +73,7 @@ export const setEncryptedToApplicationGroupMessagingPrivateKey = (
   encryptedPrivateKey: string
 ): void => {
   let keys = JSON.parse(
-    localStorage.getItem('encryptedToApplicationGroupMessagingPrivateKey') ||
+    localStorage.getItem(ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY) ||
       '{}'
   );
   const keyNames = keys[publicKey];
@@ -77,7 +82,13 @@ export const setEncryptedToApplicationGroupMessagingPrivateKey = (
     [publicKey]: { ...keyNames, [keyName]: encryptedPrivateKey },
   };
   localStorage.setItem(
-    'encryptedToApplicationGroupMessagingPrivateKey',
+    ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
     JSON.stringify(keys)
   );
+};
+//clear all
+export const clearAllState = () => {
+  localStorageKeys.forEach((key) => {
+    localStorage.setItem(key, '{}');
+  });
 };
