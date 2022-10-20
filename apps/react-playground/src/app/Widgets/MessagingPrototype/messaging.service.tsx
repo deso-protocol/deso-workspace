@@ -14,14 +14,18 @@ import {
   encryptMessageFromEncryptedToApplicationGroupMessagingKey,
 } from './cryptoUtils';
 import {
-  getSecretPrivateUserInfo,
+  getDerivedKeyResponse,
+  setAuthorizeDerivedKeyResponse,
+  setDefaultKey,
+  setLoginResponse,
+  setDerivedKeyResponse,
   setEncryptedToApplicationGroupMessagingPrivateKey,
-  setSecretPrivateUserInfo,
 } from './store';
 import { alertUserIfNoFunds } from './utils';
 
 export const login = async (deso: Deso) => {
-  deso.identity.login();
+  const response = await deso.identity.login();
+  setLoginResponse(response.user);
 };
 
 export const getFreeDeso = async (deso: Deso) => {
@@ -46,7 +50,7 @@ export const requestDerivedKey = async (deso: Deso) => {
       expirationDays: LIMIT,
     });
 
-  setSecretPrivateUserInfo({
+  setDerivedKeyResponse({
     derivedPublicKeyBase58Check,
     derivedSeedHex,
     transactionSpendingLimitHex,
@@ -61,7 +65,7 @@ export const authorizeDerivedKey = async (deso: Deso) => {
     transactionSpendingLimitHex,
     accessSignature,
     expirationBlock,
-  } = getSecretPrivateUserInfo();
+  } = getDerivedKeyResponse();
   if (!derivedPublicKeyBase58Check) {
     alert('need to create derived key first');
     return;
@@ -84,6 +88,7 @@ export const authorizeDerivedKey = async (deso: Deso) => {
   );
 
   deso.transaction.submitTransaction(signedSpendingLimits);
+  setAuthorizeDerivedKeyResponse(authorizeResponse);
 };
 
 export const generateDefaultKey = async (deso: Deso) => {
@@ -91,8 +96,21 @@ export const generateDefaultKey = async (deso: Deso) => {
     return;
   }
 
+  let messagingKeys = await deso.user.getAllMessagingGroupKeys({
+    OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
+
+  let groupKey = messagingKeys.MessagingGroupEntries?.find(
+    (x) => x.MessagingGroupKeyName === GROUP_NAME
+  );
+  if (groupKey) {
+    alert('messaging key already exists');
+    setDefaultKey(groupKey);
+    return;
+  }
+
   const { derivedPublicKeyBase58Check, derivedSeedHex } =
-    getSecretPrivateUserInfo();
+    getDerivedKeyResponse();
   const messagingGroupPayload = await deso.identity.messagingGroups(
     deso.identity.getUserKey() as string,
     derivedPublicKeyBase58Check,
@@ -120,9 +138,19 @@ export const generateDefaultKey = async (deso: Deso) => {
     true
   );
 
-  deso.transaction.submitTransaction(signedTransaction);
+  await deso.transaction.submitTransaction(signedTransaction);
   // submit
-  console.log(messagingGroupPayload);
+
+  messagingKeys = await deso.user.getAllMessagingGroupKeys({
+    OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
+
+  groupKey = messagingKeys.MessagingGroupEntries?.find(
+    (x) => x.MessagingGroupKeyName === GROUP_NAME
+  );
+  if (groupKey) {
+    setDefaultKey(groupKey);
+  }
 };
 
 export const encrypt = async (

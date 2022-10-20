@@ -18,5 +18,7 @@ export const getTransactionSpendingLimits =
 export const USER_TO_SEND_MESSAGE_TO: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
 export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
+export const DEFAULT_KEY: Readonly<string> = 'defaultKey';
+export const LOGIN_RESPONSE: Readonly<string> = 'loginResponse';
 export const GROUP_NAME: Readonly<string> = 'default-key';
 export const LIMIT: Readonly<number> = 1_000_000_000_000;

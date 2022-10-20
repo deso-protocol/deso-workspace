@@ -6,6 +6,8 @@ import {
   BlockPublicKeyRequest,
   BlockPublicKeyResponse,
   DeletePIIRequest,
+  GetAllMessagingGroupKeysRequest,
+  GetAllMessagingGroupKeysResponse,
   GetProfilesRequest,
   GetProfilesResponse,
   GetSingleProfileRequest,
@@ -175,6 +177,15 @@ export class User {
       });
   }
 
+  public async getAllMessagingGroupKeys(
+    request: Partial<GetAllMessagingGroupKeysRequest>
+  ): Promise<GetAllMessagingGroupKeysResponse> {
+    const endpoint = 'get-all-messaging-group-keys';
+    const apiResponse: any = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
+  }
   public async registerMessagingGroupKey(
     request: Partial<RegisterMessagingGroupKeyRequest>
   ): Promise<RegisterMessagingGroupKeyResponse> {

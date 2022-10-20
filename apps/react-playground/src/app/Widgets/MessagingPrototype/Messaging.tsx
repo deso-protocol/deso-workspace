@@ -1,4 +1,5 @@
 import Deso from 'deso-protocol';
+import { useState } from 'react';
 import {
   authorizeDerivedKey,
   encrypt,
@@ -8,26 +9,46 @@ import {
   requestDerivedKey,
   decrypt,
 } from './messaging.service';
-import { getSecretPrivateUserInfo } from './store';
+import {
+  getAuthorizeDerivedKeyResponse,
+  getDefaultKey,
+  getLoginResponse,
+  getDerivedKeyResponse,
+  setDefaultKey,
+} from './store';
 import { buttonClass, containerClass, data, explainer } from './styles';
+import { StringifyObject } from './utils';
 
 export const Messaging = ({ deso }: { deso: Deso }) => {
+  const [loginResponse, setLoginResponse] = useState(getLoginResponse());
+  const [requestDeriveResponse, setRequestDeriveResponse] = useState(
+    getDerivedKeyResponse()
+  );
+  const [authorizeDeriveKeyResponse, setAuthroizeDeriveKeyResponse] = useState(
+    getAuthorizeDerivedKeyResponse()
+  );
+  const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
+    useState(getDefaultKey());
   return (
-    <>
-      <div className="bg-blue-400 flex text-white">
+    <div className="max-w-[1050px] border border-black mx-auto my-10">
+      <div className="bg-blue-400 flex text-white mx-auto">
         <div className="min-w-[250px] border-r border-black p-2 text-center">
           steps
         </div>
-        <div className="min-w-[450px] border-r border-black p-2 text-center">
+        <div className="min-w-[350px] border-r border-black p-2 text-center">
           explanation
         </div>
-        <div className=" flex-grow border-r border-black p-2 text-center">
-          data
-        </div>
+        <div className=" min-w-[450px] border-black p-2 text-center">data</div>
       </div>
       <div className="flex flex-col">
         <div className={containerClass}>
-          <button className={buttonClass} onClick={() => login(deso)}>
+          <button
+            className={buttonClass}
+            onClick={async () => {
+              await login(deso);
+              setLoginResponse(getLoginResponse());
+            }}
+          >
             Login
           </button>
           <div className={explainer}>
@@ -40,6 +61,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
               Window API Login Docs
             </a>
           </div>
+          <StringifyObject obj={loginResponse} />
         </div>
         <div className={containerClass}>
           <button className={buttonClass} onClick={() => getFreeDeso(deso)}>
@@ -58,7 +80,13 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
           </div>
         </div>
         <div className={containerClass}>
-          <button className={buttonClass} onClick={(deso) => requestDerivedKey}>
+          <button
+            className={buttonClass}
+            onClick={async () => {
+              await requestDerivedKey(deso);
+              setRequestDeriveResponse(getDerivedKeyResponse);
+            }}
+          >
             Request Derived Key
           </button>
           <div className={explainer}>
@@ -71,17 +99,16 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
               Window API Derive Docs
             </a>
           </div>
-          <div className={data}>
-            required response data:
-            <br />
-            <pre>{JSON.stringify(getSecretPrivateUserInfo(), null, 2)}</pre>
-          </div>
+          <StringifyObject obj={requestDeriveResponse} />
         </div>
 
         <div className={containerClass}>
           <button
             className={buttonClass}
-            onClick={() => authorizeDerivedKey(deso)}
+            onClick={async () => {
+              await authorizeDerivedKey(deso);
+              setAuthroizeDeriveKeyResponse(getAuthorizeDerivedKeyResponse());
+            }}
           >
             Authorize The Requested Derived Key
           </button>
@@ -96,19 +123,21 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
               Authorize Derived Key Docs
             </a>
           </div>
-          <div className={data}>
-            required response data:
-            <br />
-            <pre>{JSON.stringify(getSecretPrivateUserInfo(), null, 2)}</pre>
-          </div>
+          <StringifyObject obj={authorizeDeriveKeyResponse} />
         </div>
 
         <div className={containerClass}>
           <button
             className={buttonClass}
-            onClick={() => generateDefaultKey(deso)}
+            onClick={async () => {
+              await generateDefaultKey(deso);
+              const defaultKey = getDefaultKey();
+              if (defaultKey) {
+                setDefaultKey(defaultKey);
+              }
+            }}
           >
-            step 4: generate the default key
+            generate the default key
           </button>
           <div className={explainer}>
             To get started a user must first login into the deso block chain.
@@ -120,6 +149,8 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
               Window API Docs
             </a>
           </div>
+
+          <StringifyObject obj={getGenerateDefaultKeyResponse} />
         </div>
 
         <div className={containerClass}>
@@ -127,7 +158,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
             className={buttonClass}
             onClick={() => encrypt(deso, {} as any)}
           >
-            step 5: encrypt
+            Encrypt
           </button>
           <div className={explainer}>
             To get started a user must first login into the deso block chain.
@@ -146,7 +177,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
             className={buttonClass}
             onClick={() => decrypt(deso, {} as any)}
           >
-            step 6: decrypt
+            Decrypt
           </button>
           <div className={explainer}>
             To get started a user must first login into the deso block chain.
@@ -160,6 +191,6 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
