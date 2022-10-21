@@ -342,7 +342,7 @@ export class Identity {
   ) {
     // don't submit the transaction, instead just return the api response from the
     // previous call
-    if (options?.broadcast === false) return;
+    if (options?.broadcast === false) return { TransactionHex };
     // server app? then you can't call the iframe
     if (this.host === 'server') throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {

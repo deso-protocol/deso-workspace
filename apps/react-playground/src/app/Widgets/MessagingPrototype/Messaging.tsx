@@ -14,15 +14,13 @@ import {
   getDefaultKey,
   getLoginResponse,
   getDerivedKeyResponse,
-  setDefaultKey,
-  clearAllState,
 } from './store';
 import { buttonClass, containerClass, data, explainer } from './styles';
 import { StringifyObject } from './utils';
 
 export const Messaging = ({ deso }: { deso: Deso }) => {
   useEffect(() => {
-    clearAllState();
+    // clearAllState();
   }, []);
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
   const [requestDeriveResponse, setRequestDeriveResponse] = useState(
@@ -159,10 +157,7 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
         </div>
 
         <div className={containerClass}>
-          <button
-            className={buttonClass}
-            onClick={() => encrypt(deso, {} as any)}
-          >
+          <button className={buttonClass} onClick={() => encrypt(deso)}>
             Encrypt
           </button>
           <div className={explainer}>
@@ -178,10 +173,8 @@ export const Messaging = ({ deso }: { deso: Deso }) => {
         </div>
 
         <div className={containerClass}>
-          <button
-            className={buttonClass}
-            onClick={() => decrypt(deso, {} as any)}
-          >
+          TODO look into why cipher isn't correct
+          <button className={buttonClass} onClick={() => decrypt(deso)}>
             Decrypt
           </button>
           <div className={explainer}>

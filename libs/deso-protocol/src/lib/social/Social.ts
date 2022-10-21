@@ -39,6 +39,14 @@ export class Social {
     this.node = node;
     this.identity = identity;
   }
+  public sendMessageWithoutIdentity = async (
+    // TODO: temp fix method until major library update
+    request: Partial<SendMessageStatelessRequest>
+  ) => {
+    return (
+      await axios.post(`${this.node.getUri()}/send-message-stateless`, request)
+    ).data;
+  };
 
   public async sendMessage(
     request: Partial<SendMessageStatelessRequest>,

@@ -3,6 +3,7 @@ import {
   MessagingGroupOperation,
   MessagingGroupPayload,
 } from 'deso-protocol-types';
+import { desoAddressToECKeyPair } from 'libs/deso-protocol/src/lib/utils/Utils';
 import {
   getTransactionSpendingLimits,
   GROUP_NAME,
@@ -20,6 +21,7 @@ import {
   setLoginResponse,
   setDerivedKeyResponse,
   setEncryptedToApplicationGroupMessagingPrivateKey,
+  getEncryptedToApplicationGroupMessagingPrivateKey,
 } from './store';
 import { alertUserIfNoFunds } from './utils';
 
@@ -103,16 +105,28 @@ export const generateDefaultKey = async (deso: Deso) => {
   let groupKey = messagingKeys.MessagingGroupEntries?.find(
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
+  const { derivedPublicKeyBase58Check, derivedSeedHex } =
+    getDerivedKeyResponse();
 
   if (groupKey) {
     alert('messaging key already exists');
     setDefaultKey(groupKey);
     console.log(groupKey);
+
+    const messagingGroupPayload = await deso.identity.messagingGroups(
+      deso.identity.getUserKey() as string,
+      derivedPublicKeyBase58Check,
+      MessagingGroupOperation.DEFAULT_KEY,
+      GROUP_NAME
+    );
+
+    setEncryptedToApplicationGroupMessagingPrivateKey(
+      deso.identity.getUserKey() as string,
+      GROUP_NAME,
+      messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey
+    );
     return;
   }
-
-  const { derivedPublicKeyBase58Check, derivedSeedHex } =
-    getDerivedKeyResponse();
 
   const messagingGroupPayload = await deso.identity.messagingGroups(
     deso.identity.getUserKey() as string,
@@ -156,61 +170,118 @@ export const generateDefaultKey = async (deso: Deso) => {
   }
 };
 
-export const encrypt = async (
-  deso: Deso,
-  messagingGroupPayload: MessagingGroupPayload
-) => {
+export const encrypt = async (deso: Deso) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
-  console.log('encrypt');
 
-  // encryptedApplicationGroupMessagingKey: string,
-  // applicationSeedHex: string,
-  // recipientPublicKey: string,
-  // message: string
-  if (messagingGroupPayload) {
-    const encryptedMessage =
-      encryptMessageFromEncryptedToApplicationGroupMessagingKey(
-        messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey,
-        '', //derived seed hex ,
-        USER_TO_SEND_MESSAGE_TO,
-        'message to encrypt'
-      );
-    // const submit message, sign with derived key
-    console.log(encryptedMessage);
+  const { derivedSeedHex } = getDerivedKeyResponse();
+
+  const encryptedToApplicationGroupMessagingPrivateKey =
+    getEncryptedToApplicationGroupMessagingPrivateKey()?.[
+      deso.identity.getUserKey() as string
+    ]?.[GROUP_NAME];
+
+  if (!encryptedToApplicationGroupMessagingPrivateKey || !derivedSeedHex) {
+    alert(
+      'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
+    );
+    return;
   }
+
+  const encryptedMessage =
+    encryptMessageFromEncryptedToApplicationGroupMessagingKey(
+      encryptedToApplicationGroupMessagingPrivateKey,
+      derivedSeedHex,
+      USER_TO_SEND_MESSAGE_TO,
+      'message to encrypt'
+    );
+
+  if (!encryptedMessage) {
+    alert('unable to encrypt message');
+    return;
+  }
+
+  const transaction = await deso.social.sendMessageWithoutIdentity({
+    EncryptedMessageText: encryptedMessage.toString('hex'),
+    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    MinFeeRateNanosPerKB: 1000,
+  });
+
+  console.log(transaction);
+
+  if (!transaction?.TransactionHex) {
+    alert('failed to construct transaction');
+    return;
+  }
+
+  const signedTransaction = deso.utils.signTransaction(
+    derivedSeedHex,
+    transaction.TransactionHex,
+    true
+  );
+
+  await deso.transaction.submitTransaction(signedTransaction).catch(() => {
+    alert('something went wrong while submitting the transaction');
+  });
 };
 
-export const decrypt = async (
-  deso: Deso,
-  messagingGroupPayload: MessagingGroupPayload
-) => {
+export const decrypt = async (deso: Deso) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
-  // show how to pull encrypted messages and then run it through the decryption
-  // add inbox similar to node.deso.org
-  if (messagingGroupPayload) {
+
+  const response = await getEncryptedMessage(deso);
+
+  if (response.length === 0) {
+    alert('no messages found');
+    return;
+  }
+  const { derivedSeedHex } = getDerivedKeyResponse();
+  const encryptedToApplicationGroupMessagingPrivateKey =
+    getEncryptedToApplicationGroupMessagingPrivateKey()?.[
+      response[0].SenderMessagingPublicKey
+    ]?.[GROUP_NAME];
+
+  if (!encryptedToApplicationGroupMessagingPrivateKey) {
+    alert(
+      'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
+    );
+    return;
+  }
+
+  const decryptedMessage =
     decryptMessageFromEncryptedToApplicationGroupMessagingKey(
-      messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey,
-      '', //derived
+      encryptedToApplicationGroupMessagingPrivateKey,
+      derivedSeedHex,
       {
-        // update to v3
         EncryptedHex:
-          '04dc277d8ba1ad4116ea9143d27a92be5d520de5f5c9d4645f85fe5f6b5791e5be8c8a06bd563c86e557e870ef8c94124102df17ab16548476336c6769cde095cf2758eefc56f9d1cdccf8a6d1b0a5dc6d09054067306a99666783ea36df93d03e81cd2d2ab3a32112c3a5db0630d3bed806a647',
-        IsSender: false,
-        Version: 2,
+          '0460d8390dcae17c18b94ab23a2d64694c8d1f116306d4633f48981f806f2262312e55a3fb9efb98909063c65adf04353cfbf91d6aa36eb043b0570c2a0525450de557e9a76e629036619356a1ebc8e06ccf3a4948091cca0409fa436d4bc1fe2d6bf82e2b2dd93cafc44feae6227aa689',
+        PublicKey: 'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
+        IsSender: true,
+        Legacy: false,
+        Version: 3,
         SenderMessagingPublicKey:
-          'BC1YLjMYu2ahUtWgSX34cNLeM9BM9y37cqXzxAjbvPfbxppDh16Jwog',
+          'BC1YLi7moxmi9TKhKf5CQ1JtuHF9sGZYymhXJY5xkjkuwhjYHsvLbcE',
         SenderMessagingGroupKeyName: '',
         RecipientMessagingPublicKey:
           'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
         RecipientMessagingGroupKeyName: '',
-        PublicKey: deso.identity.getUserKey() as string,
-        Legacy: false,
       }
     );
-  }
-  console.log('decrypt');
+
+  console.log(decryptedMessage);
+};
+export const getEncryptedMessage = (deso: Deso) => {
+  return deso.social.getMessagesStateless({
+    PublicKeyBase58Check: deso.identity.getUserKey() as string,
+    NumToFetch: 25,
+    FetchAfterPublicKeyBase58Check: '',
+    HoldersOnly: false,
+    FollowersOnly: false,
+    FollowingOnly: false,
+    HoldingsOnly: false,
+    SortAlgorithm: 'time',
+  });
 };

@@ -180,7 +180,7 @@ export function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
   applicationSeedHex: string,
   recipientPublicKey: string,
   message: string
-): string | Buffer {
+): Buffer {
   const groupPrivateEncryptionKey = decryptGroupMessagingPrivateKeyToMember(
     Buffer.from(applicationSeedHex, 'hex'),
     Buffer.from(encryptedApplicationGroupMessagingKey, 'hex')
@@ -270,9 +270,11 @@ function hmacSha256Sign(key: Buffer, msg: Buffer) {
 // Obtain the public elliptic curve key from a private
 export const getPublic = function (privateKey: Buffer): Buffer {
   assert(privateKey.length === 32, 'Bad private key');
-  return new Buffer(
-    ec.keyFromPrivate(privateKey).getPublic().encode('array', true)
-  );
+
+  return new Buffer(ec.keyFromPrivate(privateKey).getPublic('array'));
+  // return new Buffer(
+  //   ec.keyFromPrivate(privateKey).getPublic().encode('array', true)
+  // );
 };
 
 // ECDSA
@@ -302,6 +304,7 @@ export const verify = function (publicKey: Buffer, msg: Buffer, sig: Buffer) {
 
 //ECDH
 export const derive = function (privateKeyA: Buffer, publicKeyB: Buffer) {
+  console.log(publicKeyB);
   assert(Buffer.isBuffer(privateKeyA), 'Bad input');
   assert(Buffer.isBuffer(publicKeyB), 'Bad input');
   assert(privateKeyA.length === 32, 'Bad private key');
