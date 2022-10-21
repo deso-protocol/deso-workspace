@@ -230,7 +230,6 @@ export const decrypt = async (deso: Deso) => {
 
   const response = await getEncryptedMessage(deso);
 
-  console.log(console.log(response));
   if (response.length === 0) {
     alert('no messages found');
     return;
@@ -246,25 +245,28 @@ export const decrypt = async (deso: Deso) => {
     );
     return;
   }
+  // const messageToDecrypt = response[0] // TODO  hook in all messages
+  const messageToDecrypt = {
+    EncryptedHex:
+      '0460d8390dcae17c18b94ab23a2d64694c8d1f116306d4633f48981f806f2262312e55a3fb9efb98909063c65adf04353cfbf91d6aa36eb043b0570c2a0525450de557e9a76e629036619356a1ebc8e06ccf3a4948091cca0409fa436d4bc1fe2d6bf82e2b2dd93cafc44feae6227aa689',
+    PublicKey: 'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
+    IsSender: true,
+    Legacy: false,
+    Version: 3,
+    SenderMessagingPublicKey:
+      'BC1YLi7moxmi9TKhKf5CQ1JtuHF9sGZYymhXJY5xkjkuwhjYHsvLbcE',
+    SenderMessagingGroupKeyName: '',
+    RecipientMessagingPublicKey:
+      'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
+    RecipientMessagingGroupKeyName: GROUP_NAME,
+  };
 
   const decryptedMessage =
     decryptMessageFromEncryptedToApplicationGroupMessagingKey(
       encryptedToApplicationGroupMessagingPrivateKey,
+
       derivedSeedHex,
-      {
-        EncryptedHex:
-          '0460d8390dcae17c18b94ab23a2d64694c8d1f116306d4633f48981f806f2262312e55a3fb9efb98909063c65adf04353cfbf91d6aa36eb043b0570c2a0525450de557e9a76e629036619356a1ebc8e06ccf3a4948091cca0409fa436d4bc1fe2d6bf82e2b2dd93cafc44feae6227aa689',
-        PublicKey: 'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
-        IsSender: true,
-        Legacy: false,
-        Version: 3,
-        SenderMessagingPublicKey:
-          'BC1YLi7moxmi9TKhKf5CQ1JtuHF9sGZYymhXJY5xkjkuwhjYHsvLbcE',
-        SenderMessagingGroupKeyName: '',
-        RecipientMessagingPublicKey:
-          'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
-        RecipientMessagingGroupKeyName: GROUP_NAME,
-      }
+      messageToDecrypt
     );
 
   console.log(decryptedMessage);

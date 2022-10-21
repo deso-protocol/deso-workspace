@@ -14,13 +14,14 @@ import {
   getDefaultKey,
   getLoginResponse,
   getDerivedKeyResponse,
+  clearAllState,
 } from '../store';
 import { buttonClass, containerClass, explainer } from '../styles';
 import { StringifyObject } from '../utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   useEffect(() => {
-    // clearAllState();
+    clearAllState();
   }, []);
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
   const [requestDeriveResponse, setRequestDeriveResponse] = useState(
@@ -87,12 +88,14 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 Get Free Deso Docs
               </a>
             </div>
+            <div>N/A</div>
           </div>
           <div className={containerClass}>
             <button
               className={buttonClass}
               onClick={async () => {
                 await requestDerivedKey(deso);
+                setRequestDeriveResponse(getDerivedKeyResponse());
               }}
             >
               Request Derived Key
@@ -178,6 +181,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 Window API Docs
               </a>
             </div>
+            <div>N/A</div>
           </div>
 
           <div className={containerClass}>
@@ -194,6 +198,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 Window API Docs
               </a>
             </div>
+            <div>N/A</div>
           </div>
         </div>
       </div>
