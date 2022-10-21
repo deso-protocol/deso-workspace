@@ -33,7 +33,6 @@ export type MessagingGroupMember = {
 
 const ec = new E('secp256k1');
 const EC = new E('secp256k1');
-const defaultKeyName = 'default-key';
 
 export function decryptMessage(
   seedHex: string,
@@ -359,6 +358,7 @@ export const decrypt = function (
 ) {
   opts = opts || {};
   const metaLength = 1 + 64 + 16 + 32;
+  //TODO lengths both === the same value so it fails here
   assert(
     encrypted.length > metaLength,
     'Invalid Ciphertext. Data is too small'

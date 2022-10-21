@@ -1,9 +1,5 @@
 import Deso from 'deso-protocol';
-import {
-  MessagingGroupOperation,
-  MessagingGroupPayload,
-} from 'deso-protocol-types';
-import { desoAddressToECKeyPair } from 'libs/deso-protocol/src/lib/utils/Utils';
+import { MessagingGroupOperation } from 'deso-protocol-types';
 import {
   getTransactionSpendingLimits,
   GROUP_NAME,
@@ -170,7 +166,7 @@ export const generateDefaultKey = async (deso: Deso) => {
   }
 };
 
-export const encrypt = async (deso: Deso) => {
+export const encrypt = async (deso: Deso, messageToSend: string) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
@@ -194,7 +190,7 @@ export const encrypt = async (deso: Deso) => {
       encryptedToApplicationGroupMessagingPrivateKey,
       derivedSeedHex,
       USER_TO_SEND_MESSAGE_TO,
-      'message to encrypt'
+      messageToSend
     );
 
   if (!encryptedMessage) {
@@ -234,6 +230,7 @@ export const decrypt = async (deso: Deso) => {
 
   const response = await getEncryptedMessage(deso);
 
+  console.log(console.log(response));
   if (response.length === 0) {
     alert('no messages found');
     return;
@@ -243,7 +240,6 @@ export const decrypt = async (deso: Deso) => {
     getEncryptedToApplicationGroupMessagingPrivateKey()?.[
       response[0].SenderMessagingPublicKey
     ]?.[GROUP_NAME];
-
   if (!encryptedToApplicationGroupMessagingPrivateKey) {
     alert(
       'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
@@ -267,7 +263,7 @@ export const decrypt = async (deso: Deso) => {
         SenderMessagingGroupKeyName: '',
         RecipientMessagingPublicKey:
           'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
-        RecipientMessagingGroupKeyName: '',
+        RecipientMessagingGroupKeyName: GROUP_NAME,
       }
     );
 

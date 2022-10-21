@@ -19,3 +19,13 @@ export const StringifyObject = ({ obj }: any) => {
     </div>
   );
 };
+export const truncateDesoHandle = (key: string) => {
+  if (!key) return '';
+  if (key.length <= 12) {
+    return key;
+  }
+  return `${key.substring(0, 7)}....${key.substring(
+    key.length - 4,
+    key.length
+  )}`;
+};

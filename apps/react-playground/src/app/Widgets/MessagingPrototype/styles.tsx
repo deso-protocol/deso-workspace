@@ -1,5 +1,5 @@
 export const buttonClass: Readonly<string> =
-  'border-r border-black  p-3 bg-yellow-400 hover:bg-yellow-500 min-w-[250px] pb-1 max-w-[250px]';
+  'border-r border-black rounded-md  p-3 bg-[#ffda59] text-[#6d4800] hover:bg-[#ffcf26] min-w-[250px] py-2 max-w-[250px]';
 export const containerClass: Readonly<string> =
   'min-h-[250px] border-b border-black  my-auto flex ';
 export const explainer: Readonly<string> =
