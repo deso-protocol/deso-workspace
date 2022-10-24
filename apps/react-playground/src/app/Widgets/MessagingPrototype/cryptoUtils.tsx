@@ -119,16 +119,18 @@ export function decryptMessageFromPrivateMessagingKey(
   privateMessagingKey: string,
   encryptedMessage: any
 ) {
-  debugger;
-  const groupPrivateEncryptionKey = Buffer.from(privateMessagingKey, 'hex');
-
+  const groupPrivateEncryptionKeyBuffer = seedHexToPrivateKey(
+    privateMessagingKey
+  )
+    .getPrivate()
+    .toBuffer(undefined, 32);
   const publicEncryptionKey = publicKeyToECBuffer(
     encryptedMessage.IsSender
       ? (encryptedMessage.RecipientMessagingPublicKey as string)
       : (encryptedMessage.SenderMessagingPublicKey as string)
   );
   return decryptShared(
-    groupPrivateEncryptionKey,
+    groupPrivateEncryptionKeyBuffer,
     publicEncryptionKey,
     Buffer.from((encryptedMessage as any).EncryptedText, 'hex')
   );
@@ -191,17 +193,18 @@ function encryptMessage(
     encryptedMessage: encryptedMessage.toString('hex'),
   };
 }
-
 export function encryptMessageFromPrivateMessagingKey(
   privateMessagingKey: string,
   recipientPublicKey: string,
   message: string
 ) {
-  const groupPrivateEncryptionKey = Buffer.from(privateMessagingKey, 'hex');
-
+  const privateKey = seedHexToPrivateKey(privateMessagingKey);
+  const groupPrivateEncryptionKeyBuffer = privateKey
+    .getPrivate()
+    .toBuffer(undefined, 32);
   const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
   return encryptShared(
-    groupPrivateEncryptionKey,
+    groupPrivateEncryptionKeyBuffer,
     publicKeyBuffer,
     Buffer.from(message, 'hex')
   );
