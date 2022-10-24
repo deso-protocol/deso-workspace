@@ -21,7 +21,7 @@ import { StringifyObject } from '../utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   useEffect(() => {
-    clearAllState();
+    // clearAllState();
   }, []);
 
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
@@ -151,7 +151,8 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 }
               }}
             >
-              Generate The Default Key
+              Generate The Default Key //todo get-messaging-private-key-hex back
+              from the derived endpoint on identity
             </button>
             <div className={explainer}>
               In order to encrypt and decrypt messages between different keys

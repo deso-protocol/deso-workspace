@@ -23,6 +23,9 @@ export const setDerivedKeyResponse = (payload: {
   transactionSpendingLimitHex: string | undefined;
   accessSignature: string;
   expirationBlock: number;
+  messagingPublicKeyBase58Check: string;
+  messagingPrivateKey: string;
+  messagingKeyName: string;
 }) => {
   localStorage.setItem(DERIVED_SEED_HEX, JSON.stringify(payload));
 };
@@ -32,6 +35,9 @@ export const getDerivedKeyResponse = (): {
   transactionSpendingLimitHex: string;
   accessSignature: string;
   expirationBlock: number;
+  messagingPublicKeyBase58Check: string;
+  messagingPrivateKey: string;
+  messagingKeyName: string;
 } => {
   return (
     JSON.parse(localStorage.getItem(DERIVED_SEED_HEX) as string) ?? {
@@ -39,6 +45,9 @@ export const getDerivedKeyResponse = (): {
       derivedSeedHex: '',
       transactionSpendingLimitHex: '',
       accessSignature: '',
+      messagingPublicKeyBase58Check: '',
+      messagingPrivateKey: '',
+      messagingKeyName: '',
     }
   );
 };

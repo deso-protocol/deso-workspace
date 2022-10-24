@@ -115,6 +115,24 @@ export function decryptMessage(
   return '';
 }
 
+export function decryptMessageFromPrivateMessagingKey(
+  privateMessagingKey: string,
+  encryptedMessage: any
+) {
+  debugger;
+  const groupPrivateEncryptionKey = Buffer.from(privateMessagingKey, 'hex');
+
+  const publicEncryptionKey = publicKeyToECBuffer(
+    encryptedMessage.IsSender
+      ? (encryptedMessage.RecipientMessagingPublicKey as string)
+      : (encryptedMessage.SenderMessagingPublicKey as string)
+  );
+  return decryptShared(
+    groupPrivateEncryptionKey,
+    publicEncryptionKey,
+    Buffer.from((encryptedMessage as any).EncryptedText, 'hex')
+  );
+}
 export function decryptMessageFromEncryptedToApplicationGroupMessagingKey(
   encryptedApplicationGroupMessagingKey: string,
   applicationSeedHex: string,
@@ -137,7 +155,7 @@ export function decryptMessageFromEncryptedToApplicationGroupMessagingKey(
   return decryptShared(
     groupPrivateEncryptionKey,
     publicEncryptionKey,
-    new Buffer(encryptedMessage.EncryptedHex, 'hex')
+    Buffer.from((encryptedMessage as any).EncryptedText, 'hex')
   );
 }
 
@@ -174,6 +192,20 @@ function encryptMessage(
   };
 }
 
+export function encryptMessageFromPrivateMessagingKey(
+  privateMessagingKey: string,
+  recipientPublicKey: string,
+  message: string
+) {
+  const groupPrivateEncryptionKey = Buffer.from(privateMessagingKey, 'hex');
+
+  const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
+  return encryptShared(
+    groupPrivateEncryptionKey,
+    publicKeyBuffer,
+    Buffer.from(message, 'hex')
+  );
+}
 export function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
   encryptedApplicationGroupMessagingKey: string,
   applicationSeedHex: string,
@@ -270,7 +302,9 @@ function hmacSha256Sign(key: Buffer, msg: Buffer) {
 export const getPublic = function (privateKey: Buffer): Buffer {
   assert(privateKey.length === 32, 'Bad private key');
 
-  return new Buffer(ec.keyFromPrivate(privateKey).getPublic('array'));
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return new Buffer(ec.keyFromPrivate(privateKey).getPublic('arr'));
   // return new Buffer(
   //   ec.keyFromPrivate(privateKey).getPublic().encode('array', true)
   // );
@@ -303,7 +337,6 @@ export const verify = function (publicKey: Buffer, msg: Buffer, sig: Buffer) {
 
 //ECDH
 export const derive = function (privateKeyA: Buffer, publicKeyB: Buffer) {
-  console.log(publicKeyB);
   assert(Buffer.isBuffer(privateKeyA), 'Bad input');
   assert(Buffer.isBuffer(publicKeyB), 'Bad input');
   assert(privateKeyA.length === 32, 'Bad private key');

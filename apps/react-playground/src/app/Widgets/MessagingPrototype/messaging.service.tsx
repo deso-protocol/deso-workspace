@@ -1,3 +1,4 @@
+import { messagePrefix } from '@ethersproject/hash';
 import Deso from 'deso-protocol';
 import { MessagingGroupOperation } from 'deso-protocol-types';
 import {
@@ -8,7 +9,9 @@ import {
 } from './constants';
 import {
   decryptMessageFromEncryptedToApplicationGroupMessagingKey,
+  decryptMessageFromPrivateMessagingKey,
   encryptMessageFromEncryptedToApplicationGroupMessagingKey,
+  encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
 import {
   getDerivedKeyResponse,
@@ -39,6 +42,9 @@ export const requestDerivedKey = async (deso: Deso) => {
     transactionSpendingLimitHex,
     accessSignature,
     expirationBlock,
+    messagingPublicKeyBase58Check,
+    messagingPrivateKey,
+    messagingKeyName,
   } =
     //  Switch this out for a callback api
     await deso.identity.derive({
@@ -54,6 +60,9 @@ export const requestDerivedKey = async (deso: Deso) => {
     transactionSpendingLimitHex,
     accessSignature,
     expirationBlock,
+    messagingPublicKeyBase58Check,
+    messagingPrivateKey,
+    messagingKeyName,
   });
 };
 export const authorizeDerivedKey = async (deso: Deso) => {
@@ -171,12 +180,19 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     return;
   }
 
-  const { derivedSeedHex } = getDerivedKeyResponse();
+  const { derivedSeedHex, messagingPrivateKey } = getDerivedKeyResponse();
 
   const encryptedToApplicationGroupMessagingPrivateKey =
     getEncryptedToApplicationGroupMessagingPrivateKey()?.[
       deso.identity.getUserKey() as string
     ]?.[GROUP_NAME];
+  // get users messaging key
+  const response = await deso.social.checkPartyMessagingKey({
+    RecipientMessagingKeyName: 'default-key',
+    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
+    SenderMessagingKeyName: 'default-key',
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
 
   if (!encryptedToApplicationGroupMessagingPrivateKey || !derivedSeedHex) {
     alert(
@@ -185,13 +201,39 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     return;
   }
 
-  const encryptedMessage =
-    encryptMessageFromEncryptedToApplicationGroupMessagingKey(
-      encryptedToApplicationGroupMessagingPrivateKey,
-      derivedSeedHex,
-      USER_TO_SEND_MESSAGE_TO,
-      messageToSend
-    );
+  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
+    messagingPrivateKey,
+    response.RecipientMessagingPublicKeyBase58Check,
+    messageToSend
+  );
+
+  const messageToDecrypt = {
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
+    EncryptedText: encryptedMessage,
+    TstampNanos: 1666641850492793600,
+    IsSender: true,
+    V2: false,
+    Version: 3,
+    SenderMessagingPublicKey: response.SenderMessagingPublicKeyBase58Check,
+    SenderMessagingGroupKeyName: 'default-key',
+    RecipientMessagingPublicKey:
+      response.RecipientMessagingPublicKeyBase58Check,
+    RecipientMessagingGroupKeyName: 'default-key',
+  } as any;
+  console.log(encryptedMessage);
+  console.log(messageToDecrypt);
+  const res = decryptMessageFromPrivateMessagingKey(
+    messagingPrivateKey,
+    messageToDecrypt
+  );
+  console.log(res);
+  // encryptMessageFromEncryptedToApplicationGroupMessagingKey(
+  //   encryptedToApplicationGroupMessagingPrivateKey,
+  //   derivedSeedHex,
+  //   response.RecipientMessagingPublicKeyBase58Check,
+  //   messageToSend
+  // );
 
   if (!encryptedMessage) {
     alert('unable to encrypt message');
@@ -203,6 +245,8 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MinFeeRateNanosPerKB: 1000,
+    SenderMessagingGroupKeyName: 'default-key',
+    RecipientMessagingGroupKeyName: 'default-key',
   });
 
   console.log(transaction);
@@ -239,28 +283,39 @@ export const decrypt = async (deso: Deso) => {
     getEncryptedToApplicationGroupMessagingPrivateKey()?.[
       response[0].SenderMessagingPublicKey
     ]?.[GROUP_NAME];
-  if (!encryptedToApplicationGroupMessagingPrivateKey) {
-    alert(
-      'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
-    );
-    return;
-  }
-  // const messageToDecrypt = response[0] // TODO  hook in all messages
+  // if (!encryptedToApplicationGroupMessagingPrivateKey) {
+  //   alert(
+  //     'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
+  //   );
+  //   return;
+  // }
   const messageToDecrypt = {
-    EncryptedHex:
-      '0460d8390dcae17c18b94ab23a2d64694c8d1f116306d4633f48981f806f2262312e55a3fb9efb98909063c65adf04353cfbf91d6aa36eb043b0570c2a0525450de557e9a76e629036619356a1ebc8e06ccf3a4948091cca0409fa436d4bc1fe2d6bf82e2b2dd93cafc44feae6227aa689',
-    PublicKey: 'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
+    SenderPublicKeyBase58Check:
+      'BC1YLfiECJp52WjUGtdqo7rUxpWnYfqyxwL1CDRyDv2wddMxA1E4RtK',
+    RecipientPublicKeyBase58Check:
+      'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
+    EncryptedText:
+      '0437eb66680d6c3ff018694c778094085b9cccce8f9aab8e0af0b39894da4815881a5ec8d02b9a5b465fb4fd5a5fbfed48e33c91b5f5090aeca28e583b48dd9f0f7f5fb2f14644661fdb04c5152c4ae2bf820f7f8f7d9581f162729a01d4aec0cff1a1766ba39d296dc661b6dacbcdcf48',
+    TstampNanos: 1666641850492793600,
     IsSender: true,
-    Legacy: false,
+    V2: false,
     Version: 3,
     SenderMessagingPublicKey:
-      'BC1YLi7moxmi9TKhKf5CQ1JtuHF9sGZYymhXJY5xkjkuwhjYHsvLbcE',
-    SenderMessagingGroupKeyName: '',
+      'BC1YLgHUnVnHaHH5EPS7UASaX66E4DbX8aZ5TjPPfyAEidjZH9V99Lt',
+    SenderMessagingGroupKeyName: 'default-key',
     RecipientMessagingPublicKey:
-      'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY',
-    RecipientMessagingGroupKeyName: GROUP_NAME,
-  };
-
+      'BC1YLguoLTyn7SembGCmFes79LGvWgCFKmYhJ2abq2esdyF3jAw2FWw',
+    RecipientMessagingGroupKeyName: 'default-key',
+    ExtraData: {
+      RecipientMessagingGroupKeyName: 'default-key',
+      RecipientMessagingPublicKey:
+        'BC1YLguoLTyn7SembGCmFes79LGvWgCFKmYhJ2abq2esdyF3jAw2FWw',
+      SenderMessagingGroupKeyName: 'default-key',
+      SenderMessagingPublicKey:
+        'BC1YLgHUnVnHaHH5EPS7UASaX66E4DbX8aZ5TjPPfyAEidjZH9V99Lt',
+      V: '3',
+    },
+  } as any;
   const decryptedMessage =
     decryptMessageFromEncryptedToApplicationGroupMessagingKey(
       encryptedToApplicationGroupMessagingPrivateKey,
@@ -268,7 +323,7 @@ export const decrypt = async (deso: Deso) => {
       derivedSeedHex,
       messageToDecrypt
     );
-
+  console.log('made it here? ');
   console.log(decryptedMessage);
 };
 export const getEncryptedMessage = (deso: Deso) => {
