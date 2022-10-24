@@ -157,6 +157,10 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     SenderMessagingKeyName: GROUP_NAME,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
+  if (!messagingPrivateKey) {
+    alert('messagingPrivateKey is undefined');
+    return;
+  }
 
   const encryptedMessage = encryptMessageFromPrivateMessagingKey(
     messagingPrivateKey,
