@@ -23,13 +23,16 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   useEffect(() => {
     clearAllState();
   }, []);
+
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
   const [requestDeriveResponse, setRequestDeriveResponse] = useState(
     getDerivedKeyResponse()
   );
+
   const [authorizeDeriveKeyResponse, setAuthorizeDeriveKeyResponse] = useState(
     getAuthorizeDerivedKeyResponse()
   );
+
   const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
     useState(getDefaultKey());
   return (
@@ -63,7 +66,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             </button>
             <div className={explainer}>
               To get started a user must first login into the deso block chain.
-              This can be done by calling Login on the window API.{' '}
+              This can be done by calling Login on the window API{' '}
               <a
                 className="hover:underline text-blue-600"
                 href="https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in"
@@ -107,7 +110,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 className="hover:underline text-blue-600"
                 href="https://docs.deso.org/for-developers/identity/window-api/endpoints#derive"
               >
-                Window API Derive Docs
+                Request Derived Key Docs
               </a>
             </div>
             <StringifyObject obj={requestDeriveResponse} />
@@ -148,16 +151,16 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 }
               }}
             >
-              generate the default key
+              Generate The Default Key
             </button>
             <div className={explainer}>
-              To get started a user must first login into the deso block chain.
-              This can be done by calling Login on the window API.{' '}
+              In order to encrypt and decrypt messages between different keys
+              they need to have a common key to encrypt and decrypt messages{' '}
               <a
                 className="hover:underline text-blue-600"
-                href="https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in"
+                href="https://todo.com"
               >
-                Window API Docs
+                Generate The Default Key Docs // these docs need to be added
               </a>
             </div>
 
@@ -176,7 +179,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               This can be done by calling Login on the window API.{' '}
               <a
                 className="hover:underline text-blue-600"
-                href="https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in"
+                href="https://docs.deso.org/for-developers/identity/iframe-api/endpoints#encrypt"
               >
                 Window API Docs
               </a>
@@ -193,7 +196,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               This can be done by calling Login on the window API.{' '}
               <a
                 className="hover:underline text-blue-600"
-                href="https://docs.deso.org/for-developers/identity/window-api/endpoints#log-in"
+                href="https://docs.deso.org/for-developers/identity/iframe-api/endpoints#decrypt"
               >
                 Window API Docs
               </a>

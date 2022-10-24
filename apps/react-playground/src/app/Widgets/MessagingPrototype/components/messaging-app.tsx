@@ -100,6 +100,10 @@ export const MessagingApp = () => {
 
   return (
     <div className="bg-[#0C2F62] min-h-full">
+      <div className="text-center text-white mb-10 mt-4">
+        Below you will find a table that encompasses the required steps to to
+        send messages peer to peer on the deso blockchain.
+      </div>
       <div className="text-center mt-2 text-white"></div>
       <div className="flex justify-center">
         <div className="  bg-neutral-200 mx-auto ed-md flex  min-h-[600px] rounded-md">
@@ -107,7 +111,7 @@ export const MessagingApp = () => {
             {getListOfConversationsKeys()}
           </div>
           <div className="">
-            <div className="text-center bg-[#06f] border-b border-black py-2 min-w-[600px] mb-6 text-white rounded-tr-md">
+            <div className="text-center bg-[#06f] border-b border-black py-2 min-w-[750px] mb-6 text-white rounded-tr-md">
               {selectedConversationPublicKey}
             </div>
 
@@ -115,8 +119,8 @@ export const MessagingApp = () => {
               {getConversation()}
             </div>
             <div className="min-h-[100px]  border-t border-black flex justify-center">
-              <input
-                className=" min-h-[100px] min-w-[450px]"
+              <textarea
+                className=" min-h-[100px] min-w-[650px] p-2"
                 onChange={(e) => {
                   setMessageToSend(e.target.value);
                 }}
