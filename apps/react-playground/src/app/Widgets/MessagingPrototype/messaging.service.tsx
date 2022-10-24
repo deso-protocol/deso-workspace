@@ -8,9 +8,7 @@ import {
   USER_TO_SEND_MESSAGE_TO,
 } from './constants';
 import {
-  decryptMessageFromEncryptedToApplicationGroupMessagingKey,
   decryptMessageFromPrivateMessagingKey,
-  encryptMessageFromEncryptedToApplicationGroupMessagingKey,
   encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
 import {
@@ -19,8 +17,6 @@ import {
   setDefaultKey,
   setLoginResponse,
   setDerivedKeyResponse,
-  setEncryptedToApplicationGroupMessagingPrivateKey,
-  getEncryptedToApplicationGroupMessagingPrivateKey,
 } from './store';
 import { alertUserIfNoFunds } from './utils';
 
@@ -110,47 +106,20 @@ export const generateDefaultKey = async (deso: Deso) => {
   let groupKey = messagingKeys.MessagingGroupEntries?.find(
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
-  const { derivedPublicKeyBase58Check, derivedSeedHex } =
+  const { derivedSeedHex, messagingPublicKeyBase58Check } =
     getDerivedKeyResponse();
 
   if (groupKey) {
     alert('messaging key already exists');
     setDefaultKey(groupKey);
     console.log(groupKey);
-
-    const messagingGroupPayload = await deso.identity.messagingGroups(
-      deso.identity.getUserKey() as string,
-      derivedPublicKeyBase58Check,
-      MessagingGroupOperation.DEFAULT_KEY,
-      GROUP_NAME
-    );
-
-    setEncryptedToApplicationGroupMessagingPrivateKey(
-      deso.identity.getUserKey() as string,
-      GROUP_NAME,
-      messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey
-    );
     return;
   }
 
-  const messagingGroupPayload = await deso.identity.messagingGroups(
-    deso.identity.getUserKey() as string,
-    derivedPublicKeyBase58Check,
-    MessagingGroupOperation.DEFAULT_KEY,
-    GROUP_NAME
-  );
-
-  setEncryptedToApplicationGroupMessagingPrivateKey(
-    deso.identity.getUserKey() as string,
-    GROUP_NAME,
-    messagingGroupPayload.encryptedToApplicationGroupMessagingPrivateKey
-  );
-
   const transaction = await deso.user.registerMessagingGroupKey({
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    MessagingPublicKeyBase58Check: derivedPublicKeyBase58Check,
+    MessagingPublicKeyBase58Check: messagingPublicKeyBase58Check,
     MessagingGroupKeyName: GROUP_NAME,
-    MessagingKeySignatureHex: messagingGroupPayload.messagingKeySignature,
     MinFeeRateNanosPerKB: 1000,
   });
 
@@ -182,22 +151,14 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
 
   const { derivedSeedHex, messagingPrivateKey } = getDerivedKeyResponse();
 
-  const encryptedToApplicationGroupMessagingPrivateKey =
-    getEncryptedToApplicationGroupMessagingPrivateKey()?.[
-      deso.identity.getUserKey() as string
-    ]?.[GROUP_NAME];
-  // get users messaging key
   const response = await deso.social.checkPartyMessagingKey({
-    RecipientMessagingKeyName: 'default-key',
+    RecipientMessagingKeyName: GROUP_NAME,
     RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
-    SenderMessagingKeyName: 'default-key',
+    SenderMessagingKeyName: GROUP_NAME,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
-
-  if (!encryptedToApplicationGroupMessagingPrivateKey || !derivedSeedHex) {
-    alert(
-      'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
-    );
+  if (!messagingPrivateKey) {
+    alert('messagingPrivateKey is undefined');
     return;
   }
 
@@ -216,10 +177,10 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     V2: false,
     Version: 3,
     SenderMessagingPublicKey: response.SenderMessagingPublicKeyBase58Check,
-    SenderMessagingGroupKeyName: 'default-key',
+    SenderMessagingGroupKeyName: GROUP_NAME,
     RecipientMessagingPublicKey:
       response.RecipientMessagingPublicKeyBase58Check,
-    RecipientMessagingGroupKeyName: 'default-key',
+    RecipientMessagingGroupKeyName: GROUP_NAME,
   } as any;
   console.log(encryptedMessage);
   console.log(messageToDecrypt);
@@ -227,13 +188,7 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     messagingPrivateKey,
     messageToDecrypt
   );
-  console.log(res);
-  // encryptMessageFromEncryptedToApplicationGroupMessagingKey(
-  //   encryptedToApplicationGroupMessagingPrivateKey,
-  //   derivedSeedHex,
-  //   response.RecipientMessagingPublicKeyBase58Check,
-  //   messageToSend
-  // );
+  console.log(res.toString('hex'));
 
   if (!encryptedMessage) {
     alert('unable to encrypt message');
@@ -245,8 +200,8 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MinFeeRateNanosPerKB: 1000,
-    SenderMessagingGroupKeyName: 'default-key',
-    RecipientMessagingGroupKeyName: 'default-key',
+    SenderMessagingGroupKeyName: GROUP_NAME,
+    RecipientMessagingGroupKeyName: GROUP_NAME,
   });
 
   console.log(transaction);
@@ -278,17 +233,8 @@ export const decrypt = async (deso: Deso) => {
     alert('no messages found');
     return;
   }
-  const { derivedSeedHex } = getDerivedKeyResponse();
-  const encryptedToApplicationGroupMessagingPrivateKey =
-    getEncryptedToApplicationGroupMessagingPrivateKey()?.[
-      response[0].SenderMessagingPublicKey
-    ]?.[GROUP_NAME];
-  // if (!encryptedToApplicationGroupMessagingPrivateKey) {
-  //   alert(
-  //     'either encryptedToApplicationGroupMessagingPrivateKey or derivedSeedHex is undefined'
-  //   );
-  //   return;
-  // }
+  const { messagingPrivateKey } = getDerivedKeyResponse();
+
   const messageToDecrypt = {
     SenderPublicKeyBase58Check:
       'BC1YLfiECJp52WjUGtdqo7rUxpWnYfqyxwL1CDRyDv2wddMxA1E4RtK',
@@ -316,13 +262,10 @@ export const decrypt = async (deso: Deso) => {
       V: '3',
     },
   } as any;
-  const decryptedMessage =
-    decryptMessageFromEncryptedToApplicationGroupMessagingKey(
-      encryptedToApplicationGroupMessagingPrivateKey,
-
-      derivedSeedHex,
-      messageToDecrypt
-    );
+  const decryptedMessage = decryptMessageFromPrivateMessagingKey(
+    messagingPrivateKey,
+    messageToDecrypt
+  );
   console.log('made it here? ');
   console.log(decryptedMessage);
 };

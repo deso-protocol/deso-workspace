@@ -187,7 +187,7 @@ function encryptMessage(
   const encryptedMessage = encryptShared(
     privateEncryptionKey,
     publicKeyBuffer,
-    Buffer.from(message, 'hex')
+    message
   );
   return {
     encryptedMessage: encryptedMessage.toString('hex'),
@@ -206,7 +206,7 @@ export function encryptMessageFromPrivateMessagingKey(
   return encryptShared(
     groupPrivateEncryptionKeyBuffer,
     publicKeyBuffer,
-    Buffer.from(message, 'hex')
+    message
   );
 }
 export function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
@@ -222,11 +222,7 @@ export function encryptMessageFromEncryptedToApplicationGroupMessagingKey(
     .getPrivate()
     .toBuffer(undefined, 32);
   const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
-  return encryptShared(
-    groupPrivateEncryptionKey,
-    publicKeyBuffer,
-    Buffer.from(message, 'hex')
-  );
+  return encryptShared(groupPrivateEncryptionKey, publicKeyBuffer, message);
 }
 
 /**
@@ -264,7 +260,7 @@ export const kdf = function (secret: Buffer, outputLength: number) {
 
 // AES-128-CTR is used in the Parity implementation
 // Get the AES-128-CTR browser implementation
-const aesCtrEncrypt = function (counter: Buffer, key: Buffer, data: Buffer) {
+const aesCtrEncrypt = function (counter: Buffer, key: Buffer, data: string) {
   const cipher = createCipheriv('aes-128-ctr', key, counter);
   const firstChunk = cipher.update(data);
   const secondChunk = cipher.final();
@@ -282,7 +278,7 @@ const aesCtrDecrypt = function (counter: Buffer, key: Buffer, data: Buffer) {
 const aesCtrEncryptLegacy = function (
   counter: Buffer,
   key: Buffer,
-  data: Buffer
+  data: string
 ) {
   const cipher = createCipheriv('aes-128-ctr', key, counter);
   return cipher.update(data).toString();
@@ -355,7 +351,7 @@ export const derive = function (privateKeyA: Buffer, publicKeyB: Buffer) {
 // Serialization: <ephemPubKey><IV><CipherText><HMAC>
 export const encrypt = function (
   publicKeyTo: Buffer,
-  msg: Buffer,
+  msg: string,
   opts: { iv?: Buffer; legacy?: boolean; ephemPrivateKey?: Buffer }
 ) {
   opts = opts || {};
@@ -432,7 +428,7 @@ export const decrypt = function (
 export const encryptShared = function (
   privateKeySender: Buffer,
   publicKeyRecipient: Buffer,
-  msg: Buffer,
+  msg: string,
   opts: { iv?: Buffer; legacy?: boolean; ephemPrivateKey?: Buffer } = {}
 ) {
   opts = opts || {};
@@ -520,7 +516,7 @@ function encryptGroupMessagingPrivateKeyToMember(
   const messagingPkBuffer = new Buffer(
     memberMessagingPkKeyPair.getPublic().encode('array', true)
   );
-  return encrypt(messagingPkBuffer, Buffer.from(privateKeyHex), {
+  return encrypt(messagingPkBuffer, privateKeyHex, {
     legacy: false,
   }).toString('hex');
 }
