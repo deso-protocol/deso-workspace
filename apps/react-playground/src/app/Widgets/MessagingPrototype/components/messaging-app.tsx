@@ -1,47 +1,67 @@
 import { useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
-import { encrypt, getEncryptedMessage } from '../messaging.service';
+import {
+  authorizeDerivedKey,
+  decrypt,
+  encrypt,
+  generateDefaultKey,
+  getEncryptedMessage,
+  login,
+  requestDerivedKey,
+} from '../messaging.service';
 import { truncateDesoHandle } from '../utils';
+import { buttonClass } from '../styles';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
+  const [derivedResponse, setDerivedResponse] = useState({});
+  const [conversationComponent, setConversationComponent] = useState<any>(
+    <></>
+  );
   const [selectedConversationPublicKey, setSelectedConversationPublicKey] =
     useState('');
   const [conversations, setConversations] = useState<{ [key: string]: any[] }>(
     {}
   );
 
-  useEffect(() => {
-    const userKey = deso.identity.getUserKey();
-    if (!userKey) {
-      alert('you need to login first');
-      deso.identity.login();
+  const setupMessaging = async () => {
+    await login(deso);
+    const derivedResponse = await requestDerivedKey(deso);
+    if (!derivedResponse) {
       return;
     }
-
-    getConversations().then((conversations) => {
-      const conversationsArray = Object.keys(conversations);
-      if (conversationsArray.length > 0) {
-        setConversations(conversations ?? {});
-        setSelectedConversationPublicKey(conversationsArray[0]);
-      }
-    });
-  }, []);
+    setDerivedResponse(derivedResponse);
+    await authorizeDerivedKey(deso, derivedResponse);
+    await generateDefaultKey(deso, derivedResponse);
+  };
 
   const getConversations = async () => {
+    if (!derivedResponse) {
+      return {};
+    }
     const messages = await getEncryptedMessage(deso);
+    const decryptedMessages = await decrypt(deso, messages, derivedResponse);
     const messageMap: { [key: string]: any[] } = {};
     const userKey = deso.identity.getUserKey();
-    messages.forEach((message: any) => {
-      const otherUsersKey =
-        userKey === message.RecipientMessagingPublicKey
-          ? message.SenderMessagingPublicKey
-          : message.RecipientMessagingPublicKey;
-      if (!messageMap[otherUsersKey]) {
-        messageMap[otherUsersKey] = [];
+    if (
+      !decryptedMessages?.OrderedContactsWithMessages?.[0]?.Messages?.length
+    ) {
+      return messageMap; // no message object found, return empty
+    }
+    decryptedMessages.OrderedContactsWithMessages?.[0].Messages.forEach(
+      (message: any) => {
+        const otherUsersKey =
+          userKey === message.RecipientMessagingPublicKey
+            ? message.SenderMessagingPublicKey
+            : message.RecipientMessagingPublicKey;
+        if (!messageMap[otherUsersKey]) {
+          messageMap[otherUsersKey] = [];
+        }
+        console.log(message);
+
+        messageMap[otherUsersKey].push(message);
       }
-      messageMap[otherUsersKey].push(message);
-    });
+    );
     return messageMap;
   };
 
@@ -67,12 +87,12 @@ export const MessagingApp = () => {
     });
   };
 
-  const getConversation = () => {
+  const getConversationComponent = () => {
     if (
       Object.keys(conversations).length === 0 ||
       selectedConversationPublicKey === ''
     ) {
-      return;
+      return <></>;
     }
     const conversation = conversations[selectedConversationPublicKey] ?? [];
     return conversation.map((message, i) => {
@@ -103,6 +123,43 @@ export const MessagingApp = () => {
       <div className="text-center text-white mb-10 mt-4">
         Below you will find a table that encompasses the required steps to to
         send messages peer to peer on the deso blockchain.
+        <div className="flex justify-around mt-5">
+          <button
+            className={buttonClass}
+            onClick={() => {
+              const saidOk = window.confirm(
+                'click OK if you would like to setup messaging on this account. If you have already done so then it is not needed'
+              );
+              if (saidOk) {
+                setupMessaging();
+              }
+            }}
+          >
+            Setup messaging for account
+          </button>
+          <button
+            className={buttonClass}
+            onClick={async () => {
+              await getConversations().then((conversations) => {
+                const conversationsArray = Object.keys(conversations);
+                if (conversationsArray.length > 0) {
+                  setConversations(conversations ?? {});
+                  setSelectedConversationPublicKey(conversationsArray[0]);
+                }
+              });
+              if (!derivedResponse) {
+                alert('need to setup messaging for account first');
+              }
+              const conversation = getConversationComponent();
+              console.log(conversation);
+              if (conversation) {
+                setConversationComponent(conversation);
+              }
+            }}
+          >
+            Get Conversations
+          </button>
+        </div>
       </div>
       <div className="text-center mt-2 text-white"></div>
       <div className="flex justify-center">
@@ -116,7 +173,7 @@ export const MessagingApp = () => {
             </div>
 
             <div className="min-h-[1000px] max-h-[1000px] overflow-auto">
-              {getConversation()}
+              {conversationComponent}
             </div>
             <div className="min-h-[100px]  border-t border-black flex justify-center">
               <textarea
@@ -132,9 +189,7 @@ export const MessagingApp = () => {
                     alert('message is empty');
                     return;
                   }
-                  // TODO probably need to do all the checks incase the user didn't click on the explainer buttons
-                  encrypt(deso, messageToSend);
-                  // TODO reload comments
+                  encrypt(deso, messageToSend, derivedResponse);
                 }}
                 className=" min-w-[150px] bg-[#06f] text-white"
               >

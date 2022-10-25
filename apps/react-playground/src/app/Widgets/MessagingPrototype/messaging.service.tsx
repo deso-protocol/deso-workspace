@@ -1,5 +1,9 @@
 import Deso from 'deso-protocol';
 import {
+  DerivedPrivateUserInfo,
+  MessagingGroupEntryResponse,
+} from 'deso-protocol-types';
+import {
   getTransactionSpendingLimits,
   GROUP_NAME,
   LIMIT,
@@ -9,26 +13,21 @@ import {
   decryptMessageFromPrivateMessagingKey,
   encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
-import {
-  getDerivedKeyResponse,
-  setAuthorizeDerivedKeyResponse,
-  setDefaultKey,
-  setLoginResponse,
-  setDerivedKeyResponse,
-  setDecryptedResponse,
-  setEncryptedResponse,
-} from './store';
+
 import { alertUserIfNoFunds } from './utils';
 
 export const login = async (deso: Deso) => {
   const response = await deso.identity.login();
-  setLoginResponse(response.user);
+  return response;
 };
 
 export const getFreeDeso = async (deso: Deso) => {
   deso.identity.phoneVerification();
 };
-export const requestDerivedKey = async (deso: Deso) => {
+
+export const requestDerivedKey = async (
+  deso: Deso
+): Promise<Partial<DerivedPrivateUserInfo> | undefined> => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
@@ -41,16 +40,14 @@ export const requestDerivedKey = async (deso: Deso) => {
     messagingPublicKeyBase58Check,
     messagingPrivateKey,
     messagingKeyName,
-  } =
-    //  Switch this out for a callback api
-    await deso.identity.derive({
-      publicKey: deso.identity.getUserKey() || undefined,
-      transactionSpendingLimitResponse: getTransactionSpendingLimits(),
-      deleteKey: false,
-      expirationDays: LIMIT,
-    });
+  } = await deso.identity.derive({
+    publicKey: deso.identity.getUserKey() || undefined,
+    transactionSpendingLimitResponse: getTransactionSpendingLimits(),
+    deleteKey: false,
+    expirationDays: LIMIT,
+  });
 
-  setDerivedKeyResponse({
+  return {
     derivedPublicKeyBase58Check,
     derivedSeedHex,
     transactionSpendingLimitHex,
@@ -59,16 +56,19 @@ export const requestDerivedKey = async (deso: Deso) => {
     messagingPublicKeyBase58Check,
     messagingPrivateKey,
     messagingKeyName,
-  });
+  };
 };
-export const authorizeDerivedKey = async (deso: Deso) => {
+export const authorizeDerivedKey = async (
+  deso: Deso,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+): Promise<void> => {
   const {
     derivedPublicKeyBase58Check,
     derivedSeedHex,
     transactionSpendingLimitHex,
     accessSignature,
     expirationBlock,
-  } = getDerivedKeyResponse();
+  } = derivedKeyResponse;
   if (!derivedPublicKeyBase58Check) {
     alert('need to create derived key first');
     return;
@@ -85,16 +85,18 @@ export const authorizeDerivedKey = async (deso: Deso) => {
   });
 
   const signedSpendingLimits = deso.utils.signTransaction(
-    derivedSeedHex,
+    derivedSeedHex as string,
     authorizeResponse.TransactionHex,
     true
   );
 
   deso.transaction.submitTransaction(signedSpendingLimits);
-  setAuthorizeDerivedKeyResponse(authorizeResponse);
 };
 
-export const generateDefaultKey = async (deso: Deso) => {
+export const generateDefaultKey = async (
+  deso: Deso,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+): Promise<MessagingGroupEntryResponse | undefined> => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
@@ -107,13 +109,10 @@ export const generateDefaultKey = async (deso: Deso) => {
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
 
-  const { derivedSeedHex, messagingPublicKeyBase58Check } =
-    getDerivedKeyResponse();
+  const { derivedSeedHex, messagingPublicKeyBase58Check } = derivedKeyResponse;
   if (groupKey) {
     alert('messaging key already exists');
-    setDefaultKey(groupKey);
-    console.log(groupKey);
-    return;
+    return groupKey;
   }
 
   const transaction = await deso.user.registerMessagingGroupKey({
@@ -124,13 +123,12 @@ export const generateDefaultKey = async (deso: Deso) => {
   });
 
   const signedTransaction = deso.utils.signTransaction(
-    derivedSeedHex,
+    derivedSeedHex as string,
     transaction.TransactionHex,
     true
   );
 
   await deso.transaction.submitTransaction(signedTransaction);
-  // submit
 
   messagingKeys = await deso.user.getAllMessagingGroupKeys({
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
@@ -139,19 +137,20 @@ export const generateDefaultKey = async (deso: Deso) => {
   groupKey = messagingKeys.MessagingGroupEntries?.find(
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
-  if (groupKey) {
-    setDefaultKey(groupKey);
-  }
+  return groupKey;
 };
 
-export const encrypt = async (deso: Deso, messageToSend: string) => {
+export const encrypt = async (
+  deso: Deso,
+  messageToSend: string,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+): Promise<void> => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
 
-  const { derivedSeedHex, messagingPrivateKey } = getDerivedKeyResponse();
-  // messagingPrivateKey
-  console.log({ derivedSeedHex, messagingPrivateKey });
+  const { derivedSeedHex, messagingPrivateKey } = derivedKeyResponse;
+
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: GROUP_NAME,
     RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
@@ -168,25 +167,6 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     messagingPrivateKey,
     response.RecipientMessagingPublicKeyBase58Check,
     messageToSend
-  );
-
-  const messageToDecrypt = {
-    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
-    EncryptedText: encryptedMessage,
-    TstampNanos: 1666641850492793600,
-    IsSender: true,
-    V2: false,
-    Version: 3,
-    SenderMessagingPublicKey: response.SenderMessagingPublicKeyBase58Check,
-    SenderMessagingGroupKeyName: GROUP_NAME,
-    RecipientMessagingPublicKey:
-      response.RecipientMessagingPublicKeyBase58Check,
-    RecipientMessagingGroupKeyName: GROUP_NAME,
-  } as any;
-  const res = decryptMessageFromPrivateMessagingKey(
-    messagingPrivateKey,
-    messageToDecrypt
   );
 
   if (!encryptedMessage) {
@@ -209,7 +189,7 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
   }
 
   const signedTransaction = deso.utils.signTransaction(
-    derivedSeedHex,
+    derivedSeedHex as string,
     transaction.TransactionHex,
     true
   );
@@ -217,37 +197,39 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
   await deso.transaction.submitTransaction(signedTransaction).catch(() => {
     alert('something went wrong while submitting the transaction');
   });
-
-  console.log('here');
-  console.log(transaction);
-  setEncryptedResponse(transaction);
 };
 
-export const decrypt = async (deso: Deso) => {
+export const decrypt = async (
+  deso: Deso,
+  messages: any,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
-  const response = (await getEncryptedMessage(deso)) as any;
-  if (response.length === 0) {
+
+  if (messages.length === 0) {
     alert('no messages found');
     return;
   }
-  const { messagingPrivateKey } = getDerivedKeyResponse();
-  const v3Messages = response.OrderedContactsWithMessages[0].Messages.filter(
-    (m: any) => m.Version === 3
-  )
-    .filter((m: any) => (m as any).EncryptedText)
-    .filter((m: any) => !(m as any).EncryptedHex);
+
+  const { messagingPrivateKey } = derivedKeyResponse;
+
+  const v3Messages = messages.OrderedContactsWithMessages[0].Messages.filter(
+    (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
+  );
+
   const decryptedMessages = v3Messages.map((m: any, i: number) => {
     const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
-      messagingPrivateKey,
+      messagingPrivateKey as string,
       m
     ).toString();
     return { ...m, DecryptedMessage };
   });
-  console.log(decryptedMessages);
-  setDecryptedResponse(decryptedMessages);
+
+  return decryptedMessages;
 };
+
 export const getEncryptedMessage = (deso: Deso) => {
   return deso.social.getMessagesStatelessV3({
     PublicKeyBase58Check: deso.identity.getUserKey() as string,

@@ -1,5 +1,6 @@
 import {
   AuthorizeDerivedKeyResponse,
+  DerivedPrivateUserInfo,
   LoginUser,
   MessagingGroupEntryResponse,
 } from 'deso-protocol-types';
@@ -19,28 +20,12 @@ export const getLoginResponse = () => {
   return JSON.parse(localStorage.getItem(DEFAULT_KEY) || '{}');
 };
 //derive
-export const setDerivedKeyResponse = (payload: {
-  derivedPublicKeyBase58Check: string;
-  derivedSeedHex: string;
-  transactionSpendingLimitHex: string | undefined;
-  accessSignature: string;
-  expirationBlock: number;
-  messagingPublicKeyBase58Check: string;
-  messagingPrivateKey: string;
-  messagingKeyName: string;
-}) => {
+export const setDerivedKeyResponse = (
+  payload: Partial<DerivedPrivateUserInfo>
+) => {
   localStorage.setItem(DERIVED_SEED_HEX, JSON.stringify(payload));
 };
-export const getDerivedKeyResponse = (): {
-  derivedPublicKeyBase58Check: string;
-  derivedSeedHex: string;
-  transactionSpendingLimitHex: string;
-  accessSignature: string;
-  expirationBlock: number;
-  messagingPublicKeyBase58Check: string;
-  messagingPrivateKey: string;
-  messagingKeyName: string;
-} => {
+export const getDerivedKeyResponse = (): Partial<DerivedPrivateUserInfo> => {
   return (
     JSON.parse(localStorage.getItem(DERIVED_SEED_HEX) as string) ?? {
       derivedPublicKeyBase58Check: '',

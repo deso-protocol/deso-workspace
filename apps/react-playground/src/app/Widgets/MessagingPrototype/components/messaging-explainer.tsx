@@ -8,15 +8,17 @@ import {
   login,
   requestDerivedKey,
   decrypt,
+  getEncryptedMessage,
 } from '../messaging.service';
 import {
-  getAuthorizeDerivedKeyResponse,
   getDefaultKey,
   getLoginResponse,
   getDerivedKeyResponse,
   clearAllState,
   getEncryptedResponse,
   getDecryptedResponse,
+  setDerivedKeyResponse,
+  setDefaultKey,
 } from '../store';
 import {
   buttonClass,
@@ -28,16 +30,12 @@ import { StringifyObject } from '../utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
-  const [encryptResponse, setEncryptResponse] = useState(getDecryptedResponse);
   const [decryptedResponse, setDecryptedResponse] =
-    useState(getEncryptedResponse);
+    useState(getDecryptedResponse);
 
   const [requestDeriveResponse, setRequestDeriveResponse] = useState<any>(
     getDerivedKeyResponse()
   );
-
-  const [authorizeDeriveKeyResponse, setAuthorizeDeriveKeyResponse] =
-    useState<any>(getAuthorizeDerivedKeyResponse());
 
   const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
     useState(getDefaultKey());
@@ -58,10 +56,8 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             onClick={() => {
               clearAllState();
               setLoginResponse({});
-              setEncryptResponse({});
               setDecryptedResponse({});
               setRequestDeriveResponse({});
-              setAuthorizeDeriveKeyResponse({});
               setGenerateDefaultKeyResponse({});
             }}
           >
@@ -75,8 +71,8 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await login(deso);
-                setLoginResponse(getLoginResponse());
+                const response = await login(deso);
+                setLoginResponse(response);
               }}
             >
               Login
@@ -111,14 +107,19 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 Get Free Deso Docs
               </a>
             </div>
-            <div>N/A</div>
+            <div className="p-2">N/A</div>
           </div>
           <div className={containerClass}>
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await requestDerivedKey(deso);
-                setRequestDeriveResponse(getDerivedKeyResponse());
+                const response = await requestDerivedKey(deso);
+                if (!response) {
+                  alert('something went wrong with fetching your derived key');
+                  return;
+                }
+                setDerivedKeyResponse(response);
+                setRequestDeriveResponse(response);
               }}
             >
               Request Derived Key
@@ -140,8 +141,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await authorizeDerivedKey(deso);
-                setAuthorizeDeriveKeyResponse(getAuthorizeDerivedKeyResponse());
+                await authorizeDerivedKey(deso, requestDeriveResponse);
               }}
             >
               Authorize The Requested Derived Key
@@ -157,14 +157,23 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 Authorize Derived Key Docs
               </a>
             </div>
-            <StringifyObject obj={authorizeDeriveKeyResponse} />
+            <div className="p-2">N/A</div>
           </div>
 
           <div className={containerClass}>
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await generateDefaultKey(deso);
+                const groupKey = await generateDefaultKey(
+                  deso,
+                  requestDeriveResponse
+                );
+                if (!groupKey) {
+                  alert('unable to generate group key');
+                  return;
+                }
+
+                setDefaultKey(groupKey);
                 const defaultKey = getDefaultKey();
                 if (defaultKey) {
                   setGenerateDefaultKeyResponse(defaultKey);
@@ -191,9 +200,11 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await encrypt(deso, 'message to be encrypted and sent');
-                console.log(getEncryptedResponse());
-                setEncryptResponse(getEncryptedResponse());
+                await encrypt(
+                  deso,
+                  'message to be encrypted and sent',
+                  requestDeriveResponse
+                );
               }}
             >
               Encrypt
@@ -208,15 +219,22 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               </a>
             </div>
 
-            <StringifyObject obj={encryptResponse} />
+            <div className="p-2">N/A</div>
           </div>
 
           <div className={containerClass}>
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await decrypt(deso);
-                setDecryptedResponse(getEncryptedResponse());
+                const encryptedMessages = await getEncryptedMessage(deso);
+
+                const decryptedMessages = await decrypt(
+                  deso,
+                  encryptedMessages,
+                  requestDeriveResponse
+                );
+
+                setDecryptedResponse(decryptedMessages);
               }}
             >
               Decrypt
