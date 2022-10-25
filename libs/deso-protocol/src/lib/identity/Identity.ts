@@ -267,6 +267,7 @@ export class Identity {
 
       this.transactions
     );
+    console.log(derivedPrivateUser);
     return derivedPrivateUser;
   }
 

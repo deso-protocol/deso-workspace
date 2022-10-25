@@ -4,9 +4,11 @@ import {
   MessagingGroupEntryResponse,
 } from 'deso-protocol-types';
 import {
+  DECRYPT_RESPONSE,
   DEFAULT_KEY,
   DERIVED_SEED_HEX,
   ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
+  ENCRYPT_RESPONSE,
   localStorageKeys,
 } from './constants';
 //login
@@ -69,7 +71,7 @@ export const setDefaultKey = (defaultKey: MessagingGroupEntryResponse) => {
 export const getDefaultKey = () => {
   return JSON.parse(localStorage.getItem(DEFAULT_KEY) || '{}');
 };
-//
+// records for group messaging private key
 export const getEncryptedToApplicationGroupMessagingPrivateKey = () => {
   return JSON.parse(
     localStorage.getItem('encryptedToApplicationGroupMessagingPrivateKey') ||
@@ -95,8 +97,24 @@ export const setEncryptedToApplicationGroupMessagingPrivateKey = (
     JSON.stringify(keys)
   );
 };
+
+// encrypt
+export const setEncryptedResponse = (encryptedResponse: any) => {
+  localStorage.setItem(ENCRYPT_RESPONSE, JSON.stringify(encryptedResponse));
+};
+export const getEncryptedResponse = () => {
+  return JSON.parse(localStorage.getItem(ENCRYPT_RESPONSE) || '{}');
+};
+// decrypt
+export const setDecryptedResponse = (decryptedResponse: any) => {
+  localStorage.setItem(DECRYPT_RESPONSE, JSON.stringify(decryptedResponse));
+};
+export const getDecryptedResponse = () => {
+  return JSON.parse(localStorage.getItem(DECRYPT_RESPONSE) || '{}');
+};
 //clear all
 export const clearAllState = () => {
+  // lazy way of waiting for useStates to finish first
   localStorageKeys.forEach((key) => {
     localStorage.setItem(key, '{}');
   });

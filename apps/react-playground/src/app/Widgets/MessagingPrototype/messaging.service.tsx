@@ -15,6 +15,8 @@ import {
   setDefaultKey,
   setLoginResponse,
   setDerivedKeyResponse,
+  setDecryptedResponse,
+  setEncryptedResponse,
 } from './store';
 import { alertUserIfNoFunds } from './utils';
 
@@ -96,6 +98,7 @@ export const generateDefaultKey = async (deso: Deso) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
+
   let messagingKeys = await deso.user.getAllMessagingGroupKeys({
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
@@ -103,6 +106,7 @@ export const generateDefaultKey = async (deso: Deso) => {
   let groupKey = messagingKeys.MessagingGroupEntries?.find(
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
+
   const { derivedSeedHex, messagingPublicKeyBase58Check } =
     getDerivedKeyResponse();
   if (groupKey) {
@@ -146,7 +150,8 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
   }
 
   const { derivedSeedHex, messagingPrivateKey } = getDerivedKeyResponse();
-
+  // messagingPrivateKey
+  console.log({ derivedSeedHex, messagingPrivateKey });
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: GROUP_NAME,
     RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
@@ -179,8 +184,6 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
       response.RecipientMessagingPublicKeyBase58Check,
     RecipientMessagingGroupKeyName: GROUP_NAME,
   } as any;
-  console.log(encryptedMessage);
-  console.log(messageToDecrypt);
   const res = decryptMessageFromPrivateMessagingKey(
     messagingPrivateKey,
     messageToDecrypt
@@ -200,8 +203,6 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
     RecipientMessagingGroupKeyName: GROUP_NAME,
   });
 
-  console.log(transaction);
-
   if (!transaction?.TransactionHex) {
     alert('failed to construct transaction');
     return;
@@ -216,37 +217,36 @@ export const encrypt = async (deso: Deso, messageToSend: string) => {
   await deso.transaction.submitTransaction(signedTransaction).catch(() => {
     alert('something went wrong while submitting the transaction');
   });
+
+  console.log('here');
+  console.log(transaction);
+  setEncryptedResponse(transaction);
 };
 
 export const decrypt = async (deso: Deso) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
-
   const response = (await getEncryptedMessage(deso)) as any;
-
   if (response.length === 0) {
     alert('no messages found');
     return;
   }
-
   const { messagingPrivateKey } = getDerivedKeyResponse();
-  console.log(response);
   const v3Messages = response.OrderedContactsWithMessages[0].Messages.filter(
     (m: any) => m.Version === 3
   )
     .filter((m: any) => (m as any).EncryptedText)
     .filter((m: any) => !(m as any).EncryptedHex);
-  v3Messages.map((m: any, i: number) => {
-    if (i < 15) return {};
-
+  const decryptedMessages = v3Messages.map((m: any, i: number) => {
     const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
       messagingPrivateKey,
       m
-    );
-    console.log(DecryptedMessage.toString());
+    ).toString();
     return { ...m, DecryptedMessage };
   });
+  console.log(decryptedMessages);
+  setDecryptedResponse(decryptedMessages);
 };
 export const getEncryptedMessage = (deso: Deso) => {
   return deso.social.getMessagesStatelessV3({

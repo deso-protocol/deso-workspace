@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   authorizeDerivedKey,
   encrypt,
@@ -15,48 +15,65 @@ import {
   getLoginResponse,
   getDerivedKeyResponse,
   clearAllState,
+  getEncryptedResponse,
+  getDecryptedResponse,
 } from '../store';
-import { buttonClass, containerClass, explainer } from '../styles';
+import {
+  buttonClass,
+  containerClass,
+  explainer,
+  tileButtonClass,
+} from '../styles';
 import { StringifyObject } from '../utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
-  useEffect(() => {
-    clearAllState();
-  }, []);
-
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());
-  const [requestDeriveResponse, setRequestDeriveResponse] = useState(
+  const [encryptResponse, setEncryptResponse] = useState(getDecryptedResponse);
+  const [decryptedResponse, setDecryptedResponse] =
+    useState(getEncryptedResponse);
+
+  const [requestDeriveResponse, setRequestDeriveResponse] = useState<any>(
     getDerivedKeyResponse()
   );
 
-  const [authorizeDeriveKeyResponse, setAuthorizeDeriveKeyResponse] = useState(
-    getAuthorizeDerivedKeyResponse()
-  );
+  const [authorizeDeriveKeyResponse, setAuthorizeDeriveKeyResponse] =
+    useState<any>(getAuthorizeDerivedKeyResponse());
 
   const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
     useState(getDefaultKey());
+
   return (
     <div className="bg-[#0C2F62] pt-4">
-      <div className="text-center text-white">
+      <div className="text-center text-white mx-auto max-w-[1050px] min-w-[1050px]">
         Below you will find a table that encompasses the required steps to to
-        send messages peer to peer on the deso blockchain.
-      </div>
-      <div className="max-w-[1050px] border-black  border rounded-md mx-auto my-10">
-        <div className="bg-[#06f] flex text-white mx-auto rounded-t-md">
-          <div className="min-w-[250px] border-r border-black p-2 text-center">
-            steps
-          </div>
-          <div className="min-w-[350px] border-r border-black p-2 text-center">
-            explanation
-          </div>
-          <div className=" min-w-[450px] border-black p-2 text-center">
-            data
-          </div>
+        send messages peer to peer on the deso blockchain. You can see each step
+        in the process is broken down into its own row where you can execute the
+        call and see what the payload looks like. Since most of these steps have
+        dependencies on a previous step you must go in chronological order, with
+        the exception of being able to skip the get free deso step if your
+        account already has funds.
+        <div>
+          <button
+            className={`${buttonClass} mt-5`}
+            onClick={() => {
+              clearAllState();
+              setLoginResponse({});
+              setEncryptResponse({});
+              setDecryptedResponse({});
+              setRequestDeriveResponse({});
+              setAuthorizeDeriveKeyResponse({});
+              setGenerateDefaultKeyResponse({});
+            }}
+          >
+            Click here to restart
+          </button>
         </div>
-        <div className="flex flex-col bg-slate-200 ">
+      </div>
+      <div className="max-w-[1050px] rounded-md mx-auto ">
+        <div className="flex flex-col">
           <div className={containerClass}>
             <button
-              className={buttonClass}
+              className={tileButtonClass}
               onClick={async () => {
                 await login(deso);
                 setLoginResponse(getLoginResponse());
@@ -77,7 +94,10 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <StringifyObject obj={loginResponse} />
           </div>
           <div className={containerClass}>
-            <button className={buttonClass} onClick={() => getFreeDeso(deso)}>
+            <button
+              className={tileButtonClass}
+              onClick={() => getFreeDeso(deso)}
+            >
               Get Free Deso
             </button>
 
@@ -95,7 +115,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
           </div>
           <div className={containerClass}>
             <button
-              className={buttonClass}
+              className={tileButtonClass}
               onClick={async () => {
                 await requestDerivedKey(deso);
                 setRequestDeriveResponse(getDerivedKeyResponse());
@@ -118,7 +138,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
 
           <div className={containerClass}>
             <button
-              className={buttonClass}
+              className={tileButtonClass}
               onClick={async () => {
                 await authorizeDerivedKey(deso);
                 setAuthorizeDeriveKeyResponse(getAuthorizeDerivedKeyResponse());
@@ -142,7 +162,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
 
           <div className={containerClass}>
             <button
-              className={buttonClass}
+              className={tileButtonClass}
               onClick={async () => {
                 await generateDefaultKey(deso);
                 const defaultKey = getDefaultKey();
@@ -151,17 +171,16 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 }
               }}
             >
-              Generate The Default Key //todo get-messaging-private-key-hex back
-              from the derived endpoint on identity
+              Generate The Default Key
             </button>
             <div className={explainer}>
               In order to encrypt and decrypt messages between different keys
-              they need to have a common key to encrypt and decrypt messages{' '}
+              they need to have a common key to encrypt and decrypt messages to{' '}
               <a
                 className="hover:underline text-blue-600"
                 href="https://todo.com"
               >
-                Generate The Default Key Docs // these docs need to be added
+                Generate The Default Key Docs
               </a>
             </div>
 
@@ -170,39 +189,48 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
 
           <div className={containerClass}>
             <button
-              className={buttonClass}
-              onClick={() => encrypt(deso, 'message to be encrypted and sent')}
+              className={tileButtonClass}
+              onClick={async () => {
+                await encrypt(deso, 'message to be encrypted and sent');
+                console.log(getEncryptedResponse());
+                setEncryptResponse(getEncryptedResponse());
+              }}
             >
               Encrypt
             </button>
             <div className={explainer}>
-              To get started a user must first login into the deso block chain.
-              This can be done by calling Login on the window API.{' '}
+              Now that everything is set up we can take a message and encrypt it{' '}
               <a
                 className="hover:underline text-blue-600"
                 href="https://docs.deso.org/for-developers/identity/iframe-api/endpoints#encrypt"
               >
-                Window API Docs
+                Encrypt Docs
               </a>
             </div>
-            <div>N/A</div>
+
+            <StringifyObject obj={encryptResponse} />
           </div>
 
           <div className={containerClass}>
-            <button className={buttonClass} onClick={() => decrypt(deso)}>
+            <button
+              className={tileButtonClass}
+              onClick={async () => {
+                await decrypt(deso);
+                setDecryptedResponse(getEncryptedResponse());
+              }}
+            >
               Decrypt
             </button>
             <div className={explainer}>
-              To get started a user must first login into the deso block chain.
-              This can be done by calling Login on the window API.{' '}
+              And finally, the receiver can now decrypt their message{' '}
               <a
                 className="hover:underline text-blue-600"
                 href="https://docs.deso.org/for-developers/identity/iframe-api/endpoints#decrypt"
               >
-                Window API Docs
+                Decrypt Docs
               </a>
             </div>
-            <div>N/A</div>
+            <StringifyObject obj={decryptedResponse} />
           </div>
         </div>
       </div>

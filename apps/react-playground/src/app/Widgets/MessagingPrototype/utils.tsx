@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { data } from './styles';
+import { dataClass } from './styles';
 
 export const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
   const PublicKeysBase58Check = deso.identity.getUserKey() as string;
@@ -14,7 +14,7 @@ export const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
 };
 export const StringifyObject = ({ obj }: any) => {
   return (
-    <div className={data}>
+    <div className={dataClass}>
       <div className="">{JSON.stringify(obj, null, 2)}</div>
     </div>
   );
