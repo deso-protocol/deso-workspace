@@ -26,6 +26,9 @@ export const callIdentityMethodAndExecute = async (
         accessLevelHmac: user.accessLevelHmac,
         encryptedSeedHex: user.encryptedSeedHex,
         accessLevel: user.accessLevel,
+        encryptedMessagingKeyRandomness: user.encryptedMessagingKeyRandomness,
+        derivedPublicKeyBase58Check: user.derivedPublicKeyBase58Check,
+        // TODO: we need to add ownerPublicKeyBase58Check to support encrypt/decrypt endpoints
       }
     : {};
   const request = {
