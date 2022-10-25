@@ -32,7 +32,7 @@ export const MessagingApp = () => {
     const messages = await getEncryptedMessage(deso);
     const messageMap: { [key: string]: any[] } = {};
     const userKey = deso.identity.getUserKey();
-    messages.forEach((message) => {
+    messages.forEach((message: any) => {
       const otherUsersKey =
         userKey === message.RecipientMessagingPublicKey
           ? message.SenderMessagingPublicKey

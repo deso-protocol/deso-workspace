@@ -103,7 +103,12 @@ export class Social {
     ).data;
     return response;
   }
-
+  public async getMessagesStatelessV3(request: GetMessagesStatelessRequest) {
+    const response: any = (
+      await axios.post(`${this.node.getUri()}/get-messages-stateless`, request)
+    ).data;
+    return response;
+  }
   public async getMessagesStateless(
     request: GetMessagesStatelessRequest
   ): Promise<GetDecryptMessagesResponse[]> {

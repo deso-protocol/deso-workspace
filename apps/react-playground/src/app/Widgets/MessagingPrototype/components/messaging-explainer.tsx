@@ -21,7 +21,7 @@ import { StringifyObject } from '../utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   useEffect(() => {
-    // clearAllState();
+    clearAllState();
   }, []);
 
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());

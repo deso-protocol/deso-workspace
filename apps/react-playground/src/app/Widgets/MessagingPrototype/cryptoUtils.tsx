@@ -132,7 +132,7 @@ export function decryptMessageFromPrivateMessagingKey(
   return decryptShared(
     groupPrivateEncryptionKeyBuffer,
     publicEncryptionKey,
-    Buffer.from((encryptedMessage as any).EncryptedText, 'hex')
+    Buffer.from(encryptedMessage.EncryptedText, 'hex')
   );
 }
 export function decryptMessageFromEncryptedToApplicationGroupMessagingKey(
