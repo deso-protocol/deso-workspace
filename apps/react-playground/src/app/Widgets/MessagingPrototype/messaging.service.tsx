@@ -225,10 +225,11 @@ export const decrypt = async (
           ).toString();
           return { ...m, DecryptedMessage };
         } catch (e: any) {
+          console.log(m);
           return {
             ...m,
             DecryptedMessage: '',
-            error: e.message ?? 'unknown error',
+            error: `${e.message} ${m.IsSender}` ?? 'unknown error',
           };
         }
       }),
@@ -249,5 +250,6 @@ export const getEncryptedMessage = async (deso: Deso) => {
       HoldingsOnly: false,
       SortAlgorithm: 'time',
     });
+  console.log(messages);
   return messages;
 };

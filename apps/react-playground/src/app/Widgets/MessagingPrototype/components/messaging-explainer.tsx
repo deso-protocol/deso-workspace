@@ -237,7 +237,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               className={tileButtonClass}
               onClick={async () => {
                 const encryptedMessages = await getEncryptedMessage(deso);
-
+                console.log('encrypted messages', encryptedMessages);
                 const decryptedMessages = await decrypt(
                   deso,
                   encryptedMessages,

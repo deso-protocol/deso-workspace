@@ -89,7 +89,7 @@ export const MessagingApp = () => {
       decryptedMessages[key].forEach((message: any) => {
         const otherUsersKey =
           userKey === message.RecipientPublicKeyBase58Check
-            ? message.RecipientMessagingPublicKey
+            ? message.SenderPublicKeyBase58Check
             : message.RecipientPublicKeyBase58Check;
         if (!messageMap[otherUsersKey]) {
           messageMap[otherUsersKey] = [];
@@ -97,6 +97,7 @@ export const MessagingApp = () => {
         messageMap[otherUsersKey].push(message);
       });
     });
+    console.log(messageMap);
     return messageMap;
   };
 
