@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Deso from 'deso-protocol';
 import {
   authorizeDerivedKey,
@@ -38,29 +38,27 @@ export const MessagingApp = () => {
     }
     const conversation = conversations[conversationPublicKey] ?? [];
     return conversation.map((message: any, i: number) => {
-      if (message.isSender) {
-        return (
-          <div className="ml-auto max-w-[350px]  mb-4">
-            <div className="p-2 rounded-lg bg-blue-500 text-white mr-2 break-words">
-              {/*TODO decryption needed then we can display */}
-              {message.DecryptedMessage}
-            </div>
-          </div>
-        );
-      } else {
-        return (
-          <div className="mr-auto">
-            <div className="p-2 rounded-lg bg-green-500 text-white  max-w-[350px] mb-4 ml-2 break-words">
-              {/*TODO decryption needed then we can display */}
-              {message.DecryptedMessage}
-            </div>
-          </div>
-        );
+      const messageToShow = message.DecryptedMessage || message.error;
+      let colorToShow = 'bg-blue-500';
+      if (!message.IsSender) {
+        colorToShow = 'bg-green-500';
       }
+      if (message.error) {
+        colorToShow = 'bg-red-500';
+      }
+
+      return (
+        <div className="ml-auto max-w-[350px]  mb-4">
+          <div
+            className={`${colorToShow} p-2 rounded-lg bg-blue-500 text-white mr-2 break-words`}
+          >
+            {/*TODO decryption needed then we can display */}
+            {messageToShow}
+          </div>
+        </div>
+      );
     });
   };
-
-  useEffect(() => {}, [conversations, setConversations]);
 
   const setupMessaging = async (): Promise<
     false | Partial<DerivedPrivateUserInfo>
@@ -87,15 +85,17 @@ export const MessagingApp = () => {
     const decryptedMessages = await decrypt(deso, messages, derivedResponse);
     const messageMap: { [key: string]: any[] } = {};
     const userKey = deso.identity.getUserKey();
-    decryptedMessages?.forEach((message: any) => {
-      const otherUsersKey =
-        userKey === message.RecipientMessagingPublicKey
-          ? message.SenderMessagingPublicKey
-          : message.RecipientMessagingPublicKey;
-      if (!messageMap[otherUsersKey]) {
-        messageMap[otherUsersKey] = [];
-      }
-      messageMap[otherUsersKey].push(message);
+    Object.keys(decryptedMessages)?.forEach((key: string) => {
+      decryptedMessages[key].forEach((message: any) => {
+        const otherUsersKey =
+          userKey === message.RecipientPublicKeyBase58Check
+            ? message.RecipientMessagingPublicKey
+            : message.RecipientPublicKeyBase58Check;
+        if (!messageMap[otherUsersKey]) {
+          messageMap[otherUsersKey] = [];
+        }
+        messageMap[otherUsersKey].push(message);
+      });
     });
     return messageMap;
   };
@@ -111,8 +111,18 @@ export const MessagingApp = () => {
       const topLeftRounded = i === 0 ? 'rounded-tl-md' : '';
       return (
         <div
-          onClick={() => {
+          onClick={async () => {
             setSelectedConversationPublicKey(k);
+            const conversations = await getConversationsMap(derivedResponse);
+
+            const conversationsArray = Object.keys(conversations);
+            const conversation = getConversationComponent(
+              conversations,
+              k ?? conversationsArray[0]
+            );
+            if (conversation) {
+              setConversationComponent(conversation);
+            }
           }}
           className={`${topLeftRounded} border-b border-black py-2 px-8 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer`}
         >
@@ -206,7 +216,12 @@ export const MessagingApp = () => {
                       }
                       setIsSending(true);
                       try {
-                        await encrypt(deso, messageToSend, derivedResponse);
+                        await encrypt(
+                          deso,
+                          messageToSend,
+                          derivedResponse,
+                          selectedConversationPublicKey
+                        );
 
                         const conversations = await getConversationsMap(
                           derivedResponse
@@ -215,7 +230,7 @@ export const MessagingApp = () => {
                         const conversationsArray = Object.keys(conversations);
                         const conversation = getConversationComponent(
                           conversations,
-                          conversationsArray[0]
+                          selectedConversationPublicKey ?? conversationsArray[0]
                         );
                         if (conversation) {
                           setConversationComponent(conversation);
@@ -225,11 +240,9 @@ export const MessagingApp = () => {
 
                         const messageContainer =
                           document.getElementById('message-container');
-                        console.log(messageContainer);
                         if (!messageContainer) {
                           return;
                         }
-                        // window.scrollTo(0, messageContainer?.scrollHeight);
                         messageContainer.scrollTop =
                           messageContainer.scrollHeight;
                       } catch {

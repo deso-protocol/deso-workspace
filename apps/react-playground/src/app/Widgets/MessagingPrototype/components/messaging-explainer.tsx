@@ -1,6 +1,10 @@
 import Deso from 'deso-protocol';
 import { useState } from 'react';
 import {
+  USER_TO_SEND_MESSAGE_TO_1,
+  USER_TO_SEND_MESSAGE_TO_2,
+} from '../constants';
+import {
   authorizeDerivedKey,
   encrypt,
   generateDefaultKey,
@@ -15,7 +19,6 @@ import {
   getLoginResponse,
   getDerivedKeyResponse,
   clearAllState,
-  getEncryptedResponse,
   getDecryptedResponse,
   setDerivedKeyResponse,
   setDefaultKey,
@@ -203,8 +206,15 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                 await encrypt(
                   deso,
                   'message to be encrypted and sent',
-                  requestDeriveResponse
+                  requestDeriveResponse,
+                  USER_TO_SEND_MESSAGE_TO_1
                 );
+                // await encrypt(
+                //   deso,
+                //   'message to be encrypted and sent',
+                //   requestDeriveResponse,
+                //   USER_TO_SEND_MESSAGE_TO_2
+                // );
               }}
             >
               Encrypt

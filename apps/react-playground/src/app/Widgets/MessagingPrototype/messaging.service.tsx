@@ -3,18 +3,12 @@ import {
   DerivedPrivateUserInfo,
   MessagingGroupEntryResponse,
 } from 'deso-protocol-types';
-import {
-  getTransactionSpendingLimits,
-  GROUP_NAME,
-  LIMIT,
-  USER_TO_SEND_MESSAGE_TO_1,
-  USER_TO_SEND_MESSAGE_TO_2,
-} from './constants';
+import { getTransactionSpendingLimits, GROUP_NAME, LIMIT } from './constants';
 import {
   decryptMessageFromPrivateMessagingKey,
   encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
-import { MessagingGroupResponse } from './types';
+import { Message, MessagingGroupResponse } from './types';
 
 import { alertUserIfNoFunds } from './utils';
 
@@ -145,7 +139,8 @@ export const generateDefaultKey = async (
 export const encrypt = async (
   deso: Deso,
   messageToSend: string,
-  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>,
+  RecipientPublicKeyBase58Check: string
 ): Promise<void> => {
   if (await alertUserIfNoFunds(deso)) {
     return;
@@ -155,7 +150,7 @@ export const encrypt = async (
 
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: GROUP_NAME,
-    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO_2,
+    RecipientPublicKeyBase58Check,
     SenderMessagingKeyName: GROUP_NAME,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
@@ -178,7 +173,7 @@ export const encrypt = async (
 
   const transaction = await deso.social.sendMessageWithoutIdentity({
     EncryptedMessageText: encryptedMessage.toString('hex'),
-    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO_2,
+    RecipientPublicKeyBase58Check,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MinFeeRateNanosPerKB: 1000,
     SenderMessagingGroupKeyName: GROUP_NAME,
@@ -216,31 +211,43 @@ export const decrypt = async (
   }
 
   const { messagingPrivateKey } = derivedKeyResponse;
-  // messages.OrderedContactsWithMessages[0].
-  const v3Messages = messages.OrderedContactsWithMessages[0].Messages.filter(
-    (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
-  );
-
-  const decryptedMessages = v3Messages.map((m: any, i: number) => {
-    const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
-      messagingPrivateKey as string,
-      m
-    ).toString();
-    return { ...m, DecryptedMessage };
+  let v3Messages: any = {};
+  messages.OrderedContactsWithMessages.forEach((m) => {
+    v3Messages = {
+      ...v3Messages,
+      [m.PublicKeyBase58Check]: m.Messages.filter(
+        (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
+      ).map((m: any, i: number) => {
+        try {
+          const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
+            messagingPrivateKey as string,
+            m
+          ).toString();
+          return { ...m, DecryptedMessage };
+        } catch (e: any) {
+          return {
+            ...m,
+            DecryptedMessage: '',
+            error: e.message ?? 'unknown error',
+          };
+        }
+      }),
+    };
   });
-
-  return decryptedMessages;
+  return v3Messages;
 };
 
-export const getEncryptedMessage = (deso: Deso) => {
-  return deso.social.getMessagesStatelessV3({
-    PublicKeyBase58Check: deso.identity.getUserKey() as string,
-    NumToFetch: 25,
-    FetchAfterPublicKeyBase58Check: '',
-    HoldersOnly: false,
-    FollowersOnly: false,
-    FollowingOnly: false,
-    HoldingsOnly: false,
-    SortAlgorithm: 'time',
-  });
+export const getEncryptedMessage = async (deso: Deso) => {
+  const messages: MessagingGroupResponse =
+    await deso.social.getMessagesStatelessV3({
+      PublicKeyBase58Check: deso.identity.getUserKey() as string,
+      NumToFetch: 25,
+      FetchAfterPublicKeyBase58Check: '',
+      HoldersOnly: false,
+      FollowersOnly: false,
+      FollowingOnly: false,
+      HoldingsOnly: false,
+      SortAlgorithm: 'time',
+    });
+  return messages;
 };
