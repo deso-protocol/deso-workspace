@@ -1,9 +1,6 @@
 import Deso from 'deso-protocol';
 import { useState } from 'react';
-import {
-  USER_TO_SEND_MESSAGE_TO_1,
-  USER_TO_SEND_MESSAGE_TO_2,
-} from '../constants';
+import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
 import {
   authorizeDerivedKey,
   encrypt,
@@ -37,7 +34,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
     useState(getDecryptedResponse);
 
   const [requestDeriveResponse, setRequestDeriveResponse] = useState<any>(
-    getDerivedKeyResponse()
+    getDerivedKeyResponse((deso.identity.getUserKey() as string) || '')
   );
 
   const [getGenerateDefaultKeyResponse, setGenerateDefaultKeyResponse] =
@@ -121,7 +118,10 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                   alert('something went wrong with fetching your derived key');
                   return;
                 }
-                setDerivedKeyResponse(response);
+                setDerivedKeyResponse(
+                  response,
+                  deso.identity.getUserKey() as string
+                );
                 setRequestDeriveResponse(response);
               }}
             >

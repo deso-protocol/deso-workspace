@@ -21,13 +21,22 @@ export const getLoginResponse = () => {
 };
 //derive
 export const setDerivedKeyResponse = (
-  payload: Partial<DerivedPrivateUserInfo>
+  payload: Partial<DerivedPrivateUserInfo>,
+  ownerPublicKey: string
 ) => {
-  localStorage.setItem(DERIVED_SEED_HEX, JSON.stringify(payload));
+  localStorage.setItem(
+    `${DERIVED_SEED_HEX}_${ownerPublicKey}`,
+    JSON.stringify(payload)
+  );
+  console.log(`${DERIVED_SEED_HEX}_${ownerPublicKey}`);
 };
-export const getDerivedKeyResponse = (): Partial<DerivedPrivateUserInfo> => {
+export const getDerivedKeyResponse = (
+  ownerPublicKey: string
+): Partial<DerivedPrivateUserInfo> => {
   return (
-    JSON.parse(localStorage.getItem(DERIVED_SEED_HEX) as string) ?? {
+    JSON.parse(
+      localStorage.getItem(`${DERIVED_SEED_HEX}_${ownerPublicKey}`) as string
+    ) ?? {
       derivedPublicKeyBase58Check: '',
       derivedSeedHex: '',
       transactionSpendingLimitHex: '',

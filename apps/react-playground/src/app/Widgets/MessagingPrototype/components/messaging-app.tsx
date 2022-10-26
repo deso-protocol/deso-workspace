@@ -12,6 +12,7 @@ import {
 import { truncateDesoHandle } from '../utils';
 import { buttonClass } from '../styles';
 import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { getDerivedKeyResponse, setDerivedKeyResponse } from '../store';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
@@ -63,14 +64,28 @@ export const MessagingApp = () => {
   const setupMessaging = async (): Promise<
     false | Partial<DerivedPrivateUserInfo>
   > => {
-    await login(deso);
-    const derivedResponse = await requestDerivedKey(deso);
+    if (!deso.identity.getUserKey()) {
+      await login(deso);
+    }
+    let derivedResponse = getDerivedKeyResponse(
+      deso.identity.getUserKey() as string
+    );
+    if (derivedResponse.derivedPublicKeyBase58Check === '') {
+      const res = await requestDerivedKey(deso);
+      if (res) {
+        derivedResponse = res;
+        setDerivedKeyResponse(
+          derivedResponse,
+          deso.identity.getUserKey() as string
+        );
+        await authorizeDerivedKey(deso, derivedResponse);
+        await generateDefaultKey(deso, derivedResponse);
+      }
+    }
     if (!derivedResponse) {
       return false;
     }
     setDerivedResponse(derivedResponse);
-    await authorizeDerivedKey(deso, derivedResponse);
-    await generateDefaultKey(deso, derivedResponse);
     return derivedResponse;
   };
 
