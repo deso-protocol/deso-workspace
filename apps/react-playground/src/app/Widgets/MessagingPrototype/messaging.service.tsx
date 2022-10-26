@@ -13,6 +13,7 @@ import {
   decryptMessageFromPrivateMessagingKey,
   encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
+import { MessagingGroupResponse } from './types';
 
 import { alertUserIfNoFunds } from './utils';
 
@@ -201,20 +202,20 @@ export const encrypt = async (
 
 export const decrypt = async (
   deso: Deso,
-  messages: any,
+  messages: MessagingGroupResponse,
   derivedKeyResponse: Partial<DerivedPrivateUserInfo>
 ) => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
 
-  if (messages.length === 0) {
+  if (Object.keys(messages).length === 0) {
     alert('no messages found');
     return;
   }
 
   const { messagingPrivateKey } = derivedKeyResponse;
-
+  // messages.OrderedContactsWithMessages[0].
   const v3Messages = messages.OrderedContactsWithMessages[0].Messages.filter(
     (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
   );
