@@ -7,7 +7,8 @@ import {
   getTransactionSpendingLimits,
   GROUP_NAME,
   LIMIT,
-  USER_TO_SEND_MESSAGE_TO,
+  USER_TO_SEND_MESSAGE_TO_1,
+  USER_TO_SEND_MESSAGE_TO_2,
 } from './constants';
 import {
   decryptMessageFromPrivateMessagingKey,
@@ -154,7 +155,7 @@ export const encrypt = async (
 
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: GROUP_NAME,
-    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
+    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO_2,
     SenderMessagingKeyName: GROUP_NAME,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
@@ -177,7 +178,7 @@ export const encrypt = async (
 
   const transaction = await deso.social.sendMessageWithoutIdentity({
     EncryptedMessageText: encryptedMessage.toString('hex'),
-    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO,
+    RecipientPublicKeyBase58Check: USER_TO_SEND_MESSAGE_TO_2,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MinFeeRateNanosPerKB: 1000,
     SenderMessagingGroupKeyName: GROUP_NAME,

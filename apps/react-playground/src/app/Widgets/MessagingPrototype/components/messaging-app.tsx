@@ -16,6 +16,7 @@ const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
   const [derivedResponse, setDerivedResponse] = useState({});
+  const [isSending, setIsSending] = useState(false);
 
   const [conversationComponent, setConversationComponent] = useState<any>(
     <></>
@@ -25,18 +26,17 @@ export const MessagingApp = () => {
   const [conversations, setConversations] = useState<{ [key: string]: any[] }>(
     {}
   );
-  const getConversationComponent = (conversations: any) => {
+  const getConversationComponent = (
+    conversations: any,
+    conversationPublicKey: string
+  ) => {
     if (
       Object.keys(conversations).length === 0 ||
-      selectedConversationPublicKey === ''
+      conversationPublicKey === ''
     ) {
       return [<div></div>];
     }
-    const conversation = conversations[selectedConversationPublicKey] ?? [];
-    console.log(
-      'conversation =>',
-      conversations[selectedConversationPublicKey]
-    );
+    const conversation = conversations[conversationPublicKey] ?? [];
     return conversation.map((message: any, i: number) => {
       if (message.isSender) {
         return (
@@ -60,9 +60,7 @@ export const MessagingApp = () => {
     });
   };
 
-  useEffect(() => {
-    console.log('init');
-  }, [conversations, setConversations]);
+  useEffect(() => {}, [conversations, setConversations]);
 
   const setupMessaging = async (): Promise<
     false | Partial<DerivedPrivateUserInfo>
@@ -85,7 +83,6 @@ export const MessagingApp = () => {
       alert('no derived response found');
       return {};
     }
-    console.log(derivedResponse);
     const messages = await getEncryptedMessage(deso);
     const decryptedMessages = await decrypt(deso, messages, derivedResponse);
     const messageMap: { [key: string]: any[] } = {};
@@ -154,9 +151,7 @@ export const MessagingApp = () => {
                 const conversations = await getConversationsMap(
                   derivedResponse
                 );
-                console.log('conversations =>', conversations);
                 const conversationsArray = Object.keys(conversations);
-                console.log('conversationsArray =>', conversationsArray);
                 if (conversationsArray.length > 0) {
                   setConversations(conversations ?? {});
                   setSelectedConversationPublicKey(conversationsArray[0]);
@@ -164,8 +159,10 @@ export const MessagingApp = () => {
                 if (!derivedResponse) {
                   alert('need to setup messaging for account first');
                 }
-
-                const conversation = getConversationComponent(conversations);
+                const conversation = getConversationComponent(
+                  conversations,
+                  conversationsArray[0]
+                );
                 if (conversation) {
                   setConversationComponent(conversation);
                 }
@@ -187,7 +184,10 @@ export const MessagingApp = () => {
                   {selectedConversationPublicKey}
                 </div>
 
-                <div className="min-h-[1000px] max-h-[1000px] overflow-auto">
+                <div
+                  className="min-h-[434px] max-h-[434px] overflow-auto"
+                  id="message-container"
+                >
                   {conversationComponent}
                 </div>
                 <div className="min-h-[100px]  border-t border-black flex justify-center">
@@ -204,9 +204,41 @@ export const MessagingApp = () => {
                         alert('message is empty');
                         return;
                       }
-                      encrypt(deso, messageToSend, derivedResponse);
+                      setIsSending(true);
+                      try {
+                        await encrypt(deso, messageToSend, derivedResponse);
+
+                        const conversations = await getConversationsMap(
+                          derivedResponse
+                        );
+
+                        const conversationsArray = Object.keys(conversations);
+                        const conversation = getConversationComponent(
+                          conversations,
+                          conversationsArray[0]
+                        );
+                        if (conversation) {
+                          setConversationComponent(conversation);
+                        }
+                        setMessageToSend('');
+                        setIsSending(false);
+
+                        const messageContainer =
+                          document.getElementById('message-container');
+                        console.log(messageContainer);
+                        if (!messageContainer) {
+                          return;
+                        }
+                        // window.scrollTo(0, messageContainer?.scrollHeight);
+                        messageContainer.scrollTop =
+                          messageContainer.scrollHeight;
+                      } catch {
+                        setIsSending(false);
+                      }
                     }}
-                    className=" min-w-[150px] bg-[#06f] text-white"
+                    className={` min-w-[150px] bg-[#06f] text-white ${
+                      isSending ? 'animate-spin' : ''
+                    }`}
                   >
                     send message
                   </button>

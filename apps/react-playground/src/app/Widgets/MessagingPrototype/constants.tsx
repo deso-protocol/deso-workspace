@@ -15,8 +15,11 @@ export const getTransactionSpendingLimits =
     };
   };
 
-export const USER_TO_SEND_MESSAGE_TO: Readonly<string> =
+export const USER_TO_SEND_MESSAGE_TO_1: Readonly<string> =
   'BC1YLheA3NepQ8Zohcf5ApY6sYQee9aPJCPY6m3u6XxCL57Asix5peY';
+
+export const USER_TO_SEND_MESSAGE_TO_2: Readonly<string> =
+  'BC1YLhp53iDyAqYBwi4EMAvufgvwhaennew2pZ2zu1LkvuxW5c3ewtk';
 export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
 export const DEFAULT_KEY: Readonly<string> = 'defaultKey';
 export const LOGIN_RESPONSE: Readonly<string> = 'loginResponse';
@@ -32,7 +35,7 @@ export const localStorageKeys: Readonly<string>[] = [
   LOGIN_RESPONSE,
   DEFAULT_KEY,
   DERIVED_SEED_HEX,
-  USER_TO_SEND_MESSAGE_TO,
+  USER_TO_SEND_MESSAGE_TO_1,
   ENCRYPT_RESPONSE,
   DECRYPT_RESPONSE,
 ];
