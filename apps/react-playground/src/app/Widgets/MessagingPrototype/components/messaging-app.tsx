@@ -330,6 +330,8 @@ export const MessagingApp = () => {
                         }
                         messageContainer.scrollTop =
                           messageContainer.scrollHeight;
+
+                        setIsSending('none');
                       } catch {
                         setIsSending('none');
                       }
