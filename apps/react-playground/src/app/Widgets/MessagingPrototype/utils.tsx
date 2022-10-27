@@ -29,3 +29,5 @@ export const truncateDesoHandle = (key: string) => {
     key.length
   )}`;
 };
+
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

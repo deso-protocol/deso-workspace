@@ -4,33 +4,33 @@ import { buttonClass } from '../styles';
 import { MessagingApp } from './messaging-app';
 import { MessagingExplainer } from './messaging-explainer';
 export const MessagingRoot = () => {
-  const [componentToShow, setComponentToShow] = useState('explainer');
+  const [componentToShow, setComponentToShow] = useState('sample-app');
   const deso = new Deso();
 
   return (
     <>
-      <div className="flex justify-around bg-[#0C2F62] py-3">
+      <div className="flex justify-center bg-[#0C2F62] py-3">
+        <button
+          onClick={() => {
+            setComponentToShow('sample-app');
+          }}
+          className={`${buttonClass} mr-2`}
+        >
+          Use sample app
+        </button>
         <button
           onClick={() => {
             setComponentToShow('explainer');
           }}
           className={buttonClass}
         >
-          Read explanation{' '}
-        </button>
-        <button
-          onClick={() => {
-            setComponentToShow('sample-app');
-          }}
-          className={buttonClass}
-        >
-          Use sample app
+          Step breakdown{' '}
         </button>
       </div>
-      {componentToShow === 'explainer' ? (
-        <MessagingExplainer deso={deso} />
-      ) : (
+      {componentToShow === 'sample-app' ? (
         <MessagingApp />
+      ) : (
+        <MessagingExplainer deso={deso} />
       )}
     </>
   );

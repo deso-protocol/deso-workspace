@@ -9,15 +9,19 @@ import {
   login,
   requestDerivedKey,
 } from '../messaging.service';
-import { truncateDesoHandle } from '../utils';
 import { buttonClass } from '../styles';
 import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { getDerivedKeyResponse, setDerivedKeyResponse } from '../store';
+import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
+import { delay, truncateDesoHandle } from '../utils';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
   const [derivedResponse, setDerivedResponse] = useState({});
-  const [isSending, setIsSending] = useState(false);
+  const [isSending, setIsSending] = useState<
+    'getConversation' | 'setupMessaging' | 'message' | 'none'
+  >('none');
+  const [hasSetupAccount, setHasSetupAccount] = useState(false);
 
   const [conversationComponent, setConversationComponent] = useState<any>(
     <></>
@@ -40,20 +44,23 @@ export const MessagingApp = () => {
     const conversation = conversations[conversationPublicKey] ?? [];
     return conversation.map((message: any, i: number) => {
       const messageToShow = message.DecryptedMessage || message.error;
-      let colorToShow = 'bg-blue-500';
+      let senderStyles = 'bg-blue-500';
       if (!message.IsSender) {
-        colorToShow = 'bg-green-500';
+        senderStyles = 'bg-green-500';
       }
       if (message.error) {
-        colorToShow = 'bg-red-500';
+        senderStyles = 'bg-red-500 mx-auto';
       }
 
       return (
-        <div className="ml-auto max-w-[350px]  mb-4">
+        <div
+          className={`${
+            message.IsSender ? 'ml-auto' : 'mr-auto'
+          }  max-w-[350px] mb-4`}
+        >
           <div
-            className={`${colorToShow} p-2 rounded-lg bg-blue-500 text-white mr-2 break-words`}
+            className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white mx-4 break-words`}
           >
-            {/*TODO decryption needed then we can display */}
             {messageToShow}
           </div>
         </div>
@@ -64,28 +71,43 @@ export const MessagingApp = () => {
   const setupMessaging = async (): Promise<
     false | Partial<DerivedPrivateUserInfo>
   > => {
-    if (!deso.identity.getUserKey()) {
-      await login(deso);
-    }
-    let derivedResponse = getDerivedKeyResponse(
-      deso.identity.getUserKey() as string
-    );
-    if (derivedResponse.derivedPublicKeyBase58Check === '') {
-      const res = await requestDerivedKey(deso);
-      if (res) {
-        derivedResponse = res;
-        setDerivedKeyResponse(
-          derivedResponse,
-          deso.identity.getUserKey() as string
-        );
-        await authorizeDerivedKey(deso, derivedResponse);
-        await generateDefaultKey(deso, derivedResponse);
+    let key = deso.identity.getUserKey();
+    if (!key) {
+      const res = await login(deso);
+      key = res.key;
+      if (!key) {
+        alert('failed to login');
+        return false;
       }
     }
-    if (!derivedResponse) {
+    const userResponse = await deso.user.getUserStateless({
+      PublicKeysBase58Check: [key],
+    });
+    const user = userResponse?.UserList?.[0];
+    if (user && user.BalanceNanos === 0) {
+      const openFreeDeso = window.confirm(
+        `no deso funds found for ${key}. click okay to add some through phone verification. Otherwise you can send deso from another account`
+      );
+      if (openFreeDeso) {
+        await deso.identity.phoneVerification();
+      } else {
+        return false;
+      }
+    }
+    let derivedResponse: any = getDerivedKeyResponse(key);
+    if (!derivedResponse.derivedPublicKeyBase58Check) {
+      derivedResponse = await requestDerivedKey(deso);
+    }
+    if (!derivedResponse.derivedPublicKeyBase58Check) {
+      alert('failed to authorize derive key');
       return false;
     }
+    setDerivedKeyResponse(derivedResponse, key);
+    await authorizeDerivedKey(deso, derivedResponse);
+    await delay(3000);
+    await generateDefaultKey(deso, derivedResponse);
     setDerivedResponse(derivedResponse);
+    setHasSetupAccount(true);
     return derivedResponse;
   };
 
@@ -112,7 +134,6 @@ export const MessagingApp = () => {
         messageMap[otherUsersKey].push(message);
       });
     });
-    console.log(messageMap);
     return messageMap;
   };
 
@@ -124,13 +145,11 @@ export const MessagingApp = () => {
     return getConversationsAsArray().map((k, i) => {
       const selectedConversationStyle =
         k === selectedConversationPublicKey ? 'bg-slate-400' : '';
-      const topLeftRounded = i === 0 ? 'rounded-tl-md' : '';
       return (
         <div
           onClick={async () => {
             setSelectedConversationPublicKey(k);
             const conversations = await getConversationsMap(derivedResponse);
-
             const conversationsArray = Object.keys(conversations);
             const conversation = getConversationComponent(
               conversations,
@@ -140,7 +159,7 @@ export const MessagingApp = () => {
               setConversationComponent(conversation);
             }
           }}
-          className={`${topLeftRounded} border-b border-black py-2 px-8 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer`}
+          className={`border-t border-black py-2 px-4 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer`}
         >
           {truncateDesoHandle(k)}
         </div>
@@ -151,74 +170,124 @@ export const MessagingApp = () => {
   return (
     <div>
       <div className="bg-[#0C2F62] min-h-full">
-        <div className="text-center text-white mb-10 mt-4">
+        <div className="text-center text-white mb-10 mt-4 ">
           Below you will find a table that encompasses the required steps to to
           send messages peer to peer on the deso blockchain.
           <div className="flex justify-center mt-5">
-            <button
-              className={buttonClass}
-              onClick={async () => {
-                const saidOk = window.confirm(
-                  'click OK if you would like to setup messaging on this account. If you have already done so then it is not needed'
-                );
-                if (!saidOk) {
-                  return;
-                }
-                const derivedResponse = await setupMessaging();
-                if (!derivedResponse) {
-                  alert('derived call failed');
-                  return;
-                }
-                if (Object.keys(derivedResponse).length === 0) {
-                  alert('Need to setup messaging for account first');
-                  return;
-                }
+            {Object.keys(conversations).length === 0 && (
+              <div className="min-h-[600px] min-w-[1101px] bg-neutral-200 rounded-md mt-5">
+                <div className="bg-[#ffda59] min-w-[1101px] min-h-[41px] border-b border-black rounded-t-md">
+                  {' '}
+                </div>
+                <div className="flex flex-col justify-center min-h-[559px]">
+                  {!hasSetupAccount && (
+                    <button
+                      className={`${buttonClass} border mx-auto
+                      ${isSending === 'setupMessaging' ? 'animate-spin' : ''}
+                      `}
+                      onClick={async () => {
+                        setIsSending('setupMessaging');
+                        try {
+                          const success = await setupMessaging();
+                          if (!success) {
+                            alert(
+                              'something went wrong when setting up the account'
+                            );
+                          }
+                        } catch {
+                          setIsSending('none');
+                        }
+                      }}
+                    >
+                      {' '}
+                      Setup account for messaging
+                    </button>
+                  )}
 
-                const conversations = await getConversationsMap(
-                  derivedResponse
-                );
-                const conversationsArray = Object.keys(conversations);
-                if (conversationsArray.length > 0) {
-                  setConversations(conversations ?? {});
-                  setSelectedConversationPublicKey(conversationsArray[0]);
-                }
-                if (!derivedResponse) {
-                  alert('need to setup messaging for account first');
-                }
-                const conversation = getConversationComponent(
-                  conversations,
-                  conversationsArray[0]
-                );
-                if (conversation) {
-                  setConversationComponent(conversation);
-                }
-              }}
-            >
-              Get Conversations
-            </button>
+                  {hasSetupAccount && (
+                    <button
+                      className={`${buttonClass} border mx-auto 
+                      ${isSending === 'getConversation' ? 'animate-spin' : ''}
+`}
+                      onClick={async () => {
+                        setIsSending('getConversation');
+                        try {
+                          if (!derivedResponse) {
+                            alert('derived call failed');
+                            return;
+                          }
+
+                          let conversations = await getConversationsMap(
+                            derivedResponse
+                          );
+                          let conversationsArray = Object.keys(conversations);
+                          if (conversationsArray.length === 0) {
+                            await encrypt(
+                              // submit a message so they can use the example
+                              deso,
+                              'thanks for checking out this messaging app!',
+                              derivedResponse,
+                              USER_TO_SEND_MESSAGE_TO_1
+                            );
+                          }
+                          await delay(3000);
+                          conversations = await getConversationsMap(
+                            derivedResponse
+                          );
+                          setConversations(conversations ?? {});
+                          conversationsArray = Object.keys(conversations);
+                          setSelectedConversationPublicKey(
+                            conversationsArray[0]
+                          );
+                          if (!derivedResponse) {
+                            alert('need to setup messaging for account first');
+                          }
+                          const conversation = getConversationComponent(
+                            conversations,
+                            conversationsArray[0]
+                          );
+                          if (conversation) {
+                            setConversationComponent(conversation);
+                          }
+                        } catch {
+                          setIsSending('none');
+                        }
+
+                        setIsSending('none');
+                      }}
+                    >
+                      Get Conversations
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <div className="text-center mt-2 text-white"></div>
         {Object.keys(conversations).length !== 0 && (
-          <div className="flex justify-center">
-            <div className="bg-neutral-200 mx-auto ed-md flex  min-h-[600px] max-h-[600px]  rounded-md ">
-              <div className="border-r border-black min-w-[300px] [max-h-500px]  rounded-md rounded-r-none overflow-y-auto">
+          <div className="flex flex-col justify-center">
+            <div className="bg-neutral-200 mx-auto ed-md flex  min-h-[600px] max-h-[600px] rounded-md">
+              <div className=" border-black min-w-[300px] [max-h-500px]  rounded-md rounded-r-none overflow-y-auto">
+                <div
+                  className={`border-r border-[#ffda59] py-2 px-4  bg-[#ffda59] min-h-[40px]`}
+                >
+                  your key:{' '}
+                  {truncateDesoHandle(deso.identity.getUserKey() ?? '') ??
+                    'need to login in first'}
+                </div>
                 {getListOfConversationsKeys()}
               </div>
-              <div className="">
-                <div className="text-center bg-[#ffda59] border-b border-black py-2 min-w-[750px] mb-6 rounded-tr-md">
-                  {selectedConversationPublicKey}
-                </div>
-
+              <div>
+                <div className="text-center bg-[#ffda59] border-b border-black py-2 min-w-[750px]  rounded-tr-md min-h-[41px]"></div>
                 <div
-                  className="min-h-[434px] max-h-[434px] overflow-auto"
+                  className="min-h-[478px] max-h-[478px] overflow-auto border-l border-black pt-6"
                   id="message-container"
                 >
                   {conversationComponent}
                 </div>
-                <div className="min-h-[100px]  border-t border-black flex justify-center">
+                <div className="min-h-[80px] border-t border-l border-black flex justify-center ">
                   <textarea
-                    className=" min-h-[100px] min-w-[650px] p-2"
+                    className="min-h-[80px] max-h-[80px] min-w-[650px] p-2"
                     onChange={(e) => {
                       setMessageToSend(e.target.value);
                     }}
@@ -230,7 +299,7 @@ export const MessagingApp = () => {
                         alert('message is empty');
                         return;
                       }
-                      setIsSending(true);
+                      setIsSending('message');
                       try {
                         await encrypt(
                           deso,
@@ -252,7 +321,7 @@ export const MessagingApp = () => {
                           setConversationComponent(conversation);
                         }
                         setMessageToSend('');
-                        setIsSending(false);
+                        setIsSending('message');
 
                         const messageContainer =
                           document.getElementById('message-container');
@@ -262,11 +331,11 @@ export const MessagingApp = () => {
                         messageContainer.scrollTop =
                           messageContainer.scrollHeight;
                       } catch {
-                        setIsSending(false);
+                        setIsSending('none');
                       }
                     }}
-                    className={` min-w-[150px] bg-[#06f] text-white ${
-                      isSending ? 'animate-spin' : ''
+                    className={`rounded-br-md min-w-[150px] max-h-[80px] bg-[#06f] text-white ${
+                      isSending === 'message' ? 'animate-spin' : ''
                     }`}
                   >
                     send message
@@ -276,6 +345,17 @@ export const MessagingApp = () => {
             </div>
           </div>
         )}
+        <div className="flex justify-center mt-5">
+          <button
+            className={buttonClass}
+            onClick={async () => {
+              await deso.identity.login();
+              await window.location.reload();
+            }}
+          >
+            switch users
+          </button>
+        </div>
       </div>
     </div>
   );
