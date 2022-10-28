@@ -7,7 +7,6 @@ import {
   getFreeDeso,
   login,
   requestDerivedKey,
-  decrypt,
   getEncryptedMessage,
 } from '../messaging.service';
 import {
@@ -237,8 +236,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               onClick={async () => {
                 const encryptedMessages = await getEncryptedMessage(deso);
                 console.log('encrypted messages', encryptedMessages);
-                const decryptedMessages = await decrypt(
-                  deso,
+                const decryptedMessages = await deso.utils.decryptMessage(
                   encryptedMessages,
                   requestDeriveResponse
                 );

@@ -5,7 +5,6 @@ import {
   MessagingGroupResponse,
 } from 'deso-protocol-types';
 import { getTransactionSpendingLimits, GROUP_NAME, LIMIT } from './constants';
-import { decryptMessageFromPrivateMessagingKey } from './cryptoUtils';
 
 import { alertUserIfNoFunds } from './utils';
 
@@ -130,48 +129,6 @@ export const generateDefaultKey = async (
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
   return groupKey;
-};
-
-export const decrypt = async (
-  deso: Deso,
-  messages: MessagingGroupResponse,
-  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
-) => {
-  if (await alertUserIfNoFunds(deso)) {
-    return;
-  }
-
-  if (Object.keys(messages).length === 0) {
-    alert('no messages found');
-    return;
-  }
-
-  const { messagingPrivateKey } = derivedKeyResponse;
-  let v3Messages: any = {};
-  messages.OrderedContactsWithMessages.forEach((m) => {
-    v3Messages = {
-      ...v3Messages,
-      [m.PublicKeyBase58Check]: m.Messages.filter(
-        (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
-      ).map((m: any, i: number) => {
-        try {
-          const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
-            messagingPrivateKey as string,
-            m
-          ).toString();
-          return { ...m, DecryptedMessage };
-        } catch (e: any) {
-          console.log(m);
-          return {
-            ...m,
-            DecryptedMessage: '',
-            error: `${e.message} ${m.IsSender}` ?? 'unknown error',
-          };
-        }
-      }),
-    };
-  });
-  return v3Messages;
 };
 
 export const getEncryptedMessage = async (deso: Deso) => {
