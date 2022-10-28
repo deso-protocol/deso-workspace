@@ -1,5 +1,7 @@
 import { ec } from 'elliptic';
 import {
+  CoinEntry,
+  ProfileEntryResponse,
   SubmitTransactionResponse,
   TransactionFee,
   TransactionSpendingLimitResponse,
@@ -357,4 +359,76 @@ export enum MessagingGroupOperation {
   DEFAULT_KEY = 'DefaultKey',
   CREATE_GROUP = 'CreateGroup',
   ADD_MEMBERS = 'AddMembers',
+}
+
+export interface DAOCoinEntry {
+  NumberOfHolders: number;
+  CoinsInCirculationNanos: string;
+  MintingDisabled: boolean;
+  TransferRestrictionStatus: string;
+}
+export interface PublicKeyToProfileEntry {
+  [key: string]: {
+    PublicKeyBase58Check: string;
+    Username: string;
+    Description: string;
+    IsHidden: boolean;
+    IsReserved: boolean;
+    IsVerified: boolean;
+    Comments?: any;
+    Posts?: any;
+    CoinEntry: CoinEntry;
+    DAOCoinEntry: DAOCoinEntry;
+    CoinPriceDeSoNanos: number;
+    CoinPriceBitCloutNanos: number;
+    UsersThatHODL?: any;
+    IsFeaturedTutorialWellKnownCreator: boolean;
+    IsFeaturedTutorialUpAndComingCreator: boolean;
+    ExtraData: { [k: string]: string };
+    DESOBalanceNanos: number;
+    BestExchangeRateDESOPerDAOCoin: number;
+  };
+}
+
+export interface Message {
+  SenderPublicKeyBase58Check: string;
+  RecipientPublicKeyBase58Check: string;
+  EncryptedText: string;
+  TstampNanos: any;
+  IsSender: boolean;
+  V2: boolean;
+  Version: number;
+  SenderMessagingPublicKey: string;
+  SenderMessagingGroupKeyName: string;
+  RecipientMessagingPublicKey: string;
+  RecipientMessagingGroupKeyName: string;
+  ExtraData: { [k: string]: string };
+}
+
+export interface OrderedContactsWithMessage {
+  PublicKeyBase58Check: string;
+  Messages: Message[];
+  ProfileEntryResponse: ProfileEntryResponse;
+  NumMessagesRead: number;
+}
+
+export interface UnreadStateByContact {
+  [key: string]: boolean;
+}
+
+export interface MessagingGroup {
+  GroupOwnerPublicKeyBase58Check: string;
+  MessagingPublicKeyBase58Check: string;
+  MessagingGroupKeyName: string;
+  MessagingGroupMembers?: any;
+  EncryptedKey: string;
+  ExtraData?: any;
+}
+
+export interface MessagingGroupResponse {
+  PublicKeyToProfileEntry: PublicKeyToProfileEntry;
+  OrderedContactsWithMessages: OrderedContactsWithMessage[];
+  UnreadStateByContact: UnreadStateByContact;
+  NumberOfUnreadThreads: number;
+  MessagingGroups: MessagingGroup[];
 }

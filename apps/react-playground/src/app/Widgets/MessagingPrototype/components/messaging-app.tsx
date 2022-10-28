@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Deso from 'deso-protocol';
 import {
   authorizeDerivedKey,
-  decrypt,
   generateDefaultKey,
   getEncryptedMessage,
   login,
@@ -118,7 +117,10 @@ export const MessagingApp = () => {
       return {};
     }
     const messages = await getEncryptedMessage(deso);
-    const decryptedMessages = await decrypt(deso, messages, derivedResponse);
+    const decryptedMessages = await deso.utils.decryptMessage(
+      messages,
+      derivedResponse
+    );
     const messageMap: { [key: string]: any[] } = {};
     const userKey = deso.identity.getUserKey();
     Object.keys(decryptedMessages)?.forEach((key: string) => {

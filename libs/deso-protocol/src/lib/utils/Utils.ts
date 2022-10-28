@@ -14,7 +14,10 @@ import { ec } from 'elliptic';
 import { ethers } from 'ethers';
 import HDNode from 'hdkey';
 import Deso from '../../index';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import {
+  DerivedPrivateUserInfo,
+  MessagingGroupResponse,
+} from 'deso-protocol-types';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -449,3 +452,129 @@ const aesCtrEncrypt = function (counter: Buffer, key: Buffer, data: string) {
 function hmacSha256Sign(key: Buffer, msg: Buffer) {
   return createHmac('sha256', key).update(msg).digest();
 }
+
+export const decryptMessage = async (
+  messages: MessagingGroupResponse,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+) => {
+  if (Object.keys(messages).length === 0) {
+    alert('no messages found');
+    return;
+  }
+
+  const { messagingPrivateKey } = derivedKeyResponse;
+  let v3Messages: any = {};
+  messages.OrderedContactsWithMessages.forEach((m) => {
+    v3Messages = {
+      ...v3Messages,
+      [m.PublicKeyBase58Check]: m.Messages.filter(
+        (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
+      ).map((m: any, i: number) => {
+        try {
+          const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
+            messagingPrivateKey as string,
+            m
+          ).toString();
+          return { ...m, DecryptedMessage };
+        } catch (e: any) {
+          console.log(m);
+          return {
+            ...m,
+            DecryptedMessage: '',
+            error: `${e.message} ${m.IsSender}` ?? 'unknown error',
+          };
+        }
+      }),
+    };
+  });
+  return v3Messages;
+};
+export function decryptMessageFromPrivateMessagingKey(
+  privateMessagingKey: string,
+  encryptedMessage: any
+) {
+  const groupPrivateEncryptionKeyBuffer = seedHexToPrivateKey(
+    privateMessagingKey
+  )
+    .getPrivate()
+    .toBuffer(undefined, 32);
+  const publicEncryptionKey = publicKeyToECBuffer(
+    encryptedMessage.IsSender
+      ? (encryptedMessage.RecipientMessagingPublicKey as string)
+      : (encryptedMessage.SenderMessagingPublicKey as string)
+  );
+  return decryptShared(
+    groupPrivateEncryptionKeyBuffer,
+    publicEncryptionKey,
+    Buffer.from(encryptedMessage.EncryptedText, 'hex')
+  );
+}
+
+export const decryptShared = function (
+  privateKeyRecipient: Buffer,
+  publicKeySender: Buffer,
+  encrypted: Buffer,
+  opts: { legacy?: boolean } = {}
+) {
+  opts = opts || {};
+  const sharedPx = derive(privateKeyRecipient, publicKeySender);
+  const sharedPrivateKey = kdf(sharedPx, 32);
+
+  opts.legacy = false;
+  return decrypt(sharedPrivateKey, encrypted, opts);
+};
+
+export const decrypt = function (
+  privateKey: Buffer,
+  encrypted: Buffer,
+  opts: { legacy?: boolean }
+) {
+  opts = opts || {};
+  const metaLength = 1 + 64 + 16 + 32;
+  //TODO Nina look here lengths both === the same value so it fails here
+  assert(
+    encrypted.length > metaLength,
+    'Invalid Ciphertext. Data is too small'
+  );
+  assert(encrypted[0] >= 2 && encrypted[0] <= 4, 'Not valid ciphertext.');
+
+  // deserialize
+  const ephemPublicKey = encrypted.slice(0, 65);
+  const cipherTextLength = encrypted.length - metaLength;
+  const iv = encrypted.slice(65, 65 + 16);
+  const cipherAndIv = encrypted.slice(65, 65 + 16 + cipherTextLength);
+  const ciphertext = cipherAndIv.slice(16);
+  const msgMac = encrypted.slice(65 + 16 + cipherTextLength);
+
+  // check HMAC
+  const px = derive(privateKey, ephemPublicKey);
+  const hash = kdf(px, 32);
+  const encryptionKey = hash.slice(0, 16);
+  const macKey = createHash('sha256').update(hash.slice(16)).digest();
+  const dataToMac = Buffer.from(cipherAndIv);
+  const hmacGood = hmacSha256Sign(macKey, dataToMac);
+  assert(hmacGood.equals(msgMac), 'Incorrect MAC');
+
+  // decrypt message
+  if (opts.legacy) {
+    return aesCtrDecryptLegacy(iv, encryptionKey, ciphertext);
+  } else {
+    return aesCtrDecrypt(iv, encryptionKey, ciphertext);
+  }
+};
+
+const aesCtrDecryptLegacy = function (
+  counter: Buffer,
+  key: Buffer,
+  data: Buffer
+) {
+  const cipher = createDecipheriv('aes-128-ctr', key, counter);
+  return cipher.update(data).toString();
+};
+
+const aesCtrDecrypt = function (counter: Buffer, key: Buffer, data: Buffer) {
+  const cipher = createDecipheriv('aes-128-ctr', key, counter);
+  const firstChunk = cipher.update(data);
+  const secondChunk = cipher.final();
+  return Buffer.concat([firstChunk, secondChunk]);
+};

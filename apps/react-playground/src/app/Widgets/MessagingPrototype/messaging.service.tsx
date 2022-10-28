@@ -2,13 +2,10 @@ import Deso from 'deso-protocol';
 import {
   DerivedPrivateUserInfo,
   MessagingGroupEntryResponse,
+  MessagingGroupResponse,
 } from 'deso-protocol-types';
 import { getTransactionSpendingLimits, GROUP_NAME, LIMIT } from './constants';
-import {
-  decryptMessageFromPrivateMessagingKey,
-  encryptMessageFromPrivateMessagingKey,
-} from './cryptoUtils';
-import { MessagingGroupResponse } from './types';
+import { decryptMessageFromPrivateMessagingKey } from './cryptoUtils';
 
 import { alertUserIfNoFunds } from './utils';
 
