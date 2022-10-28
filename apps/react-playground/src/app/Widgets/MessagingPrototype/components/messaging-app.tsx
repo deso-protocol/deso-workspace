@@ -3,7 +3,6 @@ import Deso from 'deso-protocol';
 import {
   authorizeDerivedKey,
   decrypt,
-  encrypt,
   generateDefaultKey,
   getEncryptedMessage,
   login,
@@ -222,7 +221,7 @@ export const MessagingApp = () => {
                           );
                           let conversationsArray = Object.keys(conversations);
                           if (conversationsArray.length === 0) {
-                            await encrypt(
+                            await deso.utils.encryptMessage(
                               // submit a message so they can use the example
                               deso,
                               'thanks for checking out this messaging app!',
@@ -301,7 +300,7 @@ export const MessagingApp = () => {
                       }
                       setIsSending('message');
                       try {
-                        await encrypt(
+                        await deso.utils.encryptMessage(
                           deso,
                           messageToSend,
                           derivedResponse,

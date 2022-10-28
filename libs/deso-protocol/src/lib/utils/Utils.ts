@@ -1,11 +1,20 @@
 import * as bip39 from 'bip39';
 import * as sha256 from 'sha256';
 import * as bs58check from 'bs58check';
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  createHmac,
+  createHash,
+} from 'crypto';
 import { ec as EC } from 'elliptic';
 import HDKey from 'hdkey';
 import { ec } from 'elliptic';
 import { ethers } from 'ethers';
 import HDNode from 'hdkey';
+import Deso from '../../index';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -234,3 +243,209 @@ export const signTransaction = (
 
   return signedTransactionBytes.toString('hex');
 };
+
+export const encryptMessage = async (
+  deso: Deso,
+  messageToSend: string,
+  derivedKeyResponse: Partial<DerivedPrivateUserInfo>,
+  RecipientPublicKeyBase58Check: string,
+  groupName = 'default-key'
+): Promise<void> => {
+  const { derivedSeedHex, messagingPrivateKey } = derivedKeyResponse;
+
+  const response = await deso.social.checkPartyMessagingKey({
+    RecipientMessagingKeyName: groupName,
+    RecipientPublicKeyBase58Check,
+    SenderMessagingKeyName: groupName,
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
+
+  if (!messagingPrivateKey) {
+    alert('messagingPrivateKey is undefined');
+    return;
+  }
+
+  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
+    messagingPrivateKey,
+    response.RecipientMessagingPublicKeyBase58Check,
+    messageToSend
+  );
+
+  if (!encryptedMessage) {
+    alert('unable to encrypt message');
+    return;
+  }
+
+  const transaction = await deso.social.sendMessageWithoutIdentity({
+    EncryptedMessageText: encryptedMessage.toString('hex'),
+    RecipientPublicKeyBase58Check,
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    MinFeeRateNanosPerKB: 1000,
+    SenderMessagingGroupKeyName: groupName,
+    RecipientMessagingGroupKeyName: groupName,
+  });
+
+  if (!transaction?.TransactionHex) {
+    alert('failed to construct transaction');
+    return;
+  }
+
+  const signedTransaction = deso.utils.signTransaction(
+    derivedSeedHex as string,
+    transaction.TransactionHex,
+    true
+  );
+
+  await deso.transaction.submitTransaction(signedTransaction).catch(() => {
+    alert('something went wrong while submitting the transaction');
+  });
+};
+
+export function encryptMessageFromPrivateMessagingKey(
+  privateMessagingKey: string,
+  recipientPublicKey: string,
+  message: string
+) {
+  const privateKey = seedHexToPrivateKey(privateMessagingKey);
+  const groupPrivateEncryptionKeyBuffer = privateKey
+    .getPrivate()
+    .toBuffer(undefined, 32);
+  const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
+  return encryptShared(
+    groupPrivateEncryptionKeyBuffer,
+    publicKeyBuffer,
+    message
+  );
+}
+
+function publicKeyToECBuffer(publicKey: string): Buffer {
+  const publicKeyEC = publicKeyToECKeyPair(publicKey);
+
+  return new Buffer(publicKeyEC.getPublic('array'));
+}
+
+function publicKeyToECKeyPair(publicKey: string): EC.KeyPair {
+  // Sanity check similar to Base58CheckDecodePrefix from core/lib/base58.go
+  if (publicKey.length < 5) {
+    throw new Error('Failed to decode public key');
+  }
+  const decoded = bs58check.decode(publicKey);
+  const payload = Uint8Array.from(decoded).slice(3);
+
+  const ec = new EC('secp256k1');
+  return ec.keyFromPublic(payload, 'array');
+}
+
+export const encryptShared = function (
+  privateKeySender: Buffer,
+  publicKeyRecipient: Buffer,
+  msg: string,
+  opts: { iv?: Buffer; legacy?: boolean; ephemPrivateKey?: Buffer } = {}
+) {
+  opts = opts || {};
+  const sharedPx = derive(privateKeySender, publicKeyRecipient);
+  const sharedPrivateKey = kdf(sharedPx, 32);
+  const sharedPublicKey = getPublic(sharedPrivateKey);
+
+  opts.legacy = false;
+  return encrypt(sharedPublicKey, msg, opts);
+};
+
+export const derive = function (privateKeyA: Buffer, publicKeyB: Buffer) {
+  assert(Buffer.isBuffer(privateKeyA), 'Bad input');
+  assert(Buffer.isBuffer(publicKeyB), 'Bad input');
+  assert(privateKeyA.length === 32, 'Bad private key');
+  assert(publicKeyB.length === 65, 'Bad public key');
+  assert(publicKeyB[0] === 4, 'Bad public key');
+  const ec = new EC('secp256k1');
+  const keyA = ec.keyFromPrivate(privateKeyA);
+  const keyB = ec.keyFromPublic(publicKeyB);
+  const Px = keyA.derive(keyB.getPublic()); // BN instance
+  return new Buffer(Px.toArray());
+};
+
+function assert(condition: boolean, message: string | undefined) {
+  if (!condition) {
+    throw new Error(message || 'Assertion failed');
+  }
+}
+
+export const kdf = function (secret: Buffer, outputLength: number) {
+  let ctr = 1;
+  let written = 0;
+  let result = Buffer.from('');
+  while (written < outputLength) {
+    const ctrs = Buffer.from([ctr >> 24, ctr >> 16, ctr >> 8, ctr]);
+    const hashResult = createHash('sha256')
+      .update(Buffer.concat([ctrs, secret]))
+      .digest();
+    result = Buffer.concat([result, hashResult]);
+    written += 32;
+    ctr += 1;
+  }
+  return result;
+};
+
+export const getPublic = function (privateKey: Buffer): Buffer {
+  assert(privateKey.length === 32, 'Bad private key');
+
+  const ec = new EC('secp256k1');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return new Buffer(ec.keyFromPrivate(privateKey).getPublic('arr'));
+  // return new Buffer(
+  //   ec.keyFromPrivate(privateKey).getPublic().encode('array', true)
+  // );
+};
+
+export const encrypt = function (
+  publicKeyTo: Buffer,
+  msg: string,
+  opts: { iv?: Buffer; legacy?: boolean; ephemPrivateKey?: Buffer }
+) {
+  opts = opts || {};
+  const ephemPrivateKey = opts.ephemPrivateKey || randomBytes(32);
+  const ephemPublicKey = getPublic(ephemPrivateKey);
+
+  const sharedPx = derive(ephemPrivateKey, publicKeyTo);
+  const hash = kdf(sharedPx, 32);
+  const iv = (opts.iv as Buffer) || randomBytes(16);
+  const encryptionKey = hash.slice(0, 16);
+
+  // Generate hmac
+  const macKey = createHash('sha256').update(hash.slice(16)).digest();
+
+  let ciphertext;
+  if (opts.legacy) {
+    ciphertext = aesCtrEncryptLegacy(iv, encryptionKey, msg);
+  } else {
+    ciphertext = aesCtrEncrypt(iv, encryptionKey, msg);
+  }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore //TODO is this ignore okay?
+  const dataToMac = Buffer.from([...iv, ...ciphertext]);
+  const HMAC = hmacSha256Sign(macKey, dataToMac);
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore //TODO is this ignore okay?
+  return Buffer.from([...ephemPublicKey, ...iv, ...ciphertext, ...HMAC]);
+};
+
+const aesCtrEncryptLegacy = function (
+  counter: Buffer,
+  key: Buffer,
+  data: string
+) {
+  const cipher = createCipheriv('aes-128-ctr', key, counter);
+  return cipher.update(data).toString();
+};
+const aesCtrEncrypt = function (counter: Buffer, key: Buffer, data: string) {
+  const cipher = createCipheriv('aes-128-ctr', key, counter);
+  const firstChunk = cipher.update(data);
+  const secondChunk = cipher.final();
+  return Buffer.concat([firstChunk, secondChunk]);
+};
+
+function hmacSha256Sign(key: Buffer, msg: Buffer) {
+  return createHmac('sha256', key).update(msg).digest();
+}

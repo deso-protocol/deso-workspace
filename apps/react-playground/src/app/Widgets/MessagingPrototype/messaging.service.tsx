@@ -8,7 +8,7 @@ import {
   decryptMessageFromPrivateMessagingKey,
   encryptMessageFromPrivateMessagingKey,
 } from './cryptoUtils';
-import { Message, MessagingGroupResponse } from './types';
+import { MessagingGroupResponse } from './types';
 
 import { alertUserIfNoFunds } from './utils';
 
@@ -107,7 +107,6 @@ export const generateDefaultKey = async (
 
   const { derivedSeedHex, messagingPublicKeyBase58Check } = derivedKeyResponse;
   if (groupKey) {
-    alert('messaging key already exists');
     return groupKey;
   }
 
@@ -134,66 +133,6 @@ export const generateDefaultKey = async (
     (x) => x.MessagingGroupKeyName === GROUP_NAME
   );
   return groupKey;
-};
-
-export const encrypt = async (
-  deso: Deso,
-  messageToSend: string,
-  derivedKeyResponse: Partial<DerivedPrivateUserInfo>,
-  RecipientPublicKeyBase58Check: string
-): Promise<void> => {
-  if (await alertUserIfNoFunds(deso)) {
-    return;
-  }
-
-  const { derivedSeedHex, messagingPrivateKey } = derivedKeyResponse;
-
-  const response = await deso.social.checkPartyMessagingKey({
-    RecipientMessagingKeyName: GROUP_NAME,
-    RecipientPublicKeyBase58Check,
-    SenderMessagingKeyName: GROUP_NAME,
-    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-  });
-
-  if (!messagingPrivateKey) {
-    alert('messagingPrivateKey is undefined');
-    return;
-  }
-
-  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
-    messagingPrivateKey,
-    response.RecipientMessagingPublicKeyBase58Check,
-    messageToSend
-  );
-
-  if (!encryptedMessage) {
-    alert('unable to encrypt message');
-    return;
-  }
-
-  const transaction = await deso.social.sendMessageWithoutIdentity({
-    EncryptedMessageText: encryptedMessage.toString('hex'),
-    RecipientPublicKeyBase58Check,
-    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    MinFeeRateNanosPerKB: 1000,
-    SenderMessagingGroupKeyName: GROUP_NAME,
-    RecipientMessagingGroupKeyName: GROUP_NAME,
-  });
-
-  if (!transaction?.TransactionHex) {
-    alert('failed to construct transaction');
-    return;
-  }
-
-  const signedTransaction = deso.utils.signTransaction(
-    derivedSeedHex as string,
-    transaction.TransactionHex,
-    true
-  );
-
-  await deso.transaction.submitTransaction(signedTransaction).catch(() => {
-    alert('something went wrong while submitting the transaction');
-  });
 };
 
 export const decrypt = async (

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
 import {
   authorizeDerivedKey,
-  encrypt,
   generateDefaultKey,
   getFreeDeso,
   login,
@@ -203,7 +202,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await encrypt(
+                await deso.utils.encryptMessage(
                   deso,
                   'message to be encrypted and sent',
                   requestDeriveResponse,
