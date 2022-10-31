@@ -12,6 +12,7 @@ import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { getDerivedKeyResponse, setDerivedKeyResponse } from '../store';
 import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
 import { delay, truncateDesoHandle } from '../utils';
+import { profile } from 'console';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
@@ -39,6 +40,7 @@ export const MessagingApp = () => {
     ) {
       return [<div></div>];
     }
+    const avatarClasses = 'w-12 h-12 bg-no-repeat bg-center bg-cover rounded';
     const conversation = conversations[conversationPublicKey] ?? [];
     return conversation.map((message: any, i: number) => {
       const messageToShow = message.DecryptedMessage || message.error;
@@ -49,18 +51,36 @@ export const MessagingApp = () => {
       if (message.error) {
         senderStyles = 'bg-red-500 mx-auto';
       }
+      const profilePicURL = `url('${deso.user.getSingleProfilePicture(
+        message.SenderPublicKeyBase58Check,
+        'https://node.deso.org/assets/img/default_profile_pic.png'
+      )}')`;
 
       return (
         <div
           className={`${
-            message.IsSender ? 'ml-auto' : 'mr-auto'
-          }  max-w-[350px] mb-4`}
+            message.IsSender
+              ? 'ml-auto justify-end'
+              : 'mr-auto items-start justify-start'
+          }  max-w-[350px] mb-4 flex`}
         >
+          {!message.IsSender && (
+            <div
+              style={{ backgroundImage: profilePicURL }}
+              className={avatarClasses}
+            ></div>
+          )}
           <div
             className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white mx-4 break-words`}
           >
             {messageToShow}
           </div>
+          {message.IsSender && (
+            <div
+              style={{ backgroundImage: profilePicURL }}
+              className={avatarClasses}
+            ></div>
+          )}
         </div>
       );
     });
