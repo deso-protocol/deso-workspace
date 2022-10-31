@@ -65,6 +65,8 @@ export interface LoginUser {
   hasExtraText: boolean;
   ethDepositAddress: string;
   network: string;
+  encryptedMessagingKeyRandomness?: string;
+  derivedPublicKeyBase58Check?: string;
 }
 
 export interface LoginUsers {
