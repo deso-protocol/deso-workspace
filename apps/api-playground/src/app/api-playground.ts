@@ -1,11 +1,11 @@
 import cors from 'cors';
 import express from 'express';
+
+export const PORT: Readonly<number> = 3000;
 export const runDefaultNodeApp = () => {
   const app = express();
   app.use(express.json());
   app.use(cors());
-
-  const PORT: Readonly<number> = 3000;
 
   app.get('/', async (req, res) => {
     //
