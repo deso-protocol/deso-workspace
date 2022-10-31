@@ -12,7 +12,6 @@ import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { getDerivedKeyResponse, setDerivedKeyResponse } from '../store';
 import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
 import { delay, truncateDesoHandle } from '../utils';
-import { profile } from 'console';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
