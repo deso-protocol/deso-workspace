@@ -1,10 +1,10 @@
 {
   "name": "deso-protocol",
-  "version": "0.7.17",
+  "version": "0.8.2",
   "type": "commonjs",
   "dependencies": {
     "axios": "^0.25.0",
-    "deso-protocol-types": "0.3.2",
+    "deso-protocol-types": "0.4.0",
     "@types/bs58check": "^2.1.0",
     "tus-js-client": "^2.3.1",
     "crypto-browserify": "^3.12.0",

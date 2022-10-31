@@ -1,3 +1,4 @@
-import { apiPlayground } from './app/api-playground';
+import { runDefaultNodeApp } from './app/api-playground';
 
-console.log(`Running ${apiPlayground()}`);
+runDefaultNodeApp();
+// runDifferent app that you want to test
