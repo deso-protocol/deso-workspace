@@ -1,7 +1,6 @@
-import { apiPlayground } from './api-playground';
-
+import { runDefaultNodeApp } from './api-playground';
 describe('apiPlayground', () => {
   it('should work', () => {
-    expect(apiPlayground()).toEqual('api-playground');
+    expect(runDefaultNodeApp()).toEqual('app is running');
   });
 });

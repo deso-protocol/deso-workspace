@@ -23,4 +23,5 @@ export const runDefaultNodeApp = () => {
   app.listen(PORT, async () => {
     console.log('hello');
   });
+  return `app is running ${PORT}`;
 };
