@@ -15,6 +15,11 @@ import { delay, truncateDesoHandle } from '../utils';
 const deso = new Deso();
 export const MessagingApp = () => {
   const [messageToSend, setMessageToSend] = useState('');
+  const [
+    getUsernameByPublicKeyBase58Check,
+    setGetUsernameByPublicKeyBase58Check,
+  ] = useState<{ [key: string]: string }>({});
+
   const [derivedResponse, setDerivedResponse] = useState({});
   const [isSending, setIsSending] = useState<
     'getConversation' | 'setupMessaging' | 'message' | 'none'
@@ -70,6 +75,7 @@ export const MessagingApp = () => {
               className={avatarClasses}
             ></div>
           )}
+
           <div
             className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words`}
           >
@@ -143,7 +149,7 @@ export const MessagingApp = () => {
     );
     const messageMap: { [key: string]: any[] } = {};
     const userKey = deso.identity.getUserKey();
-    Object.keys(decryptedMessages)?.forEach((key: string) => {
+    Object.keys(decryptedMessages)?.forEach(async (key: string) => {
       decryptedMessages[key].forEach((message: any) => {
         const otherUsersKey =
           userKey === message.RecipientPublicKeyBase58Check
@@ -152,6 +158,7 @@ export const MessagingApp = () => {
         if (!messageMap[otherUsersKey]) {
           messageMap[otherUsersKey] = [];
         }
+
         messageMap[otherUsersKey].push(message);
       });
     });
@@ -163,7 +170,8 @@ export const MessagingApp = () => {
   };
 
   const getListOfConversationsKeys = () => {
-    return getConversationsAsArray().map((k, i) => {
+    return getConversationsAsArray().map((k: string, i) => {
+      const username = getUsernameByPublicKeyBase58Check[k] ?? null;
       const selectedConversationStyle =
         k === selectedConversationPublicKey ? 'bg-slate-400' : '';
       return (
@@ -182,7 +190,7 @@ export const MessagingApp = () => {
           }}
           className={`border-t border-black py-2 px-4 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer`}
         >
-          {truncateDesoHandle(k)}
+          {username ? username : truncateDesoHandle(k)}
         </div>
       );
     });
@@ -242,6 +250,21 @@ export const MessagingApp = () => {
                             derivedResponse
                           );
                           let conversationsArray = Object.keys(conversations);
+                          const res = await deso.user.getUserStateless({
+                            PublicKeysBase58Check: conversationsArray,
+                          });
+                          const getUsernameByPublicKeyBase58Check: any = [];
+
+                          res?.UserList?.forEach((user) => {
+                            getUsernameByPublicKeyBase58Check[
+                              user.PublicKeyBase58Check
+                            ] = user.ProfileEntryResponse?.Username;
+                          });
+                          if (getUsernameByPublicKeyBase58Check) {
+                            setGetUsernameByPublicKeyBase58Check(
+                              getUsernameByPublicKeyBase58Check
+                            );
+                          }
                           if (conversationsArray.length === 0) {
                             await deso.utils.encryptMessage(
                               // submit a message so they can use the example
