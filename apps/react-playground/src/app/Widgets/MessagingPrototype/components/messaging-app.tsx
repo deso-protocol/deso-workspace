@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import Deso from 'deso-protocol';
+import ClipLoader from 'react-spinners/ClipLoader';
+
 import {
   authorizeDerivedKey,
   generateDefaultKey,
@@ -212,7 +214,6 @@ export const MessagingApp = () => {
                   {!hasSetupAccount && (
                     <button
                       className={`${buttonClass} border mx-auto
-                      ${isSending === 'setupMessaging' ? 'animate-spin' : ''}
                       `}
                       onClick={async () => {
                         setIsSending('setupMessaging');
@@ -228,16 +229,25 @@ export const MessagingApp = () => {
                         }
                       }}
                     >
-                      {' '}
-                      Setup account for messaging
+                      <div className="flex justify-center">
+                        {isSending === 'setupMessaging' ? (
+                          <ClipLoader
+                            color={'#6d4800'}
+                            loading={true}
+                            size={20}
+                          />
+                        ) : (
+                          <div className="mr-2">
+                            Setup account for messaging
+                          </div>
+                        )}
+                      </div>{' '}
                     </button>
                   )}
 
                   {hasSetupAccount && (
                     <button
-                      className={`${buttonClass} border mx-auto 
-                      ${isSending === 'getConversation' ? 'animate-spin' : ''}
-`}
+                      className={`${buttonClass} border mx-auto `}
                       onClick={async () => {
                         setIsSending('getConversation');
                         try {
@@ -300,7 +310,17 @@ export const MessagingApp = () => {
                         setIsSending('none');
                       }}
                     >
-                      Get Conversations
+                      <div className="flex justify-center">
+                        {isSending === 'getConversation' ? (
+                          <ClipLoader
+                            color={'#6d4800'}
+                            loading={true}
+                            size={20}
+                          />
+                        ) : (
+                          <div className="mr-2">Get Conversations</div>
+                        )}
+                      </div>
                     </button>
                   )}
                 </div>
@@ -380,11 +400,15 @@ export const MessagingApp = () => {
                         setIsSending('none');
                       }
                     }}
-                    className={`rounded-br-md min-w-[150px] max-h-[80px] bg-[#06f] text-white ${
-                      isSending === 'message' ? 'animate-spin' : ''
-                    }`}
+                    className={`rounded-br-md min-w-[150px] max-h-[80px] bg-[#06f] text-white`}
                   >
-                    send message
+                    <div className="flex justify-center">
+                      {isSending === 'message' ? (
+                        <ClipLoader color={'#fff'} loading={true} size={40} />
+                      ) : (
+                        <div className="mr-2">send message</div>
+                      )}
+                    </div>
                   </button>
                 </div>
               </div>
