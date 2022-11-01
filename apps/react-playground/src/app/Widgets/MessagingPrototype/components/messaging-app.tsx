@@ -39,7 +39,8 @@ export const MessagingApp = () => {
     ) {
       return [<div></div>];
     }
-    const avatarClasses = 'w-12 h-12 bg-no-repeat bg-center bg-cover rounded';
+    const avatarClasses =
+      'w-12 h-12 bg-no-repeat bg-center bg-cover  rounded-full min-w-[50px] mx-2';
     const conversation = conversations[conversationPublicKey] ?? [];
     return conversation.map((message: any, i: number) => {
       const messageToShow = message.DecryptedMessage || message.error;
@@ -57,11 +58,11 @@ export const MessagingApp = () => {
 
       return (
         <div
-          className={`${
+          className={`mx-2 ${
             message.IsSender
               ? 'ml-auto justify-end'
               : 'mr-auto items-start justify-start'
-          }  max-w-[350px] mb-4 flex`}
+          }  max-w-[400px] mb-4 flex`}
         >
           {!message.IsSender && (
             <div
@@ -70,7 +71,7 @@ export const MessagingApp = () => {
             ></div>
           )}
           <div
-            className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white mx-4 break-words`}
+            className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words`}
           >
             {messageToShow}
           </div>
