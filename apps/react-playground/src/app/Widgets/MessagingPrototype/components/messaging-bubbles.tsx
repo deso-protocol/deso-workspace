@@ -1,4 +1,6 @@
 import Deso from 'deso-protocol';
+import { avatarClass } from '../consts/styles';
+import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export interface MessagingBubblesProps {
   conversations: any;
@@ -13,8 +15,6 @@ export const MessagingBubblesAndAvatar = ({
   if (Object.keys(conversations).length === 0 || conversationPublicKey === '') {
     return [<div></div>];
   }
-  const avatarClasses =
-    'w-12 h-12 bg-no-repeat bg-center bg-cover  rounded-full min-w-[50px] mx-2';
   const conversation = conversations[conversationPublicKey] ?? [];
   return conversation.map((message: any, i: number) => {
     const messageToShow = message.DecryptedMessage || message.error;
@@ -25,10 +25,6 @@ export const MessagingBubblesAndAvatar = ({
     if (message.error) {
       senderStyles = 'bg-red-500 mx-auto';
     }
-    const profilePicURL = `url('${deso.user.getSingleProfilePicture(
-      message.SenderPublicKeyBase58Check,
-      'https://node.deso.org/assets/img/default_profile_pic.png'
-    )}')`;
 
     return (
       <div
@@ -39,10 +35,11 @@ export const MessagingBubblesAndAvatar = ({
         }  max-w-[400px] mb-4 flex`}
       >
         {!message.IsSender && (
-          <div
-            style={{ backgroundImage: profilePicURL }}
-            className={avatarClasses}
-          ></div>
+          <MessagingDisplayAvatar
+            publicKey={message.SenderPublicKeyBase58Check}
+            deso={deso}
+            diameter={50}
+          />
         )}
         <div
           className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words`}
@@ -50,10 +47,11 @@ export const MessagingBubblesAndAvatar = ({
           {messageToShow}
         </div>
         {message.IsSender && (
-          <div
-            style={{ backgroundImage: profilePicURL }}
-            className={avatarClasses}
-          ></div>
+          <MessagingDisplayAvatar
+            publicKey={message.SenderPublicKeyBase58Check}
+            deso={deso}
+            diameter={50}
+          />
         )}
       </div>
     );
