@@ -207,12 +207,6 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                   requestDeriveResponse,
                   USER_TO_SEND_MESSAGE_TO_1
                 );
-                // await encrypt(
-                //   deso,
-                //   'message to be encrypted and sent',
-                //   requestDeriveResponse,
-                //   USER_TO_SEND_MESSAGE_TO_2
-                // );
               }}
             >
               Encrypt
