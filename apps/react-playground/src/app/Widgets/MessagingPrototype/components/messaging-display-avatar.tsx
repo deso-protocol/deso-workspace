@@ -13,7 +13,7 @@ export const MessagingDisplayAvatar: React.FC<{
       'https://node.deso.org/assets/img/default_profile_pic.png'
     )}')`;
     setProfilePicUrl(profilePicURL);
-  }, []);
+  }, [publicKey]);
   return (
     <div
       style={{ backgroundImage: profilePicUrl }}

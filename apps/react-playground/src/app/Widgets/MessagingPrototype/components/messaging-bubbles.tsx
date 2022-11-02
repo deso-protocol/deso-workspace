@@ -1,5 +1,4 @@
 import Deso from 'deso-protocol';
-import { avatarClass } from '../consts/styles';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export interface MessagingBubblesProps {
@@ -23,9 +22,8 @@ export const MessagingBubblesAndAvatar = ({
       senderStyles = 'bg-green-500';
     }
     if (message.error) {
-      senderStyles = 'bg-red-500 mx-auto';
+      senderStyles = 'bg-red-500';
     }
-
     return (
       <div
         className={`mx-2 ${
@@ -42,7 +40,7 @@ export const MessagingBubblesAndAvatar = ({
           />
         )}
         <div
-          className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words`}
+          className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words max-w-[250px]`}
         >
           {messageToShow}
         </div>

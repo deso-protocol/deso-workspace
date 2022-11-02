@@ -30,7 +30,6 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
       selectedKey ||
       selectedConversationPublicKey ||
       Object.keys(conversations)[0];
-    console.log(keyToUse);
     setSelectedConversationPublicKey(keyToUse);
     setConversationAccounts(
       // toss the conversations into the UI
