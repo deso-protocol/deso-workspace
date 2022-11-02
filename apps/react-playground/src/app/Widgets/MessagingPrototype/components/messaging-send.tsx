@@ -29,12 +29,6 @@ export const SendMessageButtonAndInput = ({
           setIsSending(true);
           try {
             await onClick(messageToSend);
-            const messageContainer =
-              document.getElementById('message-container');
-            if (!messageContainer) {
-              return;
-            }
-            messageContainer.scrollTop = messageContainer.scrollHeight;
           } catch {
             setIsSending(false);
             setMessageToSend('');

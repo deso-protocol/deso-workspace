@@ -20,6 +20,32 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
   useEffect(() => {
     init();
   }, []);
+  const rehydrateConversation = async () => {
+    const key = deso.identity.getUserKey() as string;
+    const conversations = await getConversations(
+      // gives us all the conversations
+      deso,
+      getDerivedKeyResponse(key),
+      setGetUsernameByPublicKeyBase58Check,
+      setConversations,
+      setSelectedConversationPublicKey
+    );
+
+    const keyToUse =
+      selectedConversationPublicKey || Object.keys(conversations)[0];
+    setSelectedConversationPublicKey(keyToUse);
+    setConversationAccounts(
+      // toss the conversations into the UI
+      <MessagingBubblesAndAvatar
+        deso={deso}
+        conversationPublicKey={keyToUse}
+        conversations={conversations}
+      />
+    );
+    setConversations(conversations);
+
+    setAutoFetchConversations(false);
+  };
   const init = async () => {
     const key = deso.identity.getUserKey();
     if (key) {
@@ -30,31 +56,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
       if (hasSetupMessagingAlready) {
         setAutoFetchConversations(true);
         setDerivedResponse(derivedResponse);
-        const conversations = await getConversations(
-          // gives us all the conversations
-          deso,
-          derivedResponse,
-          setGetUsernameByPublicKeyBase58Check,
-          setConversations,
-          setSelectedConversationPublicKey
-        );
-
-        setSelectedConversationPublicKey(
-          selectedConversationPublicKey ?? Object.keys(conversations)[0]
-        );
-        setConversationAccounts(
-          // toss the conversations into the UI
-          <MessagingBubblesAndAvatar
-            deso={deso}
-            conversationPublicKey={
-              selectedConversationPublicKey ?? Object.keys(conversations)[0]
-            }
-            conversations={conversations}
-          />
-        );
-        setConversations(conversations);
-
-        setAutoFetchConversations(false);
+        await rehydrateConversation();
       }
     }
   };
@@ -169,18 +171,14 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                         derivedResponse,
                         selectedConversationPublicKey
                       );
-                      const conversations = await getConversationsMap(
-                        deso,
-                        derivedResponse
-                      );
-                      setConversations(conversations ?? {});
-                      const conversationsArray = Object.keys(conversations);
-                      setSelectedConversationPublicKey(
-                        selectedConversationPublicKey ?? conversationsArray[0]
-                      );
-                      if (!derivedResponse) {
-                        alert('need to setup messaging for account first');
+                      rehydrateConversation();
+                      const messageContainer =
+                        document.getElementById('message-container');
+                      if (!messageContainer) {
+                        return;
                       }
+                      messageContainer.scrollTop =
+                        messageContainer.scrollHeight;
                     } catch {
                       //
                     }
