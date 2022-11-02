@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
 import { getDerivedKeyResponse } from '../services/store';
 import { SendMessageButtonAndInput } from './messaging-send';
-import {
-  getConversationsMap,
-  getConversations,
-  setupMessaging,
-} from './messaging-app.service';
+import { getConversations, setupMessaging } from './messaging-app.service';
 import { MessagingSetupButton } from './messaging-setup-button';
 import { MessagingSwitchUsers } from './messaging-switch-users';
 import { MessagingConversationButton } from './messaging-conversation-button';
@@ -20,7 +16,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
   useEffect(() => {
     init();
   }, []);
-  const rehydrateConversation = async () => {
+  const rehydrateConversation = async (selectedKey = '') => {
     const key = deso.identity.getUserKey() as string;
     const conversations = await getConversations(
       // gives us all the conversations
@@ -30,9 +26,11 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
       setConversations,
       setSelectedConversationPublicKey
     );
-
     const keyToUse =
-      selectedConversationPublicKey || Object.keys(conversations)[0];
+      selectedKey ||
+      selectedConversationPublicKey ||
+      Object.keys(conversations)[0];
+    console.log(keyToUse);
     setSelectedConversationPublicKey(keyToUse);
     setConversationAccounts(
       // toss the conversations into the UI
@@ -107,15 +105,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
 
                   {!autoFetchConversations && hasSetupAccount && (
                     <MessagingConversationButton
-                      onClick={() =>
-                        getConversations(
-                          deso,
-                          derivedResponse,
-                          setGetUsernameByPublicKeyBase58Check,
-                          setConversations,
-                          setSelectedConversationPublicKey
-                        )
-                      }
+                      onClick={rehydrateConversation}
                     />
                   )}
                 </div>
@@ -129,18 +119,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
               <MessagingConversationAccount
                 onClick={async (key: string) => {
                   setSelectedConversationPublicKey(key);
-                  const conversations = await getConversationsMap(
-                    deso,
-                    derivedResponse
-                  );
-                  const conversationsArray = Object.keys(conversations);
-                  setConversationAccounts(
-                    <MessagingBubblesAndAvatar
-                      conversationPublicKey={key ?? conversationsArray[0]}
-                      deso={deso}
-                      conversations={conversations}
-                    />
-                  );
+                  await rehydrateConversation(key);
                 }}
                 deso={deso}
                 conversations={conversations}
@@ -171,7 +150,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                         derivedResponse,
                         selectedConversationPublicKey
                       );
-                      rehydrateConversation();
+                      await rehydrateConversation();
                       const messageContainer =
                         document.getElementById('message-container');
                       if (!messageContainer) {

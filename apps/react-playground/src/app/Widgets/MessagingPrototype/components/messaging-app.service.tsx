@@ -132,8 +132,8 @@ export const getConversations = async (
         derivedResponse,
         USER_TO_SEND_MESSAGE_TO_1
       );
+      await delay(3000);
     }
-    await delay(3000);
     conversations = await getConversationsMap(deso, derivedResponse);
     setConversations(conversations ?? {});
     conversationsArray = Object.keys(conversations);
