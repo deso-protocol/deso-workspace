@@ -7,3 +7,5 @@ export const explainer: Readonly<string> =
   'p-2 min-w-[350px] max-w-[350px] border-r border-black ';
 export const dataClass: Readonly<string> =
   'p-2  min-w-[350px] max-w-[350px] overflow-auto break-all';
+export const avatarClass =
+  'w-12 h-12 bg-no-repeat bg-center bg-cover rounded-full  mx-2';
