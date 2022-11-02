@@ -1,7 +1,5 @@
 import Deso from 'deso-protocol';
-import { truncateDesoHandle } from '../utils';
-import { getConversationsMap } from './messaging-app.service';
-import { MessagingBubblesAndAvatar } from './messaging-bubbles';
+import { truncateDesoHandle } from '../services/utils';
 export interface MessagingConversationAccountProps {
   deso: Deso;
   conversations: any;
@@ -10,15 +8,14 @@ export interface MessagingConversationAccountProps {
   setSelectedConversationPublicKey: any;
   derivedResponse: any;
   setConversationComponent: any;
+  onClick: any;
 }
 export const MessagingConversationAccount = ({
   deso,
   conversations,
   getUsernameByPublicKeyBase58Check,
   selectedConversationPublicKey,
-  setSelectedConversationPublicKey,
-  derivedResponse,
-  setConversationComponent,
+  onClick,
 }: MessagingConversationAccountProps) => {
   const getConversationsAsArray = () => {
     return Object.keys(conversations) ?? [];
@@ -38,20 +35,8 @@ export const MessagingConversationAccount = ({
           k === selectedConversationPublicKey ? 'bg-slate-400' : '';
         return (
           <div
-            onClick={async () => {
-              setSelectedConversationPublicKey(k);
-              const conversations = await getConversationsMap(
-                deso,
-                derivedResponse
-              );
-              const conversationsArray = Object.keys(conversations);
-              setConversationComponent(
-                <MessagingBubblesAndAvatar
-                  conversationPublicKey={k ?? conversationsArray[0]}
-                  deso={deso}
-                  conversations={conversations}
-                />
-              );
+            onClick={() => {
+              onClick(k);
             }}
             className={`border-t border-black py-2 px-4 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer`}
           >

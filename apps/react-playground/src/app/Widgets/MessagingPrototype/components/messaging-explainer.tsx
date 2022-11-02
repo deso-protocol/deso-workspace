@@ -1,6 +1,6 @@
 import Deso from 'deso-protocol';
 import { useState } from 'react';
-import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
+import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,
@@ -8,7 +8,7 @@ import {
   login,
   requestDerivedKey,
   getEncryptedMessage,
-} from '../messaging.service';
+} from '../services/messaging.service';
 import {
   getDefaultKey,
   getLoginResponse,
@@ -17,14 +17,14 @@ import {
   getDecryptedResponse,
   setDerivedKeyResponse,
   setDefaultKey,
-} from '../store';
+} from '../services/store';
 import {
   buttonClass,
   containerClass,
   explainer,
   tileButtonClass,
-} from '../styles';
-import { StringifyObject } from '../utils';
+} from '../consts/styles';
+import { StringifyObject } from '../services/utils';
 
 export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
   const [loginResponse, setLoginResponse] = useState(getLoginResponse());

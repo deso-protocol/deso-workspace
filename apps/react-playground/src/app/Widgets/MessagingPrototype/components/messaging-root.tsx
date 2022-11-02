@@ -1,6 +1,6 @@
 import { Deso } from 'deso-protocol';
 import { useState } from 'react';
-import { buttonClass } from '../styles';
+import { buttonClass } from '../consts/styles';
 import { MessagingApp } from './messaging-app';
 import { MessagingExplainer } from './messaging-explainer';
 const deso = new Deso();

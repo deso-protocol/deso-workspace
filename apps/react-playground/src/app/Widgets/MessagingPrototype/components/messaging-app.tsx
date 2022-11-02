@@ -1,46 +1,71 @@
 import { useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
-import { getDerivedKeyResponse } from '../store';
+import { getDerivedKeyResponse } from '../services/store';
 import { SendMessageButtonAndInput } from './messaging-send';
 import {
-  loadPageAndConversations,
+  getConversationsMap,
+  getConversations,
   setupMessaging,
 } from './messaging-app.service';
 import { MessagingSetupButton } from './messaging-setup-button';
 import { MessagingSwitchUsers } from './messaging-switch-users';
 import { MessagingConversationButton } from './messaging-conversation-button';
 import { MessagingConversationAccount } from './messaging-conversation-accounts';
+import { MessagingBubblesAndAvatar } from './messaging-bubbles';
+import ClipLoader from 'react-spinners/ClipLoader';
 export interface MessagingAppProps {
   deso: Deso;
 }
 export const MessagingApp = ({ deso }: MessagingAppProps) => {
   useEffect(() => {
+    init();
+  }, []);
+  const init = async () => {
     const key = deso.identity.getUserKey();
     if (key) {
-      const hasSetupMessagingAlready = !!getDerivedKeyResponse(key);
+      const derivedResponse = getDerivedKeyResponse(key); //have they set a derived key before?
+      const hasSetupMessagingAlready =
+        !!derivedResponse.derivedPublicKeyBase58Check;
+      setHasSetupAccount(hasSetupMessagingAlready);
       if (hasSetupMessagingAlready) {
-        loadPageAndConversations(
+        setAutoFetchConversations(true);
+        setDerivedResponse(derivedResponse);
+        const conversations = await getConversations(
+          // gives us all the conversations
           deso,
           derivedResponse,
           setGetUsernameByPublicKeyBase58Check,
           setConversations,
-          setSelectedConversationPublicKey,
-          setConversationAccounts
+          setSelectedConversationPublicKey
         );
+
+        setSelectedConversationPublicKey(
+          selectedConversationPublicKey ?? Object.keys(conversations)[0]
+        );
+        setConversationAccounts(
+          // toss the conversations into the UI
+          <MessagingBubblesAndAvatar
+            deso={deso}
+            conversationPublicKey={
+              selectedConversationPublicKey ?? Object.keys(conversations)[0]
+            }
+            conversations={conversations}
+          />
+        );
+        setConversations(conversations);
+
+        setAutoFetchConversations(false);
       }
     }
-  }, []);
+  };
 
   const [
     getUsernameByPublicKeyBase58Check,
     setGetUsernameByPublicKeyBase58Check,
   ] = useState<{ [key: string]: string }>({});
   const [derivedResponse, setDerivedResponse] = useState({});
-  const [isSending, setIsSending] = useState<
-    'getConversation' | 'setupMessaging' | 'message' | 'none'
-  >('none');
   const [hasSetupAccount, setHasSetupAccount] = useState(false);
-
+  const [autoFetchConversations, setAutoFetchConversations] = useState(false);
   const [conversationAccounts, setConversationAccounts] = useState<any>(<></>);
   const [selectedConversationPublicKey, setSelectedConversationPublicKey] =
     useState('');
@@ -60,40 +85,33 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                   {' '}
                 </div>
                 <div className="flex flex-col justify-center min-h-[559px]">
-                  {!hasSetupAccount && (
+                  {autoFetchConversations && (
+                    <div>
+                      <ClipLoader color={'#6d4800'} loading={true} size={20} />
+                    </div>
+                  )}
+                  {!autoFetchConversations && !hasSetupAccount && (
                     <MessagingSetupButton
                       onClick={async () => {
-                        setIsSending('setupMessaging');
-                        try {
-                          const success = await setupMessaging(
-                            deso,
-                            setDerivedResponse,
-                            setHasSetupAccount
-                          );
-                          if (!success) {
-                            alert(
-                              'something went wrong when setting up the account'
-                            );
-                          }
-                        } catch {
-                          setIsSending('none');
-                        }
+                        const success = await setupMessaging(
+                          deso,
+                          setDerivedResponse,
+                          setHasSetupAccount
+                        );
+                        return success;
                       }}
-                      isSending={isSending}
                     />
                   )}
 
-                  {hasSetupAccount && (
+                  {!autoFetchConversations && hasSetupAccount && (
                     <MessagingConversationButton
-                      isSending={isSending}
                       onClick={() =>
-                        loadPageAndConversations(
+                        getConversations(
                           deso,
                           derivedResponse,
                           setGetUsernameByPublicKeyBase58Check,
                           setConversations,
-                          setSelectedConversationPublicKey,
-                          {}
+                          setSelectedConversationPublicKey
                         )
                       }
                     />
@@ -107,6 +125,21 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
           <div className="flex flex-col justify-center">
             <div className="bg-neutral-200 mx-auto ed-md flex  min-h-[600px] max-h-[600px] rounded-md">
               <MessagingConversationAccount
+                onClick={async (key: string) => {
+                  setSelectedConversationPublicKey(key);
+                  const conversations = await getConversationsMap(
+                    deso,
+                    derivedResponse
+                  );
+                  const conversationsArray = Object.keys(conversations);
+                  setConversationAccounts(
+                    <MessagingBubblesAndAvatar
+                      conversationPublicKey={key ?? conversationsArray[0]}
+                      deso={deso}
+                      conversations={conversations}
+                    />
+                  );
+                }}
                 deso={deso}
                 conversations={conversations}
                 getUsernameByPublicKeyBase58Check={
@@ -128,14 +161,30 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                   {conversationAccounts}
                 </div>
                 <SendMessageButtonAndInput
-                  onClick={() => {
-                    //
+                  onClick={async (messageToSend: string) => {
+                    try {
+                      await deso.utils.encryptMessage(
+                        deso,
+                        messageToSend,
+                        derivedResponse,
+                        selectedConversationPublicKey
+                      );
+                      const conversations = await getConversationsMap(
+                        deso,
+                        derivedResponse
+                      );
+                      setConversations(conversations ?? {});
+                      const conversationsArray = Object.keys(conversations);
+                      setSelectedConversationPublicKey(
+                        selectedConversationPublicKey ?? conversationsArray[0]
+                      );
+                      if (!derivedResponse) {
+                        alert('need to setup messaging for account first');
+                      }
+                    } catch {
+                      //
+                    }
                   }}
-                  deso={deso}
-                  setIsSending={setIsSending}
-                  selectedConversationPublicKey={selectedConversationPublicKey}
-                  derivedResponse={derivedResponse}
-                  isSending={isSending}
                 />
               </div>
             </div>

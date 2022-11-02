@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { buttonClass } from '../styles';
+import { buttonClass } from '../consts/styles';
 export interface MessagingSwitchUsers {
   deso: Deso;
 }

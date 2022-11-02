@@ -1,16 +1,19 @@
 import Deso from 'deso-protocol';
 import { DerivedPrivateUserInfo } from 'deso-protocol-types';
-import { USER_TO_SEND_MESSAGE_TO_1 } from '../constants';
+import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,
   getEncryptedMessage,
   login,
   requestDerivedKey,
-} from '../messaging.service';
-import { getDerivedKeyResponse, setDerivedKeyResponse } from '../store';
-import { delay } from '../utils';
-import { MessagingBubblesAndAvatar } from './messaging-bubbles';
+} from '../services/messaging.service';
+import {
+  getDerivedKeyResponse,
+  setDefaultKey,
+  setDerivedKeyResponse,
+} from '../services/store';
+import { delay } from '../services/utils';
 export const getConversationsMap = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
@@ -49,6 +52,7 @@ export const setupMessaging = async (
 ): Promise<false | Partial<DerivedPrivateUserInfo>> => {
   let key = deso.identity.getUserKey();
   if (!key) {
+    // are they already logged in? if not prompt them
     const res = await login(deso);
     key = res.key;
     if (!key) {
@@ -61,6 +65,7 @@ export const setupMessaging = async (
   });
   const user = userResponse?.UserList?.[0];
   if (user && user.BalanceNanos === 0) {
+    // does the user have a balance? If not let them know since they will not be able to proceed
     const openFreeDeso = window.confirm(
       `no deso funds found for ${key}. click okay to add some through phone verification. Otherwise you can send deso from another account`
     );
@@ -70,8 +75,9 @@ export const setupMessaging = async (
       return false;
     }
   }
-  let derivedResponse: any = getDerivedKeyResponse(key);
+  let derivedResponse: any = getDerivedKeyResponse(key); // does the derived key exist in storage already?
   if (!derivedResponse.derivedPublicKeyBase58Check) {
+    // if not request one
     derivedResponse = await requestDerivedKey(deso);
   }
   if (!derivedResponse.derivedPublicKeyBase58Check) {
@@ -81,25 +87,27 @@ export const setupMessaging = async (
   setDerivedKeyResponse(derivedResponse, key);
   await authorizeDerivedKey(deso, derivedResponse);
   await delay(3000);
-  await generateDefaultKey(deso, derivedResponse);
+  const groupKey = await generateDefaultKey(deso, derivedResponse);
+  if (groupKey) {
+    setDefaultKey(groupKey);
+  }
   setDerivedResponse(derivedResponse);
   setHasSetupAccount(true);
 
   return derivedResponse;
 };
 
-export const loadPageAndConversations = async (
+export const getConversations = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>,
   setGetUsernameByPublicKeyBase58Check: any,
   setConversations: any,
-  setSelectedConversationPublicKey: any,
-  setConversationComponent: any
+  setSelectedConversationPublicKey: any
 ) => {
   try {
     if (!derivedResponse) {
       alert('derived call failed');
-      return;
+      return {};
     }
 
     let conversations = await getConversationsMap(deso, derivedResponse);
@@ -120,7 +128,7 @@ export const loadPageAndConversations = async (
       await deso.utils.encryptMessage(
         // submit a message so they can use the example
         deso,
-        'thanks for checking out this messaging app!',
+        'Thanks for checking out the messaging app, here is an example of a sent message from your encryption call!',
         derivedResponse,
         USER_TO_SEND_MESSAGE_TO_1
       );
@@ -130,17 +138,9 @@ export const loadPageAndConversations = async (
     setConversations(conversations ?? {});
     conversationsArray = Object.keys(conversations);
     setSelectedConversationPublicKey(conversationsArray[0]);
-    if (!derivedResponse) {
-      alert('need to setup messaging for account first');
-    }
-    setConversationComponent(
-      <MessagingBubblesAndAvatar
-        conversationPublicKey={conversationsArray[0]}
-        deso={deso}
-        conversations={conversations}
-      />
-    );
+    return conversations;
   } catch {
+    return {};
     console.log('');
   }
 };

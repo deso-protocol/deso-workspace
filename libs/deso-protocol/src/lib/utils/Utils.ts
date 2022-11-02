@@ -477,7 +477,6 @@ export const decryptMessage = async (
           ).toString();
           return { ...m, DecryptedMessage };
         } catch (e: any) {
-          console.log(m);
           return {
             ...m,
             DecryptedMessage: '',
