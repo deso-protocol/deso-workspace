@@ -11,22 +11,22 @@ export const MessagingRoot = () => {
   return (
     <>
       <div className="flex justify-center bg-[#0C2F62] py-3">
-        <button
+        {/* <button
           onClick={() => {
             setComponentToShow(<MessagingApp deso={deso} />);
           }}
           className={`${buttonClass} mr-2`}
         >
           Use sample app
-        </button>
-        <button
+        </button> */}
+        {/* <button
           onClick={() => {
             setComponentToShow(<MessagingExplainer deso={deso} />);
           }}
           className={buttonClass}
         >
           Step breakdown{' '}
-        </button>
+        </button> */}
       </div>
       {componentToShow}
     </>

@@ -74,8 +74,6 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
     <div>
       <div className="bg-[#0C2F62] min-h-full">
         <div className="text-center text-white mb-10 mt-4 ">
-          Below you will find a table that encompasses the required steps to to
-          send messages peer to peer on the deso blockchain.
           <div className="flex justify-center mt-5">
             {Object.keys(conversations).length === 0 && (
               <div className="min-h-[600px] min-w-[1101px] bg-neutral-200 rounded-md mt-5">
