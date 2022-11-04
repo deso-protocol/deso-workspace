@@ -7,7 +7,6 @@ export const Playground = () => {
   const [exchangeRate, setExchangeRate] = useState<GetExchangeRateResponse>(
     {} as GetExchangeRateResponse
   );
-  const [componentToShow, setComponentToShow] = useState('explainer');
   const deso = new Deso();
 
   useEffect(() => {

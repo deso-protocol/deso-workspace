@@ -40,7 +40,6 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
       />
     );
     setConversations(conversations);
-
     setAutoFetchConversations(false);
   };
   const init = async () => {

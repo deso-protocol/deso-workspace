@@ -27,26 +27,26 @@ export const MessagingBubblesAndAvatar = ({
     return (
       <div
         className={`mx-2 ${
-          message.IsSender
-            ? 'ml-auto justify-end'
-            : 'mr-auto items-start justify-start'
+          message.IsSender ? 'ml-auto justify-end' : 'mr-auto justify-start'
         }  max-w-[400px] mb-4 flex`}
       >
         {!message.IsSender && (
           <MessagingDisplayAvatar
             publicKey={message.SenderPublicKeyBase58Check}
+            timeStamp={message.TstampNanos}
             deso={deso}
             diameter={50}
           />
         )}
         <div
-          className={`${senderStyles} p-2 rounded-lg bg-blue-500 text-white break-words max-w-[250px]`}
+          className={`${senderStyles}  mt-auto mb-5 p-2 rounded-lg bg-blue-500 text-white break-words max-w-[250px]`}
         >
           {messageToShow}
         </div>
         {message.IsSender && (
           <MessagingDisplayAvatar
             publicKey={message.SenderPublicKeyBase58Check}
+            timeStamp={message.TstampNanos}
             deso={deso}
             diameter={50}
           />
