@@ -1,4 +1,5 @@
 import Deso from 'deso-protocol';
+import { useEffect, useState } from 'react';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 export interface MessagingConversationAccountProps {
@@ -18,6 +19,25 @@ export const MessagingConversationAccount = ({
   selectedConversationPublicKey,
   onClick,
 }: MessagingConversationAccountProps) => {
+  const [username, setUsername] = useState('');
+  useEffect(() => {
+    getLoggedInUsersUsername();
+  }, []);
+  const getLoggedInUsersUsername = async () => {
+    try {
+      const response = await deso.user.getSingleProfile({
+        PublicKeyBase58Check: deso.identity.getUserKey() as string,
+      });
+      const username = response.Profile?.Username;
+      if (username) {
+        setUsername(username);
+      } else {
+        setUsername(deso.identity.getUserKey() as string);
+      }
+    } catch (e) {
+      //
+    }
+  };
   const getConversationsAsArray = () => {
     return Object.keys(conversations) ?? [];
   };
@@ -26,9 +46,11 @@ export const MessagingConversationAccount = ({
       <div
         className={`border-r border-[#ffda59] py-2 px-4  bg-[#ffda59] min-h-[40px]`}
       >
-        your key:{' '}
-        {truncateDesoHandle(deso.identity.getUserKey() ?? '') ??
-          'need to login in first'}
+        <div className="font-bold ml-2">
+          Logged in as:{' '}
+          {(username || truncateDesoHandle(deso.identity.getUserKey() ?? '')) ??
+            'need to login in first'}
+        </div>
       </div>
       {getConversationsAsArray().map((publicKey: string) => {
         const username = getUsernameByPublicKeyBase58Check[publicKey] ?? null;
