@@ -17,10 +17,6 @@ export const login = async (deso: Deso) => {
   return response;
 };
 
-export const getFreeDeso = async (deso: Deso) => {
-  deso.identity.phoneVerification();
-};
-
 export const requestDerivedKey = async (
   deso: Deso
 ): Promise<Partial<DerivedPrivateUserInfo> | undefined> => {
@@ -54,6 +50,7 @@ export const requestDerivedKey = async (
     messagingKeyName,
   };
 };
+
 export const authorizeDerivedKey = async (
   deso: Deso,
   derivedKeyResponse: Partial<DerivedPrivateUserInfo>

@@ -70,7 +70,9 @@ export const setupMessaging = async (
       `no deso funds found for ${key}. click okay to add some through phone verification. Otherwise you can send deso from another account`
     );
     if (openFreeDeso) {
-      await deso.identity.phoneVerification();
+      await deso.identity.phoneVerification('4', undefined, {
+        publicKey: deso.identity.getUserKey() as string,
+      });
     } else {
       return false;
     }

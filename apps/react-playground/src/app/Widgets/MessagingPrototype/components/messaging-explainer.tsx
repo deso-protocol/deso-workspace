@@ -4,7 +4,6 @@ import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,
-  getFreeDeso,
   login,
   requestDerivedKey,
   getEncryptedMessage,
@@ -88,13 +87,6 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <StringifyObject obj={loginResponse} />
           </div>
           <div className={containerClass}>
-            <button
-              className={tileButtonClass}
-              onClick={() => getFreeDeso(deso)}
-            >
-              Get Free Deso
-            </button>
-
             <div className={explainer}>
               If a user does not have a balance in their DeSo account they will
               first need to get some before submitting any transactions{' '}
