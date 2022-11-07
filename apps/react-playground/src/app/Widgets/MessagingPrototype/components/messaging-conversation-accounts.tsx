@@ -62,6 +62,7 @@ export const MessagingConversationAccount = ({
               onClick(publicKey);
             }}
             className={`border-t border-black py-2 px-2 ${selectedConversationStyle} hover:bg-slate-400 hover:pointer cursor-pointer flex justify-start`}
+            key={`message-thread-${publicKey}`}
           >
             <MessagingDisplayAvatar
               publicKey={publicKey}
