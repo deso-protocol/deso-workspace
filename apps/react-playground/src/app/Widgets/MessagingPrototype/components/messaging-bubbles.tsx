@@ -29,6 +29,7 @@ export const MessagingBubblesAndAvatar = ({
         className={`mx-2 ${
           message.IsSender ? 'ml-auto justify-end' : 'mr-auto justify-start'
         }  max-w-[400px] mb-4 flex`}
+        key={`message-${i}`}
       >
         {!message.IsSender && (
           <MessagingDisplayAvatar
