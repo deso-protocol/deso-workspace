@@ -29,7 +29,7 @@ export const SendMessageButtonAndInput = ({
           setIsSending(true);
           try {
             await onClick(messageToSend);
-          } catch {
+          } catch (e: any) {
             setIsSending(false);
             setMessageToSend('');
           }

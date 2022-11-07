@@ -157,8 +157,8 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                       }
                       messageContainer.scrollTop =
                         messageContainer.scrollHeight;
-                    } catch {
-                      //
+                    } catch (e: any) {
+                      alert(e);
                     }
                   }}
                 />
