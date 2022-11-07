@@ -80,13 +80,18 @@ export const SearchResults: React.FC<{
   selectedConversationPublicKey,
   conversations,
 }) => {
+  const [searchedPublicKey, setSearchedPublicKey] = useState('');
   useEffect(() => {
-    console.log('change');
-  }, [selectedConversationPublicKey]);
-  const results = searchedUsers.map((user) => {
+    if (Object.keys(conversations).includes(searchedPublicKey)) {
+      setSearchPrefix('');
+      setSearchedUsers([]);
+    }
+  }, [conversations]);
+  const results = searchedUsers.map((user, i) => {
     let isSelected = false;
     return (
       <div
+        key={i}
         className={`min-h-[65px] py-2 px-2 border-t border-black cursor-pointer hover:bg-slate-400 ${
           user.PublicKeyBase58Check === selectedConversationPublicKey
             ? 'bg-slate-400'
@@ -96,6 +101,7 @@ export const SearchResults: React.FC<{
           isSelected = !isSelected;
           setSearchedUsers([user]);
           setSelectedConversationPublicKey(user.PublicKeyBase58Check);
+          setSearchedPublicKey(user.PublicKeyBase58Check);
           await rehydrateConversation(user.PublicKeyBase58Check);
           if (Object.keys(conversations).includes(user.PublicKeyBase58Check)) {
             // already an existing user in chat, filter them out
