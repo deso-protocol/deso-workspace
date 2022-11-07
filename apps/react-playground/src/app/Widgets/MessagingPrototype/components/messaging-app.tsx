@@ -16,6 +16,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
   useEffect(() => {
     init();
   }, []);
+
   const rehydrateConversation = async (selectedKey = '') => {
     const key = deso.identity.getUserKey() as string;
     const conversations = await getConversations(
@@ -113,6 +114,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
           <div className="flex flex-col justify-center">
             <div className="bg-neutral-200 mx-auto ed-md flex  min-h-[600px] max-h-[600px] rounded-md">
               <MessagingConversationAccount
+                rehydrateConversation={rehydrateConversation}
                 onClick={async (key: string) => {
                   setSelectedConversationPublicKey(key);
                   await rehydrateConversation(key);
@@ -128,6 +130,7 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                 }
                 derivedResponse={derivedResponse}
                 setConversationComponent={setConversationAccounts}
+                setConversations={setConversations}
               />
               <div>
                 <div className="text-center bg-[#ffda59] border-b border-black py-2 min-w-[750px]  rounded-tr-md min-h-[41px]"></div>

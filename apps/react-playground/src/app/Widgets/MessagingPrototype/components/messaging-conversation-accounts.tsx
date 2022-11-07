@@ -2,6 +2,7 @@ import Deso from 'deso-protocol';
 import { useEffect, useState } from 'react';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
+import { MessagingStartNewConversation } from './messaging-start-new-conversation';
 export interface MessagingConversationAccountProps {
   deso: Deso;
   conversations: any;
@@ -11,6 +12,8 @@ export interface MessagingConversationAccountProps {
   derivedResponse: any;
   setConversationComponent: any;
   onClick: any;
+  rehydrateConversation: any;
+  setConversations: any;
 }
 export const MessagingConversationAccount = ({
   deso,
@@ -18,6 +21,9 @@ export const MessagingConversationAccount = ({
   getUsernameByPublicKeyBase58Check,
   selectedConversationPublicKey,
   onClick,
+  setSelectedConversationPublicKey,
+  rehydrateConversation,
+  setConversations,
 }: MessagingConversationAccountProps) => {
   const [username, setUsername] = useState('');
   useEffect(() => {
@@ -51,6 +57,17 @@ export const MessagingConversationAccount = ({
           {(username || truncateDesoHandle(deso.identity.getUserKey() ?? '')) ??
             'need to login in first'}
         </div>
+      </div>
+      <MessagingStartNewConversation
+        deso={deso}
+        setSelectedConversationPublicKey={setSelectedConversationPublicKey}
+        rehydrateConversation={rehydrateConversation}
+        selectedConversationPublicKey={selectedConversationPublicKey}
+        conversations={conversations}
+        setConversations={setConversations}
+      />
+      <div className="text-center p-2 border-t border-black bg-[#06f] text-white">
+        Conversations{' '}
       </div>
       {getConversationsAsArray().map((publicKey: string) => {
         const username = getUsernameByPublicKeyBase58Check[publicKey] ?? null;
