@@ -11,7 +11,7 @@ import {
   ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
   ENCRYPT_RESPONSE,
   localStorageKeys,
-} from './constants';
+} from '../consts/constants';
 //login
 export const setLoginResponse = (defaultKey: LoginUser) => {
   localStorage.setItem(DEFAULT_KEY, JSON.stringify(defaultKey));

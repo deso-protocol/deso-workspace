@@ -4,7 +4,11 @@ import {
   MessagingGroupEntryResponse,
   MessagingGroupResponse,
 } from 'deso-protocol-types';
-import { getTransactionSpendingLimits, GROUP_NAME, LIMIT } from './constants';
+import {
+  getTransactionSpendingLimits,
+  GROUP_NAME,
+  LIMIT,
+} from '../consts/constants';
 
 import { alertUserIfNoFunds } from './utils';
 
@@ -143,6 +147,5 @@ export const getEncryptedMessage = async (deso: Deso) => {
       HoldingsOnly: false,
       SortAlgorithm: 'time',
     });
-  console.log(messages);
   return messages;
 };

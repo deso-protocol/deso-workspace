@@ -1,37 +1,34 @@
 import { Deso } from 'deso-protocol';
 import { useState } from 'react';
-import { buttonClass } from '../styles';
+import { buttonClass } from '../consts/styles';
 import { MessagingApp } from './messaging-app';
 import { MessagingExplainer } from './messaging-explainer';
+const deso = new Deso();
 export const MessagingRoot = () => {
-  const [componentToShow, setComponentToShow] = useState('sample-app');
-  const deso = new Deso();
-
+  const [componentToShow, setComponentToShow] = useState(
+    <MessagingApp deso={deso} />
+  );
   return (
     <>
       <div className="flex justify-center bg-[#0C2F62] py-3">
-        <button
+        {/* <button
           onClick={() => {
-            setComponentToShow('sample-app');
+            setComponentToShow(<MessagingApp deso={deso} />);
           }}
           className={`${buttonClass} mr-2`}
         >
           Use sample app
-        </button>
-        <button
+        </button> */}
+        {/* <button
           onClick={() => {
-            setComponentToShow('explainer');
+            setComponentToShow(<MessagingExplainer deso={deso} />);
           }}
           className={buttonClass}
         >
           Step breakdown{' '}
-        </button>
+        </button> */}
       </div>
-      {componentToShow === 'sample-app' ? (
-        <MessagingApp />
-      ) : (
-        <MessagingExplainer deso={deso} />
-      )}
+      {componentToShow}
     </>
   );
 };

@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { dataClass } from './styles';
+import { dataClass } from '../consts/styles';
 
 export const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
   const PublicKeysBase58Check = deso.identity.getUserKey() as string;
