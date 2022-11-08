@@ -193,10 +193,11 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
             <button
               className={tileButtonClass}
               onClick={async () => {
-                await deso.utils.encryptMessage(
+                await deso.utils.encryptMessageV3(
                   deso,
                   'message to be encrypted and sent',
-                  requestDeriveResponse,
+                  requestDeriveResponse.derivedSeedHex,
+                  requestDeriveResponse.messagingPrivateKey,
                   USER_TO_SEND_MESSAGE_TO_1
                 );
               }}
@@ -221,8 +222,7 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
               className={tileButtonClass}
               onClick={async () => {
                 const encryptedMessages = await getEncryptedMessage(deso);
-                console.log('encrypted messages', encryptedMessages);
-                const decryptedMessages = await deso.utils.decryptMessage(
+                const decryptedMessages = await deso.utils.decryptMessagesV3(
                   encryptedMessages,
                   requestDeriveResponse
                 );

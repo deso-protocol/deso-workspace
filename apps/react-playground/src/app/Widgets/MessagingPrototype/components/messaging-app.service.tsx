@@ -23,9 +23,9 @@ export const getConversationsMap = async (
     return {};
   }
   const messages = await getEncryptedMessage(deso);
-  const decryptedMessages = await deso.utils.decryptMessage(
+  const decryptedMessages = await deso.utils.decryptMessagesV3(
     messages,
-    derivedResponse
+    derivedResponse.messagingPrivateKey as string
   );
   const messageMap: { [key: string]: any[] } = {};
   const userKey = deso.identity.getUserKey();
@@ -60,7 +60,7 @@ export const setupMessaging = async (
       return false;
     }
   }
-  const userResponse = await deso.user.getUserStateless({
+  const userResponse = await deso.user.getUsersStateless({
     PublicKeysBase58Check: [key],
   });
   const user = userResponse?.UserList?.[0];
@@ -114,7 +114,7 @@ export const getConversations = async (
 
     let conversations = await getConversationsMap(deso, derivedResponse);
     let conversationsArray = Object.keys(conversations);
-    const res = await deso.user.getUserStateless({
+    const res = await deso.user.getUsersStateless({
       PublicKeysBase58Check: conversationsArray,
     });
     const getUsernameByPublicKeyBase58Check: any = [];
@@ -127,11 +127,12 @@ export const getConversations = async (
       setGetUsernameByPublicKeyBase58Check(getUsernameByPublicKeyBase58Check);
     }
     if (conversationsArray.length === 0) {
-      await deso.utils.encryptMessage(
+      await deso.utils.encryptMessageV3(
         // submit a message so they can use the example
         deso,
         'Thanks for checking out the messaging app, here is an example of a sent message from your encryption call!',
-        derivedResponse,
+        derivedResponse.derivedSeedHex as string,
+        derivedResponse.messagingPrivateKey as string,
         USER_TO_SEND_MESSAGE_TO_1
       );
       await delay(3000);

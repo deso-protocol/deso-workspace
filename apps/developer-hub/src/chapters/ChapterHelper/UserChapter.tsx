@@ -24,7 +24,7 @@ export const userChapter = {
     parentRoute: ParentRoutes.user,
     title: 'Get Users Stateless',
     route: '/user/get-users-stateless',
-    method: deso.user.getUserStateless,
+    method: deso.user.getUsersStateless,
     params: () => {
       return {
         PublicKeysBase58Check: [DEZO_DOG],

@@ -12,6 +12,11 @@ import {
   ENCRYPT_RESPONSE,
   localStorageKeys,
 } from '../consts/constants';
+import { atom, selector, useRecoilState } from 'recoil';
+import { recoilPersist } from 'recoil-persist';
+
+const { persistAtom } = recoilPersist();
+
 //login
 export const setLoginResponse = (defaultKey: LoginUser) => {
   localStorage.setItem(DEFAULT_KEY, JSON.stringify(defaultKey));
@@ -72,6 +77,7 @@ export const getEncryptedToApplicationGroupMessagingPrivateKey = () => {
       '{}'
   );
 };
+
 export const setEncryptedToApplicationGroupMessagingPrivateKey = (
   publicKey: string,
   keyName: string,
@@ -113,3 +119,9 @@ export const clearAllState = () => {
     localStorage.setItem(key, '{}');
   });
 };
+
+export const ConversationAccounts = atom({
+  key: 'tempFahrenheit',
+  default: <div></div>,
+  effects_UNSTABLE: [persistAtom],
+});

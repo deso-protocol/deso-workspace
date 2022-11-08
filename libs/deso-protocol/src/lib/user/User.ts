@@ -33,7 +33,7 @@ export class User {
     this.identity = identity;
   }
 
-  public async getUserStateless(
+  public async getUsersStateless(
     request: Partial<GetUsersStatelessRequest>
   ): Promise<GetUsersResponse> {
     return (

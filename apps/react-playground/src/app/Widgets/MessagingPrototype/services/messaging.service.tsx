@@ -13,8 +13,7 @@ import {
 import { alertUserIfNoFunds } from './utils';
 
 export const login = async (deso: Deso) => {
-  const response = await deso.identity.login();
-  return response;
+  return await deso.identity.login();
 };
 
 export const requestDerivedKey = async (

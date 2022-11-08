@@ -3,7 +3,7 @@ import { dataClass } from '../consts/styles';
 
 export const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
   const PublicKeysBase58Check = deso.identity.getUserKey() as string;
-  const response = await deso.user.getUserStateless({
+  const response = await deso.user.getUsersStateless({
     PublicKeysBase58Check: [PublicKeysBase58Check],
   });
   if (!response?.UserList || response.UserList[0].BalanceNanos < 0) {

@@ -9,6 +9,7 @@ import { MessagingConversationButton } from './messaging-conversation-button';
 import { MessagingConversationAccount } from './messaging-conversation-accounts';
 import { MessagingBubblesAndAvatar } from './messaging-bubbles';
 import ClipLoader from 'react-spinners/ClipLoader';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 export interface MessagingAppProps {
   deso: Deso;
 }
@@ -62,7 +63,9 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
     getUsernameByPublicKeyBase58Check,
     setGetUsernameByPublicKeyBase58Check,
   ] = useState<{ [key: string]: string }>({});
-  const [derivedResponse, setDerivedResponse] = useState({});
+  const [derivedResponse, setDerivedResponse] = useState<
+    Partial<DerivedPrivateUserInfo>
+  >({});
   const [hasSetupAccount, setHasSetupAccount] = useState(false);
   const [autoFetchConversations, setAutoFetchConversations] = useState(false);
   const [conversationAccounts, setConversationAccounts] = useState<any>(<></>);
@@ -143,10 +146,11 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                 <SendMessageButtonAndInput
                   onClick={async (messageToSend: string) => {
                     try {
-                      await deso.utils.encryptMessage(
+                      await deso.utils.encryptMessageV3(
                         deso,
                         messageToSend,
-                        derivedResponse,
+                        derivedResponse.derivedSeedHex as string,
+                        derivedResponse.messagingPrivateKey as string,
                         selectedConversationPublicKey
                       );
                       await rehydrateConversation();

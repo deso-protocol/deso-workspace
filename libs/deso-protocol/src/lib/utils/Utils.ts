@@ -247,15 +247,14 @@ export const signTransaction = (
   return signedTransactionBytes.toString('hex');
 };
 
-export const encryptMessage = async (
+export const encryptMessageV3 = async (
   deso: Deso,
   messageToSend: string,
-  derivedKeyResponse: Partial<DerivedPrivateUserInfo>,
+  derivedSeedHex: string,
+  messagingPrivateKey: string,
   RecipientPublicKeyBase58Check: string,
   groupName = 'default-key'
 ): Promise<void> => {
-  const { derivedSeedHex, messagingPrivateKey } = derivedKeyResponse;
-
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: groupName,
     RecipientPublicKeyBase58Check,
@@ -453,16 +452,15 @@ function hmacSha256Sign(key: Buffer, msg: Buffer) {
   return createHmac('sha256', key).update(msg).digest();
 }
 
-export const decryptMessage = async (
+export const decryptMessagesV3 = async (
   messages: MessagingGroupResponse,
-  derivedKeyResponse: Partial<DerivedPrivateUserInfo>
+  messagingPrivateKey: string
 ) => {
   if (Object.keys(messages).length === 0) {
     alert('no messages found');
     return;
   }
 
-  const { messagingPrivateKey } = derivedKeyResponse;
   let v3Messages: any = {};
   messages.OrderedContactsWithMessages.forEach((m) => {
     v3Messages = {
