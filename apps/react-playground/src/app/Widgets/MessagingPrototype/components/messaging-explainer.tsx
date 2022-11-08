@@ -198,7 +198,8 @@ export const MessagingExplainer = ({ deso }: { deso: Deso }) => {
                   'message to be encrypted and sent',
                   requestDeriveResponse.derivedSeedHex,
                   requestDeriveResponse.messagingPrivateKey,
-                  USER_TO_SEND_MESSAGE_TO_1
+                  USER_TO_SEND_MESSAGE_TO_1,
+                  true
                 );
               }}
             >

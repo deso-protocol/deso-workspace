@@ -2,7 +2,7 @@ import Deso from 'deso-protocol';
 import {
   DerivedPrivateUserInfo,
   MessagingGroupEntryResponse,
-  MessagingGroupResponse,
+  GetMessagesResponse,
 } from 'deso-protocol-types';
 import {
   getTransactionSpendingLimits,
@@ -132,7 +132,7 @@ export const generateDefaultKey = async (
 };
 
 export const getEncryptedMessage = async (deso: Deso) => {
-  const messages: MessagingGroupResponse =
+  const messages: GetMessagesResponse =
     await deso.social.getMessagesStatelessV3({
       PublicKeyBase58Check: deso.identity.getUserKey() as string,
       NumToFetch: 25,

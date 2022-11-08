@@ -133,7 +133,8 @@ export const getConversations = async (
         'Thanks for checking out the messaging app, here is an example of a sent message from your encryption call!',
         derivedResponse.derivedSeedHex as string,
         derivedResponse.messagingPrivateKey as string,
-        USER_TO_SEND_MESSAGE_TO_1
+        USER_TO_SEND_MESSAGE_TO_1,
+        true
       );
       await delay(3000);
     }

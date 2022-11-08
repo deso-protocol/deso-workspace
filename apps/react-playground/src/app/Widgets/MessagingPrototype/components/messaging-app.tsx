@@ -151,7 +151,8 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                         messageToSend,
                         derivedResponse.derivedSeedHex as string,
                         derivedResponse.messagingPrivateKey as string,
-                        selectedConversationPublicKey
+                        selectedConversationPublicKey,
+                        true
                       );
                       await rehydrateConversation();
                       const messageContainer =

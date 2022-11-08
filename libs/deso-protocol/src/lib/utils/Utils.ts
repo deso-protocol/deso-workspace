@@ -14,10 +14,7 @@ import { ec } from 'elliptic';
 import { ethers } from 'ethers';
 import HDNode from 'hdkey';
 import Deso from '../../index';
-import {
-  DerivedPrivateUserInfo,
-  MessagingGroupResponse,
-} from 'deso-protocol-types';
+import { GetMessagesResponse } from 'deso-protocol-types';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -253,8 +250,13 @@ export const encryptMessageV3 = async (
   derivedSeedHex: string,
   messagingPrivateKey: string,
   RecipientPublicKeyBase58Check: string,
+  isDerived: boolean,
   groupName = 'default-key'
 ): Promise<void> => {
+  if (!messagingPrivateKey) {
+    throw 'messagingPrivateKey is undefined';
+  }
+
   const response = await deso.social.checkPartyMessagingKey({
     RecipientMessagingKeyName: groupName,
     RecipientPublicKeyBase58Check,
@@ -262,11 +264,13 @@ export const encryptMessageV3 = async (
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
 
-  if (!messagingPrivateKey) {
-    alert('messagingPrivateKey is undefined');
-    return;
+  if (!response.RecipientMessagingKeyName) {
+    throw 'SenderMessagingKeyName is undefined';
   }
 
+  if (!response.SenderMessagingKeyName) {
+    throw 'SenderMessagingKeyName is undefined';
+  }
   const encryptedMessage = encryptMessageFromPrivateMessagingKey(
     messagingPrivateKey,
     response.RecipientMessagingPublicKeyBase58Check,
@@ -274,32 +278,29 @@ export const encryptMessageV3 = async (
   );
 
   if (!encryptedMessage) {
-    alert('unable to encrypt message');
-    return;
+    throw 'unable to encrypt message';
   }
-
   const transaction = await deso.social.sendMessageWithoutIdentity({
     EncryptedMessageText: encryptedMessage.toString('hex'),
     RecipientPublicKeyBase58Check,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MinFeeRateNanosPerKB: 1000,
-    SenderMessagingGroupKeyName: groupName,
-    RecipientMessagingGroupKeyName: groupName,
+    SenderMessagingGroupKeyName: response.SenderMessagingKeyName,
+    RecipientMessagingGroupKeyName: response.RecipientMessagingKeyName,
   });
 
   if (!transaction?.TransactionHex) {
-    alert('failed to construct transaction');
-    return;
+    throw 'failed to construct transaction';
   }
 
   const signedTransaction = deso.utils.signTransaction(
     derivedSeedHex as string,
     transaction.TransactionHex,
-    true
+    isDerived
   );
 
   await deso.transaction.submitTransaction(signedTransaction).catch(() => {
-    alert('something went wrong while submitting the transaction');
+    throw 'something went wrong while submitting the transaction';
   });
 };
 
@@ -453,7 +454,7 @@ function hmacSha256Sign(key: Buffer, msg: Buffer) {
 }
 
 export const decryptMessagesV3 = async (
-  messages: MessagingGroupResponse,
+  messages: GetMessagesResponse,
   messagingPrivateKey: string
 ) => {
   if (Object.keys(messages).length === 0) {
@@ -462,26 +463,31 @@ export const decryptMessagesV3 = async (
   }
 
   let v3Messages: any = {};
+  if (!messages.OrderedContactsWithMessages) {
+    return v3Messages;
+  }
   messages.OrderedContactsWithMessages.forEach((m) => {
     v3Messages = {
       ...v3Messages,
-      [m.PublicKeyBase58Check]: m.Messages.filter(
-        (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
-      ).map((m: any, i: number) => {
-        try {
-          const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
-            messagingPrivateKey as string,
-            m
-          ).toString();
-          return { ...m, DecryptedMessage };
-        } catch (e: any) {
-          return {
-            ...m,
-            DecryptedMessage: '',
-            error: `${e.message} ${m.IsSender}` ?? 'unknown error',
-          };
-        }
-      }),
+      [m.PublicKeyBase58Check]: (m.Messages ?? [])
+        .filter(
+          (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
+        )
+        .map((m: any, i: number) => {
+          try {
+            const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
+              messagingPrivateKey as string,
+              m
+            ).toString();
+            return { ...m, DecryptedMessage };
+          } catch (e: any) {
+            return {
+              ...m,
+              DecryptedMessage: '',
+              error: `${e.message} ${m.IsSender}` ?? 'unknown error',
+            };
+          }
+        }),
     };
   });
   return v3Messages;
