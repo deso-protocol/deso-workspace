@@ -1,9 +1,8 @@
-import Deso from 'deso-protocol';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useState } from 'react';
 
 export interface SendMessageButtonAndInputProps {
-  onClick: any;
+  onClick: (messageToSend: string) => void;
 }
 
 export const SendMessageButtonAndInput = ({
@@ -31,7 +30,9 @@ export const SendMessageButtonAndInput = ({
             await onClick(messageToSend);
           } catch (e: any) {
             setIsSending(false);
-            setMessageToSend('');
+            alert(e);
+            console.error(e);
+            return;
           }
           setMessageToSend('');
           setIsSending(false);

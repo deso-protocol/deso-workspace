@@ -9,7 +9,7 @@ import { MessagingConversationButton } from './messaging-conversation-button';
 import { MessagingConversationAccount } from './messaging-conversation-accounts';
 import { MessagingBubblesAndAvatar } from './messaging-bubbles';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
 export interface MessagingAppProps {
   deso: Deso;
 }
@@ -68,12 +68,12 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
   >({});
   const [hasSetupAccount, setHasSetupAccount] = useState(false);
   const [autoFetchConversations, setAutoFetchConversations] = useState(false);
-  const [conversationAccounts, setConversationAccounts] = useState<any>(<></>);
+  const [conversationAccounts, setConversationAccounts] = useState<any>([
+    [<></>],
+  ]);
   const [selectedConversationPublicKey, setSelectedConversationPublicKey] =
     useState('');
-  const [conversations, setConversations] = useState<{ [key: string]: any[] }>(
-    {}
-  );
+  const [conversations, setConversations] = useState<DecryptedResponse>({});
   return (
     <div>
       <div className="bg-[#0C2F62] min-h-full">
@@ -133,7 +133,6 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
                 }
                 derivedResponse={derivedResponse}
                 setConversationComponent={setConversationAccounts}
-                setConversations={setConversations}
               />
               <div>
                 <div className="text-center bg-[#ffda59] border-b border-black py-2 min-w-[750px]  rounded-tr-md min-h-[41px]"></div>

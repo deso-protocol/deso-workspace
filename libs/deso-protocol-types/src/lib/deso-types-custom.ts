@@ -1,6 +1,7 @@
 import { ec } from 'elliptic';
 import {
   CoinEntry,
+  MessageEntryResponse,
   ProfileEntryResponse,
   SubmitTransactionResponse,
   TransactionFee,
@@ -391,3 +392,10 @@ export interface PublicKeyToProfileEntry {
     BestExchangeRateDESOPerDAOCoin: number;
   };
 }
+
+export type DecryptedResponse = {
+  [publicKey: string]: (MessageEntryResponse & {
+    DecryptedMessage: string;
+    error: string;
+  })[];
+};

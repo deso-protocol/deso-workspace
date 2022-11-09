@@ -1,9 +1,8 @@
-import Deso from 'deso-protocol';
 import { useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { buttonClass } from '../consts/styles';
 export interface SetupMessagingButtonProps {
-  onClick: any;
+  onClick: () => boolean;
 }
 export const MessagingSetupButton = ({
   onClick,
@@ -19,8 +18,9 @@ export const MessagingSetupButton = ({
           if (!success) {
             alert('something went wrong when setting up the account');
           }
-        } catch {
+        } catch (e: any) {
           alert('something went wrong when setting up the account');
+          console.error(e);
         }
         setIsSending(false);
       }}

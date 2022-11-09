@@ -3,7 +3,7 @@ import ClipLoader from 'react-spinners/ClipLoader';
 import { buttonClass } from '../consts/styles';
 
 export interface MessagingConversationButtonProps {
-  onClick: any;
+  onClick: () => void;
 }
 
 export const MessagingConversationButton = ({

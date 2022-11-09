@@ -1,4 +1,5 @@
 import Deso from 'deso-protocol';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
@@ -6,14 +7,13 @@ import { MessagingStartNewConversation } from './messaging-start-new-conversatio
 export interface MessagingConversationAccountProps {
   deso: Deso;
   conversations: any;
-  getUsernameByPublicKeyBase58Check: any;
+  getUsernameByPublicKeyBase58Check: { [key: string]: string };
   selectedConversationPublicKey: string;
-  setSelectedConversationPublicKey: any;
-  derivedResponse: any;
-  setConversationComponent: any;
-  onClick: any;
-  rehydrateConversation: any;
-  setConversations: any;
+  setSelectedConversationPublicKey: (selectedKey: string) => void;
+  derivedResponse: Partial<DerivedPrivateUserInfo>;
+  setConversationComponent: (conversationComponent: JSX.Element) => void;
+  onClick: (publicKey: string) => void;
+  rehydrateConversation: (publicKey: string) => void;
 }
 export const MessagingConversationAccount = ({
   deso,
@@ -23,7 +23,6 @@ export const MessagingConversationAccount = ({
   onClick,
   setSelectedConversationPublicKey,
   rehydrateConversation,
-  setConversations,
 }: MessagingConversationAccountProps) => {
   const [username, setUsername] = useState('');
   useEffect(() => {
@@ -34,14 +33,11 @@ export const MessagingConversationAccount = ({
       const response = await deso.user.getSingleProfile({
         PublicKeyBase58Check: deso.identity.getUserKey() as string,
       });
-      const username = response.Profile?.Username;
-      if (username) {
-        setUsername(username);
-      } else {
-        setUsername(deso.identity.getUserKey() as string);
-      }
+      setUsername(
+        response.Profile?.Username || (deso.identity.getUserKey() as string)
+      );
     } catch (e) {
-      //
+      console.error(e);
     }
   };
   const getConversationsAsArray = () => {
@@ -64,7 +60,6 @@ export const MessagingConversationAccount = ({
         rehydrateConversation={rehydrateConversation}
         selectedConversationPublicKey={selectedConversationPublicKey}
         conversations={conversations}
-        setConversations={setConversations}
       />
       <div className="text-center p-2 border-t border-black bg-[#06f] text-white">
         Conversations{' '}
@@ -86,7 +81,7 @@ export const MessagingConversationAccount = ({
               deso={deso}
               diameter={30}
             />
-            {username ? username : truncateDesoHandle(publicKey)}
+            {username || truncateDesoHandle(publicKey)}
           </div>
         );
       })}

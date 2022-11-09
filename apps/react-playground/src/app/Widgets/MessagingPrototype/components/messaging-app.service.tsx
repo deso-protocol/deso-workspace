@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
 import {
   authorizeDerivedKey,
@@ -17,7 +17,7 @@ import { delay } from '../services/utils';
 export const getConversationsMap = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
-) => {
+): Promise<DecryptedResponse> => {
   if (!derivedResponse) {
     alert('no derived response found');
     return {};
@@ -30,7 +30,7 @@ export const getConversationsMap = async (
   const messageMap: { [key: string]: any[] } = {};
   const userKey = deso.identity.getUserKey();
   Object.keys(decryptedMessages)?.forEach(async (key: string) => {
-    decryptedMessages[key].forEach((message: any) => {
+    decryptedMessages[key].forEach((message) => {
       const otherUsersKey =
         userKey === message.RecipientPublicKeyBase58Check
           ? message.SenderPublicKeyBase58Check
@@ -62,7 +62,10 @@ export const setupMessaging = async (
   }
   const userResponse = await deso.user.getUsersStateless({
     PublicKeysBase58Check: [key],
+    // SkipForLeaderboard: true,
+    // IncludeBalance: true,
   });
+  console.log(userResponse);
   const user = userResponse?.UserList?.[0];
   if (user && user.BalanceNanos === 0) {
     // does the user have a balance? If not let them know since they will not be able to proceed
@@ -76,6 +79,9 @@ export const setupMessaging = async (
     } else {
       return false;
     }
+  } else if (!user) {
+    alert('unable to find user');
+    return false;
   }
   let derivedResponse: any = getDerivedKeyResponse(key); // does the derived key exist in storage already?
   if (!derivedResponse.derivedPublicKeyBase58Check) {
@@ -88,10 +94,11 @@ export const setupMessaging = async (
   }
   setDerivedKeyResponse(derivedResponse, key);
   await authorizeDerivedKey(deso, derivedResponse);
-  await delay(3000);
-  const groupKey = await generateDefaultKey(deso, derivedResponse);
-  if (groupKey) {
-    setDefaultKey(groupKey);
+  await delay(3000); // lazy way to make sure the transaction has had enough time to broadcast,
+  // alternatively you call can the get-txn endpoint to verify it has been broadcasted;
+  const messagingKey = await generateDefaultKey(deso, derivedResponse);
+  if (messagingKey) {
+    setDefaultKey(messagingKey);
   }
   setDerivedResponse(derivedResponse);
   setHasSetupAccount(true);
@@ -137,14 +144,14 @@ export const getConversations = async (
         true
       );
       await delay(3000);
+      conversations = await getConversationsMap(deso, derivedResponse);
+      setConversations(conversations ?? {});
+      conversationsArray = Object.keys(conversations);
     }
-    conversations = await getConversationsMap(deso, derivedResponse);
-    setConversations(conversations ?? {});
-    conversationsArray = Object.keys(conversations);
     setSelectedConversationPublicKey(conversationsArray[0]);
     return conversations;
-  } catch {
+  } catch (e) {
+    console.error(e);
     return {};
-    console.log('');
   }
 };

@@ -14,7 +14,7 @@ import { ec } from 'elliptic';
 import { ethers } from 'ethers';
 import HDNode from 'hdkey';
 import Deso from '../../index';
-import { GetMessagesResponse } from 'deso-protocol-types';
+import { GetMessagesResponse, MessageEntryResponse } from 'deso-protocol-types';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -453,16 +453,19 @@ function hmacSha256Sign(key: Buffer, msg: Buffer) {
   return createHmac('sha256', key).update(msg).digest();
 }
 
+export type DecryptedResponse = {
+  [publicKey: string]: (MessageEntryResponse & { DecryptedMessage: string })[];
+};
 export const decryptMessagesV3 = async (
   messages: GetMessagesResponse,
   messagingPrivateKey: string
-) => {
+): Promise<DecryptedResponse> => {
   if (Object.keys(messages).length === 0) {
     alert('no messages found');
-    return;
+    return {};
   }
 
-  let v3Messages: any = {};
+  let v3Messages = {};
   if (!messages.OrderedContactsWithMessages) {
     return v3Messages;
   }
@@ -471,9 +474,9 @@ export const decryptMessagesV3 = async (
       ...v3Messages,
       [m.PublicKeyBase58Check]: (m.Messages ?? [])
         .filter(
-          (m: any) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
+          (m) => m.Version === 3 // needed if you're using an old account with v2 or v1 messages
         )
-        .map((m: any, i: number) => {
+        .map((m) => {
           try {
             const DecryptedMessage = decryptMessageFromPrivateMessagingKey(
               messagingPrivateKey as string,
@@ -490,7 +493,11 @@ export const decryptMessagesV3 = async (
         }),
     };
   });
-  return v3Messages;
+  return v3Messages as {
+    [publicKey: string]: (MessageEntryResponse & {
+      DecryptedMessage: string;
+    })[];
+  };
 };
 export function decryptMessageFromPrivateMessagingKey(
   privateMessagingKey: string,
