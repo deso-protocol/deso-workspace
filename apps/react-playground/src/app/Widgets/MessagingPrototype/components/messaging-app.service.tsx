@@ -4,7 +4,7 @@ import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,
-  getEncryptedMessage,
+  getEncryptedMessages,
   login,
   requestDerivedKey,
 } from '../services/messaging.service';
@@ -22,7 +22,7 @@ export const getConversationsMap = async (
     alert('no derived response found');
     return {};
   }
-  const messages = await getEncryptedMessage(deso);
+  const messages = await getEncryptedMessages(deso);
   const decryptedMessages = await deso.utils.decryptMessagesV3(
     messages,
     derivedResponse.messagingPrivateKey as string

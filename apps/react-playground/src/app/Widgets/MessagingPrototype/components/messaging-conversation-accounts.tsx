@@ -1,12 +1,12 @@
 import Deso from 'deso-protocol';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 import { MessagingStartNewConversation } from './messaging-start-new-conversation';
 export interface MessagingConversationAccountProps {
   deso: Deso;
-  conversations: any;
+  conversations: DecryptedResponse;
   getUsernameByPublicKeyBase58Check: { [key: string]: string };
   selectedConversationPublicKey: string;
   setSelectedConversationPublicKey: (selectedKey: string) => void;

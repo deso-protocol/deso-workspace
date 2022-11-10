@@ -22,20 +22,11 @@ export const USER_TO_SEND_MESSAGE_TO_2: Readonly<string> =
   'BC1YLhp53iDyAqYBwi4EMAvufgvwhaennew2pZ2zu1LkvuxW5c3ewtk';
 export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
 export const DEFAULT_KEY: Readonly<string> = 'defaultKey';
-export const LOGIN_RESPONSE: Readonly<string> = 'loginResponse';
-export const GROUP_NAME: Readonly<string> = 'default-key';
-export const ENCRYPT_RESPONSE: Readonly<string> = 'encryptResponse';
-export const DECRYPT_RESPONSE: Readonly<string> = 'decryptResponse';
-export const ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY: Readonly<string> =
-  'encryptedToApplicationGroupMessagingPrivateKey';
+export const DEFAULT_KEY_MESSAGING_GROUP_NAME: Readonly<string> = 'default-key';
 export const LIMIT: Readonly<number> = 1_000_000_000_000;
 export const localStorageKeys: Readonly<string>[] = [
-  ENCRYPTED_APPLICATION_GROUP_MESSAGING_PRIVATE_KEY,
-  GROUP_NAME,
-  LOGIN_RESPONSE,
+  DEFAULT_KEY_MESSAGING_GROUP_NAME,
   DEFAULT_KEY,
   DERIVED_SEED_HEX,
   USER_TO_SEND_MESSAGE_TO_1,
-  ENCRYPT_RESPONSE,
-  DECRYPT_RESPONSE,
 ];

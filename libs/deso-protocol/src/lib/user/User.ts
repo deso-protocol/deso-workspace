@@ -33,6 +33,16 @@ export class User {
     this.identity = identity;
   }
 
+  public async getUsernameForPublicKey(
+    PublicKeyBase58Check: string
+  ): Promise<any> {
+    return (
+      await axios.get(
+        `${this.node.getUri()}/get-user-name-for-public-key/${PublicKeyBase58Check}`
+      )
+    ).data;
+  }
+
   public async getUsersStateless(
     request: Partial<GetUsersStatelessRequest>
   ): Promise<GetUsersResponse> {

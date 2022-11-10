@@ -6,7 +6,7 @@ import {
 } from 'deso-protocol-types';
 import {
   getTransactionSpendingLimits,
-  GROUP_NAME,
+  DEFAULT_KEY_MESSAGING_GROUP_NAME,
   LIMIT,
 } from '../consts/constants';
 
@@ -76,13 +76,13 @@ export const authorizeDerivedKey = async (
     AccessSignature: accessSignature,
   });
 
-  const signedSpendingLimits = deso.utils.signTransaction(
+  const signedAuthorizedDerivedKeyTxn = deso.utils.signTransaction(
     derivedSeedHex as string,
     authorizeResponse.TransactionHex,
     true
   );
 
-  deso.transaction.submitTransaction(signedSpendingLimits);
+  deso.transaction.submitTransaction(signedAuthorizedDerivedKeyTxn);
 };
 
 export const generateDefaultKey = async (
@@ -96,10 +96,9 @@ export const generateDefaultKey = async (
   let messagingKeys = await deso.user.getAllMessagingGroupKeys({
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
-
-  let groupKey = messagingKeys.MessagingGroupEntries?.find(
-    (x) => x.MessagingGroupKeyName === GROUP_NAME
-  );
+  const isGroupKey = (x: MessagingGroupEntryResponse) =>
+    x.MessagingGroupKeyName === DEFAULT_KEY_MESSAGING_GROUP_NAME;
+  let groupKey = messagingKeys.MessagingGroupEntries?.find(isGroupKey);
 
   const { derivedSeedHex, messagingPublicKeyBase58Check } = derivedKeyResponse;
   if (groupKey) {
@@ -109,7 +108,7 @@ export const generateDefaultKey = async (
   const transaction = await deso.user.registerMessagingGroupKey({
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
     MessagingPublicKeyBase58Check: messagingPublicKeyBase58Check,
-    MessagingGroupKeyName: GROUP_NAME,
+    MessagingGroupKeyName: DEFAULT_KEY_MESSAGING_GROUP_NAME,
     MinFeeRateNanosPerKB: 1000,
   });
 
@@ -125,13 +124,11 @@ export const generateDefaultKey = async (
     OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
 
-  groupKey = messagingKeys.MessagingGroupEntries?.find(
-    (x) => x.MessagingGroupKeyName === GROUP_NAME
-  );
+  groupKey = messagingKeys.MessagingGroupEntries?.find(isGroupKey);
   return groupKey;
 };
 
-export const getEncryptedMessage = async (deso: Deso) => {
+export const getEncryptedMessages = async (deso: Deso) => {
   const messages: GetMessagesResponse =
     await deso.social.getMessagesStatelessV3({
       PublicKeyBase58Check: deso.identity.getUserKey() as string,

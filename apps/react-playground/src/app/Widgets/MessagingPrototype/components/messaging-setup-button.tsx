@@ -1,8 +1,9 @@
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { buttonClass } from '../consts/styles';
 export interface SetupMessagingButtonProps {
-  onClick: () => boolean;
+  onClick: () => Promise<false | Partial<DerivedPrivateUserInfo>>;
 }
 export const MessagingSetupButton = ({
   onClick,

@@ -1,35 +1,33 @@
 import Deso from 'deso-protocol';
+import { DecryptedResponse, ProfileEntryResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export const MessagingStartNewConversation: React.FC<{
   deso: Deso;
-  setSelectedConversationPublicKey: any;
-  rehydrateConversation: any;
+  setSelectedConversationPublicKey: (selectedKey: string) => void;
+  rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: any;
-  setConversations: any;
+  conversations: DecryptedResponse;
 }> = ({
   deso,
   setSelectedConversationPublicKey,
   rehydrateConversation,
   selectedConversationPublicKey,
   conversations,
-  setConversations,
 }) => {
-  const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+  const [searchedUsers, setSearchedUsers] = useState<ProfileEntryResponse[]>(
+    []
+  );
   const [searchPrefix, setSearchPrefix] = useState<string>('');
   const searchUsersByUsername = async (UsernamePrefix: string) => {
     if (!UsernamePrefix) {
       return [];
     }
     const response = await deso.user.getProfiles({
-      NumToFetch: 4,
+      NumToFetch: 10,
       UsernamePrefix,
     });
-    if (response.ProfilesFound?.length === 0) {
-      return [];
-    }
     return response.ProfilesFound ?? [];
   };
   return (
@@ -60,15 +58,15 @@ export const MessagingStartNewConversation: React.FC<{
 };
 
 export const SearchResults: React.FC<{
-  searchedUsers: any[];
+  searchedUsers: ProfileEntryResponse[];
   deso: Deso;
   searchPrefix: string;
-  setSearchPrefix: any;
-  setSearchedUsers: any;
-  setSelectedConversationPublicKey: any;
-  rehydrateConversation: any;
+  setSearchPrefix: (prefix: string) => void;
+  setSearchedUsers: (searchedUsers: ProfileEntryResponse[]) => void;
+  setSelectedConversationPublicKey: (publicKey: string) => void;
+  rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: any;
+  conversations: DecryptedResponse;
 }> = ({
   searchedUsers,
   deso,
