@@ -2,13 +2,9 @@ import { useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { buttonClass } from '../consts/styles';
 
-export interface MessagingConversationButtonProps {
+export const MessagingConversationButton: React.FC<{
   onClick: () => void;
-}
-
-export const MessagingConversationButton = ({
-  onClick,
-}: MessagingConversationButtonProps) => {
+}> = ({ onClick }) => {
   const [isSending, setIsSending] = useState(false);
   return (
     <button

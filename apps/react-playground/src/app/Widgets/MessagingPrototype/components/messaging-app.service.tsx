@@ -17,20 +17,24 @@ import {
   setDerivedKeyResponse,
 } from '../services/store';
 import { delay } from '../services/utils';
-export const getConversationsMap = async (
+export const getConversationsMapAndPublicKeyToUsernameMapping = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
-): Promise<DecryptedResponse> => {
+): Promise<{
+  conversationMap: DecryptedResponse;
+  publicKeyToUsername: { [key: string]: string };
+}> => {
   if (!derivedResponse) {
     alert('no derived response found');
-    return {};
+    return { conversationMap: {}, publicKeyToUsername: {} };
   }
   const messages = await getEncryptedMessages(deso);
   const decryptedMessages = await deso.utils.decryptMessagesV3(
     messages,
     derivedResponse.messagingPrivateKey as string
   );
-  const messageMap: { [key: string]: any[] } = {};
+  const conversationMap: { [key: string]: any[] } = {};
+  const publicKeyToUsername: { [key: string]: string } = {};
   const userKey = deso.identity.getUserKey();
   Object.keys(decryptedMessages)?.forEach(async (key: string) => {
     decryptedMessages[key].forEach((message) => {
@@ -38,20 +42,23 @@ export const getConversationsMap = async (
         userKey === message.RecipientPublicKeyBase58Check
           ? message.SenderPublicKeyBase58Check
           : message.RecipientPublicKeyBase58Check;
-      if (!messageMap[otherUsersKey]) {
-        messageMap[otherUsersKey] = [];
+      if (!conversationMap[otherUsersKey]) {
+        conversationMap[otherUsersKey] = [];
       }
-
-      messageMap[otherUsersKey].push(message);
+      publicKeyToUsername[key] =
+        messages.PublicKeyToProfileEntry[key].Username ?? null;
+      conversationMap[otherUsersKey].push({ ...message });
     });
   });
-  return messageMap;
+  return { conversationMap, publicKeyToUsername };
 };
 
 export const setupMessaging = async (
   deso: Deso,
-  setDerivedResponse: any,
-  setHasSetupAccount: any
+  setDerivedResponse: (
+    derivedResponse: Partial<DerivedPrivateUserInfo>
+  ) => void,
+  setHasSetupAccount: (hasSetup: boolean) => void
 ): Promise<false | Partial<DerivedPrivateUserInfo>> => {
   let key = deso.identity.getUserKey();
   if (!key) {
@@ -68,7 +75,6 @@ export const setupMessaging = async (
     // SkipForLeaderboard: true,
     // IncludeBalance: true,
   });
-  console.log(userResponse);
   const user = userResponse?.UserList?.[0];
   if (user && user.BalanceNanos === 0) {
     // does the user have a balance? If not let them know since they will not be able to proceed
@@ -112,9 +118,11 @@ export const setupMessaging = async (
 export const getConversations = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>,
-  setGetUsernameByPublicKeyBase58Check: any,
-  setConversations: any,
-  setSelectedConversationPublicKey: any
+  setGetUsernameByPublicKeyBase58Check: (publicKey: {
+    [key: string]: string;
+  }) => void,
+  setConversations: (conversations: DecryptedResponse) => void,
+  setSelectedConversationPublicKey: (publicKey: string) => void
 ) => {
   try {
     if (!derivedResponse) {
@@ -122,20 +130,12 @@ export const getConversations = async (
       return {};
     }
 
-    let conversations = await getConversationsMap(deso, derivedResponse);
-    let conversationsArray = Object.keys(conversations);
-    const res = await deso.user.getUsersStateless({
-      PublicKeysBase58Check: conversationsArray,
-    });
-    const getUsernameByPublicKeyBase58Check: any = [];
-
-    res?.UserList?.forEach((user) => {
-      getUsernameByPublicKeyBase58Check[user.PublicKeyBase58Check] =
-        user.ProfileEntryResponse?.Username;
-    });
-    if (getUsernameByPublicKeyBase58Check) {
-      setGetUsernameByPublicKeyBase58Check(getUsernameByPublicKeyBase58Check);
-    }
+    const res = await getConversationsMapAndPublicKeyToUsernameMapping(
+      deso,
+      derivedResponse
+    );
+    let conversationsArray = Object.keys(res.conversationMap);
+    setGetUsernameByPublicKeyBase58Check(res.publicKeyToUsername);
     if (conversationsArray.length === 0) {
       await deso.utils.encryptMessageV3(
         // submit a message so they can use the example
@@ -147,12 +147,15 @@ export const getConversations = async (
         true
       );
       await delay(3000);
-      conversations = await getConversationsMap(deso, derivedResponse);
-      setConversations(conversations ?? {});
-      conversationsArray = Object.keys(conversations);
+      const res = await getConversationsMapAndPublicKeyToUsernameMapping(
+        deso,
+        derivedResponse
+      );
+      setConversations(res.conversationMap ?? {});
+      conversationsArray = Object.keys(res.conversationMap);
     }
     setSelectedConversationPublicKey(conversationsArray[0]);
-    return conversations;
+    return res.conversationMap;
   } catch (e) {
     console.error(e);
     return {};

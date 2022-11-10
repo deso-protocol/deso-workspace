@@ -5,7 +5,8 @@ import { DecryptedResponse } from '../consts/constants';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 import { MessagingStartNewConversation } from './messaging-start-new-conversation';
-export interface MessagingConversationAccountProps {
+
+export const MessagingConversationAccount: React.FC<{
   deso: Deso;
   conversations: DecryptedResponse;
   getUsernameByPublicKeyBase58Check: { [key: string]: string };
@@ -15,8 +16,7 @@ export interface MessagingConversationAccountProps {
   setConversationComponent: (conversationComponent: JSX.Element) => void;
   onClick: (publicKey: string) => void;
   rehydrateConversation: (publicKey: string) => void;
-}
-export const MessagingConversationAccount = ({
+}> = ({
   deso,
   conversations,
   getUsernameByPublicKeyBase58Check,
@@ -24,7 +24,7 @@ export const MessagingConversationAccount = ({
   onClick,
   setSelectedConversationPublicKey,
   rehydrateConversation,
-}: MessagingConversationAccountProps) => {
+}) => {
   const [username, setUsername] = useState('');
   useEffect(() => {
     getLoggedInUsersUsername();

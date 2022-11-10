@@ -7,7 +7,11 @@ export interface MessagingBubblesProps {
   conversationPublicKey: string;
   deso: Deso;
 }
-export const MessagingBubblesAndAvatar = ({
+export const MessagingBubblesAndAvatar: React.FC<{
+  conversations: DecryptedResponse;
+  conversationPublicKey: string;
+  deso: Deso;
+}> = ({
   conversations,
   conversationPublicKey,
   deso,

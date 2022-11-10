@@ -11,10 +11,9 @@ import { MessagingBubblesAndAvatar } from './messaging-bubbles';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { DecryptedResponse } from '../consts/constants';
-export interface MessagingAppProps {
+export const MessagingApp: React.FC<{
   deso: Deso;
-}
-export const MessagingApp = ({ deso }: MessagingAppProps) => {
+}> = ({ deso }) => {
   useEffect(() => {
     init();
   }, []);
@@ -69,9 +68,9 @@ export const MessagingApp = ({ deso }: MessagingAppProps) => {
   >({});
   const [hasSetupAccount, setHasSetupAccount] = useState(false);
   const [autoFetchConversations, setAutoFetchConversations] = useState(false);
-  const [conversationAccounts, setConversationAccounts] = useState<any>([
-    [<></>],
-  ]);
+  const [conversationAccounts, setConversationAccounts] = useState<JSX.Element>(
+    <div></div>
+  );
   const [selectedConversationPublicKey, setSelectedConversationPublicKey] =
     useState('');
   const [conversations, setConversations] = useState<DecryptedResponse>({});

@@ -1,9 +1,8 @@
 import Deso from 'deso-protocol';
 import { buttonClass } from '../consts/styles';
-export interface MessagingSwitchUsers {
+export const MessagingSwitchUsers: React.FC<{
   deso: Deso;
-}
-export const MessagingSwitchUsers = ({ deso }: MessagingSwitchUsers) => {
+}> = ({ deso }) => {
   return (
     <div className="flex justify-center mt-5">
       <button
