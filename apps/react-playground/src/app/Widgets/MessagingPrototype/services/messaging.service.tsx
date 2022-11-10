@@ -18,9 +18,9 @@ export const login = async (deso: Deso) => {
 
 export const requestDerivedKey = async (
   deso: Deso
-): Promise<Partial<DerivedPrivateUserInfo> | undefined> => {
+): Promise<Partial<DerivedPrivateUserInfo>> => {
   if (await alertUserIfNoFunds(deso)) {
-    return;
+    return {};
   }
   const {
     derivedSeedHex,
@@ -132,7 +132,7 @@ export const getEncryptedMessages = async (deso: Deso) => {
   const messages: GetMessagesResponse =
     await deso.social.getMessagesStatelessUnmodified({
       PublicKeyBase58Check: deso.identity.getUserKey() as string,
-      NumToFetch: 25,
+      NumToFetch: 100,
       FetchAfterPublicKeyBase58Check: '',
       HoldersOnly: false,
       FollowersOnly: false,

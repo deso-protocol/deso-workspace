@@ -10,13 +10,13 @@ import {
   getEncryptedMessages,
   login,
   requestDerivedKey,
-} from '../services/messaging.service';
+} from './messaging.service';
 import {
   getDerivedKeyResponse,
   setDefaultKey,
   setDerivedKeyResponse,
-} from '../services/store';
-import { delay } from '../services/utils';
+} from './store';
+import { delay } from './utils';
 export const getConversationsMapAndPublicKeyToUsernameMapping = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
@@ -72,8 +72,8 @@ export const setupMessaging = async (
   }
   const userResponse = await deso.user.getUsersStateless({
     PublicKeysBase58Check: [key],
-    // SkipForLeaderboard: true,
-    // IncludeBalance: true,
+    SkipForLeaderboard: true,
+    IncludeBalance: true,
   });
   const user = userResponse?.UserList?.[0];
   if (user && user.BalanceNanos === 0) {
@@ -92,7 +92,8 @@ export const setupMessaging = async (
     alert('unable to find user');
     return false;
   }
-  let derivedResponse: any = getDerivedKeyResponse(key); // does the derived key exist in storage already?
+  let derivedResponse: Partial<DerivedPrivateUserInfo> =
+    getDerivedKeyResponse(key); // does the derived key exist in storage already?
   if (!derivedResponse.derivedPublicKeyBase58Check) {
     // if not request one
     derivedResponse = await requestDerivedKey(deso);
@@ -129,8 +130,7 @@ export const getConversations = async (
       alert('derived call failed');
       return {};
     }
-
-    const res = await getConversationsMapAndPublicKeyToUsernameMapping(
+    let res = await getConversationsMapAndPublicKeyToUsernameMapping(
       deso,
       derivedResponse
     );
@@ -146,14 +146,14 @@ export const getConversations = async (
         USER_TO_SEND_MESSAGE_TO_1,
         true
       );
-      await delay(3000);
-      const res = await getConversationsMapAndPublicKeyToUsernameMapping(
+      await delay(3000); // wait for the transaction broadcast
+      res = await getConversationsMapAndPublicKeyToUsernameMapping(
         deso,
         derivedResponse
       );
-      setConversations(res.conversationMap ?? {});
-      conversationsArray = Object.keys(res.conversationMap);
     }
+    setConversations(res.conversationMap ?? {});
+    conversationsArray = Object.keys(res.conversationMap);
     setSelectedConversationPublicKey(conversationsArray[0]);
     return res.conversationMap;
   } catch (e) {

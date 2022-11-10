@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import Deso from 'deso-protocol';
 import { getDerivedKeyResponse } from '../services/store';
 import { SendMessageButtonAndInput } from './messaging-send';
-import { getConversations, setupMessaging } from './messaging-app.service';
+import {
+  getConversations,
+  setupMessaging,
+} from '../services/messaging-app.service';
 import { MessagingSetupButton } from './messaging-setup-button';
 import { MessagingSwitchUsers } from './messaging-switch-users';
 import { MessagingConversationButton } from './messaging-conversation-button';
