@@ -1,6 +1,7 @@
 import Deso from 'deso-protocol';
-import { DecryptedResponse, ProfileEntryResponse } from 'deso-protocol-types';
+import { ProfileEntryResponse } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
+import { DecryptedResponse } from '../consts/constants';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export const MessagingStartNewConversation: React.FC<{

@@ -1,6 +1,7 @@
 import Deso from 'deso-protocol';
-import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
+import { DecryptedResponse } from '../consts/constants';
 import { truncateDesoHandle } from '../services/utils';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 import { MessagingStartNewConversation } from './messaging-start-new-conversation';

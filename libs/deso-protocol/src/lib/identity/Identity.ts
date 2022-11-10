@@ -7,6 +7,7 @@ import {
   IdentityDeriveParams,
   IdentityDeriveQueryParams,
   LoginUser,
+  MessagingGroupOperation,
   MessagingGroupPayload,
   RequestOptions,
   SendMessageStatelessRequest,
@@ -22,7 +23,6 @@ import {
 } from './IdentityHelper';
 import { iFrameHandler } from './WindowHandler';
 import {
-  MessagingGroupOperation,
   requestDerive,
   requestLogin,
   requestLogout,
@@ -267,7 +267,6 @@ export class Identity {
 
       this.transactions
     );
-    console.log(derivedPrivateUser);
     return derivedPrivateUser;
   }
 
@@ -446,14 +445,13 @@ export class Identity {
       }
     );
 
-    const response = await iFrameHandler(
+    return await iFrameHandler(
       {
         iFrameMethod: 'messagingGroup',
         data: { prompt },
       },
       this.transactions
     );
-    return response;
   }
   private isTestnet(): boolean {
     return this.network === DeSoNetwork.testnet;

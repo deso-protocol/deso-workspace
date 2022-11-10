@@ -1,10 +1,5 @@
 import { IdentityDeriveQueryParams } from 'deso-protocol-types';
 
-export enum MessagingGroupOperation {
-  DEFAULT_KEY = 'DefaultKey',
-  CREATE_GROUP = 'CreateGroup',
-  ADD_MEMBERS = 'AddMembers',
-}
 export interface WindowFeatures {
   top: number;
   left: number;

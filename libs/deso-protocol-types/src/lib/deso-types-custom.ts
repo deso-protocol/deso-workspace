@@ -370,32 +370,3 @@ export interface DAOCoinEntry {
   MintingDisabled: boolean;
   TransferRestrictionStatus: string;
 }
-export interface PublicKeyToProfileEntry {
-  [key: string]: {
-    PublicKeyBase58Check: string;
-    Username: string;
-    Description: string;
-    IsHidden: boolean;
-    IsReserved: boolean;
-    IsVerified: boolean;
-    Comments?: any;
-    Posts?: any;
-    CoinEntry: CoinEntry;
-    DAOCoinEntry: DAOCoinEntry;
-    CoinPriceDeSoNanos: number;
-    CoinPriceBitCloutNanos: number;
-    UsersThatHODL?: any;
-    IsFeaturedTutorialWellKnownCreator: boolean;
-    IsFeaturedTutorialUpAndComingCreator: boolean;
-    ExtraData: { [k: string]: string };
-    DESOBalanceNanos: number;
-    BestExchangeRateDESOPerDAOCoin: number;
-  };
-}
-
-export type DecryptedResponse = {
-  [publicKey: string]: (MessageEntryResponse & {
-    DecryptedMessage: string;
-    error: string;
-  })[];
-};

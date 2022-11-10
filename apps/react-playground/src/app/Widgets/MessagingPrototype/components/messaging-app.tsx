@@ -9,7 +9,8 @@ import { MessagingConversationButton } from './messaging-conversation-button';
 import { MessagingConversationAccount } from './messaging-conversation-accounts';
 import { MessagingBubblesAndAvatar } from './messaging-bubbles';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import { DecryptedResponse } from '../consts/constants';
 export interface MessagingAppProps {
   deso: Deso;
 }

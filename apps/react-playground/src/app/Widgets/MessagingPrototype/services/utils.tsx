@@ -15,7 +15,7 @@ export const alertUserIfNoFunds = async (deso: Deso): Promise<boolean> => {
 export const StringifyObject = ({ obj }: any) => {
   return (
     <div className={dataClass}>
-      <div className="">{JSON.stringify(obj, null, 2)}</div>
+      <div>{JSON.stringify(obj, null, 2)}</div>
     </div>
   );
 };

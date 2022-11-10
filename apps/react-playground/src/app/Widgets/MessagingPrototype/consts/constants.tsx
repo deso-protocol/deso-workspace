@@ -1,4 +1,7 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import {
+  MessageEntryResponse,
+  TransactionSpendingLimitResponse,
+} from 'deso-protocol-types';
 export const getTransactionSpendingLimits =
   (): TransactionSpendingLimitResponse => {
     return {
@@ -21,12 +24,20 @@ export const USER_TO_SEND_MESSAGE_TO_1: Readonly<string> =
 export const USER_TO_SEND_MESSAGE_TO_2: Readonly<string> =
   'BC1YLhp53iDyAqYBwi4EMAvufgvwhaennew2pZ2zu1LkvuxW5c3ewtk';
 export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
-export const DEFAULT_KEY: Readonly<string> = 'defaultKey';
+export const DEFAULT_KEY_IDENTITY_MESSAGING_OPERATION: Readonly<string> =
+  'defaultKey';
 export const DEFAULT_KEY_MESSAGING_GROUP_NAME: Readonly<string> = 'default-key';
 export const LIMIT: Readonly<number> = 1_000_000_000_000;
 export const localStorageKeys: Readonly<string>[] = [
   DEFAULT_KEY_MESSAGING_GROUP_NAME,
-  DEFAULT_KEY,
+  DEFAULT_KEY_IDENTITY_MESSAGING_OPERATION,
   DERIVED_SEED_HEX,
   USER_TO_SEND_MESSAGE_TO_1,
 ];
+
+export type DecryptedResponse = {
+  [publicKey: string]: (MessageEntryResponse & {
+    DecryptedMessage: string;
+    error: string;
+  })[];
+};

@@ -82,7 +82,7 @@ export const authorizeDerivedKey = async (
     true
   );
 
-  deso.transaction.submitTransaction(signedAuthorizedDerivedKeyTxn);
+  await deso.transaction.submitTransaction(signedAuthorizedDerivedKeyTxn);
 };
 
 export const generateDefaultKey = async (
@@ -130,7 +130,7 @@ export const generateDefaultKey = async (
 
 export const getEncryptedMessages = async (deso: Deso) => {
   const messages: GetMessagesResponse =
-    await deso.social.getMessagesStatelessV3({
+    await deso.social.getMessagesStatelessUnmodified({
       PublicKeyBase58Check: deso.identity.getUserKey() as string,
       NumToFetch: 25,
       FetchAfterPublicKeyBase58Check: '',

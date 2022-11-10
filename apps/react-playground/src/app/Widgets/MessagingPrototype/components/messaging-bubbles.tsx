@@ -1,5 +1,5 @@
 import Deso from 'deso-protocol';
-import { DecryptedResponse } from 'deso-protocol-types';
+import { DecryptedResponse } from '../consts/constants';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export interface MessagingBubblesProps {

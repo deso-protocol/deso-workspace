@@ -1,6 +1,9 @@
 import Deso from 'deso-protocol';
-import { DecryptedResponse, DerivedPrivateUserInfo } from 'deso-protocol-types';
-import { USER_TO_SEND_MESSAGE_TO_1 } from '../consts/constants';
+import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import {
+  DecryptedResponse,
+  USER_TO_SEND_MESSAGE_TO_1,
+} from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,

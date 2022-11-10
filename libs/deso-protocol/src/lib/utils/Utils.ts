@@ -244,83 +244,6 @@ export const signTransaction = (
   return signedTransactionBytes.toString('hex');
 };
 
-export const encryptMessageV3 = async (
-  deso: Deso,
-  messageToSend: string,
-  derivedSeedHex: string,
-  messagingPrivateKey: string,
-  RecipientPublicKeyBase58Check: string,
-  isDerived: boolean,
-  groupName = 'default-key'
-): Promise<void> => {
-  if (!messagingPrivateKey) {
-    throw 'messagingPrivateKey is undefined';
-  }
-
-  const response = await deso.social.checkPartyMessagingKey({
-    RecipientMessagingKeyName: groupName,
-    RecipientPublicKeyBase58Check,
-    SenderMessagingKeyName: groupName,
-    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-  });
-
-  if (!response.RecipientMessagingKeyName) {
-    throw 'SenderMessagingKeyName is undefined';
-  }
-
-  if (!response.SenderMessagingKeyName) {
-    throw 'SenderMessagingKeyName is undefined';
-  }
-  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
-    messagingPrivateKey,
-    response.RecipientMessagingPublicKeyBase58Check,
-    messageToSend
-  );
-
-  if (!encryptedMessage) {
-    throw 'unable to encrypt message';
-  }
-  const transaction = await deso.social.sendMessageWithoutIdentity({
-    EncryptedMessageText: encryptedMessage.toString('hex'),
-    RecipientPublicKeyBase58Check,
-    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    MinFeeRateNanosPerKB: 1000,
-    SenderMessagingGroupKeyName: response.SenderMessagingKeyName,
-    RecipientMessagingGroupKeyName: response.RecipientMessagingKeyName,
-  });
-
-  if (!transaction?.TransactionHex) {
-    throw 'failed to construct transaction';
-  }
-
-  const signedTransaction = deso.utils.signTransaction(
-    derivedSeedHex as string,
-    transaction.TransactionHex,
-    isDerived
-  );
-
-  await deso.transaction.submitTransaction(signedTransaction).catch(() => {
-    throw 'something went wrong while submitting the transaction';
-  });
-};
-
-export function encryptMessageFromPrivateMessagingKey(
-  privateMessagingKey: string,
-  recipientPublicKey: string,
-  message: string
-) {
-  const privateKey = seedHexToPrivateKey(privateMessagingKey);
-  const groupPrivateEncryptionKeyBuffer = privateKey
-    .getPrivate()
-    .toBuffer(undefined, 32);
-  const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
-  return encryptShared(
-    groupPrivateEncryptionKeyBuffer,
-    publicKeyBuffer,
-    message
-  );
-}
-
 function publicKeyToECBuffer(publicKey: string): Buffer {
   const publicKeyEC = publicKeyToECKeyPair(publicKey);
 
@@ -588,3 +511,79 @@ const aesCtrDecrypt = function (counter: Buffer, key: Buffer, data: Buffer) {
   const secondChunk = cipher.final();
   return Buffer.concat([firstChunk, secondChunk]);
 };
+
+export const encryptMessageV3 = async (
+  deso: Deso,
+  messageToSend: string,
+  derivedSeedHex: string,
+  messagingPrivateKey: string,
+  RecipientPublicKeyBase58Check: string,
+  isDerived: boolean,
+  groupName = 'default-key'
+): Promise<void> => {
+  if (!messagingPrivateKey) {
+    throw 'messagingPrivateKey is undefined';
+  }
+
+  const response = await deso.social.checkPartyMessagingKey({
+    RecipientMessagingKeyName: groupName,
+    RecipientPublicKeyBase58Check,
+    SenderMessagingKeyName: groupName,
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
+
+  if (!response.RecipientMessagingKeyName) {
+    throw 'SenderMessagingKeyName is undefined';
+  }
+
+  if (!response.SenderMessagingKeyName) {
+    throw 'SenderMessagingKeyName is undefined';
+  }
+  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
+    messagingPrivateKey,
+    response.RecipientMessagingPublicKeyBase58Check,
+    messageToSend
+  );
+
+  if (!encryptedMessage) {
+    throw 'unable to encrypt message';
+  }
+  const transaction = await deso.social.sendMessageWithoutIdentity({
+    EncryptedMessageText: encryptedMessage.toString('hex'),
+    RecipientPublicKeyBase58Check,
+    SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
+    MinFeeRateNanosPerKB: 1000,
+    SenderMessagingGroupKeyName: response.SenderMessagingKeyName,
+    RecipientMessagingGroupKeyName: response.RecipientMessagingKeyName,
+  });
+
+  if (!transaction?.TransactionHex) {
+    throw 'failed to construct transaction';
+  }
+
+  const signedTransaction = deso.utils.signTransaction(
+    derivedSeedHex as string,
+    transaction.TransactionHex,
+    isDerived
+  );
+
+  await deso.transaction.submitTransaction(signedTransaction).catch(() => {
+    throw 'something went wrong while submitting the transaction';
+  });
+};
+export function encryptMessageFromPrivateMessagingKey(
+  privateMessagingKey: string,
+  recipientPublicKey: string,
+  message: string
+) {
+  const privateKey = seedHexToPrivateKey(privateMessagingKey);
+  const groupPrivateEncryptionKeyBuffer = privateKey
+    .getPrivate()
+    .toBuffer(undefined, 32);
+  const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
+  return encryptShared(
+    groupPrivateEncryptionKeyBuffer,
+    publicKeyBuffer,
+    message
+  );
+}
