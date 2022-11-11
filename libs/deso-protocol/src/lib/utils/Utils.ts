@@ -319,9 +319,6 @@ export const getPublic = function (privateKey: Buffer): Buffer {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return new Buffer(ec.keyFromPrivate(privateKey).getPublic('arr'));
-  // return new Buffer(
-  //   ec.keyFromPrivate(privateKey).getPublic().encode('array', true)
-  // );
 };
 
 export const encrypt = function (
@@ -424,7 +421,7 @@ export const decryptMessagesV3 = async (
 };
 export function decryptMessageFromPrivateMessagingKey(
   privateMessagingKey: string,
-  encryptedMessage: any
+  encryptedMessage: MessageEntryResponse
 ) {
   const groupPrivateEncryptionKeyBuffer = seedHexToPrivateKey(
     privateMessagingKey
@@ -512,23 +509,24 @@ const aesCtrDecrypt = function (counter: Buffer, key: Buffer, data: Buffer) {
   return Buffer.concat([firstChunk, secondChunk]);
 };
 
-export const encryptMessageV3 = async (
+export const encryptAndSendMessageV3 = async (
   deso: Deso,
   messageToSend: string,
   derivedSeedHex: string,
   messagingPrivateKey: string,
   RecipientPublicKeyBase58Check: string,
   isDerived: boolean,
-  groupName = 'default-key'
+  RecipientMessagingKeyName = 'default-key',
+  SenderMessagingKeyName = 'default-key'
 ): Promise<void> => {
   if (!messagingPrivateKey) {
     throw 'messagingPrivateKey is undefined';
   }
 
   const response = await deso.social.checkPartyMessagingKey({
-    RecipientMessagingKeyName: groupName,
+    RecipientMessagingKeyName: RecipientMessagingKeyName,
     RecipientPublicKeyBase58Check,
-    SenderMessagingKeyName: groupName,
+    SenderMessagingKeyName: SenderMessagingKeyName,
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
 
@@ -571,6 +569,7 @@ export const encryptMessageV3 = async (
     throw 'something went wrong while submitting the transaction';
   });
 };
+
 export function encryptMessageFromPrivateMessagingKey(
   privateMessagingKey: string,
   recipientPublicKey: string,

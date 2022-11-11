@@ -148,7 +148,7 @@ export const MessagingApp: React.FC<{
                 <SendMessageButtonAndInput
                   onClick={async (messageToSend: string) => {
                     try {
-                      await deso.utils.encryptMessageV3(
+                      await deso.utils.encryptAndSendMessageV3(
                         deso,
                         messageToSend,
                         derivedResponse.derivedSeedHex as string,

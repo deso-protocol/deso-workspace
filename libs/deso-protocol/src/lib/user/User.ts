@@ -43,6 +43,12 @@ export class User {
     ).data;
   }
 
+  // remove this on next major release, currently kept for backwards compatibility
+  public async getUserStateless(
+    request: Partial<GetUsersStatelessRequest>
+  ): Promise<GetUsersResponse> {
+    return this.getUsersStateless(request);
+  }
   public async getUsersStateless(
     request: Partial<GetUsersStatelessRequest>
   ): Promise<GetUsersResponse> {
