@@ -46,6 +46,7 @@ export class Identity {
   private network: DeSoNetwork;
   private identityUri = BASE_IDENTITY_URI;
   private loggedInUser: LoginUser | null = null;
+  private loggedInUsers: { [k: string]: LoginUser } = {};
   private loggedInKey = '';
   private transactions: Transactions;
   private storageGranted = false;
@@ -60,9 +61,13 @@ export class Identity {
     this.transactions = transactions;
     if (this.host === 'browser') {
       const user = localStorage.getItem('deso_user');
+      const users = localStorage.getItem('deso_users');
       const key = localStorage.getItem('deso_user_key');
       if (user) {
         this.setUser(JSON.parse(user));
+      }
+      if (users) {
+        this.setUsers(JSON.parse(users));
       }
       if (key) {
         this.setLoggedInKey(key);
@@ -99,13 +104,21 @@ export class Identity {
     return this.loggedInUser;
   }
 
-  private setUser(user: LoginUser | null, logout = false): void {
+  private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
-    if (
-      (this.host === 'browser' && user) ||
-      (this.host === 'browser' && logout)
-    ) {
+    if (this.host === 'browser') {
       localStorage.setItem('deso_user', JSON.stringify(user));
+    }
+  }
+
+  public getUsers(): { [k: string]: LoginUser } | null {
+    return this.loggedInUsers;
+  }
+
+  private setUsers(users: { [k: string]: LoginUser }): void {
+    this.loggedInUsers = users;
+    if (this.host === 'browser') {
+      localStorage.setItem('deso_users', JSON.stringify(users));
     }
   }
 
@@ -180,7 +193,11 @@ export class Identity {
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
     queryParams?: { [key: string]: string }
-  ): Promise<{ user: LoginUser; key: string }> {
+  ): Promise<{
+    user: LoginUser;
+    key: string;
+    users: { [k: string]: LoginUser };
+  }> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
@@ -194,7 +211,7 @@ export class Identity {
       windowFeatures,
       queryParams
     );
-    const { key, user } = await iFrameHandler(
+    const { key, user, users } = await iFrameHandler(
       {
         iFrameMethod: 'login',
         data: { prompt },
@@ -202,8 +219,9 @@ export class Identity {
       this.transactions
     );
     this.setUser(user);
+    this.setUsers(users);
     this.setLoggedInKey(key);
-    return { user, key };
+    return { user, key, users };
   }
 
   public async logout(
@@ -220,16 +238,17 @@ export class Identity {
       this.isTestnet(),
       windowFeatures
     );
-    const successful = await iFrameHandler(
+    const { key, user, users } = await iFrameHandler(
       {
         iFrameMethod: 'logout',
         data: { prompt },
       },
       this.transactions
     );
-    this.setUser(null, true);
-    this.setLoggedInKey('');
-    return successful;
+    this.setUser(user);
+    this.setUsers(users);
+    this.setLoggedInKey(key);
+    return !key;
   }
 
   public async derive(

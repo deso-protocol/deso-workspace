@@ -16,6 +16,9 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
+  GetUserGlobalMetadataRequest,
+  GetUserGlobalMetadataResponse,
+  UpdateUserGlobalMetadataRequest,
   RequestOptions,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/Utils';
@@ -73,6 +76,39 @@ export class User {
     const response = (await axios.get(`${this.node.getUri()}/${endpoint}`))
       .data;
     return response;
+  }
+
+  public async getUserGlobalMetadata(
+    request: Partial<GetUserGlobalMetadataRequest>
+  ): Promise<GetUserGlobalMetadataResponse> {
+    if (!request.UserPublicKeyBase58Check) {
+      throw Error('UserPublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'get-user-global-metadata';
+    const JWT = await this.identity.getJwt();
+    const response = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
+    return response;
+  }
+
+  public async updateUserGlobalMetadata(
+    request: Partial<UpdateUserGlobalMetadataRequest>
+  ): Promise<boolean> {
+    if (!request.UserPublicKeyBase58Check) {
+      throw Error('UserPublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'update-user-global-metadata';
+    const JWT = await this.identity.getJwt();
+
+    await axios.post(`${this.node.getUri()}/${endpoint}`, {
+      ...request,
+      JWT,
+    });
+    return true;
   }
 
   public async deletePii(request: Partial<DeletePIIRequest>): Promise<boolean> {
