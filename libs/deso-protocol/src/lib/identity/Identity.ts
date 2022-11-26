@@ -327,7 +327,6 @@ export class Identity {
   }
 
   private async guardFeatureSupport(): Promise<boolean> {
-    await this.onReady();
     const payload = await callIdentityMethodAndExecute(
       undefined,
       'info',
@@ -356,13 +355,12 @@ export class Identity {
     TransactionHex: string,
     options: RequestOptions = { broadcast: this.host === 'browser' },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ): Promise<any> {
+  ) {
     // don't submit the transaction, instead just return the api response from the
     // previous call
     if (options?.broadcast === false) return;
     // server app? then you can't call the iframe
     if (this.host === 'server') throw Error(SERVER_ERROR);
-    await this.onReady();
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
       TransactionHex = (
         await this.transactions.appendExtraData({
@@ -395,7 +393,6 @@ export class Identity {
     encryptedMessages: GetDecryptMessagesRequest[]
   ): Promise<GetDecryptMessagesResponse[]> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
-    await this.onReady();
     let user = this.getUser();
     if (!user) {
       await this.login();
@@ -413,7 +410,7 @@ export class Identity {
     request: Partial<SendMessageStatelessRequest>
   ): Promise<string> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
-    await this.onReady();
+    request.RecipientPublicKeyBase58Check;
     let user = this.getUser();
     if (!user) {
       await this.login();
@@ -429,7 +426,6 @@ export class Identity {
 
   public async getJwt(): Promise<string> {
     if (this.host === 'server') throw Error(SERVER_ERROR);
-    await this.onReady();
     let user = this.getUser();
     if (!user) {
       user = (await this.login()).user;
