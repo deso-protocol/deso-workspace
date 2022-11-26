@@ -355,7 +355,7 @@ export class Identity {
     TransactionHex: string,
     options: RequestOptions = { broadcast: this.host === 'browser' },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ) {
+  ): Promise<any> {
     // don't submit the transaction, instead just return the api response from the
     // previous call
     if (options?.broadcast === false) return;
@@ -372,7 +372,7 @@ export class Identity {
     const user = this.getUser();
     // user exists no need to approve
     if (user) {
-      return callIdentityMethodAndExecute(
+      return await callIdentityMethodAndExecute(
         TransactionHex,
         'sign',
         user,
