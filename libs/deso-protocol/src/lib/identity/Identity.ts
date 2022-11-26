@@ -374,7 +374,7 @@ export class Identity {
     const user = this.getUser();
     // user exists no need to approve
     if (user) {
-      return await callIdentityMethodAndExecute(
+      return callIdentityMethodAndExecute(
         TransactionHex,
         'sign',
         user,
