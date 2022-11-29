@@ -437,7 +437,17 @@ export class Identity {
       this.transactions
     );
   }
+
   private isTestnet(): boolean {
     return this.network === DeSoNetwork.testnet;
+  }
+
+  public changeUser(key: string): void {
+    if (!this.loggedInUsers[key]) {
+      throw Error('public key is not found in logged in users');
+    }
+
+    this.setUser(this.loggedInUsers[key]);
+    this.setLoggedInKey(key);
   }
 }

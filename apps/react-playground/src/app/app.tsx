@@ -3,7 +3,13 @@ import styles from './app.module.css';
 import { Playground } from './playground';
 
 export function App() {
-  return <Playground />;
+  return (
+    <>
+      <header>Welcome react-playground</header>
+
+      <Playground />
+    </>
+  );
 }
 
 export default App;

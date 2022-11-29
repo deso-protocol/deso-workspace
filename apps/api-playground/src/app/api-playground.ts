@@ -18,3 +18,5 @@ app.get('/test-code-here-or-wherever', async (req, res) => {
 app.get('/window-callback', async (req, res) => {
   console.log(req);
 });
+
+export { app };
