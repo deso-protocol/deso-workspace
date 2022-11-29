@@ -1,3 +1,3 @@
-import { apiPlayground } from './app/api-playground';
+import { app } from './app/api-playground';
 
-console.log(`Running ${apiPlayground()}`);
+console.log(`Running express server: ${app}`);
