@@ -58,15 +58,16 @@ export class Media {
   ): Promise<GetVideoStatusResponse> {
     throwErrors(['videoId'], request);
     const endpoint = 'get-video-status';
-    return await axios.get(
-      `${this.node.getUri()}/${endpoint}/${request.videoId}`
-    );
+    return (
+      await axios.get(`${this.node.getUri()}/${endpoint}/${request.videoId}`)
+    ).data;
   }
 
   public async getFullTikTokUrl(
     request: Partial<GetFullTikTokURLRequest>
   ): Promise<GetFullTikTokURLResponse> {
     const endpoint = 'get-full-tiktok-url';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 }

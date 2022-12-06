@@ -18,13 +18,15 @@ export class Miner {
     request: GetBlockTemplateRequest
   ): Promise<GetBlockTemplateResponse> {
     const endpoint = 'get-block-template';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async submitBlock(
     request: Partial<GetBlockTemplateRequest>
   ): Promise<GetBlockTemplateResponse> {
     const endpoint = 'submit-block';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 }

@@ -67,9 +67,11 @@ export class Transactions {
   public async getTransactionSpendingLimitResponseFromHex(
     transactionSpendingLimitHex: string
   ): Promise<TransactionSpendingLimitResponse> {
-    return await axios.get(
-      `${this.node.getUri()}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
-    );
+    return (
+      await axios.get(
+        `${this.node.getUri()}/get-transaction-spending-limit-response-from-hex/${transactionSpendingLimitHex}`
+      )
+    ).data;
   }
   public async signWithLocalKey() {
     // TODO

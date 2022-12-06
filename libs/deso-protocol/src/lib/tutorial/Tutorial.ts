@@ -19,20 +19,23 @@ export class Tutorial {
     request: Partial<GetTutorialCreatorsRequest>
   ): Promise<GetTutorialCreatorResponse> {
     const endpoint = 'get-tutorial-creators';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async startOrSkipTutorial(
     request: Partial<StartOrSkipTutorialRequest>
   ): Promise<void> {
     const endpoint = 'start-or-skip-tutorial';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async updateTutorialStatus(
     request: Partial<UpdateTutorialStatusRequest>
   ): Promise<void> {
     const endpoint = 'update-tutorial-status';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 }
