@@ -135,10 +135,12 @@ export class User {
     }
     const endpoint = 'block-public-key';
     const JWT = await this.identity.getJwt();
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-      ...request,
-      JWT,
-    });
+    return (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
   }
 
   public async getUserDerivedKeys(
@@ -149,10 +151,12 @@ export class User {
     }
     const endpoint = 'get-user-derived-keys';
     const JWT = await this.identity.getJwt();
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-      ...request,
-      JWT,
-    });
+    return (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
   }
 
   public async authorizeDerivedKeyWithoutIdentity(

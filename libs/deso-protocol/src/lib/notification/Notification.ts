@@ -23,14 +23,16 @@ export class Notification {
     request: Partial<GetNotificationsRequest>
   ): Promise<GetNotificationsResponse> {
     const endpoint = 'get-notifications';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getUnreadNotificationsCount(
     request: Partial<GetNotificationsCountRequest>
   ): Promise<GetNotificationsCountResponse> {
     const endpoint = 'get-unread-notifications-count';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async setNotificationMetadata(
@@ -44,6 +46,7 @@ export class Notification {
     request.UnreadNotifications = 0;
     request.JWT = jwt;
     const endpoint = 'set-notification-metadata';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 }

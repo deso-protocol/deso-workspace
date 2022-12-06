@@ -43,49 +43,56 @@ export class Nft {
     request: Partial<GetNFTsForUserRequest>
   ): Promise<GetNFTsForUserResponse> {
     const endpoint = 'get-nfts-for-user';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNftBidsForUser(
     request: Partial<GetNFTBidsForUserRequest>
   ): Promise<GetNFTBidsForUserResponse> {
     const endpoint = 'get-nft-bids-for-user';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNftBidsForNftPost(
     request: Partial<GetNFTBidsForNFTPostRequest>
   ): Promise<GetNFTBidsForNFTPostResponse> {
     const endpoint = 'get-nft-bids-for-nft-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNftShowcase(
     request: Partial<GetNFTShowcaseRequest>
   ): Promise<GetNFTShowcaseResponse> {
     const endpoint = 'get-nft-showcase';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNextNftShowCase(
     request: Partial<GetNFTShowcaseRequest>
   ): Promise<GetNextNFTShowcaseResponse> {
     const endpoint = 'get-next-nft-showcase';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNftCollectionSummary(
     request: Partial<GetNFTCollectionSummaryRequest>
   ): Promise<GetNFTCollectionSummaryResponse> {
     const endpoint = 'get-nft-collection-summary';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getNftEntriesForPostHash(
     request: Partial<GetNFTEntriesForPostHashRequest>
   ): Promise<GetNFTEntriesForPostHashResponse> {
     const endpoint = 'get-nft-entries-for-nft-post';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async createNft(
