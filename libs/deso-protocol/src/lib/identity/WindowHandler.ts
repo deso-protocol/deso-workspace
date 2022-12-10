@@ -38,6 +38,11 @@ export const handlers = async (
   transactions: Transactions
 ): Promise<any> => {
   if (info.iFrameMethod === 'sign') {
+    if (event?.data?.payload?.approvalRequired) {
+      info.data.resolve({ approvalRequired: true });
+      window.removeEventListener('message', windowHandler);
+      return { approvalRequired: true };
+    }
     if (event?.data?.payload?.signedTransactionHex) {
       return transactions
         .submitTransaction(event?.data?.payload?.signedTransactionHex)

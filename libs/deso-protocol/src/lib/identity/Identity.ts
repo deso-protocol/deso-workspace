@@ -370,23 +370,22 @@ export class Identity {
       ).TransactionHex;
     }
     const user = this.getUser();
-    // user exists no need to approve
-    if (user) {
-      return callIdentityMethodAndExecute(
-        TransactionHex,
-        'sign',
-        user,
-        this.transactions
-      );
-    } else {
-      // user does not exist  get approval
-      return approveSignAndSubmit(
-        TransactionHex,
-        this.getUri(),
-        this.transactions,
-        this.isTestnet()
-      );
-    }
+    return callIdentityMethodAndExecute(
+      TransactionHex,
+      'sign',
+      user,
+      this.transactions
+    ).then((res) => {
+      if (res?.approvalRequired) {
+        return approveSignAndSubmit(
+          TransactionHex,
+          this.getUri(),
+          this.transactions,
+          this.isTestnet()
+        );
+      }
+      return res;
+    });
   }
 
   public async decrypt(
