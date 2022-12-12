@@ -2246,13 +2246,14 @@ export interface BalanceEntryResponse {
   CreatorPublicKeyBase58Check: string;
   HasPurchased: boolean;
   BalanceNanos: number;
-  BalanceNanosUint256: string[];
+  BalanceNanosUint256: string;
   NetBalanceInMempool: number;
   ProfileEntryResponse: ProfileEntryResponse | null;
 }
 
 // struct2ts:types/generated/types.ProfileEntryResponse
 export interface ProfileEntryResponse {
+  BestExchangeRateDESOPerDAOCoin: number;
   PublicKeyBase58Check: string;
   Username: string;
   Description: string;
@@ -2265,6 +2266,7 @@ export interface ProfileEntryResponse {
   DAOCoinEntry: DAOCoinEntryResponse | null;
   CoinPriceDeSoNanos: number;
   CoinPriceBitCloutNanos: number;
+  DESOBalanceNanos: number;
   UsersThatHODL: BalanceEntryResponse[] | null;
   IsFeaturedTutorialWellKnownCreator: boolean;
   IsFeaturedTutorialUpAndComingCreator: boolean;
@@ -2841,6 +2843,7 @@ export interface GetExchangeRateResponse {
   SatoshisPerBitCloutExchangeRate: number;
   USDCentsPerBitCloutExchangeRate: number;
   USDCentsPerBitCloutReserveExchangeRate: number;
+  USDCentsPerDeSoCoinbase: number;
 }
 
 // struct2ts:types/generated/types.BlockchainDeSoTickerResponse
