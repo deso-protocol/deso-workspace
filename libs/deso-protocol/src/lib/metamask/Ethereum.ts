@@ -5,6 +5,7 @@ import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 import { Social } from '../social/Social';
 import { Transactions } from '../transaction/Transaction';
+import { publicKeyHexToDeSoPublicKey } from '../utils/Utils';
 import { User } from '../user/User';
 import {
   Network,
@@ -12,6 +13,7 @@ import {
   PUBLIC_KEY_PREFIXES,
 } from '../utils/Utils';
 import { ec } from 'elliptic';
+import axios from 'axios';
 
 export class Ethereum {
   private identity: Identity;
@@ -113,4 +115,174 @@ export class Ethereum {
     const encodedDesoKey = bs58check.encode(desoKey);
     return encodedDesoKey;
   }
+
+  public async ethAddressToDeSoPublicKey(
+    ethAddress: string,
+    network: Network = 'mainnet',
+    etherscanAPIKey = ''
+  ): Promise<string> {
+    const txns = await this.getEtherscanTransactionsSignedByAddress(
+      ethAddress,
+      network,
+      etherscanAPIKey
+    );
+    if (txns.length === 0) {
+      return Promise.reject(
+        'an ETH address must sign at least one transaction in order to recover its public key'
+      );
+    }
+    let recoveredETHPublicKey = '';
+    let recoveredETHAddress = '';
+    for (let ii = 0; ii < txns.length; ii++) {
+      try {
+        [recoveredETHPublicKey, recoveredETHAddress] =
+          await this.recoverETHPublicKeyAndAddressFromTransaction(
+            txns[ii].hash,
+            network,
+            etherscanAPIKey
+          );
+        break;
+      } catch (e) {
+        console.error('error recovering public key from txn ', txns[ii].hash);
+      }
+    }
+    if (!recoveredETHAddress || !recoveredETHPublicKey) {
+      return Promise.reject('failed to recover public key from transactions');
+    }
+    if (recoveredETHAddress.toLowerCase() !== ethAddress.toLowerCase()) {
+      return Promise.reject('recovered an incorrect public key');
+    }
+    return publicKeyHexToDeSoPublicKey(recoveredETHPublicKey.slice(2), network);
+  }
+
+  desoNetworkToETHNetwork(network: Network): string {
+    // should really be Networkish from ethers.
+    return network === 'testnet' ? 'goerli' : 'homestead';
+  }
+
+  public async recoverETHPublicKeyAndAddressFromTransaction(
+    transactionHashHex: string,
+    network: Network = 'mainnet',
+    etherscanAPIKey = ''
+  ): Promise<string[]> {
+    // TODO: testnet support
+    const etherscanProvider = new ethers.providers.EtherscanProvider(
+      this.desoNetworkToETHNetwork(network),
+      etherscanAPIKey
+    );
+    const txn = await etherscanProvider.getTransaction(transactionHashHex);
+    const expandedSig = {
+      r: txn.r as string,
+      s: txn.s as string,
+      v: txn.v as number,
+    };
+
+    const signature = ethers.utils.joinSignature(expandedSig);
+
+    let txnData: any;
+    // TODO: figure out how to handle AccessList (type 1) transactions and confirm Legacy (type 0) works.
+    switch (txn.type) {
+      case 0:
+        txnData = {
+          gasPrice: txn.gasPrice,
+          gasLimit: txn.gasLimit,
+          value: txn.value,
+          nonce: txn.nonce,
+          data: txn.data,
+          chainId: txn.chainId,
+          to: txn.to,
+        };
+        break;
+      case 2:
+        txnData = {
+          gasLimit: txn.gasLimit,
+          value: txn.value,
+          nonce: txn.nonce,
+          data: txn.data,
+          chainId: txn.chainId,
+          to: txn.to,
+          type: 2,
+          maxFeePerGas: txn.maxFeePerGas,
+          maxPriorityFeePerGas: txn.maxPriorityFeePerGas,
+        };
+        break;
+      default:
+        throw new Error('Unsupported txn type');
+    }
+    const rstxn = await ethers.utils.resolveProperties(txnData);
+    const raw = ethers.utils.serializeTransaction(rstxn as any); // returns RLP encoded transactionHash
+    const msgHash = ethers.utils.keccak256(raw); // as specified by ECDSA
+    const msgBytes = ethers.utils.arrayify(msgHash); // create binary hash
+    const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
+    const recoveredAddress = ethers.utils.computeAddress(recoveredPubKey);
+    if (recoveredAddress != txn.from) {
+      return Promise.reject('recovered incorrect address');
+    }
+    return [recoveredPubKey, recoveredAddress];
+  }
+
+  async getEtherscanTransactionsSignedByAddress(
+    ethAddress: string,
+    network: Network = 'mainnet',
+    etherscanAPIKey = ''
+  ): Promise<EtherscanTransaction[]> {
+    const allTransactions = await this.getETHTransactionsForETHAddress(
+      ethAddress,
+      network,
+      etherscanAPIKey
+    );
+    return allTransactions.filter(
+      (txn) => txn.from.toLowerCase() === ethAddress.toLowerCase()
+    );
+  }
+
+  async getETHTransactionsForETHAddress(
+    ethAddress: string,
+    network: Network = 'mainnet',
+    etherscanAPIKey = ''
+  ): Promise<EtherscanTransaction[]> {
+    const apiKeyQueryParam = etherscanAPIKey
+      ? `&apikey=${etherscanAPIKey}`
+      : '';
+    const data = (
+      await axios.get(
+        `https://api${
+          network === 'testnet' ? '-goerli' : ''
+        }.etherscan.io/api?module=account&action=txlist&address=${ethAddress}${apiKeyQueryParam}`
+      )
+    ).data as EtherscanTransactionsByAddressResponse;
+    if (data.status !== '1' || !data.message.startsWith('OK')) {
+      return Promise.reject('Error fetching transactions');
+    }
+    return data.result;
+  }
+}
+
+interface EtherscanTransactionsByAddressResponse {
+  status: string;
+  message: string;
+  result: EtherscanTransaction[];
+}
+
+interface EtherscanTransaction {
+  blockNumber: string;
+  timestamp: string;
+  hash: string;
+  nonce: string;
+  blockHash: string;
+  transactionIndex: string;
+  from: string;
+  to: string;
+  value: string;
+  gas: string;
+  gasPrice: string;
+  isError: string;
+  txreceipt_status: string;
+  input: string;
+  contractAddress: string;
+  cumulativeGasUsed: string;
+  gasUsed: string;
+  confirmations: string;
+  methodId: string;
+  functionName: string;
 }
