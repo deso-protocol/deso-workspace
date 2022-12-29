@@ -59,7 +59,7 @@ export class Identity {
     this.node = node;
     this.network = network || DeSoNetwork.mainnet;
     this.transactions = transactions;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       const user = localStorage.getItem('deso_user');
       const users = localStorage.getItem('deso_users');
       const key = localStorage.getItem('deso_user_key');
@@ -76,13 +76,17 @@ export class Identity {
     this.setUri(uri ?? BASE_IDENTITY_URI);
   }
 
+  private isBrowser(): boolean {
+    return this.host === 'browser' && typeof window !== 'undefined';
+  }
+
   public getUri(): string {
     return this.identityUri;
   }
 
   public setUri(uri: string): void {
     this.identityUri = uri;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_identity_uri', this.identityUri);
     }
   }
@@ -106,7 +110,7 @@ export class Identity {
 
   private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_user', JSON.stringify(user));
     }
   }
@@ -117,7 +121,7 @@ export class Identity {
 
   private setUsers(users: { [k: string]: LoginUser }): void {
     this.loggedInUsers = users;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_users', JSON.stringify(users));
     }
   }
@@ -128,14 +132,14 @@ export class Identity {
 
   private setLoggedInKey(key: string) {
     this.loggedInKey = key;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_user_key', key);
     }
   }
   //  end of getters/ setters
 
   public async initialize(): Promise<any> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (this.getIframe()) {
       return;
@@ -166,7 +170,7 @@ export class Identity {
     windowFeatures?: WindowFeatures,
     queryParams?: { [key: string]: string | boolean }
   ): Promise<void> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
       await this.guardFeatureSupport();
@@ -198,7 +202,7 @@ export class Identity {
     key: string;
     users: { [k: string]: LoginUser };
   }> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
       await this.guardFeatureSupport();
@@ -228,7 +232,7 @@ export class Identity {
     publicKey: string,
     windowFeatures?: WindowFeatures
   ): Promise<boolean> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
@@ -255,7 +259,7 @@ export class Identity {
     params: IdentityDeriveParams,
     windowFeatures?: WindowFeatures
   ): Promise<DerivedPrivateUserInfo> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
       webview: params.webview,
@@ -290,7 +294,7 @@ export class Identity {
     createNewIdentityFrame = false
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (this.host === 'server') throw Error(SERVER_ERROR);
+      if (!this.isBrowser()) throw Error(SERVER_ERROR);
       let frame = document.getElementById('identity');
       if (frame && createNewIdentityFrame) {
         frame.remove();
@@ -360,7 +364,7 @@ export class Identity {
     // previous call
     if (options?.broadcast === false) return;
     // server app? then you can't call the iframe
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
       TransactionHex = (
         await this.transactions.appendExtraData({
@@ -391,7 +395,7 @@ export class Identity {
   public async decrypt(
     encryptedMessages: GetDecryptMessagesRequest[]
   ): Promise<GetDecryptMessagesResponse[]> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       await this.login();
@@ -408,7 +412,7 @@ export class Identity {
   public async encrypt(
     request: Partial<SendMessageStatelessRequest>
   ): Promise<string> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     request.RecipientPublicKeyBase58Check;
     let user = this.getUser();
     if (!user) {
@@ -424,7 +428,7 @@ export class Identity {
   }
 
   public async getJwt(): Promise<string> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       user = (await this.login()).user;
