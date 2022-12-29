@@ -165,7 +165,6 @@ export class Ethereum {
     network: Network = 'mainnet',
     etherscanAPIKey = ''
   ): Promise<string[]> {
-    // TODO: testnet support
     const etherscanProvider = new ethers.providers.EtherscanProvider(
       this.desoNetworkToETHNetwork(network),
       etherscanAPIKey
@@ -179,8 +178,9 @@ export class Ethereum {
 
     const signature = ethers.utils.joinSignature(expandedSig);
 
+    // Special thanks for this answer on ethereum.stackexchange.com: https://ethereum.stackexchange.com/a/126308
     let txnData: any;
-    // TODO: figure out how to handle AccessList (type 1) transactions and confirm Legacy (type 0) works.
+    // TODO: figure out how to handle AccessList (type 1) transactions.
     switch (txn.type) {
       case 0:
         txnData = {
