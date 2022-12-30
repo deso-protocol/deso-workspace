@@ -76,7 +76,7 @@ export class Identity {
     this.setUri(uri ?? BASE_IDENTITY_URI);
   }
 
-  private isBrowser(): boolean {
+  public isBrowser(): boolean {
     return this.host === 'browser' && typeof window !== 'undefined';
   }
 
@@ -357,7 +357,7 @@ export class Identity {
 
   public async submitTransaction(
     TransactionHex: string,
-    options: RequestOptions = { broadcast: this.host === 'browser' },
+    options: RequestOptions = { broadcast: this.isBrowser() },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
     // don't submit the transaction, instead just return the api response from the
