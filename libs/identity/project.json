@@ -1,0 +1,33 @@
+{
+  "root": "libs/identity",
+  "sourceRoot": "libs/identity/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/identity",
+        "main": "libs/identity/src/index.ts",
+        "tsConfig": "libs/identity/tsconfig.lib.json",
+        "assets": ["libs/identity/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/identity/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/identity"],
+      "options": {
+        "jestConfig": "libs/identity/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

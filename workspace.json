@@ -6,6 +6,7 @@
     "deso-protocol-types": "libs/deso-protocol-types",
     "developer-hub": "apps/developer-hub",
     "developer-hub-e2e": "apps/developer-hub-e2e",
+    "identity": "libs/identity",
     "react-playground": "apps/react-playground",
     "react-playground-e2e": "apps/react-playground-e2e"
   },
