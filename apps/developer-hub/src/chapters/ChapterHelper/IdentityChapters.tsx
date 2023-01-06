@@ -10,6 +10,7 @@ import { ParentRoutes, TYLER } from '../../services/utils';
 import Page from '../CustomChapters/Page';
 import { CHAPTERS } from './Chapter.models';
 import { PageSection } from './PageSections';
+
 const deso = new Deso();
 export const identityChapter = {
   IDENTITY_LOGIN: {

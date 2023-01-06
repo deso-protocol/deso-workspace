@@ -1,8 +1,12 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
-import { Header } from './components/layout/Header/Header';
 import { CHAPTERS } from './chapters/ChapterHelper/Chapter.models';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ChapterTemplate from './chapters/ChapterHelper/ChapterTemplate';
+import { BlankPage } from './components/BlankPage';
+import DesoDrawer from './components/layout/Drawer/Drawer';
+import { Header } from './components/layout/Header/Header';
+import { PageNavigation } from './components/layout/PageNavigation';
 import {
   forumRoute,
   getForumPosts,
@@ -10,9 +14,6 @@ import {
   ThreadCategory,
 } from './services/utils';
 import { AllThreadsONPage } from './threads/AllThreadsOnPage';
-import DesoDrawer from './components/layout/Drawer/Drawer';
-import ChapterTemplate from './chapters/ChapterHelper/ChapterTemplate';
-import { PageNavigation } from './components/layout/PageNavigation';
 function App() {
   const [forum, setForum] = useState<ReactElement[]>([]);
   useEffect(() => {
@@ -55,7 +56,7 @@ function App() {
     return chapter.chapterContent.component();
   });
   return (
-    <HashRouter>
+    <BrowserRouter>
       <div className="my-[50px] ">
         <div className="flex-grow mb-[70px]">
           <Header />
@@ -66,6 +67,7 @@ function App() {
             <Routes>
               {routes}
               {forum}
+              <Route path="devtest" element={<BlankPage />} />
               <Route
                 key={'main'}
                 path="*"
@@ -76,7 +78,7 @@ function App() {
           {/* <div></di> */}
         </div>
       </div>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
