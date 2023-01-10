@@ -31,13 +31,18 @@ export const generateMnemonic = (): string => {
   return ethers.utils.entropyToMnemonic(entropy);
 };
 
+interface KeygenOptions {
+  network: Network;
+}
+
 export const keygen = (
   mnemonic: string,
-  { network = 'mainnet' }: { network?: Network } = {}
+  options?: KeygenOptions
 ): {
   publicKeyBase58Check: string;
   keyPair: ec.KeyPair;
 } => {
+  const network = options?.network ?? 'mainnet';
   const dKeyChain = ethers.utils.HDNode.fromMnemonic(mnemonic);
   const prefix = PUBLIC_KEY_PREFIXES[network].deso;
   const e = new ec('secp256k1');
@@ -48,22 +53,30 @@ export const keygen = (
   return { publicKeyBase58Check, keyPair };
 };
 
-export const sign = ({
-  transactionHex,
-  keyPair,
-}: {
-  transactionHex: string;
-  keyPair: ec.KeyPair;
-}): string => {
-  const transactionBytes = Buffer.from(transactionHex, 'hex');
+export interface SignOptions {
+  isDerivedKey: boolean;
+}
+
+export const sign = (
+  txHex: string,
+  keyPair: ec.KeyPair,
+  options?: SignOptions
+): string => {
+  const transactionBytes = Buffer.from(txHex, 'hex');
   const transactionHash = Buffer.from(sha256.x2(transactionBytes), 'hex');
-  const sig = keyPair.sign(transactionHash);
-  const signatureBytes = Buffer.from(sig.toDER());
+  const signature = keyPair.sign(transactionHash);
+  const signatureBytes = Buffer.from(signature.toDER());
   const signatureLength = uvarint64ToBuf(signatureBytes.length);
+
+  if (options?.isDerivedKey) {
+    signatureBytes[0] += 1 + (signature.recoveryParam as number);
+  }
+
   const signedTransactionBytes = Buffer.concat([
     transactionBytes.slice(0, -1),
     signatureLength,
     signatureBytes,
   ]);
+
   return signedTransactionBytes.toString('hex');
 };

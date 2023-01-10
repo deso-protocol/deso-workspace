@@ -1,12 +1,20 @@
+import axios from 'axios';
 import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
-import { generateMnemonic, keygen } from './crypto-utils';
+import { generateMnemonic, keygen, sign } from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
-import { IdentityDerivePayload, IdentityResponse } from './types';
+import {
+  IdentityConfiguration,
+  IdentityDerivePayload,
+  IdentityResponse,
+  Network,
+} from './types';
 
 const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
+const DEFAULT_NODE_URI = 'https://node.deso.org';
 
 // default is no permissions
 const DEFAULT_PERMISSIONS = {
+  IsUnlimited: true,
   GlobalDESOLimit: 0,
   TransactionCountLimitMap: {},
   CreatorCoinOperationLimitMap: {},
@@ -15,15 +23,31 @@ const DEFAULT_PERMISSIONS = {
   DAOCoinLimitOrderLimitMap: {},
 };
 
+interface IdentityConstructorOptions {
+  windowFake: Window;
+}
+
+interface LoginOptions {
+  permissions: TransactionSpendingLimitResponse;
+}
+
+type StoredUser = {
+  primaryDerivedKey: IdentityDerivePayload & { mnemonic: string };
+};
+
 // Class is only exported for testing purposes
 export class Identity {
-  #identityURI: string = DEFAULT_IDENTITY_URI;
-
   // used for DI in testing
   #window: Window;
+  #identityURI: string = DEFAULT_IDENTITY_URI;
+  #network: Network = 'mainnet';
+  #nodeURI: string = DEFAULT_NODE_URI;
+  #identityWindow?: Window | null;
 
-  constructor({ windowFake }: { windowFake?: Window } = {}) {
-    this.#window = windowFake || window;
+  #redirectURI?: string;
+
+  constructor(options?: IdentityConstructorOptions) {
+    this.#window = options?.windowFake ?? window;
 
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
@@ -32,58 +56,147 @@ export class Identity {
       const initialResponse = parseQueryParams(queryParams);
       // Strip the identity query params from the URL. replaceState removes it from browser history
       this.#window.history.replaceState({}, '', this.#window.location.pathname);
+
       this.#handleIdentityResponse(initialResponse);
     }
   }
 
   configure({
     identityURI = DEFAULT_IDENTITY_URI,
-  }: { identityURI?: string } = {}) {
+    network = 'mainnet',
+    nodeURI = 'https://node.deso.org',
+    redirectURI,
+  }: IdentityConfiguration) {
     this.#identityURI = identityURI;
+    this.#network = network;
+    this.#nodeURI = nodeURI;
+    this.#redirectURI = redirectURI;
   }
 
-  loginWithRedirect({
-    redirectURI,
-    permissions = DEFAULT_PERMISSIONS,
-  }: {
-    redirectURI: string;
-    permissions?: TransactionSpendingLimitResponse;
-  }) {
-    const transactionSpendingLimitResponse = encodeURIComponent(
-      JSON.stringify(permissions)
-    );
+  getActivePublicKey() {
+    return this.#window.localStorage.getItem('activePublicKey');
+  }
 
+  login({ permissions }: LoginOptions = { permissions: DEFAULT_PERMISSIONS }) {
     let derivedPublicKey: string;
-    const existingRedirectKey =
-      this.#window.localStorage.getItem('redirectDerivedKey');
+    const loginKeyPair = this.#window.localStorage.getItem('desoLoginKeyPair');
 
-    if (!existingRedirectKey) {
+    if (loginKeyPair) {
+      derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
+    } else {
       const mnemonic = generateMnemonic();
-      const { publicKeyBase58Check } = keygen(mnemonic);
+      const { publicKeyBase58Check } = keygen(mnemonic, {
+        network: this.#network,
+      });
       derivedPublicKey = publicKeyBase58Check;
       this.#window.localStorage.setItem(
-        'redirectDerivedKey',
+        'desoLoginKeyPair',
         JSON.stringify({
           publicKey: publicKeyBase58Check,
           mnemonic,
         })
       );
-    } else {
-      derivedPublicKey = JSON.parse(existingRedirectKey).publicKey;
     }
 
-    this.#window.location.href = `${
-      this.#identityURI
-    }/derive?${new URLSearchParams({
-      transactionSpendingLimitResponse,
+    this.#launchIdentity('derive', {
       derivedPublicKey,
-      redirect_uri: redirectURI,
-    })}`;
+      transactionSpendingLimitResponse: permissions,
+    });
   }
 
-  // TODO: Implement this
-  loginWithPopup() {
-    return null;
+  logout() {
+    throw new Error('Not implemented');
+  }
+
+  sign(txHex: string) {
+    const { primaryDerivedKey } = this.#getCurrentUser();
+    const { keyPair } = keygen(primaryDerivedKey.mnemonic, {
+      network: this.#network,
+    });
+    return sign(txHex, keyPair, { isDerivedKey: true });
+  }
+
+  submitTx(TransactionHex: string) {
+    return axios.post(`${this.#nodeURI}/api/v0/submit-transaction`, {
+      TransactionHex,
+    });
+  }
+
+  async signAndSubmitTx(txHex: string) {
+    try {
+      return await this.submitTx(this.sign(txHex));
+    } catch (e: any) {
+      // if the derived key is not authorized, authorize it and try again
+      if (
+        e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
+      ) {
+        const { primaryDerivedKey } = this.#getCurrentUser();
+        const resp = await this.#authorizeDerivedKey({
+          OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
+          DerivedPublicKeyBase58Check:
+            primaryDerivedKey.derivedPublicKeyBase58Check,
+          ExpirationBlock: primaryDerivedKey.expirationBlock,
+          AccessSignature: primaryDerivedKey.accessSignature,
+          DeleteKey: false,
+          DerivedKeySignature: false,
+          MinFeeRateNanosPerKB: 1000,
+          TransactionSpendingLimitHex:
+            primaryDerivedKey.transactionSpendingLimitHex,
+        });
+
+        await this.submitTx(this.sign(resp.data.TransactionHex));
+        return this.submitTx(this.sign(txHex));
+      }
+
+      // just rethrow unexpected errors
+      throw e;
+    }
+  }
+
+  encrypt() {
+    throw new Error('Not implemented');
+  }
+
+  decrypt() {
+    throw new Error('Not implemented');
+  }
+
+  jwt() {
+    throw new Error('Not implemented');
+  }
+
+  #getCurrentUser() {
+    const activePublicKey = this.getActivePublicKey();
+
+    if (!activePublicKey) {
+      throw new Error('Cannot get user without an active public key');
+    }
+
+    const desoUsers = JSON.parse(
+      this.#window.localStorage.getItem('desoUsers') ?? '{}'
+    );
+
+    const currentUser = desoUsers[activePublicKey];
+
+    if (!currentUser) {
+      throw new Error(`No user found for public key: ${activePublicKey}`);
+    }
+
+    return currentUser as StoredUser;
+  }
+
+  #authorizeDerivedKey(options: {
+    OwnerPublicKeyBase58Check: string;
+    DerivedPublicKeyBase58Check: string;
+    ExpirationBlock: number;
+    AccessSignature: string;
+    DeleteKey: boolean;
+    DerivedKeySignature: boolean;
+    MinFeeRateNanosPerKB: number;
+    TransactionSpendingLimitHex: string;
+  }) {
+    // NOTE: we might need to catch some error and do something special here
+    return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
   }
 
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
@@ -98,14 +211,18 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
-    const redirectDerivedKey =
-      this.#window.localStorage.getItem('redirectDerivedKey');
-    if (redirectDerivedKey) {
-      this.#window.localStorage.removeItem('redirectDerivedKey');
-      const loggedInMasterKey = payload.publicKeyBase58Check;
-      const { publicKey, mnemonic } = JSON.parse(redirectDerivedKey);
-      this.#updateUser(loggedInMasterKey, { [publicKey]: mnemonic });
+    const desoLoginKeyPair =
+      this.#window.localStorage.getItem('desoLoginKeyPair');
+    let mnemonic = '';
+    if (desoLoginKeyPair) {
+      const parsedKeyPair = JSON.parse(desoLoginKeyPair);
+      mnemonic = parsedKeyPair.mnemonic;
+      this.#window.localStorage.removeItem('desoLoginKeyPair');
     }
+
+    this.#updateUser(payload.publicKeyBase58Check, {
+      primaryDerivedKey: { ...payload, mnemonic },
+    });
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
@@ -126,6 +243,57 @@ export class Identity {
         'desoUsers',
         JSON.stringify({ [masterPublicKey]: attributes })
       );
+    }
+    this.#window.localStorage.setItem('activePublicKey', masterPublicKey);
+  }
+
+  #buildQueryParams(paramsPojo: Record<string, any>) {
+    const qps = new URLSearchParams(
+      Object.entries(paramsPojo).reduce((acc, [k, v]) => {
+        acc[k] =
+          typeof v === 'object' && v !== null
+            ? encodeURIComponent(JSON.stringify(v))
+            : v;
+        return acc;
+      }, {} as Record<string, any>)
+    );
+
+    if (this.#network === 'testnet') {
+      qps.append('testnet', 'true');
+    }
+
+    if (this.#redirectURI) {
+      qps.append('redirect_uri', this.#redirectURI);
+    }
+
+    return qps;
+  }
+
+  #openIdentityPopup(url: string) {
+    if (this.#identityWindow) {
+      this.#identityWindow.close();
+    }
+
+    const h = 1000;
+    const w = 800;
+    const y = window.outerHeight / 2 + window.screenY - h / 2;
+    const x = window.outerWidth / 2 + window.screenX - w / 2;
+
+    this.#identityWindow = this.#window.open(
+      url,
+      undefined,
+      `toolbar=no, width=${w}, height=${h}, top=${y}, left=${x}`
+    );
+  }
+
+  #launchIdentity(path: string, params: Record<string, any>) {
+    const qps = this.#buildQueryParams(params);
+    const url = `${this.#identityURI}/${path.replace(/^\//, '')}?${qps}`;
+
+    if (qps.get('redirect_uri')) {
+      this.#window.location.href = url;
+    } else {
+      this.#openIdentityPopup(url);
     }
   }
 }

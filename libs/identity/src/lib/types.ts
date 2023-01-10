@@ -24,3 +24,26 @@ export interface IdentityDerivePayload {
   transactionSpendingLimitHex: string;
   signedUp: boolean;
 }
+
+export interface IdentityConfiguration {
+  /**
+   * The identity domain. Defaults to https://identity.deso.org
+   */
+  identityURI?: string;
+
+  /**
+   * The current network. If not provided, we will assume mainnet.
+   */
+  network?: Network;
+
+  /**
+   * The deso node used for any api calls (get balance, derived key authorization, etc)
+   */
+  nodeURI?: string;
+
+  /**
+   * Optional redirect URI. If provided, we do a hard redirect to the identity
+   * domain and pass data via query params back to the provided uri.
+   */
+  redirectURI?: string;
+}
