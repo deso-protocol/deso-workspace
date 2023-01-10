@@ -27,12 +27,6 @@ const submitPost = (e: any) => {
     });
 };
 
-const submitTx = (TransactionHex: string) => {
-  return axios.post('https://node.deso.org/api/v0/submit-transaction', {
-    TransactionHex,
-  });
-};
-
 export function BlankPage() {
   return (
     <div>
