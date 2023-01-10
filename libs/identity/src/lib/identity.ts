@@ -46,6 +46,30 @@ export class Identity {
 
   #redirectURI?: string;
 
+  get activePublicKey() {
+    return this.#window.localStorage.getItem('activePublicKey');
+  }
+
+  get currentUser() {
+    const activePublicKey = this.activePublicKey;
+
+    if (!activePublicKey) {
+      throw new Error('Cannot get user without an active public key');
+    }
+
+    const desoUsers = JSON.parse(
+      this.#window.localStorage.getItem('desoUsers') ?? '{}'
+    );
+
+    const currentUser = desoUsers[activePublicKey];
+
+    if (!currentUser) {
+      throw new Error(`No user found for public key: ${activePublicKey}`);
+    }
+
+    return currentUser as StoredUser;
+  }
+
   constructor(options?: IdentityConstructorOptions) {
     this.#window = options?.windowFake ?? window;
 
@@ -71,10 +95,6 @@ export class Identity {
     this.#network = network;
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
-  }
-
-  getActivePublicKey() {
-    return this.#window.localStorage.getItem('activePublicKey');
   }
 
   login({ permissions }: LoginOptions = { permissions: DEFAULT_PERMISSIONS }) {
@@ -105,11 +125,12 @@ export class Identity {
   }
 
   logout() {
-    throw new Error('Not implemented');
+    const publicKey = this.activePublicKey;
+    this.#launchIdentity('logout', { publicKey });
   }
 
   sign(txHex: string) {
-    const { primaryDerivedKey } = this.#getCurrentUser();
+    const { primaryDerivedKey } = this.currentUser;
     const { keyPair } = keygen(primaryDerivedKey.mnemonic, {
       network: this.#network,
     });
@@ -130,7 +151,7 @@ export class Identity {
       if (
         e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
       ) {
-        const { primaryDerivedKey } = this.#getCurrentUser();
+        const { primaryDerivedKey } = this.currentUser;
         const resp = await this.#authorizeDerivedKey({
           OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
           DerivedPublicKeyBase58Check:
@@ -163,26 +184,6 @@ export class Identity {
 
   jwt() {
     throw new Error('Not implemented');
-  }
-
-  #getCurrentUser() {
-    const activePublicKey = this.getActivePublicKey();
-
-    if (!activePublicKey) {
-      throw new Error('Cannot get user without an active public key');
-    }
-
-    const desoUsers = JSON.parse(
-      this.#window.localStorage.getItem('desoUsers') ?? '{}'
-    );
-
-    const currentUser = desoUsers[activePublicKey];
-
-    if (!currentUser) {
-      throw new Error(`No user found for public key: ${activePublicKey}`);
-    }
-
-    return currentUser as StoredUser;
   }
 
   #authorizeDerivedKey(options: {

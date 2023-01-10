@@ -14,7 +14,7 @@ const submitPost = (e: any) => {
 
   return axios
     .post('https://node.deso.org/api/v0/submit-post', {
-      UpdaterPublicKeyBase58Check: identity.getActivePublicKey(),
+      UpdaterPublicKeyBase58Check: identity.activePublicKey,
       BodyObj: {
         Body: body,
         ImageURLs: [],
