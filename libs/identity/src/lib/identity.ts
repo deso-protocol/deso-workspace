@@ -65,22 +65,23 @@ export class Identity {
   #redirectURI?: string;
   #boundPostMessageListener?: (event: MessageEvent) => void;
 
-  get activePublicKey() {
+  get activePublicKey(): string | null {
     return this.#window.localStorage.getItem('activePublicKey');
   }
 
-  get users() {
-    return JSON.parse(this.#window.localStorage.getItem('desoUsers') ?? '{}');
+  get users(): Record<string, StoredUser> | null {
+    const storedUsers = this.#window.localStorage.getItem('desoUsers');
+    return storedUsers && JSON.parse(storedUsers);
   }
 
-  get currentUser() {
+  get currentUser(): StoredUser {
     const activePublicKey = this.activePublicKey;
 
     if (!activePublicKey) {
       throw new Error('Cannot get user without an active public key');
     }
 
-    const currentUser = this.users[activePublicKey];
+    const currentUser = this.users?.[activePublicKey];
 
     if (!currentUser) {
       throw new Error(`No user found for public key: ${activePublicKey}`);
@@ -232,11 +233,19 @@ export class Identity {
     throw new Error('Not implemented');
   }
 
+  getDeso() {
+    throw new Error('Not implemented');
+  }
+
+  verifyPhoneNumber() {
+    throw new Error('Not implemented');
+  }
+
   setActiveUser(publicKey: string) {
-    if (!this.users[publicKey]) {
+    if (!this.users?.[publicKey]) {
       throw new Error(
         `No user found for public key. Known users: ${JSON.stringify(
-          this.users
+          this.users ?? {}
         )}`
       );
     }
@@ -331,7 +340,7 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
-    if (this.users[payload.publicKeyBase58Check]) {
+    if (this.users?.[payload.publicKeyBase58Check]) {
       this.#window.localStorage.removeItem('desoLoginKeyPair');
       this.setActiveUser(payload.publicKeyBase58Check);
     } else {
