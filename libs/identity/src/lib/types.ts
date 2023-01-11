@@ -82,8 +82,8 @@ export interface IdentityLoginPayload {
 }
 
 export interface IdentityState {
-  activePublicKey?: string;
-  users: Record<string, StoredUser>;
+  activePublicKey: string | null;
+  users: Record<string, StoredUser> | null;
 }
 
 export interface Deferred {

@@ -1,3 +1,4 @@
+import { identity, IdentityState } from '@deso-core/identity';
 import { ReactElement, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
@@ -8,14 +9,26 @@ import DesoDrawer from './components/layout/Drawer/Drawer';
 import { Header } from './components/layout/Header/Header';
 import { PageNavigation } from './components/layout/PageNavigation';
 import {
+  DEFAULT_IDENTITY_STATE,
+  DesoIdentityContext,
+} from './services/DesoIdentityContext';
+import {
   forumRoute,
   getForumPosts,
   HUB,
   ThreadCategory,
 } from './services/utils';
 import { AllThreadsONPage } from './threads/AllThreadsOnPage';
+
 function App() {
   const [forum, setForum] = useState<ReactElement[]>([]);
+
+  const [identityState, setIdentityState] = useState<IdentityState>(
+    DEFAULT_IDENTITY_STATE
+  );
+  // set up identity state listener.
+  useEffect(() => identity.subscribe(setIdentityState), []);
+
   useEffect(() => {
     getForumRoutes();
   }, []);
@@ -56,29 +69,31 @@ function App() {
     return chapter.chapterContent.component();
   });
   return (
-    <BrowserRouter>
-      <div className="my-[50px] ">
-        <div className="flex-grow mb-[70px]">
-          <Header />
-        </div>
-        <div className="flex-grow flex">
-          <DesoDrawer />
-          <div className="flex-grow">
-            <Routes>
-              {routes}
-              {forum}
-              <Route path="devtest" element={<BlankPage />} />
-              <Route
-                key={'main'}
-                path="*"
-                element={<Navigate to="/main/welcome" />}
-              />
-            </Routes>
+    <DesoIdentityContext.Provider value={identityState}>
+      <BrowserRouter>
+        <div className="my-[50px] ">
+          <div className="flex-grow mb-[70px]">
+            <Header />
           </div>
-          {/* <div></di> */}
+          <div className="flex-grow flex">
+            <DesoDrawer />
+            <div className="flex-grow">
+              <Routes>
+                {routes}
+                {forum}
+                <Route path="devtest" element={<BlankPage />} />
+                <Route
+                  key={'main'}
+                  path="*"
+                  element={<Navigate to="/main/welcome" />}
+                />
+              </Routes>
+            </div>
+            {/* <div></di> */}
+          </div>
         </div>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </DesoIdentityContext.Provider>
   );
 }
 

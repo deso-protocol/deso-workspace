@@ -1,3 +1,4 @@
+import { identity } from '@deso-core/identity';
 import Deso from 'deso-protocol';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -6,6 +7,11 @@ import App from './App';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { DesoContext } from './services/DesoContext';
+
+identity.configure({
+  identityURI: 'http://localhost:4201',
+  //redirectURI: `${window.location.origin}/devtest`,
+});
 
 ReactDOM.render(
   <React.StrictMode>
