@@ -11,6 +11,7 @@ import {
 
 const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
 const DEFAULT_NODE_URI = 'https://node.deso.org';
+const IDENTITY_SERVICE_VALUE = 'identity';
 
 // default is no permissions
 const DEFAULT_PERMISSIONS = {
@@ -29,6 +30,7 @@ interface IdentityConstructorOptions {
 
 interface LoginOptions {
   permissions: TransactionSpendingLimitResponse;
+  getFreeDeso: boolean;
 }
 
 type StoredUser = {
@@ -60,8 +62,8 @@ export class Identity {
   #network: Network = 'mainnet';
   #nodeURI: string = DEFAULT_NODE_URI;
   #identityWindow?: Window | null;
-
   #redirectURI?: string;
+  #boundPostMessageListener?: (event: MessageEvent) => void;
 
   get activePublicKey() {
     return this.#window.localStorage.getItem('activePublicKey');
@@ -93,7 +95,7 @@ export class Identity {
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
 
-    if (queryParams.get('service') === 'identity') {
+    if (queryParams.get('service') === IDENTITY_SERVICE_VALUE) {
       const initialResponse = parseQueryParams(queryParams);
       // Strip the identity query params from the URL. replaceState removes it from browser history
       this.#window.history.replaceState({}, '', this.#window.location.pathname);
@@ -114,7 +116,12 @@ export class Identity {
     this.#redirectURI = redirectURI;
   }
 
-  login({ permissions }: LoginOptions = { permissions: DEFAULT_PERMISSIONS }) {
+  login(
+    { permissions, getFreeDeso }: LoginOptions = {
+      permissions: DEFAULT_PERMISSIONS,
+      getFreeDeso: true,
+    }
+  ) {
     let derivedPublicKey: string;
     const loginKeyPair = this.#window.localStorage.getItem('desoLoginKeyPair');
 
@@ -135,10 +142,22 @@ export class Identity {
       );
     }
 
-    this.#launchIdentity('derive', {
+    const identityParams: {
+      derivedPublicKey: string;
+      transactionSpendingLimitResponse: TransactionSpendingLimitResponse;
+      derive: boolean;
+      getFreeDeso?: boolean;
+    } = {
+      derive: true,
       derivedPublicKey,
       transactionSpendingLimitResponse: permissions,
-    });
+    };
+
+    if (getFreeDeso) {
+      identityParams.getFreeDeso = true;
+    }
+
+    this.#launchIdentity('derive', identityParams);
   }
 
   logout() {
@@ -237,6 +256,37 @@ export class Identity {
     return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
   }
 
+  #handlePostMessage(ev: MessageEvent) {
+    if (
+      ev.origin !== this.#identityURI ||
+      ev.data.service !== IDENTITY_SERVICE_VALUE ||
+      ev.source === null
+    ) {
+      return;
+    }
+
+    if (ev.data.method === 'initialize') {
+      ev.source.postMessage(
+        {
+          id: ev.data.id,
+          service: IDENTITY_SERVICE_VALUE,
+          payload: {},
+        },
+        this.#identityURI as WindowPostMessageOptions
+      );
+    } else {
+      this.#handleIdentityResponse(ev.data);
+      this.#identityWindow?.close();
+      if (this.#boundPostMessageListener) {
+        this.#window.removeEventListener(
+          'message',
+          this.#boundPostMessageListener
+        );
+      }
+      this.#boundPostMessageListener = undefined;
+    }
+  }
+
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
@@ -248,7 +298,6 @@ export class Identity {
       default:
         throw new Error(`Unknown method: ${method}`);
     }
-    return null;
   }
 
   #handleLoginMethod(payload: IdentityLoginPayload) {
@@ -282,18 +331,23 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
-    const desoLoginKeyPair =
-      this.#window.localStorage.getItem('desoLoginKeyPair');
-    let mnemonic = '';
-    if (desoLoginKeyPair) {
-      const parsedKeyPair = JSON.parse(desoLoginKeyPair);
-      mnemonic = parsedKeyPair.mnemonic;
+    if (this.users[payload.publicKeyBase58Check]) {
       this.#window.localStorage.removeItem('desoLoginKeyPair');
-    }
+      this.setActiveUser(payload.publicKeyBase58Check);
+    } else {
+      const desoLoginKeyPair =
+        this.#window.localStorage.getItem('desoLoginKeyPair');
+      let mnemonic = '';
+      if (desoLoginKeyPair) {
+        const parsedKeyPair = JSON.parse(desoLoginKeyPair);
+        mnemonic = parsedKeyPair.mnemonic;
+        this.#window.localStorage.removeItem('desoLoginKeyPair');
+      }
 
-    this.#updateUser(payload.publicKeyBase58Check, {
-      primaryDerivedKey: { ...payload, mnemonic },
-    });
+      this.#updateUser(payload.publicKeyBase58Check, {
+        primaryDerivedKey: { ...payload, mnemonic },
+      });
+    }
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
@@ -364,6 +418,15 @@ export class Identity {
     if (qps.get('redirect_uri')) {
       this.#window.location.href = url;
     } else {
+      // if we had a previously attached listener, remove it and create a new one.
+      if (this.#boundPostMessageListener) {
+        this.#window.removeEventListener(
+          'message',
+          this.#boundPostMessageListener
+        );
+      }
+      this.#boundPostMessageListener = this.#handlePostMessage.bind(this);
+      this.#window.addEventListener('message', this.#boundPostMessageListener);
       this.#openIdentityPopup(url);
     }
   }

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 identity.configure({
   identityURI: 'http://localhost:4201',
-  redirectURI: `${window.location.origin}/devtest`,
+  // redirectURI: `${window.location.origin}/devtest`,
 });
 
 const login = () => identity.login();
