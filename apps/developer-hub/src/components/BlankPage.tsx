@@ -1,13 +1,11 @@
 import { identity } from '@deso-core/identity';
 import axios from 'axios';
+import { useState } from 'react';
 
 identity.configure({
   identityURI: 'http://localhost:4201',
-  // redirectURI: `${window.location.origin}/devtest`,
+  //redirectURI: `${window.location.origin}/devtest`,
 });
-
-const login = () => identity.login();
-const logout = () => identity.logout();
 
 const submitPost = (e: any) => {
   e.preventDefault();
@@ -29,11 +27,18 @@ const submitPost = (e: any) => {
 };
 
 export function BlankPage() {
+  const [activeUserKey, setActiveUserKey] = useState<string | null>(
+    identity.activePublicKey
+  );
+
   return (
     <div>
       <h1>Blank Page</h1>
-      <button onClick={login}>Login</button>
-      <button onClick={logout}>Logout</button>
+      <p>Current user: {activeUserKey}</p>
+      <button onClick={() => identity.login().then(setActiveUserKey)}>
+        Login
+      </button>
+      <button onClick={() => identity.logout()}>Logout</button>
       <form onSubmit={submitPost}>
         <textarea
           name="post-textarea"

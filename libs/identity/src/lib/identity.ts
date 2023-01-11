@@ -54,6 +54,11 @@ interface IdentityLoginPayload {
   publicKeyAdded: string;
 }
 
+interface Deferred {
+  resolve: (args: any) => void;
+  reject: (args: any) => void;
+}
+
 // Class is only exported for testing purposes
 export class Identity {
   // used for DI in testing
@@ -63,6 +68,7 @@ export class Identity {
   #nodeURI: string = DEFAULT_NODE_URI;
   #identityWindow?: Window | null;
   #redirectURI?: string;
+  #pendingWindowRequest?: Deferred;
   #boundPostMessageListener?: (event: MessageEvent) => void;
 
   get activePublicKey(): string | null {
@@ -122,43 +128,47 @@ export class Identity {
       permissions: DEFAULT_PERMISSIONS,
       getFreeDeso: true,
     }
-  ) {
-    let derivedPublicKey: string;
-    const loginKeyPair = this.#window.localStorage.getItem('desoLoginKeyPair');
+  ): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+      this.#pendingWindowRequest = { resolve, reject };
+      let derivedPublicKey: string;
+      const loginKeyPair =
+        this.#window.localStorage.getItem('desoLoginKeyPair');
 
-    if (loginKeyPair) {
-      derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
-    } else {
-      const mnemonic = generateMnemonic();
-      const { publicKeyBase58Check } = keygen(mnemonic, {
-        network: this.#network,
-      });
-      derivedPublicKey = publicKeyBase58Check;
-      this.#window.localStorage.setItem(
-        'desoLoginKeyPair',
-        JSON.stringify({
-          publicKey: publicKeyBase58Check,
-          mnemonic,
-        })
-      );
-    }
+      if (loginKeyPair) {
+        derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
+      } else {
+        const mnemonic = generateMnemonic();
+        const { publicKeyBase58Check } = keygen(mnemonic, {
+          network: this.#network,
+        });
+        derivedPublicKey = publicKeyBase58Check;
+        this.#window.localStorage.setItem(
+          'desoLoginKeyPair',
+          JSON.stringify({
+            publicKey: publicKeyBase58Check,
+            mnemonic,
+          })
+        );
+      }
 
-    const identityParams: {
-      derivedPublicKey: string;
-      transactionSpendingLimitResponse: TransactionSpendingLimitResponse;
-      derive: boolean;
-      getFreeDeso?: boolean;
-    } = {
-      derive: true,
-      derivedPublicKey,
-      transactionSpendingLimitResponse: permissions,
-    };
+      const identityParams: {
+        derivedPublicKey: string;
+        transactionSpendingLimitResponse: TransactionSpendingLimitResponse;
+        derive: boolean;
+        getFreeDeso?: boolean;
+      } = {
+        derive: true,
+        derivedPublicKey,
+        transactionSpendingLimitResponse: permissions,
+      };
 
-    if (getFreeDeso) {
-      identityParams.getFreeDeso = true;
-    }
+      if (getFreeDeso) {
+        identityParams.getFreeDeso = true;
+      }
 
-    this.#launchIdentity('derive', identityParams);
+      this.#launchIdentity('derive', identityParams);
+    });
   }
 
   logout() {
@@ -234,7 +244,20 @@ export class Identity {
   }
 
   getDeso() {
-    throw new Error('Not implemented');
+    return new Promise((resolve, reject) => {
+      this.#pendingWindowRequest = { resolve, reject };
+      if (!this.activePublicKey) {
+        this.#pendingWindowRequest.reject(
+          new Error('Cannot get free deso without a logged in user')
+        );
+        return;
+      }
+
+      this.#launchIdentity('get-deso', {
+        publicKey: this.activePublicKey,
+        getFreeDeso: true,
+      });
+    });
   }
 
   verifyPhoneNumber() {
@@ -357,6 +380,8 @@ export class Identity {
         primaryDerivedKey: { ...payload, mnemonic },
       });
     }
+
+    this.#pendingWindowRequest?.resolve(payload.publicKeyBase58Check);
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {

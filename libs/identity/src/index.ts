@@ -1,1 +1,1 @@
-export * from './lib/identity';
+export { identity } from './lib/identity';
