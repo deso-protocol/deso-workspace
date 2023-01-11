@@ -64,7 +64,7 @@ export const sign = (
 ): string => {
   const transactionBytes = Buffer.from(txHex, 'hex');
   const transactionHash = Buffer.from(sha256.x2(transactionBytes), 'hex');
-  const signature = keyPair.sign(transactionHash);
+  const signature = keyPair.sign(transactionHash, { canonical: true });
   const signatureBytes = Buffer.from(signature.toDER());
   const signatureLength = uvarint64ToBuf(signatureBytes.length);
 
