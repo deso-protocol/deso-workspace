@@ -26,11 +26,15 @@ function App() {
   const [identityState, setIdentityState] = useState<IdentityState>(
     DEFAULT_IDENTITY_STATE
   );
-  // set up identity state listener.
-  useEffect(() => identity.subscribe(setIdentityState), []);
 
   useEffect(() => {
     getForumRoutes();
+
+    identity.configure({
+      identityURI: 'http://localhost:4201',
+      //redirectURI: `${window.location.origin}/devtest`,
+    });
+    identity.subscribe(setIdentityState);
   }, []);
 
   const getForumRoutes = async () => {

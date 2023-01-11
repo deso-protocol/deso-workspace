@@ -243,7 +243,9 @@ export class Identity {
   getDeso() {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
-      if (!this.activePublicKey) {
+      const activePublicKey = this.activePublicKey;
+
+      if (!activePublicKey) {
         this.#pendingWindowRequest.reject(
           new Error('Cannot get free deso without a logged in user')
         );
@@ -251,14 +253,27 @@ export class Identity {
       }
 
       this.#launchIdentity('get-deso', {
-        publicKey: this.activePublicKey,
+        publicKey: activePublicKey,
         getFreeDeso: true,
       });
     });
   }
 
   verifyPhoneNumber() {
-    throw new Error('Not implemented');
+    return new Promise((resolve, reject) => {
+      this.#pendingWindowRequest = { resolve, reject };
+      const activePublicKey = this.activePublicKey;
+
+      if (!activePublicKey) {
+        this.#pendingWindowRequest.reject(
+          new Error('Cannon verify phone number without an active user')
+        );
+      }
+
+      this.#launchIdentity('verify-phone-number', {
+        public_key: activePublicKey,
+      });
+    });
   }
 
   setActiveUser(publicKey: string) {
@@ -342,6 +357,9 @@ export class Identity {
       this.#window.localStorage.removeItem('activePublicKey');
       this.#purgeUserDataForPublicKey(publicKey);
       this.#pendingWindowRequest?.resolve(undefined);
+    } else {
+      this.setActiveUser(payload.publicKeyAdded);
+      this.#pendingWindowRequest?.resolve(payload);
     }
   }
 

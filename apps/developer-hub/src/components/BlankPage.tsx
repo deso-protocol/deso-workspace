@@ -11,7 +11,15 @@ export function BlankPage() {
       <h1>Blank Page</h1>
       <p>Current user: {activePublicKey}</p>
       <button onClick={() => identity.login()}>Login</button>
-      <button onClick={() => identity.logout()}>Logout</button>
+      <button onClick={() => identity.logout()} className="ml-4">
+        Logout
+      </button>
+      <button onClick={() => identity.getDeso()} className="ml-4">
+        Get Deso
+      </button>
+      <button onClick={() => identity.verifyPhoneNumber()} className="ml-4">
+        Verify Phone
+      </button>
       <form
         onSubmit={(e: any) => {
           e.preventDefault();
