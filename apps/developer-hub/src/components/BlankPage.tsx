@@ -1,6 +1,6 @@
-import { identity } from '@deso-core/identity';
+import { identity, IdentityState } from '@deso-core/identity';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 identity.configure({
   identityURI: 'http://localhost:4201',
@@ -27,17 +27,14 @@ const submitPost = (e: any) => {
 };
 
 export function BlankPage() {
-  const [activeUserKey, setActiveUserKey] = useState<string | null>(
-    identity.activePublicKey
-  );
+  const [identityState, setIdentityState] = useState<IdentityState>();
+  useEffect(() => identity.subscribe(setIdentityState), []);
 
   return (
     <div>
       <h1>Blank Page</h1>
-      <p>Current user: {activeUserKey}</p>
-      <button onClick={() => identity.login().then(setActiveUserKey)}>
-        Login
-      </button>
+      <p>Current user: {identityState?.activePublicKey}</p>
+      <button onClick={() => identity.login()}>Login</button>
       <button onClick={() => identity.logout()}>Logout</button>
       <form onSubmit={submitPost}>
         <textarea

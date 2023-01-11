@@ -1,3 +1,5 @@
+import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+
 export type Network = 'mainnet' | 'testnet';
 
 export interface IdentityResponse {
@@ -47,4 +49,44 @@ export interface IdentityConfiguration {
    * domain and pass data via query params back to the provided uri.
    */
   redirectURI?: string;
+}
+
+export interface IdentityConstructorOptions {
+  windowFake: Window;
+}
+
+export interface LoginOptions {
+  permissions: TransactionSpendingLimitResponse;
+  getFreeDeso: boolean;
+}
+
+export type StoredUser = {
+  primaryDerivedKey: IdentityDerivePayload & { mnemonic: string };
+};
+
+export interface IdentityUser {
+  accessLevel: number;
+  accessLevelHmac: string;
+  btcDepositAddress: string;
+  encryptedSeedHex: string;
+  ethDepositAddress: string;
+  derivedPublicKeyBase58Check?: string;
+  hasExtraText: boolean;
+  network: string;
+  version: number;
+}
+
+export interface IdentityLoginPayload {
+  users: Record<string, IdentityUser>;
+  publicKeyAdded: string;
+}
+
+export interface IdentityState {
+  activePublicKey?: string;
+  users: Record<string, StoredUser>;
+}
+
+export interface Deferred {
+  resolve: (args: any) => void;
+  reject: (args: any) => void;
 }

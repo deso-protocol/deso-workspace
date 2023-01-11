@@ -1,63 +1,24 @@
 import axios from 'axios';
 import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import {
+  DEFAULT_IDENTITY_URI,
+  DEFAULT_NODE_URI,
+  DEFAULT_PERMISSIONS,
+  IDENTITY_SERVICE_VALUE,
+} from './constants';
 import { generateMnemonic, keygen, sign } from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
+  Deferred,
   IdentityConfiguration,
+  IdentityConstructorOptions,
   IdentityDerivePayload,
+  IdentityLoginPayload,
   IdentityResponse,
+  LoginOptions,
   Network,
+  StoredUser,
 } from './types';
-
-const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
-const DEFAULT_NODE_URI = 'https://node.deso.org';
-const IDENTITY_SERVICE_VALUE = 'identity';
-
-// default is no permissions
-const DEFAULT_PERMISSIONS = {
-  IsUnlimited: true,
-  GlobalDESOLimit: 0,
-  TransactionCountLimitMap: {},
-  CreatorCoinOperationLimitMap: {},
-  DAOCoinOperationLimitMap: {},
-  NFTOperationLimitMap: {},
-  DAOCoinLimitOrderLimitMap: {},
-};
-
-interface IdentityConstructorOptions {
-  windowFake: Window;
-}
-
-interface LoginOptions {
-  permissions: TransactionSpendingLimitResponse;
-  getFreeDeso: boolean;
-}
-
-type StoredUser = {
-  primaryDerivedKey: IdentityDerivePayload & { mnemonic: string };
-};
-
-interface IdentityUser {
-  accessLevel: number;
-  accessLevelHmac: string;
-  btcDepositAddress: string;
-  encryptedSeedHex: string;
-  ethDepositAddress: string;
-  derivedPublicKeyBase58Check?: string;
-  hasExtraText: boolean;
-  network: string;
-  version: number;
-}
-
-interface IdentityLoginPayload {
-  users: Record<string, IdentityUser>;
-  publicKeyAdded: string;
-}
-
-interface Deferred {
-  resolve: (args: any) => void;
-  reject: (args: any) => void;
-}
 
 // Class is only exported for testing purposes
 export class Identity {
@@ -70,6 +31,7 @@ export class Identity {
   #redirectURI?: string;
   #pendingWindowRequest?: Deferred;
   #boundPostMessageListener?: (event: MessageEvent) => void;
+  #subscriber?: (state: any) => void;
 
   get activePublicKey(): string | null {
     return this.#window.localStorage.getItem('activePublicKey');
@@ -94,6 +56,13 @@ export class Identity {
     }
 
     return currentUser as StoredUser;
+  }
+
+  get #state() {
+    return {
+      activePublicKey: this.activePublicKey,
+      desoUsers: this.users,
+    };
   }
 
   constructor(options?: IdentityConstructorOptions) {
@@ -123,12 +92,28 @@ export class Identity {
     this.#redirectURI = redirectURI;
   }
 
+  /**
+   * Allows listening to changes to identity state. The subscriber will be
+   * called with the new state any time a user logs in, logs out, approves a
+   * derived key, etc.
+   * @param subscriber
+   * @returns
+   */
+  subscribe(subscriber: (state: any) => void) {
+    this.#subscriber = subscriber;
+    this.#subscriber(this.#state);
+  }
+
+  /**
+   * @returns returns a promise that resolves with the public key of the user
+   * that was just logged in.
+   */
   login(
     { permissions, getFreeDeso }: LoginOptions = {
       permissions: DEFAULT_PERMISSIONS,
       getFreeDeso: true,
     }
-  ): Promise<string | null> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
       let derivedPublicKey: string;
@@ -171,9 +156,21 @@ export class Identity {
     });
   }
 
-  logout() {
-    const publicKey = this.activePublicKey;
-    this.#launchIdentity('logout', { publicKey });
+  /**
+   * @returns resolves with an empty promise if user completes the logout flow successfully.
+   */
+  logout(): Promise<undefined> {
+    return new Promise((resolve, reject) => {
+      this.#pendingWindowRequest = { resolve, reject };
+      const publicKey = this.activePublicKey;
+      if (!publicKey) {
+        this.#pendingWindowRequest.reject(
+          new Error('cannot logout without an active public key')
+        );
+      } else {
+        this.#launchIdentity('logout', { publicKey });
+      }
+    });
   }
 
   sign(txHex: string) {
@@ -330,6 +327,7 @@ export class Identity {
       default:
         throw new Error(`Unknown method: ${method}`);
     }
+    this.#subscriber?.(this.#state);
   }
 
   #handleLoginMethod(payload: IdentityLoginPayload) {
@@ -343,6 +341,7 @@ export class Identity {
 
       this.#window.localStorage.removeItem('activePublicKey');
       this.#purgeUserDataForPublicKey(publicKey);
+      this.#pendingWindowRequest?.resolve(undefined);
     }
   }
 
