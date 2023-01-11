@@ -7,24 +7,25 @@ identity.configure({
 });
 
 const login = () => identity.login();
+const logout = () => identity.logout();
 
 const submitPost = (e: any) => {
   e.preventDefault();
   const body = e.target[0].value;
 
-  return axios
-    .post('https://node.deso.org/api/v0/submit-post', {
-      UpdaterPublicKeyBase58Check: identity.activePublicKey,
-      BodyObj: {
-        Body: body,
-        ImageURLs: [],
-        VideoURLs: [],
-      },
-      MinFeeRateNanosPerKB: 1000,
-    })
-    .then((res) => {
-      identity.signAndSubmitTx(res.data.TransactionHex);
-    });
+  identity.signAndSubmitTx(() =>
+    axios
+      .post('https://node.deso.org/api/v0/submit-post', {
+        UpdaterPublicKeyBase58Check: identity.activePublicKey,
+        BodyObj: {
+          Body: body,
+          ImageURLs: [],
+          VideoURLs: [],
+        },
+        MinFeeRateNanosPerKB: 1000,
+      })
+      .then(({ data }) => data)
+  );
 };
 
 export function BlankPage() {
@@ -32,6 +33,7 @@ export function BlankPage() {
     <div>
       <h1>Blank Page</h1>
       <button onClick={login}>Login</button>
+      <button onClick={logout}>Logout</button>
       <form onSubmit={submitPost}>
         <textarea
           name="post-textarea"

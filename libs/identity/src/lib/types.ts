@@ -2,8 +2,8 @@ export type Network = 'mainnet' | 'testnet';
 
 export interface IdentityResponse {
   service: 'identity';
-  method: 'derive';
-  payload?: Record<string, any>;
+  method: 'derive' | 'login';
+  payload?: any;
 }
 
 export interface IdentityDerivePayload {

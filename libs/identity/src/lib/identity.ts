@@ -35,6 +35,23 @@ type StoredUser = {
   primaryDerivedKey: IdentityDerivePayload & { mnemonic: string };
 };
 
+interface IdentityUser {
+  accessLevel: number;
+  accessLevelHmac: string;
+  btcDepositAddress: string;
+  encryptedSeedHex: string;
+  ethDepositAddress: string;
+  derivedPublicKeyBase58Check?: string;
+  hasExtraText: boolean;
+  network: string;
+  version: number;
+}
+
+interface IdentityLoginPayload {
+  users: Record<string, IdentityUser>;
+  publicKeyAdded: string;
+}
+
 // Class is only exported for testing purposes
 export class Identity {
   // used for DI in testing
@@ -50,6 +67,10 @@ export class Identity {
     return this.#window.localStorage.getItem('activePublicKey');
   }
 
+  get users() {
+    return JSON.parse(this.#window.localStorage.getItem('desoUsers') ?? '{}');
+  }
+
   get currentUser() {
     const activePublicKey = this.activePublicKey;
 
@@ -57,11 +78,7 @@ export class Identity {
       throw new Error('Cannot get user without an active public key');
     }
 
-    const desoUsers = JSON.parse(
-      this.#window.localStorage.getItem('desoUsers') ?? '{}'
-    );
-
-    const currentUser = desoUsers[activePublicKey];
+    const currentUser = this.users[activePublicKey];
 
     if (!currentUser) {
       throw new Error(`No user found for public key: ${activePublicKey}`);
@@ -143,9 +160,18 @@ export class Identity {
     });
   }
 
-  async signAndSubmitTx(txHex: string) {
+  /**
+   *
+   * @param constructTx generic function for constructing a transaction. Should
+   * return a promise that resolves to a transaction object.
+   * @returns
+   */
+  async signAndSubmitTx(
+    constructTx: () => Promise<{ TransactionHex: string }>
+  ) {
     try {
-      return await this.submitTx(this.sign(txHex));
+      const tx = await constructTx();
+      return await this.submitTx(this.sign(tx.TransactionHex));
     } catch (e: any) {
       // if the derived key is not authorized, authorize it and try again
       if (
@@ -166,7 +192,8 @@ export class Identity {
         });
 
         await this.submitTx(this.sign(resp.data.TransactionHex));
-        return this.submitTx(this.sign(txHex));
+        const tx = await constructTx();
+        return this.submitTx(this.sign(tx.TransactionHex));
       }
 
       // just rethrow unexpected errors
@@ -186,6 +213,17 @@ export class Identity {
     throw new Error('Not implemented');
   }
 
+  setActiveUser(publicKey: string) {
+    if (!this.users[publicKey]) {
+      throw new Error(
+        `No user found for public key. Known users: ${JSON.stringify(
+          this.users
+        )}`
+      );
+    }
+    this.#window.localStorage.setItem('activePublicKey', publicKey);
+  }
+
   #authorizeDerivedKey(options: {
     OwnerPublicKeyBase58Check: string;
     DerivedPublicKeyBase58Check: string;
@@ -196,7 +234,6 @@ export class Identity {
     MinFeeRateNanosPerKB: number;
     TransactionSpendingLimitHex: string;
   }) {
-    // NOTE: we might need to catch some error and do something special here
     return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
   }
 
@@ -205,10 +242,43 @@ export class Identity {
       case 'derive':
         this.#handleDeriveMethod(payload as IdentityDerivePayload);
         break;
+      case 'login':
+        this.#handleLoginMethod(payload as IdentityLoginPayload);
+        break;
       default:
         throw new Error(`Unknown method: ${method}`);
     }
     return null;
+  }
+
+  #handleLoginMethod(payload: IdentityLoginPayload) {
+    // no publicKeyAdded means the user is logging out. We just remove their data from localStorage
+    if (!payload.publicKeyAdded) {
+      const publicKey = this.activePublicKey;
+
+      if (!publicKey) {
+        throw new Error('No active public key found');
+      }
+
+      this.#window.localStorage.removeItem('activePublicKey');
+      this.#purgeUserDataForPublicKey(publicKey);
+    }
+  }
+
+  #purgeUserDataForPublicKey(publicKey: string) {
+    const users = this.#window.localStorage.getItem('desoUsers');
+    if (users) {
+      const usersObj = JSON.parse(users);
+      delete usersObj[publicKey];
+      if (Object.keys(usersObj).length === 0) {
+        this.#window.localStorage.removeItem('desoUsers');
+      } else {
+        this.#window.localStorage.setItem(
+          'desoUsers',
+          JSON.stringify(usersObj)
+        );
+      }
+    }
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
