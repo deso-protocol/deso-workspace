@@ -1,5 +1,5 @@
-import { DrawerLink } from './DrawerLink';
 import { CHAPTERS } from '../../../chapters/ChapterHelper/Chapter.models';
+import { DrawerLink } from './DrawerLink';
 
 export interface LibraryLinksProps {
   parentRoute: string;

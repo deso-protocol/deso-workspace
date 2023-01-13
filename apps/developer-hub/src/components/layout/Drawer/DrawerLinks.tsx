@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { getEnabledRoutes } from './EnabledRoutes';
 import { LibraryLinks } from './LibraryLinks';
 export interface DrawerLinksProps {
@@ -15,9 +15,8 @@ export const DrawerLinks = ({
     <>
       {getEnabledRoutes().map((parentRoute, index) => {
         return (
-          <>
+          <div key={index}>
             <div
-              key={index}
               className="py-2 px-4 text-md font-medium  cursor-pointer hover:underline"
               onClick={() => parentRouteClick(parentRoute)}
             >
@@ -31,11 +30,10 @@ export const DrawerLinks = ({
               </div>
             </div>
             <LibraryLinks
-              key={`${index}link`}
               parentRoute={parentRoute}
               openedPanels={openedPanels}
             />
-          </>
+          </div>
         );
       })}
     </>

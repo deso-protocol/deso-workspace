@@ -1,7 +1,9 @@
-import * as bs58check from 'bs58check';
+import { encode as bs58checkEncode } from 'bs58check';
 import { ec } from 'elliptic';
 import { ethers } from 'ethers';
-import * as sha256 from 'sha256';
+import { sign as jwtSign } from 'jsonwebtoken';
+import KeyEncoder from 'key-encoder/lib/key-encoder';
+import { x2 } from 'sha256';
 import { Network } from './types';
 
 export const PUBLIC_KEY_PREFIXES = {
@@ -48,8 +50,8 @@ export const keygen = (
   const e = new ec('secp256k1');
   const keyPair = e.keyFromPrivate(dKeyChain.privateKey);
   const desoKey = keyPair.getPublic().encode('array', true);
-  const prefixAndKey = Uint8Array.from([...prefix, ...desoKey]);
-  const publicKeyBase58Check = bs58check.encode(prefixAndKey);
+  const prefixAndKey = Buffer.from([...prefix, ...desoKey]);
+  const publicKeyBase58Check = bs58checkEncode(prefixAndKey);
   return { publicKeyBase58Check, keyPair };
 };
 
@@ -57,13 +59,13 @@ export interface SignOptions {
   isDerivedKey: boolean;
 }
 
-export const sign = (
+export const signTx = (
   txHex: string,
   keyPair: ec.KeyPair,
   options?: SignOptions
 ): string => {
   const transactionBytes = Buffer.from(txHex, 'hex');
-  const transactionHash = Buffer.from(sha256.x2(transactionBytes), 'hex');
+  const transactionHash = Buffer.from(x2(transactionBytes), 'hex');
   const signature = keyPair.sign(transactionHash, { canonical: true });
   const signatureBytes = Buffer.from(signature.toDER());
   const signatureLength = uvarint64ToBuf(signatureBytes.length);
@@ -79,4 +81,29 @@ export const sign = (
   ]);
 
   return signedTransactionBytes.toString('hex');
+};
+
+export const signJWT = (
+  keyPair: ec.KeyPair,
+  {
+    derivedPublicKeyBase58Check,
+    expiration,
+  }: { derivedPublicKeyBase58Check?: string; expiration?: number } = {}
+): string => {
+  const keyEncoder = new KeyEncoder('secp256k1');
+  const rawPrivateKeyHex = keyPair.getPrivate().toString('hex');
+  const encodedPrivateKey = keyEncoder.encodePrivate(
+    rawPrivateKeyHex,
+    'raw',
+    'pem'
+  );
+
+  return jwtSign(
+    derivedPublicKeyBase58Check ? { derivedPublicKeyBase58Check } : {},
+    encodedPrivateKey,
+    {
+      algorithm: 'ES256',
+      expiresIn: expiration,
+    }
+  );
 };

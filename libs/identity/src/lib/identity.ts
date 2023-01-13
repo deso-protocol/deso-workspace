@@ -6,7 +6,7 @@ import {
   DEFAULT_PERMISSIONS,
   IDENTITY_SERVICE_VALUE,
 } from './constants';
-import { generateMnemonic, keygen, sign } from './crypto-utils';
+import { generateMnemonic, keygen, signJWT, signTx } from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
   Deferred,
@@ -105,15 +105,14 @@ export class Identity {
   }
 
   /**
-   * @returns returns a promise that resolves with the public key of the user
-   * that was just logged in.
+   * @returns returns a promise that resolves to the payload
    */
   login(
     { permissions, getFreeDeso }: LoginOptions = {
       permissions: DEFAULT_PERMISSIONS,
       getFreeDeso: true,
     }
-  ): Promise<string> {
+  ): Promise<IdentityDerivePayload> {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
       let derivedPublicKey: string;
@@ -156,10 +155,7 @@ export class Identity {
     });
   }
 
-  /**
-   * @returns resolves with an empty promise if user completes the logout flow successfully.
-   */
-  logout(): Promise<undefined> {
+  logout(): Promise<IdentityLoginPayload> {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
       const publicKey = this.activePublicKey;
@@ -173,12 +169,12 @@ export class Identity {
     });
   }
 
-  sign(txHex: string) {
+  signTx(txHex: string) {
     const { primaryDerivedKey } = this.currentUser;
     const { keyPair } = keygen(primaryDerivedKey.mnemonic, {
       network: this.#network,
     });
-    return sign(txHex, keyPair, { isDerivedKey: true });
+    return signTx(txHex, keyPair, { isDerivedKey: true });
   }
 
   submitTx(TransactionHex: string) {
@@ -198,7 +194,7 @@ export class Identity {
   ) {
     try {
       const tx = await constructTx();
-      return await this.submitTx(this.sign(tx.TransactionHex));
+      return await this.submitTx(this.signTx(tx.TransactionHex));
     } catch (e: any) {
       // if the derived key is not authorized, authorize it and try again
       if (
@@ -218,9 +214,9 @@ export class Identity {
             primaryDerivedKey.transactionSpendingLimitHex,
         });
 
-        await this.submitTx(this.sign(resp.data.TransactionHex));
+        await this.submitTx(this.signTx(resp.data.TransactionHex));
         const tx = await constructTx();
-        return this.submitTx(this.sign(tx.TransactionHex));
+        return this.submitTx(this.signTx(tx.TransactionHex));
       }
 
       // just rethrow unexpected errors
@@ -237,7 +233,57 @@ export class Identity {
   }
 
   jwt() {
-    throw new Error('Not implemented');
+    const { primaryDerivedKey } = this.currentUser;
+
+    if (!primaryDerivedKey) {
+      throw new Error('Cannot generate a jwt without a logged in user');
+    }
+
+    const { publicKeyBase58Check, keyPair } = keygen(
+      primaryDerivedKey.mnemonic,
+      { network: this.#network }
+    );
+
+    return signJWT(keyPair, {
+      derivedPublicKeyBase58Check: publicKeyBase58Check,
+      expiration: 60 * 10,
+    });
+  }
+
+  /**
+   * This wraps a request such that we can catch any derived key unauthorized
+   * errors, authorize the key, and try the request again.  This is useful for
+   * any requests that require a jwt but may be executed prior to any
+   * transactions being submitted.
+   * @param makeRequest function that takes a jwt and returns a promise that resolves to a response
+   * @returns
+   */
+  async jwtRequest(makeRequest: (jwt: string) => Promise<any>): Promise<any> {
+    const jwt = this.jwt();
+
+    try {
+      return await makeRequest(jwt);
+    } catch (e: any) {
+      if (
+        e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
+      ) {
+        const { primaryDerivedKey } = this.currentUser;
+        const resp = await this.#authorizeDerivedKey({
+          OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
+          DerivedPublicKeyBase58Check:
+            primaryDerivedKey.derivedPublicKeyBase58Check,
+          ExpirationBlock: primaryDerivedKey.expirationBlock,
+          AccessSignature: primaryDerivedKey.accessSignature,
+          DeleteKey: false,
+          DerivedKeySignature: false,
+          MinFeeRateNanosPerKB: 1000,
+          TransactionSpendingLimitHex:
+            primaryDerivedKey.transactionSpendingLimitHex,
+        });
+        await this.submitTx(this.signTx(resp.data.TransactionHex));
+        return makeRequest(jwt);
+      }
+    }
   }
 
   getDeso() {
@@ -356,11 +402,11 @@ export class Identity {
 
       this.#window.localStorage.removeItem('activePublicKey');
       this.#purgeUserDataForPublicKey(publicKey);
-      this.#pendingWindowRequest?.resolve(undefined);
     } else {
       this.setActiveUser(payload.publicKeyAdded);
-      this.#pendingWindowRequest?.resolve(payload);
     }
+
+    this.#pendingWindowRequest?.resolve(payload);
   }
 
   #purgeUserDataForPublicKey(publicKey: string) {
@@ -380,17 +426,15 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
+    const loginKeyPair = this.#window.localStorage.getItem('desoLoginKeyPair');
+
     if (this.users?.[payload.publicKeyBase58Check]) {
-      this.#window.localStorage.removeItem('desoLoginKeyPair');
       this.setActiveUser(payload.publicKeyBase58Check);
     } else {
-      const desoLoginKeyPair =
-        this.#window.localStorage.getItem('desoLoginKeyPair');
       let mnemonic = '';
-      if (desoLoginKeyPair) {
-        const parsedKeyPair = JSON.parse(desoLoginKeyPair);
+      if (loginKeyPair) {
+        const parsedKeyPair = JSON.parse(loginKeyPair);
         mnemonic = parsedKeyPair.mnemonic;
-        this.#window.localStorage.removeItem('desoLoginKeyPair');
       }
 
       this.#updateUser(payload.publicKeyBase58Check, {
@@ -398,7 +442,38 @@ export class Identity {
       });
     }
 
-    this.#pendingWindowRequest?.resolve(payload.publicKeyBase58Check);
+    if (loginKeyPair) {
+      // in the case of a login, we want to remove the login key pair from localStorage and patch the
+      // publicKeyAdded field onto the payload
+      this.#window.localStorage.removeItem('desoLoginKeyPair');
+      this.#pendingWindowRequest?.resolve({
+        ...payload,
+        publicKeyAdded: payload.publicKeyBase58Check,
+      });
+      // Attempt to authorize the new derived key. If it fails due
+      // to no money we don't care. We'll try again the next time the user
+      // attempts to submit a tx.
+      this.#authorizeDerivedKey({
+        OwnerPublicKeyBase58Check: payload.publicKeyBase58Check,
+        DerivedPublicKeyBase58Check: payload.derivedPublicKeyBase58Check,
+        ExpirationBlock: payload.expirationBlock,
+        AccessSignature: payload.accessSignature,
+        DeleteKey: false,
+        DerivedKeySignature: false,
+        MinFeeRateNanosPerKB: 1000,
+        TransactionSpendingLimitHex: payload.transactionSpendingLimitHex,
+      })
+        .then((resp) => this.submitTx(this.signTx(resp.data.TransactionHex)))
+        .catch(console.warn)
+        .finally(() => {
+          this.#pendingWindowRequest?.resolve({
+            ...payload,
+            publicKeyAdded: payload.publicKeyBase58Check,
+          });
+        });
+    } else {
+      this.#pendingWindowRequest?.resolve(payload);
+    }
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {

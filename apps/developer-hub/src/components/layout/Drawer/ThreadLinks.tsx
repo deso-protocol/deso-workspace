@@ -40,9 +40,8 @@ export const ThreadLinks = ({
       .map((group, index) => {
         const [key, links] = group;
         return (
-          <div>
+          <div key={index}>
             <div
-              key={index}
               className="py-2 px-4 text-md font-medium  cursor-pointer hover:underline"
               onClick={() => parentRouteClick(key)}
             >
