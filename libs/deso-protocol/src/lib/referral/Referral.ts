@@ -25,7 +25,8 @@ export class Referral {
       request.JWT = JWT;
     }
     const endpoint = 'get-referral-info-for-user';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getReferralInfoForReferralHash(
@@ -33,6 +34,7 @@ export class Referral {
   ): Promise<GetReferralInfoForReferralHashResponse> {
     throwErrors(['ReferralHash'], request);
     const endpoint = 'get-referral-info-for-referral-hash';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 }

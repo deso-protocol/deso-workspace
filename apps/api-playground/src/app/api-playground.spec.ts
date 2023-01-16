@@ -1,6 +1,7 @@
-// import { PORT, runDefaultNodeApp } from './api-playground';
+import { app } from './api-playground';
+
 describe('apiPlayground', () => {
   it('should work', () => {
-    expect(true).toBeTruthy();
+    expect(app).toBeDefined();
   });
 });

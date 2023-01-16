@@ -20,6 +20,9 @@ import {
   GetUsersStatelessRequest,
   RegisterMessagingGroupKeyRequest,
   RegisterMessagingGroupKeyResponse,
+  GetUserGlobalMetadataRequest,
+  GetUserGlobalMetadataResponse,
+  UpdateUserGlobalMetadataRequest,
   RequestOptions,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/Utils';
@@ -95,6 +98,39 @@ export class User {
     return response;
   }
 
+  public async getUserGlobalMetadata(
+    request: Partial<GetUserGlobalMetadataRequest>
+  ): Promise<GetUserGlobalMetadataResponse> {
+    if (!request.UserPublicKeyBase58Check) {
+      throw Error('UserPublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'get-user-global-metadata';
+    const JWT = await this.identity.getJwt();
+    const response = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
+    return response;
+  }
+
+  public async updateUserGlobalMetadata(
+    request: Partial<UpdateUserGlobalMetadataRequest>
+  ): Promise<boolean> {
+    if (!request.UserPublicKeyBase58Check) {
+      throw Error('UserPublicKeyBase58Check is undefined');
+    }
+    const endpoint = 'update-user-global-metadata';
+    const JWT = await this.identity.getJwt();
+
+    await axios.post(`${this.node.getUri()}/${endpoint}`, {
+      ...request,
+      JWT,
+    });
+    return true;
+  }
+
   public async deletePii(request: Partial<DeletePIIRequest>): Promise<boolean> {
     if (!request.PublicKeyBase58Check) {
       throw Error('PublicKeyBase58Check is undefined');
@@ -119,10 +155,12 @@ export class User {
     }
     const endpoint = 'block-public-key';
     const JWT = await this.identity.getJwt();
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-      ...request,
-      JWT,
-    });
+    return (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
   }
 
   public async getUserDerivedKeys(
@@ -133,10 +171,12 @@ export class User {
     }
     const endpoint = 'get-user-derived-keys';
     const JWT = await this.identity.getJwt();
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, {
-      ...request,
-      JWT,
-    });
+    return (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, {
+        ...request,
+        JWT,
+      })
+    ).data;
   }
 
   public async authorizeDerivedKeyWithoutIdentity(

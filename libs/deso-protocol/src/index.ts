@@ -56,7 +56,7 @@ export class Deso {
       this.transaction
     );
 
-    if (this.identity.host === 'browser') {
+    if (this.identity.isBrowser()) {
       this.identity.initialize();
     }
   }
@@ -100,7 +100,7 @@ export class Deso {
       this.transaction
     );
 
-    if (this.identity.host === 'browser') {
+    if (this.identity.isBrowser()) {
       this.identity.initialize();
     }
   }

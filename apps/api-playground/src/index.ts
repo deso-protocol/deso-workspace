@@ -1,4 +1,3 @@
-import { runDefaultNodeApp } from './app/api-playground';
+import { app } from './app/api-playground';
 
-runDefaultNodeApp();
-// runDifferent app that you want to test
+console.log(`Running express server: ${app}`);

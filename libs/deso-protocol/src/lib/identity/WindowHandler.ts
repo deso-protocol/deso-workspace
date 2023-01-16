@@ -38,6 +38,11 @@ export const handlers = async (
   transactions: Transactions
 ): Promise<any> => {
   if (info.iFrameMethod === 'sign') {
+    if (event?.data?.payload?.approvalRequired) {
+      info.data.resolve({ approvalRequired: true });
+      window.removeEventListener('message', windowHandler);
+      return { approvalRequired: true };
+    }
     if (event?.data?.payload?.signedTransactionHex) {
       return transactions
         .submitTransaction(event?.data?.payload?.signedTransactionHex)
@@ -71,17 +76,16 @@ export const handlers = async (
     window.removeEventListener('message', windowHandler);
   }
 
-  if (info.iFrameMethod === 'login' && event.data.method === 'login') {
-    const key = event?.data?.payload?.publicKeyAdded;
-    const user = event.data.payload.users[key];
+  if (
+    (info.iFrameMethod === 'login' || info.iFrameMethod === 'logout') &&
+    event.data.method === 'login'
+  ) {
+    const key = event?.data?.payload?.publicKeyAdded || null;
+    const user = event.data.payload.users[key] || null;
+    const users = event.data.payload.users;
     info.data.prompt?.close();
-    info.data.resolve({ key, user });
+    info.data.resolve({ key, user, users });
     window.removeEventListener('message', windowHandler);
-  }
-
-  if (info.iFrameMethod === 'logout' && event.data.method === 'login') {
-    info.data.prompt?.close();
-    info.data.resolve(true);
   }
 
   if (info.iFrameMethod === 'jwt') {

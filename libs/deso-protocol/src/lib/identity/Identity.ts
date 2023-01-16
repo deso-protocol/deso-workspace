@@ -49,6 +49,7 @@ export class Identity {
   private network: DeSoNetwork;
   private identityUri = BASE_IDENTITY_URI;
   private loggedInUser: LoginUser | null = null;
+  private loggedInUsers: { [k: string]: LoginUser } = {};
   private loggedInKey = '';
   private transactions: Transactions;
   private storageGranted = false;
@@ -61,11 +62,15 @@ export class Identity {
     this.node = node;
     this.network = network || DeSoNetwork.mainnet;
     this.transactions = transactions;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       const user = localStorage.getItem('deso_user');
+      const users = localStorage.getItem('deso_users');
       const key = localStorage.getItem('deso_user_key');
       if (user) {
         this.setUser(JSON.parse(user));
+      }
+      if (users) {
+        this.setUsers(JSON.parse(users));
       }
       if (key) {
         this.setLoggedInKey(key);
@@ -74,13 +79,17 @@ export class Identity {
     this.setUri(uri ?? BASE_IDENTITY_URI);
   }
 
+  public isBrowser(): boolean {
+    return this.host === 'browser' && typeof window !== 'undefined';
+  }
+
   public getUri(): string {
     return this.identityUri;
   }
 
   public setUri(uri: string): void {
     this.identityUri = uri;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_identity_uri', this.identityUri);
     }
   }
@@ -102,13 +111,21 @@ export class Identity {
     return this.loggedInUser;
   }
 
-  private setUser(user: LoginUser | null, logout = false): void {
+  private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
-    if (
-      (this.host === 'browser' && user) ||
-      (this.host === 'browser' && logout)
-    ) {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_user', JSON.stringify(user));
+    }
+  }
+
+  public getUsers(): { [k: string]: LoginUser } | null {
+    return this.loggedInUsers;
+  }
+
+  private setUsers(users: { [k: string]: LoginUser }): void {
+    this.loggedInUsers = users;
+    if (this.isBrowser()) {
+      localStorage.setItem('deso_users', JSON.stringify(users));
     }
   }
 
@@ -118,14 +135,14 @@ export class Identity {
 
   private setLoggedInKey(key: string) {
     this.loggedInKey = key;
-    if (this.host === 'browser') {
+    if (this.isBrowser()) {
       localStorage.setItem('deso_user_key', key);
     }
   }
   //  end of getters/ setters
 
   public async initialize(): Promise<any> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (this.getIframe()) {
       return;
@@ -156,7 +173,7 @@ export class Identity {
     windowFeatures?: WindowFeatures,
     queryParams?: { [key: string]: string | boolean }
   ): Promise<void> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
       await this.guardFeatureSupport();
@@ -183,8 +200,12 @@ export class Identity {
     accessLevel = '4',
     windowFeatures?: WindowFeatures,
     queryParams?: { [key: string]: string }
-  ): Promise<{ user: LoginUser; key: string }> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+  ): Promise<{
+    user: LoginUser;
+    key: string;
+    users: { [k: string]: LoginUser };
+  }> {
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
 
     if (!this.storageGranted) {
       await this.guardFeatureSupport();
@@ -197,7 +218,7 @@ export class Identity {
       windowFeatures,
       queryParams
     );
-    const { key, user } = await iFrameHandler(
+    const { key, user, users } = await iFrameHandler(
       {
         iFrameMethod: 'login',
         data: { prompt },
@@ -205,15 +226,16 @@ export class Identity {
       this.transactions
     );
     this.setUser(user);
+    this.setUsers(users);
     this.setLoggedInKey(key);
-    return { user, key };
+    return { user, key, users };
   }
 
   public async logout(
     publicKey: string,
     windowFeatures?: WindowFeatures
   ): Promise<boolean> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (typeof publicKey !== 'string') {
       throw Error('publicKey needs to be type of string');
     }
@@ -223,23 +245,24 @@ export class Identity {
       this.isTestnet(),
       windowFeatures
     );
-    const successful = await iFrameHandler(
+    const { key, user, users } = await iFrameHandler(
       {
         iFrameMethod: 'logout',
         data: { prompt },
       },
       this.transactions
     );
-    this.setUser(null, true);
-    this.setLoggedInKey('');
-    return successful;
+    this.setUser(user);
+    this.setUsers(users);
+    this.setLoggedInKey(key);
+    return !key;
   }
 
   public async derive(
     params: IdentityDeriveParams,
     windowFeatures?: WindowFeatures
   ): Promise<DerivedPrivateUserInfo> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     const queryParams: IdentityDeriveQueryParams = {
       callback: params.callback,
       webview: params.webview,
@@ -274,7 +297,7 @@ export class Identity {
     createNewIdentityFrame = false
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (this.host === 'server') throw Error(SERVER_ERROR);
+      if (!this.isBrowser()) throw Error(SERVER_ERROR);
       let frame = document.getElementById('identity');
       if (frame && createNewIdentityFrame) {
         frame.remove();
@@ -337,14 +360,14 @@ export class Identity {
 
   public async submitTransaction(
     TransactionHex: string,
-    options: RequestOptions = { broadcast: this.host === 'browser' },
+    options: RequestOptions = { broadcast: this.isBrowser() },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ) {
     // don't submit the transaction, instead just return the api response from the
     // previous call
     if (options?.broadcast === false) return { TransactionHex };
     // server app? then you can't call the iframe
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
       TransactionHex = (
         await this.transactions.appendExtraData({
@@ -354,29 +377,28 @@ export class Identity {
       ).TransactionHex;
     }
     const user = this.getUser();
-    // user exists no need to approve
-    if (user) {
-      return callIdentityMethodAndExecute(
-        TransactionHex,
-        'sign',
-        user,
-        this.transactions
-      );
-    } else {
-      // user does not exist  get approval
-      return approveSignAndSubmit(
-        TransactionHex,
-        this.getUri(),
-        this.transactions,
-        this.isTestnet()
-      );
-    }
+    return callIdentityMethodAndExecute(
+      TransactionHex,
+      'sign',
+      user,
+      this.transactions
+    ).then((res) => {
+      if (res?.approvalRequired) {
+        return approveSignAndSubmit(
+          TransactionHex,
+          this.getUri(),
+          this.transactions,
+          this.isTestnet()
+        );
+      }
+      return res;
+    });
   }
 
   public async decrypt(
     encryptedMessages: GetDecryptMessagesRequest[]
   ): Promise<GetDecryptMessagesResponse[]> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       await this.login();
@@ -393,7 +415,7 @@ export class Identity {
   public async encrypt(
     request: Partial<SendMessageStatelessRequest>
   ): Promise<string> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     request.RecipientPublicKeyBase58Check;
     let user = this.getUser();
     if (!user) {
@@ -409,7 +431,7 @@ export class Identity {
   }
 
   public async getJwt(): Promise<string> {
-    if (this.host === 'server') throw Error(SERVER_ERROR);
+    if (!this.isBrowser()) throw Error(SERVER_ERROR);
     let user = this.getUser();
     if (!user) {
       user = (await this.login()).user;
@@ -453,7 +475,17 @@ export class Identity {
       this.transactions
     );
   }
+
   private isTestnet(): boolean {
     return this.network === DeSoNetwork.testnet;
+  }
+
+  public changeUser(key: string): void {
+    if (!this.loggedInUsers[key]) {
+      throw Error('public key is not found in logged in users');
+    }
+
+    this.setUser(this.loggedInUsers[key]);
+    this.setLoggedInKey(key);
   }
 }

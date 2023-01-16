@@ -24,6 +24,7 @@ import {
   SendDiamondsRequest,
   SendDiamondsResponse,
   SendMessageStatelessRequest,
+  SendMessageStatelessResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
@@ -59,13 +60,15 @@ export class Social {
     if (!request.MinFeeRateNanosPerKB) {
       request.MinFeeRateNanosPerKB = 1000;
     }
-    const response = (
+    const response: SendMessageStatelessResponse = (
       await axios.post(`${this.node.getUri()}/send-message-stateless`, request)
     ).data;
-    return await this.identity.submitTransaction(
-      response.TransactionHex,
-      options
-    );
+    return await this.identity
+      .submitTransaction(response.TransactionHex, options)
+      .then(() => response)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async createFollowTxnStateless(
@@ -82,16 +85,18 @@ export class Social {
       throw Error('IsUnfollow is undefined');
     }
     request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
-    const response = (
-      await axios.post<CreateFollowTxnStatelessResponse>(
+    const response: CreateFollowTxnStatelessResponse = (
+      await axios.post(
         `${this.node.getUri()}/create-follow-txn-stateless`,
         request
       )
     ).data;
-    return await this.identity.submitTransaction(
-      response.TransactionHex,
-      options
-    );
+    return await this.identity
+      .submitTransaction(response.TransactionHex, options)
+      .then(() => response)
+      .catch(() => {
+        throw Error('something went wrong while signing');
+      });
   }
 
   public async getFollowsStateless(
@@ -147,28 +152,32 @@ export class Social {
     request: Partial<GetHodlersForPublicKeyRequest>
   ): Promise<GetHodlersForPublicKeyResponse> {
     const endpoint = 'get-hodlers-for-public-key';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async getDiamondsForPublicKey(
     request: Partial<GetDiamondsForPublicKeyRequest>
   ): Promise<GetDiamondsForPublicKeyResponse> {
     const endpoint = 'get-diamonds-for-public-key';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async isFollowingPublicKey(
     request: Partial<IsFollowingPublicKeyRequest>
   ): Promise<IsFolllowingPublicKeyResponse> {
     const endpoint = 'is-following-public-key';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async isHodlingPublicKey(
     request: Partial<IsHodlingPublicKeyRequest>
   ): Promise<IsHodlingPublicKeyResponse> {
     const endpoint = 'is-hodling-public-key';
-    return await axios.post(`${this.node.getUri()}/${endpoint}`, request);
+    return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
+      .data;
   }
 
   public async updateProfile(
