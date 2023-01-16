@@ -202,7 +202,16 @@ export const publicKeyToDeSoPublicKey = (
 ): string => {
   const prefix = PUBLIC_KEY_PREFIXES[network].deso;
   const key = publicKey.getPublic().encode('array', true);
-  return bs58check.encode(Buffer.from([...prefix, ...key]));
+  return bs58check.encode(Uint8Array.from([...prefix, ...key]));
+};
+
+export const publicKeyHexToDeSoPublicKey = (
+  publicKeyHex: string,
+  network: Network = 'mainnet'
+): string => {
+  const ec = new EC('secp256k1');
+  const publicKey = ec.keyFromPublic(publicKeyHex, 'hex');
+  return publicKeyToDeSoPublicKey(publicKey, network);
 };
 
 export function seedHexToECKeyPair(seedHex: string): EC.KeyPair {
