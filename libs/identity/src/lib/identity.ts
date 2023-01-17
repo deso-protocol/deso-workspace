@@ -6,7 +6,12 @@ import {
   DEFAULT_PERMISSIONS,
   IDENTITY_SERVICE_VALUE,
 } from './constants';
-import { generateMnemonic, keygen, signJWT, signTx } from './crypto-utils';
+import {
+  getPublicKeyBase58Check,
+  keygen,
+  signJWT,
+  signTx,
+} from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
   Deferred,
@@ -122,16 +127,15 @@ export class Identity {
       if (loginKeyPair) {
         derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
       } else {
-        const mnemonic = generateMnemonic();
-        const { publicKeyBase58Check } = keygen(mnemonic, {
+        const keys = keygen();
+        derivedPublicKey = getPublicKeyBase58Check(keys, {
           network: this.#network,
         });
-        derivedPublicKey = publicKeyBase58Check;
         this.#window.localStorage.setItem(
           'desoLoginKeyPair',
           JSON.stringify({
-            publicKey: publicKeyBase58Check,
-            mnemonic,
+            publicKey: derivedPublicKey,
+            seedHex: keys.getPrivate().toString('hex'),
           })
         );
       }
@@ -171,10 +175,9 @@ export class Identity {
 
   signTx(txHex: string) {
     const { primaryDerivedKey } = this.currentUser;
-    const { keyPair } = keygen(primaryDerivedKey.mnemonic, {
-      network: this.#network,
+    return signTx(txHex, primaryDerivedKey.derivedSeedHex, {
+      isDerivedKey: true,
     });
-    return signTx(txHex, keyPair, { isDerivedKey: true });
   }
 
   submitTx(TransactionHex: string) {
@@ -201,20 +204,11 @@ export class Identity {
         e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
       ) {
         const { primaryDerivedKey } = this.currentUser;
-        const resp = await this.#authorizeDerivedKey({
-          OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
-          DerivedPublicKeyBase58Check:
-            primaryDerivedKey.derivedPublicKeyBase58Check,
-          ExpirationBlock: primaryDerivedKey.expirationBlock,
-          AccessSignature: primaryDerivedKey.accessSignature,
-          DeleteKey: false,
-          DerivedKeySignature: false,
-          MinFeeRateNanosPerKB: 1000,
-          TransactionSpendingLimitHex:
-            primaryDerivedKey.transactionSpendingLimitHex,
-        });
+        await this.#authorizePrimaryDerivedKey(
+          primaryDerivedKey.publicKeyBase58Check
+        );
 
-        await this.submitTx(this.signTx(resp.data.TransactionHex));
+        // reconstruct the original transaction and try again
         const tx = await constructTx();
         return this.submitTx(this.signTx(tx.TransactionHex));
       }
@@ -232,58 +226,25 @@ export class Identity {
     throw new Error('Not implemented');
   }
 
-  jwt() {
+  async jwt() {
     const { primaryDerivedKey } = this.currentUser;
 
     if (!primaryDerivedKey) {
       throw new Error('Cannot generate a jwt without a logged in user');
     }
 
-    const { publicKeyBase58Check, keyPair } = keygen(
-      primaryDerivedKey.mnemonic,
-      { network: this.#network }
-    );
+    // if the primary derived key is not authorized, authorize it before we generate the jwt.
+    if (!primaryDerivedKey.isAuthorized) {
+      await this.#authorizePrimaryDerivedKey(
+        primaryDerivedKey.publicKeyBase58Check
+      );
+    }
 
-    return signJWT(keyPair, {
-      derivedPublicKeyBase58Check: publicKeyBase58Check,
+    return signJWT(primaryDerivedKey.derivedSeedHex, {
+      derivedPublicKeyBase58Check:
+        primaryDerivedKey.derivedPublicKeyBase58Check,
       expiration: 60 * 10,
     });
-  }
-
-  /**
-   * This wraps a request such that we can catch any derived key unauthorized
-   * errors, authorize the key, and try the request again.  This is useful for
-   * any requests that require a jwt but may be executed prior to any
-   * transactions being submitted.
-   * @param makeRequest function that takes a jwt and returns a promise that resolves to a response
-   * @returns
-   */
-  async jwtRequest(makeRequest: (jwt: string) => Promise<any>): Promise<any> {
-    const jwt = this.jwt();
-
-    try {
-      return await makeRequest(jwt);
-    } catch (e: any) {
-      if (
-        e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
-      ) {
-        const { primaryDerivedKey } = this.currentUser;
-        const resp = await this.#authorizeDerivedKey({
-          OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
-          DerivedPublicKeyBase58Check:
-            primaryDerivedKey.derivedPublicKeyBase58Check,
-          ExpirationBlock: primaryDerivedKey.expirationBlock,
-          AccessSignature: primaryDerivedKey.accessSignature,
-          DeleteKey: false,
-          DerivedKeySignature: false,
-          MinFeeRateNanosPerKB: 1000,
-          TransactionSpendingLimitHex:
-            primaryDerivedKey.transactionSpendingLimitHex,
-        });
-        await this.submitTx(this.signTx(resp.data.TransactionHex));
-        return makeRequest(jwt);
-      }
-    }
   }
 
   getDeso() {
@@ -333,7 +294,7 @@ export class Identity {
     this.#window.localStorage.setItem('activePublicKey', publicKey);
   }
 
-  #authorizeDerivedKey(options: {
+  authorizeDerivedKey(options: {
     OwnerPublicKeyBase58Check: string;
     DerivedPublicKeyBase58Check: string;
     ExpirationBlock: number;
@@ -344,6 +305,41 @@ export class Identity {
     TransactionSpendingLimitHex: string;
   }) {
     return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
+  }
+
+  #authorizePrimaryDerivedKey(ownerPublicKey: string) {
+    const users = this.users;
+    const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
+
+    if (!primaryDerivedKey) {
+      throw new Error(
+        `No primary derived key found for user ${ownerPublicKey}`
+      );
+    }
+
+    if (primaryDerivedKey.isAuthorized) {
+      return Promise.resolve();
+    }
+
+    return this.authorizeDerivedKey({
+      OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
+      DerivedPublicKeyBase58Check:
+        primaryDerivedKey.derivedPublicKeyBase58Check,
+      ExpirationBlock: primaryDerivedKey.expirationBlock,
+      AccessSignature: primaryDerivedKey.accessSignature,
+      DeleteKey: false,
+      DerivedKeySignature: false,
+      MinFeeRateNanosPerKB: 1000,
+      TransactionSpendingLimitHex:
+        primaryDerivedKey.transactionSpendingLimitHex,
+    }).then((resp) => {
+      // mark the key as authorized
+      if (users?.[ownerPublicKey]?.primaryDerivedKey) {
+        users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
+      }
+      this.#window.localStorage.setItem('desoUsers', JSON.stringify(users));
+      return this.submitTx(this.signTx(resp.data.TransactionHex));
+    });
   }
 
   #handlePostMessage(ev: MessageEvent) {
@@ -430,19 +426,12 @@ export class Identity {
 
     if (this.users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
-    } else {
-      let mnemonic = '';
-      if (loginKeyPair) {
-        const parsedKeyPair = JSON.parse(loginKeyPair);
-        mnemonic = parsedKeyPair.mnemonic;
-      }
-
+      this.#window.localStorage.removeItem('desoLoginKeyPair');
+    } else if (loginKeyPair) {
+      const { seedHex } = JSON.parse(loginKeyPair);
       this.#updateUser(payload.publicKeyBase58Check, {
-        primaryDerivedKey: { ...payload, mnemonic },
+        primaryDerivedKey: { ...payload, derivedSeedHex: seedHex },
       });
-    }
-
-    if (loginKeyPair) {
       // in the case of a login, we want to remove the login key pair from localStorage and patch the
       // publicKeyAdded field onto the payload
       this.#window.localStorage.removeItem('desoLoginKeyPair');
@@ -453,17 +442,7 @@ export class Identity {
       // Attempt to authorize the new derived key. If it fails due
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.
-      this.#authorizeDerivedKey({
-        OwnerPublicKeyBase58Check: payload.publicKeyBase58Check,
-        DerivedPublicKeyBase58Check: payload.derivedPublicKeyBase58Check,
-        ExpirationBlock: payload.expirationBlock,
-        AccessSignature: payload.accessSignature,
-        DeleteKey: false,
-        DerivedKeySignature: false,
-        MinFeeRateNanosPerKB: 1000,
-        TransactionSpendingLimitHex: payload.transactionSpendingLimitHex,
-      })
-        .then((resp) => this.submitTx(this.signTx(resp.data.TransactionHex)))
+      this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
         .catch(console.warn)
         .finally(() => {
           this.#pendingWindowRequest?.resolve({

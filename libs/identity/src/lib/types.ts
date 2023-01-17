@@ -61,7 +61,9 @@ export interface LoginOptions {
 }
 
 export type StoredUser = {
-  primaryDerivedKey: IdentityDerivePayload & { mnemonic: string };
+  primaryDerivedKey: IdentityDerivePayload & {
+    isAuthorized?: boolean;
+  };
 };
 
 export interface IdentityUser {
