@@ -32,6 +32,9 @@ function App() {
 
     identity.configure({
       identityURI: 'http://localhost:4201',
+      spendingLimitOptions: {
+        IsUnlimited: true,
+      },
       //redirectURI: `${window.location.origin}/devtest`,
     });
     identity.subscribe(setIdentityState);

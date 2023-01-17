@@ -3,7 +3,7 @@ import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
 import {
   DEFAULT_IDENTITY_URI,
   DEFAULT_NODE_URI,
-  DEFAULT_PERMISSIONS,
+  DEFAULT_PERMISSIONS as DEFAULT_TRANSACTION_SPENDING_LIMIT,
   IDENTITY_SERVICE_VALUE,
 } from './constants';
 import {
@@ -41,6 +41,8 @@ export class Identity {
   #identityWindow?: Window | null;
   #redirectURI?: string;
   #pendingWindowRequest?: Deferred;
+  #defaultTransactionSpendingLimit: TransactionSpendingLimitResponse =
+    DEFAULT_TRANSACTION_SPENDING_LIMIT;
   #boundPostMessageListener?: (event: MessageEvent) => void;
   #subscriber?: (state: any) => void;
 
@@ -93,17 +95,21 @@ export class Identity {
     }
   }
 
-  // Q: should we add permission here instead passing it to login?
   configure({
     identityURI = DEFAULT_IDENTITY_URI,
     network = 'mainnet',
     nodeURI = 'https://node.deso.org',
+    spendingLimitOptions = DEFAULT_TRANSACTION_SPENDING_LIMIT,
     redirectURI,
   }: IdentityConfiguration) {
     this.#identityURI = identityURI;
     this.#network = network;
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
+    this.#defaultTransactionSpendingLimit = {
+      ...DEFAULT_TRANSACTION_SPENDING_LIMIT,
+      ...spendingLimitOptions,
+    };
   }
 
   /**
@@ -123,7 +129,7 @@ export class Identity {
    */
   login(
     { permissions, getFreeDeso }: LoginOptions = {
-      permissions: DEFAULT_PERMISSIONS,
+      permissions: DEFAULT_TRANSACTION_SPENDING_LIMIT,
       getFreeDeso: true,
     }
   ): Promise<IdentityDerivePayload> {

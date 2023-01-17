@@ -9,7 +9,6 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "deso-protocol-types": "0.5.0",
-    "hdkey": "github:deso-protocol/hdkey",
     "https-browserify": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "os-browserify": "^0.3.0",

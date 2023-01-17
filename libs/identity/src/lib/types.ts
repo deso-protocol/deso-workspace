@@ -28,6 +28,18 @@ export interface IdentityDerivePayload {
   signedUp: boolean;
 }
 
+export interface TransactionSpendingLimitOptions {
+  IsUnlimited?: boolean;
+  GlobalDESOLimit?: number;
+  TransactionCountLimitMap?: { [key: string]: number };
+  CreatorCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
+  DAOCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
+  NFTOperationLimitMap?: {
+    [key: string]: { [key: number]: { [key: string]: number } };
+  };
+  DAOCoinLimitOrderLimitMap?: { [key: string]: { [key: string]: number } };
+}
+
 export interface IdentityConfiguration {
   /**
    * The identity domain. Defaults to https://identity.deso.org
@@ -49,6 +61,12 @@ export interface IdentityConfiguration {
    * domain and pass data via query params back to the provided uri.
    */
   redirectURI?: string;
+
+  /**
+   * The default permissions and spending limits that will be presented to the user
+   * during login. If not provided, we will assume no permissions.
+   */
+  spendingLimitOptions?: TransactionSpendingLimitOptions;
 }
 
 export interface IdentityConstructorOptions {
