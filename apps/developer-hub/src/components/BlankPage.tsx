@@ -5,9 +5,6 @@ import { DesoIdentityContext } from '../services/DesoIdentityContext';
 
 export function BlankPage() {
   const { activePublicKey } = useContext(DesoIdentityContext);
-  // const signed = identity.jwtRequest();
-
-  // console.log('signed', signed);
 
   return (
     <div>

@@ -25,6 +25,12 @@ import {
   StoredUser,
 } from './types';
 
+const localStorageKeys = Object.freeze({
+  lastLoggedInUser: 'deso_active_public_key',
+  identityUsers: 'deso_identity_users',
+  loginKeyPair: 'deso_login_key_pair',
+});
+
 // Class is only exported for testing purposes
 export class Identity {
   // used for DI in testing
@@ -39,11 +45,13 @@ export class Identity {
   #subscriber?: (state: any) => void;
 
   get activePublicKey(): string | null {
-    return this.#window.localStorage.getItem('activePublicKey');
+    return this.#window.localStorage.getItem(localStorageKeys.lastLoggedInUser);
   }
 
   get users(): Record<string, StoredUser> | null {
-    const storedUsers = this.#window.localStorage.getItem('desoUsers');
+    const storedUsers = this.#window.localStorage.getItem(
+      localStorageKeys.identityUsers
+    );
     return storedUsers && JSON.parse(storedUsers);
   }
 
@@ -85,6 +93,7 @@ export class Identity {
     }
   }
 
+  // Q: should we add permission here instead passing it to login?
   configure({
     identityURI = DEFAULT_IDENTITY_URI,
     network = 'mainnet',
@@ -293,7 +302,10 @@ export class Identity {
         )}`
       );
     }
-    this.#window.localStorage.setItem('activePublicKey', publicKey);
+    this.#window.localStorage.setItem(
+      localStorageKeys.lastLoggedInUser,
+      publicKey
+    );
   }
 
   authorizeDerivedKey(options: {
@@ -341,7 +353,10 @@ export class Identity {
         if (users?.[ownerPublicKey]?.primaryDerivedKey) {
           users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
         }
-        this.#window.localStorage.setItem('desoUsers', JSON.stringify(users));
+        this.#window.localStorage.setItem(
+          localStorageKeys.identityUsers,
+          JSON.stringify(users)
+        );
       });
   }
 
@@ -399,7 +414,7 @@ export class Identity {
         throw new Error('No active public key found');
       }
 
-      this.#window.localStorage.removeItem('activePublicKey');
+      this.#window.localStorage.removeItem(localStorageKeys.lastLoggedInUser);
       this.#purgeUserDataForPublicKey(publicKey);
     } else {
       this.setActiveUser(payload.publicKeyAdded);
@@ -409,15 +424,17 @@ export class Identity {
   }
 
   #purgeUserDataForPublicKey(publicKey: string) {
-    const users = this.#window.localStorage.getItem('desoUsers');
+    const users = this.#window.localStorage.getItem(
+      localStorageKeys.identityUsers
+    );
     if (users) {
       const usersObj = JSON.parse(users);
       delete usersObj[publicKey];
       if (Object.keys(usersObj).length === 0) {
-        this.#window.localStorage.removeItem('desoUsers');
+        this.#window.localStorage.removeItem(localStorageKeys.identityUsers);
       } else {
         this.#window.localStorage.setItem(
-          'desoUsers',
+          localStorageKeys.identityUsers,
           JSON.stringify(usersObj)
         );
       }
@@ -425,11 +442,13 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
-    const loginKeyPair = this.#window.localStorage.getItem('desoLoginKeyPair');
+    const loginKeyPair = this.#window.localStorage.getItem(
+      localStorageKeys.loginKeyPair
+    );
 
     if (this.users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
-      this.#window.localStorage.removeItem('desoLoginKeyPair');
+      this.#window.localStorage.removeItem(localStorageKeys.loginKeyPair);
     } else if (loginKeyPair) {
       const { seedHex } = JSON.parse(loginKeyPair);
       this.#updateUser(payload.publicKeyBase58Check, {
@@ -437,7 +456,7 @@ export class Identity {
       });
       // in the case of a login, we want to remove the login key pair from localStorage and patch the
       // publicKeyAdded field onto the payload
-      this.#window.localStorage.removeItem('desoLoginKeyPair');
+      this.#window.localStorage.removeItem(localStorageKeys.loginKeyPair);
       this.#pendingWindowRequest?.resolve({
         ...payload,
         publicKeyAdded: payload.publicKeyBase58Check,
@@ -459,7 +478,9 @@ export class Identity {
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
-    const users = this.#window.localStorage.getItem('desoUsers');
+    const users = this.#window.localStorage.getItem(
+      localStorageKeys.identityUsers
+    );
     if (users) {
       const usersObj = JSON.parse(users);
       if (!usersObj[masterPublicKey]) {
@@ -470,14 +491,20 @@ export class Identity {
           ...attributes,
         };
       }
-      this.#window.localStorage.setItem('desoUsers', JSON.stringify(usersObj));
+      this.#window.localStorage.setItem(
+        localStorageKeys.identityUsers,
+        JSON.stringify(usersObj)
+      );
     } else {
       this.#window.localStorage.setItem(
-        'desoUsers',
+        localStorageKeys.identityUsers,
         JSON.stringify({ [masterPublicKey]: attributes })
       );
     }
-    this.#window.localStorage.setItem('activePublicKey', masterPublicKey);
+    this.#window.localStorage.setItem(
+      localStorageKeys.lastLoggedInUser,
+      masterPublicKey
+    );
   }
 
   #buildQueryParams(paramsPojo: Record<string, any>) {
