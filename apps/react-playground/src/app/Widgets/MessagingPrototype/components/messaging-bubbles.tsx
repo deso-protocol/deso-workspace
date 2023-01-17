@@ -1,14 +1,15 @@
 import Deso from 'deso-protocol';
+import { DecryptedMessageEntryResponse } from 'deso-protocol-types';
 import { DecryptedResponse } from '../consts/constants';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export interface MessagingBubblesProps {
-  conversations: DecryptedResponse;
+  conversations: { [k: string]: DecryptedMessageEntryResponse };
   conversationPublicKey: string;
   deso: Deso;
 }
 export const MessagingBubblesAndAvatar: React.FC<{
-  conversations: DecryptedResponse;
+  conversations: { [k: string]: DecryptedMessageEntryResponse };
   conversationPublicKey: string;
   deso: Deso;
 }> = ({
@@ -19,7 +20,8 @@ export const MessagingBubblesAndAvatar: React.FC<{
   if (Object.keys(conversations).length === 0 || conversationPublicKey === '') {
     return <div></div>;
   }
-  const conversation = conversations[conversationPublicKey] ?? [];
+  // TODO: fetch rest of convo
+  const conversation = [conversations[conversationPublicKey]] ?? [];
   return (
     <div>
       {conversation.map((message, i: number) => {
@@ -40,8 +42,8 @@ export const MessagingBubblesAndAvatar: React.FC<{
           >
             {!message.IsSender && (
               <MessagingDisplayAvatar
-                publicKey={message.SenderPublicKeyBase58Check}
-                timeStamp={message.TstampNanos}
+                publicKey={message.SenderInfo.OwnerPublicKeyBase58Check}
+                timeStamp={message.MessageInfo.TimestampNanos}
                 deso={deso}
                 diameter={50}
               />
@@ -53,8 +55,8 @@ export const MessagingBubblesAndAvatar: React.FC<{
             </div>
             {message.IsSender && (
               <MessagingDisplayAvatar
-                publicKey={message.SenderPublicKeyBase58Check}
-                timeStamp={message.TstampNanos}
+                publicKey={message.SenderInfo.OwnerPublicKeyBase58Check}
+                timeStamp={message.MessageInfo.TimestampNanos}
                 deso={deso}
                 diameter={50}
               />

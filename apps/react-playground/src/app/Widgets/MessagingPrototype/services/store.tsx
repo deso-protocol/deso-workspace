@@ -1,4 +1,5 @@
 import {
+  AccessGroupEntryResponse,
   DerivedPrivateUserInfo,
   MessagingGroupEntryResponse,
 } from 'deso-protocol-types';
@@ -40,7 +41,8 @@ export const getDerivedKeyResponse = (
   );
 };
 
-export const setDefaultKey = (defaultKey: MessagingGroupEntryResponse) => {
+// Used to be MessagingGroupEntryResponse
+export const setDefaultKey = (defaultKey: AccessGroupEntryResponse) => {
   localStorage.setItem(
     DEFAULT_KEY_IDENTITY_MESSAGING_OPERATION,
     JSON.stringify(defaultKey)

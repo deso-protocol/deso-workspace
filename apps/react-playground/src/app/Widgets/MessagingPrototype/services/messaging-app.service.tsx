@@ -1,13 +1,19 @@
 import Deso from 'deso-protocol';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import {
+  DerivedPrivateUserInfo,
+  DecryptedMessageEntryResponse,
+} from 'deso-protocol-types';
 import {
   DecryptedResponse,
   USER_TO_SEND_MESSAGE_TO_1,
+  USER_TO_SEND_MESSAGE_TO_2,
+  USER_TO_SEND_MESSAGE_TO_3,
 } from '../consts/constants';
 import {
   authorizeDerivedKey,
   generateDefaultKey,
   getEncryptedMessages,
+  getEncryptedNewMessages,
   login,
   requestDerivedKey,
 } from './messaging.service';
@@ -17,6 +23,43 @@ import {
   setDerivedKeyResponse,
 } from './store';
 import { delay } from './utils';
+
+export const getConversationsNewMap = async (
+  deso: Deso,
+  derivedResponse: Partial<DerivedPrivateUserInfo>
+): Promise<any> => {
+  console.log('in here');
+  const decryptedMessageResponses = await getConversationNew(
+    deso,
+    derivedResponse
+  );
+  console.log('decrypted: ', decryptedMessageResponses.length);
+  const conversationMap: { [k: string]: DecryptedMessageEntryResponse } = {};
+  decryptedMessageResponses.forEach((dmr) => {
+    const otherInfo = dmr.IsSender ? dmr.RecipientInfo : dmr.SenderInfo;
+    conversationMap[otherInfo.OwnerPublicKeyBase58Check] = dmr;
+  });
+  return conversationMap;
+};
+
+export const getConversationNew = async (
+  deso: Deso,
+  derivedResponse: Partial<DerivedPrivateUserInfo>
+): Promise<DecryptedMessageEntryResponse[]> => {
+  if (!derivedResponse) {
+    alert('no derived response found');
+    return [];
+  }
+
+  const messages = await getEncryptedNewMessages(deso);
+  console.log(messages);
+  return await deso.utils.decryptAccessGroupMessages(
+    deso.identity.getUserKey() as string,
+    messages.MessageThreads,
+    [],
+    { decryptedKey: derivedResponse.messagingPrivateKey as string }
+  );
+};
 export const getConversationsMapAndPublicKeyToUsernameMapping = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
@@ -106,9 +149,9 @@ export const setupMessaging = async (
   await authorizeDerivedKey(deso, derivedResponse);
   await delay(3000); // lazy way to make sure the transaction has had enough time to broadcast,
   // alternatively you call can the get-txn endpoint to verify it has been broadcasted;
-  const messagingKey = await generateDefaultKey(deso, derivedResponse);
-  if (messagingKey) {
-    setDefaultKey(messagingKey);
+  const defaultKeyGroup = await generateDefaultKey(deso, derivedResponse);
+  if (defaultKeyGroup) {
+    setDefaultKey(defaultKeyGroup);
   }
   setDerivedResponse(derivedResponse);
   setHasSetupAccount(true);
@@ -116,13 +159,14 @@ export const setupMessaging = async (
   return derivedResponse;
 };
 
+// TODO: use new endpoints
 export const getConversations = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>,
   setGetUsernameByPublicKeyBase58Check: (publicKey: {
     [key: string]: string;
   }) => void,
-  setConversations: (conversations: DecryptedResponse) => void,
+  setConversations: (conversations: DecryptedMessageEntryResponse) => void,
   setSelectedConversationPublicKey: (publicKey: string) => void
 ) => {
   try {
@@ -130,32 +174,50 @@ export const getConversations = async (
       alert('derived call failed');
       return {};
     }
-    let res = await getConversationsMapAndPublicKeyToUsernameMapping(
-      deso,
-      derivedResponse
-    );
-    let conversationsArray = Object.keys(res.conversationMap);
-    setGetUsernameByPublicKeyBase58Check(res.publicKeyToUsername);
+
+    let res = await getConversationsNewMap(deso, derivedResponse);
+
+    // let res = await getConversationsMapAndPublicKeyToUsernameMapping(
+    //   deso,
+    //   derivedResponse
+    // );
+    // let conversationsArray = Object.keys(res.conversationMap);
+    let conversationsArray = Object.keys(res);
+    setGetUsernameByPublicKeyBase58Check({});
+    // setGetUsernameByPublicKeyBase58Check(res.publicKeyToUsername);
     if (conversationsArray.length === 0) {
-      await deso.utils.encryptAndSendMessageV3(
-        // submit a message so they can use the example
+      await deso.utils.encryptAndSendNewMessage(
         deso,
-        'Thanks for checking out the messaging app, here is an example of a sent message from your encryption call!',
+        'major testing',
         derivedResponse.derivedSeedHex as string,
         derivedResponse.messagingPrivateKey as string,
-        USER_TO_SEND_MESSAGE_TO_1,
+        USER_TO_SEND_MESSAGE_TO_3,
         true
       );
+      // await deso.utils.encryptAndSendMessageV3(
+      //   // submit a message so they can use the example
+      //   deso,
+      //   'Thanks for checking out the messaging app, here is an example of a sent message from your encryption call!',
+      //   derivedResponse.derivedSeedHex as string,
+      //   derivedResponse.messagingPrivateKey as string,
+      // USER_TO_SEND_MESSAGE_TO_1,
+      //   true
+      // );
       await delay(3000); // wait for the transaction broadcast
-      res = await getConversationsMapAndPublicKeyToUsernameMapping(
-        deso,
-        derivedResponse
-      );
+      res = await getConversationsNewMap(deso, derivedResponse);
+
+      // res = await getConversationsMapAndPublicKeyToUsernameMapping(
+      //   deso,
+      //   derivedResponse
+      // );
     }
-    setConversations(res.conversationMap ?? {});
-    conversationsArray = Object.keys(res.conversationMap);
+    // setConversations(res.conversationMap ?? {});
+    setConversations(res ?? {});
+    // conversationsArray = Object.keys(res.conversationMap);
+    conversationsArray = Object.keys(res);
     setSelectedConversationPublicKey(conversationsArray[0]);
-    return res.conversationMap;
+    // return res.conversationMap;
+    return res;
   } catch (e) {
     console.error(e);
     return {};

@@ -1,5 +1,8 @@
 import Deso from 'deso-protocol';
-import { ProfileEntryResponse } from 'deso-protocol-types';
+import {
+  DecryptedMessageEntryResponse,
+  ProfileEntryResponse,
+} from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { DecryptedResponse } from '../consts/constants';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
@@ -9,7 +12,7 @@ export const MessagingStartNewConversation: React.FC<{
   setSelectedConversationPublicKey: (selectedKey: string) => void;
   rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: DecryptedResponse;
+  conversations: DecryptedMessageEntryResponse;
 }> = ({
   deso,
   setSelectedConversationPublicKey,
@@ -67,7 +70,7 @@ export const SearchResults: React.FC<{
   setSelectedConversationPublicKey: (publicKey: string) => void;
   rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: DecryptedResponse;
+  conversations: DecryptedMessageEntryResponse;
 }> = ({
   searchedUsers,
   deso,

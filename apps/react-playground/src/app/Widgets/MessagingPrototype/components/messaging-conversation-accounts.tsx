@@ -1,5 +1,8 @@
 import Deso from 'deso-protocol';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
+import {
+  DecryptedMessageEntryResponse,
+  DerivedPrivateUserInfo,
+} from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { DecryptedResponse } from '../consts/constants';
 import { truncateDesoHandle } from '../services/utils';
@@ -8,7 +11,7 @@ import { MessagingStartNewConversation } from './messaging-start-new-conversatio
 
 export const MessagingConversationAccount: React.FC<{
   deso: Deso;
-  conversations: DecryptedResponse;
+  conversations: DecryptedMessageEntryResponse;
   getUsernameByPublicKeyBase58Check: { [key: string]: string };
   selectedConversationPublicKey: string;
   setSelectedConversationPublicKey: (selectedKey: string) => void;

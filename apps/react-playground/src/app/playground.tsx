@@ -37,38 +37,38 @@ const fakeDesoInstance = () => {
 export const Playground = () => {
   const [healthCheck, setHealthCheck] = useState(0);
   const [exchangeRate, setExchangeRate] = useState({});
-  const deso = new Deso({
-    identityConfig: {
-      uri: 'http://localhost:4201',
-    },
-  });
+  // const deso = new Deso({
+  //   identityConfig: {
+  //     uri: 'http://localhost:4201',
+  //   },
+  // });
 
-  useEffect(() => {
-    deso.identity.login('4');
-    deso.ethereum
-      .ethAddressToDeSoPublicKey('0xcc509aaf3ea0b8002d784c5a5a312baeaecaa64a')
-      .then((res) => {
-        console.log(res);
-      });
-    deso.ethereum
-      .recoverETHPublicKeyAndAddressFromTransaction(
-        '0xe8ef2f9dc0f9b5b7c7a709ba1ae495046039b97eb488241afceb1eede7a5ec85'
-      )
-      .then((res) => {
-        console.log(res);
-      });
-  }, []);
+  // useEffect(() => {
+  //   deso.identity.login('4');
+  //   deso.ethereum
+  //     .ethAddressToDeSoPublicKey('0xcc509aaf3ea0b8002d784c5a5a312baeaecaa64a')
+  //     .then((res) => {
+  //       console.log(res);
+  //     });
+  //   deso.ethereum
+  //     .recoverETHPublicKeyAndAddressFromTransaction(
+  //       '0xe8ef2f9dc0f9b5b7c7a709ba1ae495046039b97eb488241afceb1eede7a5ec85'
+  //     )
+  //     .then((res) => {
+  //       console.log(res);
+  //     });
+  // }, []);
 
-  const trySubmitTransaction = function () {
-    deso.posts.submitPost({
-      UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
-      BodyObj: {
-        ImageURLs: [],
-        VideoURLs: [],
-        Body: 'hello there - this is a another test',
-      },
-    });
-  };
+  // const trySubmitTransaction = function () {
+  //   deso.posts.submitPost({
+  //     UpdaterPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  //     BodyObj: {
+  //       ImageURLs: [],
+  //       VideoURLs: [],
+  //       Body: 'hello there - this is a another test',
+  //     },
+  //   });
+  // };
   //   act(() => {
   //     setHealthCheck(deso.metaData.healthCheck());
   //     setExchangeRate(deso.metaData.getExchangeRate());

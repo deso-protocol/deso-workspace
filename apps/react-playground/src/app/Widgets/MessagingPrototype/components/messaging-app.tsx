@@ -12,8 +12,10 @@ import { MessagingConversationButton } from './messaging-conversation-button';
 import { MessagingConversationAccount } from './messaging-conversation-accounts';
 import { MessagingBubblesAndAvatar } from './messaging-bubbles';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { DerivedPrivateUserInfo } from 'deso-protocol-types';
-import { DecryptedResponse } from '../consts/constants';
+import {
+  DecryptedMessageEntryResponse,
+  DerivedPrivateUserInfo,
+} from 'deso-protocol-types';
 export const MessagingApp: React.FC<{
   deso: Deso;
 }> = ({ deso }) => {
@@ -31,6 +33,7 @@ export const MessagingApp: React.FC<{
       setConversations,
       setSelectedConversationPublicKey
     );
+    console.log(conversations);
     const keyToUse =
       selectedKey ||
       selectedConversationPublicKey ||
@@ -44,6 +47,7 @@ export const MessagingApp: React.FC<{
         conversations={conversations}
       />
     );
+    console.log(conversations.length);
     setConversations(conversations);
     setAutoFetchConversations(false);
   };
@@ -76,7 +80,8 @@ export const MessagingApp: React.FC<{
   );
   const [selectedConversationPublicKey, setSelectedConversationPublicKey] =
     useState('');
-  const [conversations, setConversations] = useState<DecryptedResponse>({});
+  const [conversations, setConversations] =
+    useState<DecryptedMessageEntryResponse>({} as any);
   return (
     <div>
       <div className="bg-[#0C2F62] min-h-full">

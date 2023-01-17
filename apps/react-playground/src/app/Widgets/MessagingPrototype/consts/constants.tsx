@@ -5,16 +5,17 @@ import {
 export const getTransactionSpendingLimits =
   (): TransactionSpendingLimitResponse => {
     return {
-      GlobalDESOLimit: 15 * 1e9,
-      DAOCoinLimitOrderLimitMap: {},
-      TransactionCountLimitMap: {
-        PRIVATE_MESSAGE: LIMIT,
-        MESSAGING_GROUP: LIMIT,
-        AUTHORIZE_DERIVED_KEY: 1,
-      },
-      CreatorCoinOperationLimitMap: {},
-      DAOCoinOperationLimitMap: {},
-      NFTOperationLimitMap: {},
+      // GlobalDESOLimit: 15 * 1e9,
+      IsUnlimited: true,
+      // DAOCoinLimitOrderLimitMap: {},
+      // TransactionCountLimitMap: {
+      //   PRIVATE_MESSAGE: LIMIT,
+      //   MESSAGING_GROUP: LIMIT,
+      //   AUTHORIZE_DERIVED_KEY: 1,
+      // },
+      // CreatorCoinOperationLimitMap: {},
+      // DAOCoinOperationLimitMap: {},
+      // NFTOperationLimitMap: {},
     };
   };
 
@@ -23,6 +24,10 @@ export const USER_TO_SEND_MESSAGE_TO_1: Readonly<string> =
 
 export const USER_TO_SEND_MESSAGE_TO_2: Readonly<string> =
   'BC1YLhp53iDyAqYBwi4EMAvufgvwhaennew2pZ2zu1LkvuxW5c3ewtk';
+
+// Nina?
+export const USER_TO_SEND_MESSAGE_TO_3: Readonly<string> =
+  'tBCKW665XZnvVZcCfcEmyeecSZGKAdaxwV2SH9UFab6PpSRikg4EJ2';
 export const DERIVED_SEED_HEX: Readonly<string> = 'derivedSeedHex';
 export const DEFAULT_KEY_IDENTITY_MESSAGING_OPERATION: Readonly<string> =
   'defaultKey';

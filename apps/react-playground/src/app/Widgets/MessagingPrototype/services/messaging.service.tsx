@@ -3,7 +3,10 @@ import {
   DerivedPrivateUserInfo,
   MessagingGroupEntryResponse,
   GetMessagesResponse,
+  AccessGroupEntryResponse,
+  GetUserMessageThreadsResponse,
 } from 'deso-protocol-types';
+import { access } from 'fs';
 import {
   getTransactionSpendingLimits,
   DEFAULT_KEY_MESSAGING_GROUP_NAME,
@@ -88,29 +91,42 @@ export const authorizeDerivedKey = async (
 export const generateDefaultKey = async (
   deso: Deso,
   derivedKeyResponse: Partial<DerivedPrivateUserInfo>
-): Promise<MessagingGroupEntryResponse | undefined> => {
+): Promise<AccessGroupEntryResponse | undefined> => {
   if (await alertUserIfNoFunds(deso)) {
     return;
   }
 
-  let messagingKeys = await deso.user.getAllMessagingGroupKeys({
-    OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  let accessGroups = await deso.accessGroup.GetAllUserAccessGroupsOwned({
+    PublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
-  const isGroupKey = (x: MessagingGroupEntryResponse) =>
-    x.MessagingGroupKeyName === DEFAULT_KEY_MESSAGING_GROUP_NAME;
-  let groupKey = messagingKeys.MessagingGroupEntries?.find(isGroupKey);
+
+  const isDefaultKeyGroup = (x: AccessGroupEntryResponse) =>
+    x.AccessGroupKeyName === DEFAULT_KEY_MESSAGING_GROUP_NAME;
+  let defaultKey = accessGroups?.AccessGroupsOwned?.find(isDefaultKeyGroup);
+  // let messagingKeys = await deso.user.getAllMessagingGroupKeys({
+  //   OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  // });
+  // const isGroupKey = (x: MessagingGroupEntryResponse) =>
+  //   x.MessagingGroupKeyName === DEFAULT_KEY_MESSAGING_GROUP_NAME;
+  // let groupKey = messagingKeys.MessagingGroupEntries?.find(isGroupKey);
 
   const { derivedSeedHex, messagingPublicKeyBase58Check } = derivedKeyResponse;
-  if (groupKey) {
-    return groupKey;
+  if (defaultKey) {
+    return defaultKey;
   }
 
-  const transaction = await deso.user.registerMessagingGroupKey({
-    OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
-    MessagingPublicKeyBase58Check: messagingPublicKeyBase58Check,
-    MessagingGroupKeyName: DEFAULT_KEY_MESSAGING_GROUP_NAME,
-    MinFeeRateNanosPerKB: 1000,
-  });
+  const transaction = await deso.accessGroup.CreateAccessGroup(
+    {
+      AccessGroupOwnerPublicKeyBase58Check:
+        deso.identity.getUserKey() as string,
+      AccessGroupPublicKeyBase58Check: messagingPublicKeyBase58Check,
+      AccessGroupKeyName: DEFAULT_KEY_MESSAGING_GROUP_NAME,
+      MinFeeRateNanosPerKB: 1000,
+    },
+    {
+      broadcast: false,
+    }
+  );
 
   const signedTransaction = deso.utils.signTransaction(
     derivedSeedHex as string,
@@ -120,12 +136,12 @@ export const generateDefaultKey = async (
 
   await deso.transaction.submitTransaction(signedTransaction);
 
-  messagingKeys = await deso.user.getAllMessagingGroupKeys({
-    OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  accessGroups = await deso.accessGroup.GetAllUserAccessGroupsOwned({
+    PublicKeyBase58Check: deso.identity.getUserKey() as string,
   });
 
-  groupKey = messagingKeys.MessagingGroupEntries?.find(isGroupKey);
-  return groupKey;
+  defaultKey = accessGroups?.AccessGroupsOwned?.find(isDefaultKeyGroup);
+  return defaultKey;
 };
 
 export const getEncryptedMessages = async (deso: Deso) => {
@@ -142,3 +158,16 @@ export const getEncryptedMessages = async (deso: Deso) => {
     });
   return messages;
 };
+
+export const getEncryptedNewMessages = async (deso: Deso) => {
+  return await deso.accessGroup.GetAllUserMessageThreads({
+    UserPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  });
+};
+
+// export const getAllThreads = async (deso: Deso) => {
+//   const threads: GetAllUserMessageThreadResponse = await deso.accessGroup.GetAllUserMessageThreads({
+//     UserPublicKeyBase58Check: deso.identity.getUserKey() as string,
+//   });
+//   return threads;
+// }

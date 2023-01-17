@@ -4462,14 +4462,15 @@ export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
 
 // struct2ts:types/generated/types.TransactionSpendingLimitResponse
 export interface TransactionSpendingLimitResponse {
-  GlobalDESOLimit: number;
-  TransactionCountLimitMap: { [key: string]: number };
-  CreatorCoinOperationLimitMap: { [key: string]: { [key: string]: number } };
-  DAOCoinOperationLimitMap: { [key: string]: { [key: string]: number } };
-  NFTOperationLimitMap: {
+  GlobalDESOLimit?: number;
+  TransactionCountLimitMap?: { [key: string]: number };
+  CreatorCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
+  DAOCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
+  NFTOperationLimitMap?: {
     [key: string]: { [key: number]: { [key: string]: number } };
   };
-  DAOCoinLimitOrderLimitMap: { [key: string]: { [key: string]: number } };
+  DAOCoinLimitOrderLimitMap?: { [key: string]: { [key: string]: number } };
+  IsUnlimited?: boolean;
 }
 
 // struct2ts:types/generated/types.AuthorizeDerivedKeyRequest
@@ -5023,3 +5024,175 @@ export type UsernameMapKey = string;
 export type PKID = string;
 export type ExtraDataDecoderFunc = Function;
 export type ExtraDataEncoderFunc = Function;
+
+export interface CreateAccessGroupRequest {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccessGroupPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+  ExtraData: { [k: string]: string };
+}
+
+export interface CreateAccessGroupResponse {
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  FeeNanos: number;
+  Transaction: MsgDeSoTxn;
+  TransactionHex: string;
+}
+
+export interface AccessGroupMember {
+  AccessGroupMemberPublicKeyBase58Check: string;
+
+  AccessGroupMemberKeyName: string;
+
+  EncryptedKeyString: string;
+}
+
+export interface AddAccessGroupMembersRequest {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+
+  AccessGroupKeyName: string;
+
+  AccessGroupMemberList: AccessGroupMember[];
+
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+  ExtraData: { [k: string]: string };
+}
+
+export interface AddAccessGroupMembersResponse {
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  FeeNanos: number;
+  Transaction: MsgDeSoTxn;
+  TransactionHex: string;
+}
+
+export interface AccessGroupEntryResponse {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+  AccessGroupPublicKeyBAse58Check: string;
+  ExtraData: { [k: string]: string };
+}
+
+export interface GetAccessGroupsRequest {
+  PublicKeyBase58Check: string;
+}
+
+export interface GetAccessGroupsResponse {
+  AccessGroupsOwned: AccessGroupEntryResponse[] | undefined;
+  AccessGroupsMember: AccessGroupEntryResponse[] | undefined;
+}
+
+export interface CheckPartyAccessGroupsRequest {
+  SenderPublicKeyBase58Check: string;
+  SenderAccessGroupKeyName: string;
+
+  RecipientPublicKeyBase58Check: string;
+  RecipientAccessGroupKeyName: string;
+}
+
+export interface CheckPartyAccessGroupsResponse {
+  SenderPublicKeyBase58Check: string;
+  SenderAccessGroupPublicKeyBase58Check: string;
+  SenderAccessGroupKeyName: string;
+  IsSenderAccessGroupKey: boolean;
+
+  RecipientPublicKeyBase58Check: string;
+  RecipientAccessGroupPublicKeyBase58Check: string;
+  RecipientAccessGroupKeyName: string;
+  IsRecipientAccessGroupKey: boolean;
+}
+
+export interface SendNewMessageRequest {
+  SenderAccessGroupOwnerPublicKeyBase58Check: string;
+  SenderAccessGroupPublicKeyBase58Check: string;
+  SenderAccessGroupKeyName: string;
+
+  RecipientAccessGroupOwnerPublicKeyBase58Check: string;
+  RecipientAccessGroupPublicKeyBase58Check: string;
+  RecipientAccessGroupKeyName: string;
+
+  EncryptedMessageText: string;
+
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+  ExtraData: { [k: string]: string };
+}
+
+export interface SendNewMessageResponse {
+  TstampNanos: number;
+
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  FeeNanos: number;
+  Transaction: MsgDeSoTxn;
+  TransactionHex: string;
+}
+
+export enum ChatType {
+  DM = 'DM',
+  GROUPCHAT = 'GroupChat',
+}
+
+export interface NewMessageEntryResponse {
+  ChatType: ChatType;
+  SenderInfo: AccessGroupInfo;
+  RecipientInfo: AccessGroupInfo;
+  MessageInfo: MessageInfo;
+}
+
+export interface AccessGroupInfo {
+  OwnerPublicKeyBase58Check: string;
+  AccessGroupPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+}
+
+export interface MessageInfo {
+  EncryptedText: string;
+  TimestampNanos: number;
+  ExtraData: { [k: string]: string };
+}
+
+export interface GetPaginatedMessagesForDmThreadRequest {
+  UserGroupOwnerPublicKeyBase58Check: string;
+  UserGroupKeyName: string;
+
+  PartyGroupOwnerPublicKeyBase58Check: string;
+  PartyGroupKeyName: string;
+
+  StartTimeStamp: number;
+  MaxMessagesToFetch: number;
+}
+
+export interface GetPaginatedMessagesForDmThreadResponse {
+  ThreadMessages: NewMessageEntryResponse[];
+}
+
+export interface GetPaginatedMessagesForGroupChatThreadRequest {
+  UserPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+
+  StartTimeStamp: number;
+  MaxMessagesToFetch: number;
+}
+
+export interface GetPaginatedMessagesForGroupChatThreadResponse {
+  GroupChatMessages: NewMessageEntryResponse[];
+}
+
+export interface GetUserMessageThreadsRequest {
+  UserPublicKeyBase58Check: string;
+}
+
+export interface GetUserMessageThreadsResponse {
+  MessageThreads: NewMessageEntryResponse[];
+}
+
+export type DecryptedMessageEntryResponse = NewMessageEntryResponse & {
+  DecryptedMessage: string;
+  IsSender: boolean;
+  error: string;
+};
