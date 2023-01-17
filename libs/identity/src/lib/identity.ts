@@ -230,10 +230,12 @@ export class Identity {
     const { primaryDerivedKey } = this.currentUser;
 
     if (!primaryDerivedKey) {
-      throw new Error('Cannot generate a jwt without a logged in user');
+      throw new Error(
+        'Cannot generate a jwt without a primary derived key. Is a user logged in?'
+      );
     }
 
-    // if the primary derived key is not authorized, authorize it before we generate the jwt.
+    // if the primary derived key has not been authorized, authorize it before we generate the jwt.
     if (!primaryDerivedKey.isAuthorized) {
       await this.#authorizePrimaryDerivedKey(
         primaryDerivedKey.publicKeyBase58Check
@@ -332,14 +334,15 @@ export class Identity {
       MinFeeRateNanosPerKB: 1000,
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
-    }).then((resp) => {
-      // mark the key as authorized
-      if (users?.[ownerPublicKey]?.primaryDerivedKey) {
-        users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
-      }
-      this.#window.localStorage.setItem('desoUsers', JSON.stringify(users));
-      return this.submitTx(this.signTx(resp.data.TransactionHex));
-    });
+    })
+      .then((resp) => this.submitTx(this.signTx(resp.data.TransactionHex)))
+      .then(() => {
+        // mark the key as authorized
+        if (users?.[ownerPublicKey]?.primaryDerivedKey) {
+          users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
+        }
+        this.#window.localStorage.setItem('desoUsers', JSON.stringify(users));
+      });
   }
 
   #handlePostMessage(ev: MessageEvent) {
