@@ -136,8 +136,9 @@ export class Identity {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
       let derivedPublicKey: string;
-      const loginKeyPair =
-        this.#window.localStorage.getItem('desoLoginKeyPair');
+      const loginKeyPair = this.#window.localStorage.getItem(
+        localStorageKeys.loginKeyPair
+      );
 
       if (loginKeyPair) {
         derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
@@ -147,7 +148,7 @@ export class Identity {
           network: this.#network,
         });
         this.#window.localStorage.setItem(
-          'desoLoginKeyPair',
+          localStorageKeys.loginKeyPair,
           JSON.stringify({
             publicKey: derivedPublicKey,
             seedHex: keys.getPrivate().toString('hex'),
