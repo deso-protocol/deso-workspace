@@ -1,5 +1,3 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
-
 export type Network = 'mainnet' | 'testnet';
 
 export interface IdentityResponse {
@@ -74,7 +72,6 @@ export interface IdentityConstructorOptions {
 }
 
 export interface LoginOptions {
-  permissions: TransactionSpendingLimitResponse;
   getFreeDeso: boolean;
 }
 

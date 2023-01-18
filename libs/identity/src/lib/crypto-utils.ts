@@ -1,11 +1,18 @@
+import {
+  getPublicKey,
+  sign as ecSign,
+  utils as ecUtils,
+} from '@noble/secp256k1';
 import { encode as bs58checkEncode } from 'bs58check';
-import { ec } from 'elliptic';
 import { sign as jwtSign } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder/lib/key-encoder';
-import { x2 } from 'sha256';
 import { Network } from './types';
 
-const ecdsa = new ec('secp256k1');
+interface KeyPair {
+  seedHex: string;
+  private: Uint8Array;
+  public: Uint8Array;
+}
 
 export const PUBLIC_KEY_PREFIXES = {
   mainnet: {
@@ -18,7 +25,7 @@ export const PUBLIC_KEY_PREFIXES = {
   },
 };
 
-const uvarint64ToBuf = (uint: number): Buffer => {
+const uvarint64ToBuf = (uint: number): Uint8Array => {
   const result: number[] = [];
   while (uint >= 0x80) {
     result.push(Number((BigInt(uint) & BigInt(0xff)) | BigInt(0x80)));
@@ -26,24 +33,42 @@ const uvarint64ToBuf = (uint: number): Buffer => {
   }
   result.push(uint | 0);
 
-  return Buffer.from(result);
+  return new Uint8Array(result);
 };
 
 interface Base58CheckOptions {
   network: Network;
 }
 
-export const keygen = (): ec.KeyPair => {
-  return ecdsa.genKeyPair();
+export const keygen = (): KeyPair => {
+  // The @noble/secp256k1 implementation of randomBytes is using the native web
+  // crypto API to generate random values.
+  //
+  // NOTE: we are not using the native web crypto API to actually generate keys because
+  // it does not support the secp256k1 curve.
+  //
+  // See the following links for more info:
+  // https://github.com/w3c/webcrypto/issues/82
+  // https://github.com/paulmillr/noble-secp256k1/blob/e125abdd2f42b2ad4cf5f4a1b7927d7737b7becf/index.ts#L1582
+  // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+  //
+  // hashToPrivateKey requires a byte array length >= 40 and <= 1024. 64 is chosen somewhat arbitrarily here.
+  const seedHex = ecUtils.bytesToHex(ecUtils.randomBytes(64));
+  const privateKey = ecUtils.hashToPrivateKey(seedHex);
+
+  return {
+    seedHex,
+    private: privateKey,
+    public: getPublicKey(privateKey, true /* isCompressed */),
+  };
 };
 
-export const getPublicKeyBase58Check = (
-  keyPair: ec.KeyPair,
+export const publicKeyToBase58Check = (
+  publicKeyBytes: Uint8Array,
   options?: Base58CheckOptions
 ): string => {
   const prefix = PUBLIC_KEY_PREFIXES[options?.network ?? 'mainnet'].deso;
-  const desoKey = keyPair.getPublic().encode('array', true);
-  const prefixAndKey = Buffer.from([...prefix, ...desoKey]);
+  const prefixAndKey = new Uint8Array([...prefix, ...publicKeyBytes]);
   return bs58checkEncode(prefixAndKey);
 };
 
@@ -51,29 +76,47 @@ export interface SignOptions {
   isDerivedKey: boolean;
 }
 
-export const signTx = (
+const sha256 = async (data: Uint8Array, times = 1): Promise<Uint8Array> => {
+  let hash = data;
+  for (let i = 0; i < times; i++) {
+    hash = await ecUtils.sha256(hash);
+  }
+  return hash;
+};
+
+export const signTx = async (
   txHex: string,
   seedHex: string,
   options?: SignOptions
-): string => {
-  const keys = ecdsa.keyFromPrivate(seedHex);
-  const transactionBytes = Buffer.from(txHex, 'hex');
-  const transactionHash = Buffer.from(x2(transactionBytes), 'hex');
-  const signature = keys.sign(transactionHash, { canonical: true });
-  const signatureBytes = Buffer.from(signature.toDER());
+): Promise<string> => {
+  const transactionBytes = ecUtils.hexToBytes(txHex);
+  const hashedTxBytes = await sha256(transactionBytes, 2);
+  const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
+  const privateKey = ecUtils.hashToPrivateKey(seedHex);
+  const [signatureBytes, recoveryParam] = await ecSign(
+    transactionHashHex,
+    privateKey,
+    {
+      canonical: true,
+      der: true,
+      extraEntropy: true,
+      recovered: true,
+    }
+  );
+
   const signatureLength = uvarint64ToBuf(signatureBytes.length);
 
   if (options?.isDerivedKey) {
-    signatureBytes[0] += 1 + (signature.recoveryParam as number);
+    signatureBytes[0] += 1 + recoveryParam;
   }
 
-  const signedTransactionBytes = Buffer.concat([
+  const signedTransactionBytes = ecUtils.concatBytes(
     transactionBytes.slice(0, -1),
     signatureLength,
-    signatureBytes,
-  ]);
+    signatureBytes
+  );
 
-  return signedTransactionBytes.toString('hex');
+  return ecUtils.bytesToHex(signedTransactionBytes);
 };
 
 export const signJWT = (

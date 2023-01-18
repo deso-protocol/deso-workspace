@@ -7,8 +7,8 @@ import {
   IDENTITY_SERVICE_VALUE,
 } from './constants';
 import {
-  getPublicKeyBase58Check,
   keygen,
+  publicKeyToBase58Check,
   signJWT,
   signTx,
 } from './crypto-utils';
@@ -128,10 +128,7 @@ export class Identity {
    * @returns returns a promise that resolves to the payload
    */
   login(
-    { permissions, getFreeDeso }: LoginOptions = {
-      permissions: DEFAULT_TRANSACTION_SPENDING_LIMIT,
-      getFreeDeso: true,
-    }
+    { getFreeDeso }: LoginOptions = { getFreeDeso: true }
   ): Promise<IdentityDerivePayload> {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
@@ -144,14 +141,14 @@ export class Identity {
         derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
       } else {
         const keys = keygen();
-        derivedPublicKey = getPublicKeyBase58Check(keys, {
+        derivedPublicKey = publicKeyToBase58Check(keys.public, {
           network: this.#network,
         });
         this.#window.localStorage.setItem(
           localStorageKeys.loginKeyPair,
           JSON.stringify({
             publicKey: derivedPublicKey,
-            seedHex: keys.getPrivate().toString('hex'),
+            seedHex: keys.seedHex,
           })
         );
       }
@@ -164,7 +161,7 @@ export class Identity {
       } = {
         derive: true,
         derivedPublicKey,
-        transactionSpendingLimitResponse: permissions,
+        transactionSpendingLimitResponse: this.#defaultTransactionSpendingLimit,
       };
 
       if (getFreeDeso) {
@@ -213,7 +210,7 @@ export class Identity {
   ) {
     try {
       const tx = await constructTx();
-      return await this.submitTx(this.signTx(tx.TransactionHex));
+      return await this.submitTx(await this.signTx(tx.TransactionHex));
     } catch (e: any) {
       // if the derived key is not authorized, authorize it and try again
       if (
@@ -226,7 +223,7 @@ export class Identity {
 
         // reconstruct the original transaction and try again
         const tx = await constructTx();
-        return this.submitTx(this.signTx(tx.TransactionHex));
+        return this.submitTx(await this.signTx(tx.TransactionHex));
       }
 
       // just rethrow unexpected errors
@@ -328,7 +325,7 @@ export class Identity {
     return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
   }
 
-  #authorizePrimaryDerivedKey(ownerPublicKey: string) {
+  async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
     const users = this.users;
     const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
 
@@ -342,7 +339,7 @@ export class Identity {
       return Promise.resolve();
     }
 
-    return this.authorizeDerivedKey({
+    const resp = await this.authorizeDerivedKey({
       OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
       DerivedPublicKeyBase58Check:
         primaryDerivedKey.derivedPublicKeyBase58Check,
@@ -353,18 +350,20 @@ export class Identity {
       MinFeeRateNanosPerKB: 1000,
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
-    })
-      .then((resp) => this.submitTx(this.signTx(resp.data.TransactionHex)))
-      .then(() => {
-        // mark the key as authorized
-        if (users?.[ownerPublicKey]?.primaryDerivedKey) {
-          users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
-        }
-        this.#window.localStorage.setItem(
-          localStorageKeys.identityUsers,
-          JSON.stringify(users)
-        );
-      });
+    });
+    const signedTx = await this.signTx(resp.data.TransactionHex);
+    const result = await this.submitTx(signedTx);
+
+    // mark the key as authorized
+    if (users?.[ownerPublicKey]?.primaryDerivedKey) {
+      users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
+    }
+    this.#window.localStorage.setItem(
+      localStorageKeys.identityUsers,
+      JSON.stringify(users)
+    );
+
+    return result;
   }
 
   #handlePostMessage(ev: MessageEvent) {
