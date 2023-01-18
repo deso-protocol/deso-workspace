@@ -1,10 +1,12 @@
 import Deso from 'deso-protocol';
 import {
   DecryptedMessageEntryResponse,
+  DeSoNetwork,
   ProfileEntryResponse,
 } from 'deso-protocol-types';
 import { useEffect, useState } from 'react';
 import { DecryptedResponse } from '../consts/constants';
+import { ConversationMap } from '../services/messaging-app.service';
 import { MessagingDisplayAvatar } from './messaging-display-avatar';
 
 export const MessagingStartNewConversation: React.FC<{
@@ -12,7 +14,7 @@ export const MessagingStartNewConversation: React.FC<{
   setSelectedConversationPublicKey: (selectedKey: string) => void;
   rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: DecryptedMessageEntryResponse;
+  conversations: ConversationMap;
 }> = ({
   deso,
   setSelectedConversationPublicKey,
@@ -28,11 +30,41 @@ export const MessagingStartNewConversation: React.FC<{
     if (!UsernamePrefix) {
       return [];
     }
-    const response = await deso.user.getProfiles({
-      NumToFetch: 10,
-      UsernamePrefix,
-    });
-    return response.ProfilesFound ?? [];
+    if (/^0x[a-fA-F0-9]{40}$/g.test(UsernamePrefix)) {
+      // If it barks like an ETH address, give it a shot.
+      const desoPublicKey = await deso.ethereum.ethAddressToDeSoPublicKey(
+        UsernamePrefix,
+        DeSoNetwork.testnet // TODO: parameterize this somehow
+      );
+      const user = await deso.user.getUsersStateless({
+        PublicKeysBase58Check: [desoPublicKey],
+        SkipForLeaderboard: true,
+      });
+      // TODO: we probably want to just jam the ETH address in there.
+      if (user?.UserList) {
+        return user.UserList.map((u) => {
+          if (u.ProfileEntryResponse) {
+            return {
+              ...u.ProfileEntryResponse,
+              ...{
+                ETHAddress: UsernamePrefix,
+              },
+            };
+          }
+          return {
+            PublicKeyBase58Check: u.PublicKeyBase58Check,
+            ETHAddress: UsernamePrefix,
+          };
+        }) as ProfileEntryResponseWithETHAddress[];
+      }
+      return [];
+    } else {
+      const response = await deso.user.getProfiles({
+        NumToFetch: 10,
+        UsernamePrefix,
+      });
+      return response.ProfilesFound ?? [];
+    }
   };
   return (
     <div>
@@ -61,16 +93,22 @@ export const MessagingStartNewConversation: React.FC<{
   );
 };
 
+export type ProfileEntryResponseWithETHAddress = ProfileEntryResponse & {
+  ETHAddress?: string;
+};
+
 export const SearchResults: React.FC<{
-  searchedUsers: ProfileEntryResponse[];
+  searchedUsers: ProfileEntryResponseWithETHAddress[];
   deso: Deso;
   searchPrefix: string;
   setSearchPrefix: (prefix: string) => void;
-  setSearchedUsers: (searchedUsers: ProfileEntryResponse[]) => void;
+  setSearchedUsers: (
+    searchedUsers: ProfileEntryResponseWithETHAddress[]
+  ) => void;
   setSelectedConversationPublicKey: (publicKey: string) => void;
   rehydrateConversation: (publicKey: string) => void;
   selectedConversationPublicKey: string;
-  conversations: DecryptedMessageEntryResponse;
+  conversations: ConversationMap;
 }> = ({
   searchedUsers,
   deso,
@@ -83,12 +121,13 @@ export const SearchResults: React.FC<{
   conversations,
 }) => {
   const [searchedPublicKey, setSearchedPublicKey] = useState('');
-  useEffect(() => {
-    if (Object.keys(conversations).includes(searchedPublicKey)) {
-      setSearchPrefix('');
-      setSearchedUsers([]);
-    }
-  }, [conversations]);
+  // I think we can get rid of this?
+  // useEffect(() => {
+  //   if (Object.keys(conversations).includes(searchedPublicKey)) {
+  //     setSearchPrefix('');
+  //     setSearchedUsers([]);
+  //   }
+  // }, [conversations]);
   const results = searchedUsers.map((user, i) => {
     let isSelected = false;
     return (
@@ -102,14 +141,18 @@ export const SearchResults: React.FC<{
         onClick={async () => {
           isSelected = !isSelected;
           setSearchedUsers([user]);
-          setSelectedConversationPublicKey(user.PublicKeyBase58Check);
+          setSelectedConversationPublicKey(
+            user.PublicKeyBase58Check + 'default-key'
+          ); // for now, searching only does DMs
           setSearchedPublicKey(user.PublicKeyBase58Check);
-          await rehydrateConversation(user.PublicKeyBase58Check);
-          if (Object.keys(conversations).includes(user.PublicKeyBase58Check)) {
-            // already an existing user in chat, filter them out
-            setSearchPrefix('');
-            setSearchedUsers([]);
-          }
+          await rehydrateConversation(
+            user.PublicKeyBase58Check + 'default-key'
+          ); // for now, searching only does DMs
+          // if (Object.keys(conversations).includes(user.PublicKeyBase58Check)) {
+          //   // already an existing user in chat, filter them out
+          //   setSearchPrefix('');
+          //   setSearchedUsers([]);
+          // }
         }}
       >
         <div className="flex justify-start">
@@ -118,7 +161,7 @@ export const SearchResults: React.FC<{
             publicKey={user.PublicKeyBase58Check}
             diameter={50}
           />
-          {user.Username}
+          {user?.ETHAddress || user.Username || user.PublicKeyBase58Check}
         </div>
       </div>
     );

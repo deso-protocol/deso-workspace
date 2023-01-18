@@ -5047,7 +5047,8 @@ export interface AccessGroupMember {
 
   AccessGroupMemberKeyName: string;
 
-  EncryptedKeyString: string;
+  EncryptedKey: string;
+  ExtraData?: { [k: string]: string };
 }
 
 export interface AddAccessGroupMembersRequest {
@@ -5070,11 +5071,19 @@ export interface AddAccessGroupMembersResponse {
   TransactionHex: string;
 }
 
+export interface AccessGroupMemberEntryResponse {
+  AccessGroupMemberPublicKeyBase58Check: string;
+  AccessGroupMemberKeyName: string;
+  EncryptedKey: string;
+  ExtraData?: { [k: string]: string };
+}
+
 export interface AccessGroupEntryResponse {
   AccessGroupOwnerPublicKeyBase58Check: string;
   AccessGroupKeyName: string;
-  AccessGroupPublicKeyBAse58Check: string;
-  ExtraData: { [k: string]: string };
+  AccessGroupPublicKeyBase58Check: string;
+  ExtraData?: { [k: string]: string };
+  AccessGroupMemberEntryResponse: AccessGroupMemberEntryResponse | null;
 }
 
 export interface GetAccessGroupsRequest {
@@ -5104,6 +5113,20 @@ export interface CheckPartyAccessGroupsResponse {
   RecipientAccessGroupPublicKeyBase58Check: string;
   RecipientAccessGroupKeyName: string;
   IsRecipientAccessGroupKey: boolean;
+}
+
+export interface GroupOwnerAndGroupKeyNamePair {
+  GroupOwnerPublicKeyBase58Check: string;
+  GroupKeyName: string;
+}
+
+export interface GetBulkAccessGroupEntriesRequest {
+  GroupOwnerAndGroupKeyNamePairs: GroupOwnerAndGroupKeyNamePair[];
+}
+
+export interface GetBulkAccessGroupEntriesResponse {
+  AccessGroupEntries: AccessGroupEntryResponse[];
+  PairsNotFound: GroupOwnerAndGroupKeyNamePair[];
 }
 
 export interface SendNewMessageRequest {

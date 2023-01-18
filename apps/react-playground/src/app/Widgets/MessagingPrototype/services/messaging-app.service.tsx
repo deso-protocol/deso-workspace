@@ -2,6 +2,7 @@ import Deso from 'deso-protocol';
 import {
   DerivedPrivateUserInfo,
   DecryptedMessageEntryResponse,
+  ChatType,
 } from 'deso-protocol-types';
 import {
   DecryptedResponse,
@@ -24,22 +25,69 @@ import {
 } from './store';
 import { delay } from './utils';
 
+export interface ConversationMap {
+  [k: string]: {
+    firstMessagePublicKey: string;
+    messages: DecryptedMessageEntryResponse[];
+    ChatType: ChatType;
+  };
+}
+
 export const getConversationsNewMap = async (
   deso: Deso,
   derivedResponse: Partial<DerivedPrivateUserInfo>
-): Promise<any> => {
-  console.log('in here');
+): Promise<{
+  Conversations: ConversationMap;
+  PublicKeyToUsername: { [k: string]: string };
+}> => {
   const decryptedMessageResponses = await getConversationNew(
     deso,
     derivedResponse
   );
-  console.log('decrypted: ', decryptedMessageResponses.length);
-  const conversationMap: { [k: string]: DecryptedMessageEntryResponse } = {};
+  const Conversations: ConversationMap = {};
   decryptedMessageResponses.forEach((dmr) => {
-    const otherInfo = dmr.IsSender ? dmr.RecipientInfo : dmr.SenderInfo;
-    conversationMap[otherInfo.OwnerPublicKeyBase58Check] = dmr;
+    const otherInfo =
+      dmr.ChatType === ChatType.DM
+        ? dmr.IsSender
+          ? dmr.RecipientInfo
+          : dmr.SenderInfo
+        : dmr.RecipientInfo;
+    Conversations[
+      otherInfo.OwnerPublicKeyBase58Check + otherInfo.AccessGroupKeyName
+    ] = {
+      firstMessagePublicKey: otherInfo.OwnerPublicKeyBase58Check,
+      messages: [dmr],
+      ChatType: dmr.ChatType,
+    };
   });
-  return conversationMap;
+  const allUsers = await deso.user.getUsersStateless({
+    PublicKeysBase58Check: getAllPublicKeysFromConversationMap(Conversations),
+    SkipForLeaderboard: true,
+  });
+  const PublicKeyToUsername: { [k: string]: string } = {};
+  allUsers.UserList?.forEach((u) => {
+    if (u?.ProfileEntryResponse?.Username) {
+      PublicKeyToUsername[u.PublicKeyBase58Check] =
+        u.ProfileEntryResponse?.Username;
+    }
+  });
+  return {
+    Conversations,
+    PublicKeyToUsername,
+  };
+};
+
+export const getAllPublicKeysFromConversationMap = (
+  conversations: ConversationMap
+): string[] => {
+  const publicKeySet = new Set<string>();
+  Object.entries(conversations).forEach(([pubKey, { messages }]) => {
+    messages.forEach((m) => {
+      publicKeySet.add(m.SenderInfo.OwnerPublicKeyBase58Check);
+      publicKeySet.add(m.RecipientInfo.OwnerPublicKeyBase58Check);
+    });
+  });
+  return Array.from(publicKeySet);
 };
 
 export const getConversationNew = async (
@@ -52,11 +100,18 @@ export const getConversationNew = async (
   }
 
   const messages = await getEncryptedNewMessages(deso);
-  console.log(messages);
+  // TODO: get my access groups
+  const { AccessGroupsOwned, AccessGroupsMember } =
+    await deso.accessGroup.GetAllUserAccessGroups({
+      PublicKeyBase58Check: deso.identity.getUserKey() as string,
+    });
+  const allAccessGroups = Array.from(
+    new Set([...(AccessGroupsOwned || []), ...(AccessGroupsMember || [])])
+  );
   return await deso.utils.decryptAccessGroupMessages(
     deso.identity.getUserKey() as string,
     messages.MessageThreads,
-    [],
+    allAccessGroups,
     { decryptedKey: derivedResponse.messagingPrivateKey as string }
   );
 };
@@ -166,7 +221,7 @@ export const getConversations = async (
   setGetUsernameByPublicKeyBase58Check: (publicKey: {
     [key: string]: string;
   }) => void,
-  setConversations: (conversations: DecryptedMessageEntryResponse) => void,
+  setConversations: (conversations: ConversationMap) => void,
   setSelectedConversationPublicKey: (publicKey: string) => void
 ) => {
   try {
@@ -175,15 +230,18 @@ export const getConversations = async (
       return {};
     }
 
-    let res = await getConversationsNewMap(deso, derivedResponse);
+    let { Conversations, PublicKeyToUsername } = await getConversationsNewMap(
+      deso,
+      derivedResponse
+    );
 
     // let res = await getConversationsMapAndPublicKeyToUsernameMapping(
     //   deso,
     //   derivedResponse
     // );
     // let conversationsArray = Object.keys(res.conversationMap);
-    let conversationsArray = Object.keys(res);
-    setGetUsernameByPublicKeyBase58Check({});
+    let conversationsArray = Object.keys(Conversations);
+    setGetUsernameByPublicKeyBase58Check(PublicKeyToUsername);
     // setGetUsernameByPublicKeyBase58Check(res.publicKeyToUsername);
     if (conversationsArray.length === 0) {
       await deso.utils.encryptAndSendNewMessage(
@@ -204,20 +262,24 @@ export const getConversations = async (
       //   true
       // );
       await delay(3000); // wait for the transaction broadcast
-      res = await getConversationsNewMap(deso, derivedResponse);
-
+      const res = await getConversationsNewMap(deso, derivedResponse);
+      Conversations = res.Conversations;
+      PublicKeyToUsername = res.PublicKeyToUsername;
       // res = await getConversationsMapAndPublicKeyToUsernameMapping(
       //   deso,
       //   derivedResponse
       // );
     }
     // setConversations(res.conversationMap ?? {});
-    setConversations(res ?? {});
+    setConversations(Conversations ?? {});
     // conversationsArray = Object.keys(res.conversationMap);
-    conversationsArray = Object.keys(res);
+    conversationsArray = Object.keys(Conversations);
     setSelectedConversationPublicKey(conversationsArray[0]);
     // return res.conversationMap;
-    return res;
+    return {
+      Conversations,
+      PublicKeyToUsername,
+    };
   } catch (e) {
     console.error(e);
     return {};

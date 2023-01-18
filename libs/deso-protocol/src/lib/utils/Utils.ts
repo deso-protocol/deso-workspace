@@ -19,11 +19,14 @@ import {
   AccessGroupInfo,
   ChatType,
   DecryptedMessageEntryResponse,
+  DeSoNetwork,
   GetMessagesResponse,
   MessageEntryResponse,
   NewMessageEntryResponse,
+  SendNewMessageResponse,
 } from 'deso-protocol-types';
 import { access } from 'fs';
+import { stringify } from 'querystring';
 
 export const uint64ToBufBigEndian = (uint: number): Buffer => {
   const result: number[] = [];
@@ -464,12 +467,15 @@ export const decryptAccessGroupMessage = async (
   options?: { decryptedKey: string }
 ): Promise<DecryptedMessageEntryResponse> => {
   // TODO: figure out sender vs. receiver in group setting
-  if (message.ChatType === ChatType.GROUPCHAT) {
-    return Promise.reject('group chat decryption not implemented yet');
-  }
-  // Okay we know we're dealing with DMs, so figuring out sender vs. receiver is easy
+  // if (message.ChatType === ChatType.GROUPCHAT) {
+  //   return Promise.reject('group chat decryption not implemented yet');
+  // }
+  // Okay we know we're dealing with DMs, so figuring out sender vs. receiver is easy.
+  // Well now we're assuming that if you're messaging with base key or default key, you're the sender.
   const IsSender =
-    message.SenderInfo.OwnerPublicKeyBase58Check === userPublicKeyBase58Check;
+    message.SenderInfo.OwnerPublicKeyBase58Check === userPublicKeyBase58Check &&
+    (message.SenderInfo.AccessGroupKeyName === 'default-key' ||
+      !message.SenderInfo.AccessGroupKeyName);
   const otherPartyAccessGroupInfo = IsSender
     ? message.RecipientInfo
     : message.SenderInfo;
@@ -477,12 +483,13 @@ export const decryptAccessGroupMessage = async (
     ? message.SenderInfo
     : message.RecipientInfo;
 
-  if (myAccessGroupInfo.AccessGroupKeyName !== 'default-key') {
-    return Promise.reject(
-      'decrypting with non-default key is not currently supported'
-    );
-  }
+  // if (myAccessGroupInfo.AccessGroupKeyName !== 'default-key') {
+  //   return Promise.reject(
+  //     'decrypting with non-default key is not currently supported'
+  //   );
+  // }
 
+  // okay we actually do need this ALL the time to decrypt stuff. we'll fix this up soon.
   if (!options?.decryptedKey) {
     return Promise.reject(
       'must provide decrypted private messaging key in options for now'
@@ -490,21 +497,88 @@ export const decryptAccessGroupMessage = async (
   }
 
   let DecryptedMessage: string;
-  try {
-    const decryptedMessageBuffer =
-      decryptAccessGroupMessageFromPrivateMessagingKey(
-        options.decryptedKey,
-        userPublicKeyBase58Check,
-        myAccessGroupInfo.AccessGroupKeyName,
-        message
+  if (message.ChatType === ChatType.DM) {
+    if (
+      message?.MessageInfo?.ExtraData &&
+      message.MessageInfo.ExtraData['unencrypted']
+    ) {
+      DecryptedMessage = Buffer.from(
+        message.MessageInfo.EncryptedText,
+        'hex'
+      ).toString();
+    } else {
+      try {
+        const decryptedMessageBuffer =
+          decryptAccessGroupMessageFromPrivateMessagingKey(
+            options.decryptedKey,
+            userPublicKeyBase58Check,
+            myAccessGroupInfo.AccessGroupKeyName,
+            message
+          );
+        DecryptedMessage = decryptedMessageBuffer.toString();
+      } catch (e) {
+        return {
+          ...message,
+          ...{ DecryptedMessage: '', IsSender, error: (e as any).toString() },
+        };
+      }
+    }
+  } else {
+    // ASSUMPTION: if it's a group chat, then the RECIPIENT has the group key name we need?
+    const accessGroup = accessGroups.find((accessGroup) => {
+      return (
+        accessGroup.AccessGroupKeyName ===
+          message.RecipientInfo.AccessGroupKeyName &&
+        accessGroup.AccessGroupOwnerPublicKeyBase58Check ===
+          message.RecipientInfo.OwnerPublicKeyBase58Check &&
+        accessGroup.AccessGroupPublicKeyBase58Check ===
+          message.RecipientInfo.AccessGroupPublicKeyBase58Check &&
+        accessGroup.AccessGroupMemberEntryResponse
       );
-    DecryptedMessage = decryptedMessageBuffer.toString();
-  } catch (e) {
-    console.error(e);
-    return Promise.reject('error decrypting');
+    });
+    if (
+      !accessGroup ||
+      !accessGroup.AccessGroupMemberEntryResponse?.EncryptedKey
+    ) {
+      console.log('access group not found');
+      return {
+        ...message,
+        ...{
+          DecryptedMessage: '',
+          IsSender,
+          error: 'access group member entry not found',
+        },
+      };
+    }
+    // message.SenderInfo
+    const encryptedKey =
+      accessGroup.AccessGroupMemberEntryResponse.EncryptedKey;
+    try {
+      const decryptedKey = decryptAccessGroupPrivateKeyToMemberDefaultKey(
+        Buffer.from(options.decryptedKey, 'hex'),
+        Buffer.from(encryptedKey, 'hex')
+      );
+      const privateEncryptionKey = decryptedKey
+        .getPrivate()
+        .toBuffer(undefined, 32);
+      const decryptedMessageBuffer =
+        decryptAccessGroupMessageFromPrivateMessagingKey(
+          privateEncryptionKey.toString('hex'),
+          userPublicKeyBase58Check,
+          accessGroup.AccessGroupKeyName,
+          message
+        );
+      DecryptedMessage = decryptedMessageBuffer.toString();
+    } catch (e) {
+      console.error(e);
+      return {
+        ...message,
+        ...{ DecryptedMessage: '', IsSender, error: (e as any).toString() },
+      };
+    }
   }
 
-  return { ...message, ...{ DecryptedMessage, IsSender } };
+  return { ...message, ...{ DecryptedMessage, IsSender, error: '' } };
 };
 
 export function decryptMessageFromPrivateMessagingKey(
@@ -539,13 +613,16 @@ export function decryptAccessGroupMessageFromPrivateMessagingKey(
   )
     .getPrivate()
     .toBuffer(undefined, 32);
-  const isSender =
-    message.SenderInfo.OwnerPublicKeyBase58Check === userPublicKeyBase58Check &&
-    message.SenderInfo.AccessGroupKeyName === userMessagingKeyName;
+  const isRecipient =
+    message.RecipientInfo.OwnerPublicKeyBase58Check ===
+      userPublicKeyBase58Check &&
+    message.RecipientInfo.AccessGroupKeyName === userMessagingKeyName;
   const publicEncryptionKey = publicKeyToECBuffer(
-    isSender
-      ? (message.RecipientInfo.AccessGroupPublicKeyBase58Check as string)
-      : (message.SenderInfo.AccessGroupPublicKeyBase58Check as string)
+    message.ChatType === ChatType.GROUPCHAT
+      ? message.SenderInfo.AccessGroupPublicKeyBase58Check
+      : isRecipient
+      ? (message.SenderInfo.AccessGroupPublicKeyBase58Check as string)
+      : (message.RecipientInfo.AccessGroupPublicKeyBase58Check as string)
   );
   return decryptShared(
     groupPrivateEncryptionKeyBuffer,
@@ -641,9 +718,9 @@ export const encryptAndSendNewMessage = async (
     return Promise.reject('sender must use default key for now');
   }
 
-  if (RecipientMessagingKeyName !== 'default-key') {
-    return Promise.reject('recipient must use default-key for now');
-  }
+  // if (RecipientMessagingKeyName !== 'default-key') {
+  //   return Promise.reject('recipient must use default-key for now');
+  // }
 
   const response = await deso.accessGroup.CheckPartyAccessGroups({
     SenderPublicKeyBase58Check: deso.identity.getUserKey() as string,
@@ -656,41 +733,93 @@ export const encryptAndSendNewMessage = async (
     return Promise.reject('SenderAccessGroupKeyName is undefined');
   }
 
-  if (!response.RecipientAccessGroupKeyName) {
-    return Promise.reject('RecipientAccessGroupKeyName is undefined');
+  // Okay we're if the recipient doesn't have a key, we're going to
+  // send it unencrypted. add some extra data.
+  // if (!response.RecipientAccessGroupKeyName) {
+  //   return Promise.reject('RecipientAccessGroupKeyName is undefined');
+  // }
+
+  let message: string;
+  let isUnencrypted = false;
+  const ExtraData: { [k: string]: string } = {};
+  if (response.RecipientAccessGroupKeyName) {
+    const encryptedMessage = encryptMessageFromPrivateMessagingKey(
+      messagingPrivateKey,
+      response.RecipientAccessGroupPublicKeyBase58Check,
+      messageToSend
+    );
+    message = encryptedMessage.toString('hex');
+  } else {
+    message = Buffer.from(messageToSend).toString('hex');
+    isUnencrypted = true;
+    ExtraData['unencrypted'] = 'true';
   }
 
-  const encryptedMessage = encryptMessageFromPrivateMessagingKey(
-    messagingPrivateKey,
-    response.RecipientAccessGroupPublicKeyBase58Check,
-    messageToSend
-  );
+  // TODO: we can kill this later, but it's nice to ensure that we can actually decrypt the
+  // message we've just encrypted.
+  // const decryptedMessage = await decryptAccessGroupMessage(
+  //   deso.identity.getUserKey() as string,
+  //   {
+  //     SenderInfo: {
+  //       OwnerPublicKeyBase58Check: deso.identity.getUserKey() as string,
+  //       AccessGroupKeyName: response.SenderAccessGroupKeyName,
+  //       AccessGroupPublicKeyBase58Check: response.SenderAccessGroupPublicKeyBase58Check,
+  //     },
+  //     RecipientInfo: {
+  //       OwnerPublicKeyBase58Check: response.RecipientPublicKeyBase58Check,
+  //       AccessGroupKeyName: response.RecipientAccessGroupKeyName,
+  //       AccessGroupPublicKeyBase58Check: isUnencrypted ? response.RecipientPublicKeyBase58Check : response.RecipientAccessGroupPublicKeyBase58Check,
+  //     },
+  //     MessageInfo: {
+  //       EncryptedText: message,
+  //       TimestampNanos: 0,
+  //       ExtraData,
+  //     },
+  //     ChatType: ChatType.DM,
+  //   },
+  //   [],
+  //   { decryptedKey: messagingPrivateKey },
+  // );
 
-  if (!encryptedMessage) {
+  // if (decryptedMessage.error) {
+  //   return Promise.reject('error decrypting message we just encrypted. encrypt/decrypt broken');
+  // }
+
+  if (!message) {
     return Promise.reject('error encrypting message');
   }
 
   // TODO: add support for group chat
-  const transaction = await deso.accessGroup.SendDmMessage(
-    {
-      SenderAccessGroupOwnerPublicKeyBase58Check:
-        deso.identity.getUserKey() as string,
-      SenderAccessGroupPublicKeyBase58Check:
-        response.SenderAccessGroupPublicKeyBase58Check,
-      SenderAccessGroupKeyName: SenderMessagingKeyName,
-      RecipientAccessGroupOwnerPublicKeyBase58Check:
-        RecipientPublicKeyBase58Check,
-      RecipientAccessGroupPublicKeyBase58Check:
-        response.RecipientAccessGroupPublicKeyBase58Check,
-      RecipientAccessGroupKeyName: response.RecipientAccessGroupKeyName,
-
-      EncryptedMessageText: encryptedMessage.toString('hex'),
-      MinFeeRateNanosPerKB: 1000,
-    },
-    {
+  let transaction: SendNewMessageResponse;
+  const requestBody = {
+    SenderAccessGroupOwnerPublicKeyBase58Check:
+      deso.identity.getUserKey() as string,
+    SenderAccessGroupPublicKeyBase58Check:
+      response.SenderAccessGroupPublicKeyBase58Check,
+    SenderAccessGroupKeyName: SenderMessagingKeyName,
+    RecipientAccessGroupOwnerPublicKeyBase58Check:
+      RecipientPublicKeyBase58Check,
+    RecipientAccessGroupPublicKeyBase58Check: isUnencrypted
+      ? response.RecipientPublicKeyBase58Check
+      : response.RecipientAccessGroupPublicKeyBase58Check,
+    RecipientAccessGroupKeyName: response.RecipientAccessGroupKeyName,
+    ExtraData,
+    EncryptedMessageText: message,
+    MinFeeRateNanosPerKB: 1000,
+  };
+  if (
+    !RecipientMessagingKeyName ||
+    RecipientMessagingKeyName === 'default-key'
+  ) {
+    transaction = await deso.accessGroup.SendDmMessage(requestBody, {
       broadcast: false,
-    }
-  );
+    });
+  } else {
+    // Otherwise, we're sending a group chat.
+    transaction = await deso.accessGroup.SendGroupChatMessage(requestBody, {
+      broadcast: false,
+    });
+  }
 
   if (!transaction?.TransactionHex) {
     return Promise.reject('failed to construct transaction');
@@ -783,4 +912,76 @@ export function encryptMessageFromPrivateMessagingKey(
     publicKeyBuffer,
     message
   );
+}
+
+export interface AccessGroupPrivateInfo {
+  AccessGroupPublicKeyBase58Check: string;
+  AccessGroupPrivateKeyHex: string;
+  AccessGroupKeyName: string;
+  // AccessGroupSignature: string;
+}
+
+export function deriveAccessGroupKey(
+  defaultKeyPrivateKeyHex: string,
+  groupKeyName: string
+): Buffer {
+  const secretHash = new Buffer(
+    sha256.x2([...new Buffer(defaultKeyPrivateKeyHex, 'hex')]),
+    'hex'
+  );
+  const keyNameHash = new Buffer(
+    sha256.x2([...new Buffer(groupKeyName, 'utf8')]),
+    'hex'
+  );
+  return new Buffer(sha256.x2([...secretHash, ...keyNameHash]), 'hex');
+}
+
+export function getAccessGroupStandardDerivation(
+  defaultKeyPrivateKeyHex: string,
+  newGroupKeyName: string,
+  network: DeSoNetwork = DeSoNetwork.mainnet
+): AccessGroupPrivateInfo {
+  const accessGroupPrivateKeyBuff = deriveAccessGroupKey(
+    defaultKeyPrivateKeyHex,
+    newGroupKeyName
+  );
+  const ec = new EC('secp256k1');
+
+  const accessGroupPrivateKey = ec.keyFromPrivate(accessGroupPrivateKeyBuff);
+  return {
+    AccessGroupPublicKeyBase58Check: privateKeyToDeSoPublicKey(
+      accessGroupPrivateKey,
+      network
+    ),
+    AccessGroupPrivateKeyHex: accessGroupPrivateKeyBuff.toString('hex'),
+    AccessGroupKeyName: newGroupKeyName,
+  };
+}
+
+export function encryptAccessGroupPrivateKeyToMemberDefaultKey(
+  memberDefaultKeyPublicKeyBase58Check: string,
+  accessGroupPrivateKeyHex: string
+): string {
+  const memberDefaultKeyAccessGroupKeyPair = publicKeyToECKeyPair(
+    memberDefaultKeyPublicKeyBase58Check
+  );
+  const accessGroupPkBuffer = new Buffer(
+    memberDefaultKeyAccessGroupKeyPair.getPublic('array')
+  );
+  return encrypt(accessGroupPkBuffer, accessGroupPrivateKeyHex, {
+    legacy: false,
+  }).toString('hex');
+}
+
+export function decryptAccessGroupPrivateKeyToMemberDefaultKey(
+  memberDefaultKeyPrivateKeyBuffer: Buffer,
+  encryptedAccessGroupPrivateKey: Buffer
+): ec.KeyPair {
+  const memberAccessPriv = decrypt(
+    memberDefaultKeyPrivateKeyBuffer,
+    encryptedAccessGroupPrivateKey,
+    { legacy: false }
+  ).toString();
+  const EC = new ec('secp256k1');
+  return EC.keyFromPrivate(memberAccessPriv);
 }

@@ -8,6 +8,8 @@ import {
   CreateAccessGroupResponse,
   GetAccessGroupsRequest,
   GetAccessGroupsResponse,
+  GetBulkAccessGroupEntriesRequest,
+  GetBulkAccessGroupEntriesResponse,
   GetPaginatedMessagesForDmThreadRequest,
   GetPaginatedMessagesForDmThreadResponse,
   GetPaginatedMessagesForGroupChatThreadRequest,
@@ -109,6 +111,17 @@ export class AccessGroup {
     return (
       await axios.post(
         `${this.node.getUri()}/check-party-access-groups`,
+        request
+      )
+    ).data;
+  }
+
+  public async GetBulkAccessGroupEntries(
+    request: Partial<GetBulkAccessGroupEntriesRequest>
+  ): Promise<GetBulkAccessGroupEntriesResponse> {
+    return (
+      await axios.post(
+        `${this.node.getUri()}/get-bulk-access-group-entries`,
         request
       )
     ).data;
