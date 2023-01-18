@@ -118,6 +118,15 @@ export const handlers = async (
   }
 
   if (
+    info.iFrameMethod === 'messagingGroup' &&
+    event.data.method === 'messagingGroup'
+  ) {
+    info.data.prompt?.close();
+    info.data.resolve(event.data.payload);
+    window.removeEventListener('message', windowHandler);
+  }
+
+  if (
     info.iFrameMethod === 'storageGranted' &&
     event.data.method === 'storageGranted'
   ) {

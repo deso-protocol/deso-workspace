@@ -7,6 +7,8 @@ import {
   IdentityDeriveParams,
   IdentityDeriveQueryParams,
   LoginUser,
+  MessagingGroupOperation,
+  MessagingGroupPayload,
   RequestOptions,
   SendMessageStatelessRequest,
 } from 'deso-protocol-types';
@@ -24,6 +26,7 @@ import {
   requestDerive,
   requestLogin,
   requestLogout,
+  requestMessagingGroups,
   requestPhoneVerification,
   WindowFeatures,
 } from './WindowPrompts';
@@ -362,7 +365,7 @@ export class Identity {
   ) {
     // don't submit the transaction, instead just return the api response from the
     // previous call
-    if (options?.broadcast === false) return;
+    if (options?.broadcast === false) return { TransactionHex };
     // server app? then you can't call the iframe
     if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
@@ -437,6 +440,38 @@ export class Identity {
       undefined,
       'jwt',
       this.getUser(),
+      this.transactions
+    );
+  }
+  public async messagingGroups(
+    publicKeyBase58Check: string,
+    applicationMessagingPublicKeyBase58Check: string, // pass derived
+    messagingGroupOperation: MessagingGroupOperation,
+    updatedGroupKeyName = 'default-key'
+  ): Promise<MessagingGroupPayload> {
+    if (this.host === 'server') throw Error(SERVER_ERROR);
+
+    if (!this.storageGranted) {
+      await this.guardFeatureSupport();
+    }
+
+    const prompt = requestMessagingGroups(
+      this.getUri(),
+      this.isTestnet(),
+      undefined,
+      {
+        operation: messagingGroupOperation,
+        applicationMessagingPublicKeyBase58Check,
+        updatedGroupKeyName,
+        updatedGroupOwnerPublicKeyBase58Check: publicKeyBase58Check,
+      }
+    );
+
+    return await iFrameHandler(
+      {
+        iFrameMethod: 'messagingGroup',
+        data: { prompt },
+      },
       this.transactions
     );
   }

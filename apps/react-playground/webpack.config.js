@@ -9,6 +9,7 @@ module.exports = (config, context) => {
     crypto: require.resolve('crypto-browserify'),
     assert: require.resolve('assert/'),
   };
+
   return {
     ...config,
     // node: { global: true, fs: 'empty' }, // Fix: "Uncaught ReferenceError: global is not defined", and "Can't resolve 'fs'".

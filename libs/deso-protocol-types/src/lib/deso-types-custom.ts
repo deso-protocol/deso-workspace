@@ -1,5 +1,8 @@
 import { ec } from 'elliptic';
 import {
+  CoinEntry,
+  MessageEntryResponse,
+  ProfileEntryResponse,
   SubmitTransactionResponse,
   TransactionFee,
   TransactionSpendingLimitResponse,
@@ -345,4 +348,25 @@ export interface MetaMaskInitResponse {
 
 export interface RequestOptions {
   broadcast?: boolean;
+}
+
+export type MessagingGroupPayload = {
+  messagingKeySignature: string;
+  encryptedToApplicationGroupMessagingPrivateKey: string;
+  encryptedToMembersGroupMessagingPrivateKey: string[];
+  messagingPublicKeyBase58Check: string;
+  encryptedMessagingKeyRandomness: string | undefined;
+};
+
+export enum MessagingGroupOperation {
+  DEFAULT_KEY = 'DefaultKey',
+  CREATE_GROUP = 'CreateGroup',
+  ADD_MEMBERS = 'AddMembers',
+}
+
+export interface DAOCoinEntry {
+  NumberOfHolders: number;
+  CoinsInCirculationNanos: string;
+  MintingDisabled: boolean;
+  TransferRestrictionStatus: string;
 }

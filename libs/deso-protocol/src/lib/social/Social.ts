@@ -1,5 +1,7 @@
 import axios from 'axios';
 import {
+  CheckPartyMessagingKeysRequest,
+  CheckPartyMessagingKeysResponse,
   CreateFollowTxnStatelessRequest,
   CreateFollowTxnStatelessResponse,
   CreateLikeStatelessRequest,
@@ -40,6 +42,14 @@ export class Social {
     this.node = node;
     this.identity = identity;
   }
+  public sendMessageWithoutIdentity = async (
+    // TODO: temp fix method until major library update
+    request: Partial<SendMessageStatelessRequest>
+  ) => {
+    return (
+      await axios.post(`${this.node.getUri()}/send-message-stateless`, request)
+    ).data;
+  };
 
   public async sendMessage(
     request: Partial<SendMessageStatelessRequest>,
@@ -98,7 +108,14 @@ export class Social {
     ).data;
     return response;
   }
-
+  public async getMessagesStatelessUnmodified(
+    request: GetMessagesStatelessRequest
+  ): Promise<GetMessagesResponse> {
+    const response: GetMessagesResponse = (
+      await axios.post(`${this.node.getUri()}/get-messages-stateless`, request)
+    ).data;
+    return response;
+  }
   public async getMessagesStateless(
     request: GetMessagesStatelessRequest
   ): Promise<GetDecryptMessagesResponse[]> {
@@ -209,5 +226,15 @@ export class Social {
       .catch(() => {
         throw Error('something went wrong while signing');
       });
+  }
+
+  public async checkPartyMessagingKey(
+    request: Partial<CheckPartyMessagingKeysRequest>
+  ): Promise<CheckPartyMessagingKeysResponse> {
+    const endpoint = 'check-party-messaging-keys';
+    const response = await (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return response;
   }
 }

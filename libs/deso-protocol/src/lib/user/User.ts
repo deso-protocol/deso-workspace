@@ -6,6 +6,8 @@ import {
   BlockPublicKeyRequest,
   BlockPublicKeyResponse,
   DeletePIIRequest,
+  GetAllMessagingGroupKeysRequest,
+  GetAllMessagingGroupKeysResponse,
   GetProfilesRequest,
   GetProfilesResponse,
   GetSingleProfileRequest,
@@ -16,6 +18,8 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
+  RegisterMessagingGroupKeyRequest,
+  RegisterMessagingGroupKeyResponse,
   GetUserGlobalMetadataRequest,
   GetUserGlobalMetadataResponse,
   UpdateUserGlobalMetadataRequest,
@@ -32,7 +36,23 @@ export class User {
     this.identity = identity;
   }
 
+  public async getUsernameForPublicKey(
+    PublicKeyBase58Check: string
+  ): Promise<any> {
+    return (
+      await axios.get(
+        `${this.node.getUri()}/get-user-name-for-public-key/${PublicKeyBase58Check}`
+      )
+    ).data;
+  }
+
+  // remove this on next major release, currently kept for backwards compatibility
   public async getUserStateless(
+    request: Partial<GetUsersStatelessRequest>
+  ): Promise<GetUsersResponse> {
+    return this.getUsersStateless(request);
+  }
+  public async getUsersStateless(
     request: Partial<GetUsersStatelessRequest>
   ): Promise<GetUsersResponse> {
     return (
@@ -211,5 +231,24 @@ export class User {
       .catch(() => {
         throw Error('something went wrong while signing');
       });
+  }
+
+  public async getAllMessagingGroupKeys(
+    request: Partial<GetAllMessagingGroupKeysRequest>
+  ): Promise<GetAllMessagingGroupKeysResponse> {
+    const endpoint = 'get-all-messaging-group-keys';
+    const apiResponse: any = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
+  }
+  public async registerMessagingGroupKey(
+    request: Partial<RegisterMessagingGroupKeyRequest>
+  ): Promise<RegisterMessagingGroupKeyResponse> {
+    const endpoint = 'register-messaging-group-key';
+    const apiResponse: any = (
+      await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+    return apiResponse;
   }
 }
