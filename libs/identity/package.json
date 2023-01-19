@@ -4,7 +4,7 @@
   "type": "commonjs",
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
-    "@types/bs58check": "^2.1.0",
+    "bs58": "^5.0.0",
     "assert": "^2.0.0",
     "axios": "^0.25.0",
     "buffer": "^6.0.3",

@@ -3,10 +3,29 @@ import {
   sign as ecSign,
   utils as ecUtils,
 } from '@noble/secp256k1';
-import { encode as bs58checkEncode } from 'bs58check';
+import * as bs58 from 'bs58';
 import { sign as jwtSign } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder/lib/key-encoder';
 import { Network } from './types';
+
+// Browser friendly version of node's Buffer.concat.
+// courtesy of ChatGPT!
+function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
+  if (length === undefined) {
+    length = arrays.reduce((acc, array) => acc + array.length, 0);
+  }
+  const result = new Uint8Array(length);
+  let offset = 0;
+  for (let i = 0; i < arrays.length; i++) {
+    if (offset + arrays[i].length > length) {
+      result.set(arrays[i].slice(0, length - offset), offset);
+      break;
+    }
+    result.set(arrays[i], offset);
+    offset += arrays[i].length;
+  }
+  return result;
+}
 
 interface KeyPair {
   seedHex: string;
@@ -52,8 +71,10 @@ export const keygen = (): KeyPair => {
   // https://github.com/paulmillr/noble-secp256k1/blob/e125abdd2f42b2ad4cf5f4a1b7927d7737b7becf/index.ts#L1582
   // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
   //
-  // hashToPrivateKey requires a byte array length >= 40 and <= 1024. 64 is chosen somewhat arbitrarily here.
-  const seedHex = ecUtils.bytesToHex(ecUtils.randomBytes(64));
+  // hashToPrivateKey requires a byte array length >= 40 and <= 1024.
+  // 64 is chosen somewhat arbitrarily here.
+  const randomBytes = ecUtils.randomBytes(64);
+  const seedHex = ecUtils.bytesToHex(randomBytes);
   const privateKey = ecUtils.hashToPrivateKey(seedHex);
 
   return {
@@ -63,26 +84,26 @@ export const keygen = (): KeyPair => {
   };
 };
 
-export const publicKeyToBase58Check = (
+const sha256X2 = async (data: Uint8Array): Promise<Uint8Array> => {
+  return ecUtils.sha256(await ecUtils.sha256(data));
+};
+
+export const publicKeyToBase58Check = async (
   publicKeyBytes: Uint8Array,
   options?: Base58CheckOptions
-): string => {
+): Promise<string> => {
   const prefix = PUBLIC_KEY_PREFIXES[options?.network ?? 'mainnet'].deso;
-  const prefixAndKey = new Uint8Array([...prefix, ...publicKeyBytes]);
-  return bs58checkEncode(prefixAndKey);
+  const bytes = new Uint8Array([...prefix, ...publicKeyBytes]);
+  const checksum = await sha256X2(bytes);
+  // This is the same as the implementation in the bs58check package, but we
+  // slightly modify it to use the browser friendly version of Buffer.concat.
+  // See: https://github.com/bitcoinjs/bs58check/blob/12b3e700f355c5c49d0be3f8fc29be6c66e753e9/base.js#L1
+  return bs58.encode(concatUint8Arrays([bytes, checksum], bytes.length + 4));
 };
 
 export interface SignOptions {
   isDerivedKey: boolean;
 }
-
-const sha256 = async (data: Uint8Array, times = 1): Promise<Uint8Array> => {
-  let hash = data;
-  for (let i = 0; i < times; i++) {
-    hash = await ecUtils.sha256(hash);
-  }
-  return hash;
-};
 
 export const signTx = async (
   txHex: string,
@@ -90,7 +111,7 @@ export const signTx = async (
   options?: SignOptions
 ): Promise<string> => {
   const transactionBytes = ecUtils.hexToBytes(txHex);
-  const hashedTxBytes = await sha256(transactionBytes, 2);
+  const hashedTxBytes = await sha256X2(transactionBytes);
   const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
   const privateKey = ecUtils.hashToPrivateKey(seedHex);
   const [signatureBytes, recoveryParam] = await ecSign(

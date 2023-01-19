@@ -127,31 +127,32 @@ export class Identity {
   /**
    * @returns returns a promise that resolves to the payload
    */
-  login(
+  async login(
     { getFreeDeso }: LoginOptions = { getFreeDeso: true }
   ): Promise<IdentityDerivePayload> {
+    let derivedPublicKey: string;
+    const loginKeyPair = this.#window.localStorage.getItem(
+      localStorageKeys.loginKeyPair
+    );
+
+    if (loginKeyPair) {
+      derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
+    } else {
+      const keys = keygen();
+      derivedPublicKey = await publicKeyToBase58Check(keys.public, {
+        network: this.#network,
+      });
+      this.#window.localStorage.setItem(
+        localStorageKeys.loginKeyPair,
+        JSON.stringify({
+          publicKey: derivedPublicKey,
+          seedHex: keys.seedHex,
+        })
+      );
+    }
+
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
-      let derivedPublicKey: string;
-      const loginKeyPair = this.#window.localStorage.getItem(
-        localStorageKeys.loginKeyPair
-      );
-
-      if (loginKeyPair) {
-        derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
-      } else {
-        const keys = keygen();
-        derivedPublicKey = publicKeyToBase58Check(keys.public, {
-          network: this.#network,
-        });
-        this.#window.localStorage.setItem(
-          localStorageKeys.loginKeyPair,
-          JSON.stringify({
-            publicKey: derivedPublicKey,
-            seedHex: keys.seedHex,
-          })
-        );
-      }
 
       const identityParams: {
         derivedPublicKey: string;
