@@ -26,14 +26,12 @@ import {
 } from './types';
 
 const localStorageKeys = Object.freeze({
-  lastLoggedInUser: 'deso_active_public_key',
-  identityUsers: 'deso_identity_users',
-  loginKeyPair: 'deso_login_key_pair',
+  lastLoggedInUser: 'desoActivePublicKey',
+  identityUsers: 'desoIdentityUsers',
+  loginKeyPair: 'desoLoginKeyPair',
 });
 
-// Class is only exported for testing purposes
 export class Identity {
-  // used for DI in testing
   #window: Window;
   #identityURI: string = DEFAULT_IDENTITY_URI;
   #network: Network = 'mainnet';

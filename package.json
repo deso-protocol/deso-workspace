@@ -57,6 +57,7 @@
     "hdkey": "github:deso-protocol/hdkey",
     "i": "^0.3.7",
     "install": "^0.13.0",
+    "jose": "^4.11.2",
     "jsonwebtoken": "^8.5.1",
     "key-encoder": "^2.0.3",
     "lint-staged": "^13.0.3",

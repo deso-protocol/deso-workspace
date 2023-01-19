@@ -9,7 +9,6 @@ import KeyEncoder from 'key-encoder/lib/key-encoder';
 import { Network } from './types';
 
 // Browser friendly version of node's Buffer.concat.
-// courtesy of ChatGPT!
 function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
   if (length === undefined) {
     length = arrays.reduce((acc, array) => acc + array.length, 0);
@@ -25,6 +24,31 @@ function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
     offset += arrays[i].length;
   }
   return result;
+}
+
+// TODO: i don't know how to do this yet
+async function seedHexToPem(seedHex: string) {
+  // return crypto.subtle.exportKey('jwk', seedHex).then(function(jwk) {
+  //   console.log(Object.values(jwk));
+  // });
+  // convert hex seed to ArrayBuffer
+  // const seedBuffer = ecUtils.hexToBytes(seedHex);
+  // // new Uint8Array(seedHex.match(/.{1,2}/g):.map(byte => parseInt(byte, 16)));
+  // // import seed as crypto key
+  // return window.crypto.subtle
+  //   .importKey('raw', seedBuffer, { name: 'AES-CBC', length: 256 }, false, [
+  //     'encrypt',
+  //     'decrypt',
+  //   ])
+  //   .then(function (key) {
+  //     // export key as pem
+  //     crypto.subtle.exportKey('pkcs8', key).then(function (pem) {
+  //       // convert ArrayBuffer to string
+  //       const view = new Uint8Array(pem);
+  //       const pemString = String.fromCharCode.apply(null, Array.from(view));
+  //       console.log(pemString);
+  //     });
+  //   });
 }
 
 interface KeyPair {
@@ -84,20 +108,19 @@ export const keygen = (): KeyPair => {
   };
 };
 
-const sha256X2 = async (data: Uint8Array): Promise<Uint8Array> => {
-  return ecUtils.sha256(await ecUtils.sha256(data));
-};
+const sha256X2 = async (data: Uint8Array): Promise<Uint8Array> =>
+  ecUtils.sha256(await ecUtils.sha256(data));
 
 export const publicKeyToBase58Check = async (
   publicKeyBytes: Uint8Array,
   options?: Base58CheckOptions
 ): Promise<string> => {
   const prefix = PUBLIC_KEY_PREFIXES[options?.network ?? 'mainnet'].deso;
-  const bytes = new Uint8Array([...prefix, ...publicKeyBytes]);
-  const checksum = await sha256X2(bytes);
   // This is the same as the implementation in the bs58check package, but we
   // slightly modify it to use the browser friendly version of Buffer.concat.
   // See: https://github.com/bitcoinjs/bs58check/blob/12b3e700f355c5c49d0be3f8fc29be6c66e753e9/base.js#L1
+  const bytes = new Uint8Array([...prefix, ...publicKeyBytes]);
+  const checksum = await sha256X2(bytes);
   return bs58.encode(concatUint8Arrays([bytes, checksum], bytes.length + 4));
 };
 
@@ -140,15 +163,19 @@ export const signTx = async (
   return ecUtils.bytesToHex(signedTransactionBytes);
 };
 
-export const signJWT = (
+export const signJWT = async (
   seedHex: string,
   {
     derivedPublicKeyBase58Check,
     expiration,
   }: { derivedPublicKeyBase58Check?: string; expiration?: number } = {}
-): string => {
+): Promise<string> => {
   const keyEncoder = new KeyEncoder('secp256k1');
   const encodedPrivateKey = keyEncoder.encodePrivate(seedHex, 'raw', 'pem');
+  console.log(encodedPrivateKey);
+
+  const pemEncodedPrivateKey = seedHexToPem(seedHex);
+  console.log(pemEncodedPrivateKey);
 
   return jwtSign(
     derivedPublicKeyBase58Check ? { derivedPublicKeyBase58Check } : {},

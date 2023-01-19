@@ -8,7 +8,7 @@ export function BlankPage() {
 
   return (
     <div>
-      <h1>Blank Page</h1>
+      <h1>Desojs V2 demo</h1>
       <p>Current user: {activePublicKey}</p>
       <button onClick={() => identity.login()}>Login</button>
       <button onClick={() => identity.logout()} className="ml-4">
