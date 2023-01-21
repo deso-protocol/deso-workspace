@@ -11,3 +11,14 @@ export const DEFAULT_PERMISSIONS = Object.freeze({
   NFTOperationLimitMap: {},
   DAOCoinLimitOrderLimitMap: {},
 });
+
+export const PUBLIC_KEY_PREFIXES = Object.freeze({
+  mainnet: {
+    bitcoin: [0x00],
+    deso: [0xcd, 0x14, 0x0],
+  },
+  testnet: {
+    bitcoin: [0x6f],
+    deso: [0x11, 0xc2, 0x0],
+  },
+});

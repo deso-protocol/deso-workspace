@@ -7,9 +7,9 @@ import {
   IDENTITY_SERVICE_VALUE,
 } from './constants';
 import {
+  getSignedJWT,
   keygen,
   publicKeyToBase58Check,
-  signJWT,
   signTx,
 } from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
@@ -254,7 +254,7 @@ export class Identity {
       );
     }
 
-    return signJWT(primaryDerivedKey.derivedSeedHex, {
+    return getSignedJWT(primaryDerivedKey.derivedSeedHex, {
       derivedPublicKeyBase58Check:
         primaryDerivedKey.derivedPublicKeyBase58Check,
       expiration: 60 * 10,
@@ -322,6 +322,10 @@ export class Identity {
     TransactionSpendingLimitHex: string;
   }) {
     return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
+  }
+
+  generateRandomKeyPair() {
+    return keygen();
   }
 
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {

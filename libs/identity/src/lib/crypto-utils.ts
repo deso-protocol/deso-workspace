@@ -4,9 +4,8 @@ import {
   utils as ecUtils,
 } from '@noble/secp256k1';
 import * as bs58 from 'bs58';
-import { sign as jwtSign } from 'jsonwebtoken';
-import KeyEncoder from 'key-encoder/lib/key-encoder';
-import { Network } from './types';
+import { PUBLIC_KEY_PREFIXES } from './constants';
+import { KeyPair, Network } from './types';
 
 // Browser friendly version of node's Buffer.concat.
 function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
@@ -26,48 +25,6 @@ function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
   return result;
 }
 
-// TODO: i don't know how to do this yet
-async function seedHexToPem(seedHex: string) {
-  // return crypto.subtle.exportKey('jwk', seedHex).then(function(jwk) {
-  //   console.log(Object.values(jwk));
-  // });
-  // convert hex seed to ArrayBuffer
-  // const seedBuffer = ecUtils.hexToBytes(seedHex);
-  // // new Uint8Array(seedHex.match(/.{1,2}/g):.map(byte => parseInt(byte, 16)));
-  // // import seed as crypto key
-  // return window.crypto.subtle
-  //   .importKey('raw', seedBuffer, { name: 'AES-CBC', length: 256 }, false, [
-  //     'encrypt',
-  //     'decrypt',
-  //   ])
-  //   .then(function (key) {
-  //     // export key as pem
-  //     crypto.subtle.exportKey('pkcs8', key).then(function (pem) {
-  //       // convert ArrayBuffer to string
-  //       const view = new Uint8Array(pem);
-  //       const pemString = String.fromCharCode.apply(null, Array.from(view));
-  //       console.log(pemString);
-  //     });
-  //   });
-}
-
-interface KeyPair {
-  seedHex: string;
-  private: Uint8Array;
-  public: Uint8Array;
-}
-
-export const PUBLIC_KEY_PREFIXES = {
-  mainnet: {
-    bitcoin: [0x00],
-    deso: [0xcd, 0x14, 0x0],
-  },
-  testnet: {
-    bitcoin: [0x6f],
-    deso: [0x11, 0xc2, 0x0],
-  },
-};
-
 const uvarint64ToBuf = (uint: number): Uint8Array => {
   const result: number[] = [];
   while (uint >= 0x80) {
@@ -84,21 +41,28 @@ interface Base58CheckOptions {
 }
 
 export const keygen = (): KeyPair => {
-  // The @noble/secp256k1 implementation of randomBytes is using the native web
-  // crypto API to generate random values.
-  //
-  // NOTE: we are not using the native web crypto API to actually generate keys because
-  // it does not support the secp256k1 curve.
-  //
-  // See the following links for more info:
-  // https://github.com/w3c/webcrypto/issues/82
-  // https://github.com/paulmillr/noble-secp256k1/blob/e125abdd2f42b2ad4cf5f4a1b7927d7737b7becf/index.ts#L1582
-  // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
-  //
+  if (!window.crypto) {
+    throw new Error(
+      'window.crypto is not available https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues'
+    );
+  }
   // hashToPrivateKey requires a byte array length >= 40 and <= 1024.
   // 64 is chosen somewhat arbitrarily here.
-  const randomBytes = ecUtils.randomBytes(64);
-  const seedHex = ecUtils.bytesToHex(randomBytes);
+  const seedHex = ecUtils.bytesToHex(
+    window.crypto.getRandomValues(new Uint8Array(64))
+  );
+
+  // We are not using the native web crypto API to actually generate keys
+  // because it does not support the secp256k1 curve. Instead, we are using
+  // https://github.com/paulmillr/noble-secp256k1 which is a browser friendly
+  // alternative to the node elliptic package which is far smaller and only
+  // focuses on supporting the ec algorithm we are actually interested in here.
+  // If the web crypto API ever adds support for secp256k1, we should change
+  // this to use it.
+  //
+  // See the following for more info:
+  // https://github.com/w3c/webcrypto/issues/82
+  //
   const privateKey = ecUtils.hashToPrivateKey(seedHex);
 
   return {
@@ -128,6 +92,16 @@ export interface SignOptions {
   isDerivedKey: boolean;
 }
 
+const sign = (msgHashHex: string, privateKey: Uint8Array) => {
+  return ecSign(msgHashHex, privateKey, {
+    // For details about the signing options see: https://github.com/paulmillr/noble-secp256k1#signmsghash-privatekey
+    canonical: true,
+    der: true,
+    extraEntropy: true,
+    recovered: true,
+  });
+};
+
 export const signTx = async (
   txHex: string,
   seedHex: string,
@@ -137,15 +111,9 @@ export const signTx = async (
   const hashedTxBytes = await sha256X2(transactionBytes);
   const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
   const privateKey = ecUtils.hashToPrivateKey(seedHex);
-  const [signatureBytes, recoveryParam] = await ecSign(
+  const [signatureBytes, recoveryParam] = await sign(
     transactionHashHex,
-    privateKey,
-    {
-      canonical: true,
-      der: true,
-      extraEntropy: true,
-      recovered: true,
-    }
+    privateKey
   );
 
   const signatureLength = uvarint64ToBuf(signatureBytes.length);
@@ -163,26 +131,179 @@ export const signTx = async (
   return ecUtils.bytesToHex(signedTransactionBytes);
 };
 
-export const signJWT = async (
+export const getSignedJWT = async (
   seedHex: string,
   {
     derivedPublicKeyBase58Check,
     expiration,
   }: { derivedPublicKeyBase58Check?: string; expiration?: number } = {}
 ): Promise<string> => {
-  const keyEncoder = new KeyEncoder('secp256k1');
-  const encodedPrivateKey = keyEncoder.encodePrivate(seedHex, 'raw', 'pem');
-  console.log(encodedPrivateKey);
+  const header = { alg: 'ES256', typ: 'JWT' };
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const thirtyMinFromNow = issuedAt + 30 * 60;
+  const payload = {
+    ...(derivedPublicKeyBase58Check ? { derivedPublicKeyBase58Check } : {}),
+    iat: issuedAt,
+    exp: thirtyMinFromNow,
+  };
 
-  const pemEncodedPrivateKey = seedHexToPem(seedHex);
-  console.log(pemEncodedPrivateKey);
+  const jwt = `${window.btoa(JSON.stringify(header))}.${window.btoa(
+    JSON.stringify(payload)
+  )}`;
 
-  return jwtSign(
-    derivedPublicKeyBase58Check ? { derivedPublicKeyBase58Check } : {},
-    encodedPrivateKey,
-    {
-      algorithm: 'ES256',
-      expiresIn: expiration,
-    }
+  const [signature] = await sign(
+    ecUtils.bytesToHex(await ecUtils.sha256(new TextEncoder().encode(jwt))),
+    ecUtils.hashToPrivateKey(seedHex)
   );
+
+  // TODO: convert all usage of Buffer to Uint8Array
+  const encodedSignature = derToJose(Buffer.from(signature));
+
+  return `${jwt}.${encodedSignature}`;
 };
+
+const MAX_OCTET = 0x80,
+  CLASS_UNIVERSAL = 0,
+  PRIMITIVE_BIT = 0x20,
+  TAG_SEQ = 0x10,
+  TAG_INT = 0x02,
+  ENCODED_TAG_SEQ = TAG_SEQ | PRIMITIVE_BIT | (CLASS_UNIVERSAL << 6),
+  ENCODED_TAG_INT = TAG_INT | (CLASS_UNIVERSAL << 6);
+
+function base64Url(base64: string) {
+  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function derToJose(signature: Buffer) {
+  const paramBytes = 32;
+
+  // the DER encoded param should at most be the param size, plus a padding
+  // zero, since due to being a signed integer
+  const maxEncodedParamLength = paramBytes + 1;
+
+  const inputLength = signature.length;
+
+  let offset = 0;
+  if (signature[offset++] !== ENCODED_TAG_SEQ) {
+    throw new Error('Could not find expected "seq"');
+  }
+
+  let seqLength = signature[offset++];
+  if (seqLength === (MAX_OCTET | 1)) {
+    seqLength = signature[offset++];
+  }
+
+  if (inputLength - offset < seqLength) {
+    throw new Error(
+      '"seq" specified length of "' +
+        seqLength +
+        '", only "' +
+        (inputLength - offset) +
+        '" remaining'
+    );
+  }
+
+  if (signature[offset++] !== ENCODED_TAG_INT) {
+    throw new Error('Could not find expected "int" for "r"');
+  }
+
+  const rLength = signature[offset++];
+
+  if (inputLength - offset - 2 < rLength) {
+    throw new Error(
+      '"r" specified length of "' +
+        rLength +
+        '", only "' +
+        (inputLength - offset - 2) +
+        '" available'
+    );
+  }
+
+  if (maxEncodedParamLength < rLength) {
+    throw new Error(
+      '"r" specified length of "' +
+        rLength +
+        '", max of "' +
+        maxEncodedParamLength +
+        '" is acceptable'
+    );
+  }
+
+  const rOffset = offset;
+  offset += rLength;
+
+  if (signature[offset++] !== ENCODED_TAG_INT) {
+    throw new Error('Could not find expected "int" for "s"');
+  }
+
+  const sLength = signature[offset++];
+
+  if (inputLength - offset !== sLength) {
+    throw new Error(
+      '"s" specified length of "' +
+        sLength +
+        '", expected "' +
+        (inputLength - offset) +
+        '"'
+    );
+  }
+
+  if (maxEncodedParamLength < sLength) {
+    throw new Error(
+      '"s" specified length of "' +
+        sLength +
+        '", max of "' +
+        maxEncodedParamLength +
+        '" is acceptable'
+    );
+  }
+
+  const sOffset = offset;
+  offset += sLength;
+
+  if (offset !== inputLength) {
+    throw new Error(
+      'Expected to consume entire buffer, but "' +
+        (inputLength - offset) +
+        '" bytes remain'
+    );
+  }
+
+  const rPadding = paramBytes - rLength,
+    sPadding = paramBytes - sLength;
+
+  // const dst = new Uint8Array(rPadding + rLength + sPadding + sLength);
+  const dst = Buffer.allocUnsafe(rPadding + rLength + sPadding + sLength);
+
+  for (offset = 0; offset < rPadding; ++offset) {
+    dst[offset] = 0;
+  }
+  signature.copy(
+    dst,
+    offset,
+    rOffset + Math.max(-rPadding, 0),
+    rOffset + rLength
+  );
+
+  offset = paramBytes;
+
+  for (const o = offset; offset < o + sPadding; ++offset) {
+    dst[offset] = 0;
+  }
+  signature.copy(
+    dst,
+    offset,
+    sOffset + Math.max(-sPadding, 0),
+    sOffset + sLength
+  );
+
+  // const chars = dst.reduce(
+  //   (data, byte) => data + String.fromCharCode(byte),
+  //   ''
+  // );
+  const base64 = dst.toString('base64');
+  // dst = base64Url(dst);
+
+  return base64Url(base64);
+  // return base64Url(window.btoa(chars));
+}

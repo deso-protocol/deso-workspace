@@ -107,3 +107,9 @@ export interface Deferred {
   resolve: (args: any) => void;
   reject: (args: any) => void;
 }
+
+export interface KeyPair {
+  seedHex: string;
+  private: Uint8Array;
+  public: Uint8Array;
+}

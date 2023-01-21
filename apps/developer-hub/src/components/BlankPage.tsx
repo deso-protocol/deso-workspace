@@ -14,11 +14,20 @@ export function BlankPage() {
       <button onClick={() => identity.logout()} className="ml-4">
         Logout
       </button>
-      <button onClick={() => identity.getDeso()} className="ml-4">
+      {/* <button onClick={() => identity.getDeso()} className="ml-4">
         Get Deso
       </button>
       <button onClick={() => identity.verifyPhoneNumber()} className="ml-4">
         Verify Phone
+      </button> */}
+      <button onClick={() => identity.jwt()} className="ml-4">
+        Generate jwt
+      </button>
+      <button
+        onClick={() => console.log(identity.generateRandomKeyPair())}
+        className="ml-4"
+      >
+        Generate key pair
       </button>
       <form
         onSubmit={(e: any) => {
