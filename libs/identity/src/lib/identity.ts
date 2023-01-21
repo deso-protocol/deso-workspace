@@ -5,6 +5,7 @@ import {
   DEFAULT_NODE_URI,
   DEFAULT_PERMISSIONS as DEFAULT_TRANSACTION_SPENDING_LIMIT,
   IDENTITY_SERVICE_VALUE,
+  LOCAL_STORAGE_KEYS,
 } from './constants';
 import {
   getSignedJWT,
@@ -25,12 +26,7 @@ import {
   StoredUser,
 } from './types';
 
-const localStorageKeys = Object.freeze({
-  lastLoggedInUser: 'desoActivePublicKey',
-  identityUsers: 'desoIdentityUsers',
-  loginKeyPair: 'desoLoginKeyPair',
-});
-
+// TODO: figure out how to deal with expired derived keys
 export class Identity {
   #window: Window;
   #identityURI: string = DEFAULT_IDENTITY_URI;
@@ -45,12 +41,14 @@ export class Identity {
   #subscriber?: (state: any) => void;
 
   get activePublicKey(): string | null {
-    return this.#window.localStorage.getItem(localStorageKeys.lastLoggedInUser);
+    return this.#window.localStorage.getItem(
+      LOCAL_STORAGE_KEYS.activePublicKey
+    );
   }
 
   get users(): Record<string, StoredUser> | null {
     const storedUsers = this.#window.localStorage.getItem(
-      localStorageKeys.identityUsers
+      LOCAL_STORAGE_KEYS.identityUsers
     );
     return storedUsers && JSON.parse(storedUsers);
   }
@@ -130,7 +128,7 @@ export class Identity {
   ): Promise<IdentityDerivePayload> {
     let derivedPublicKey: string;
     const loginKeyPair = this.#window.localStorage.getItem(
-      localStorageKeys.loginKeyPair
+      LOCAL_STORAGE_KEYS.loginKeyPair
     );
 
     if (loginKeyPair) {
@@ -141,7 +139,7 @@ export class Identity {
         network: this.#network,
       });
       this.#window.localStorage.setItem(
-        localStorageKeys.loginKeyPair,
+        LOCAL_STORAGE_KEYS.loginKeyPair,
         JSON.stringify({
           publicKey: derivedPublicKey,
           seedHex: keys.seedHex,
@@ -306,7 +304,7 @@ export class Identity {
       );
     }
     this.#window.localStorage.setItem(
-      localStorageKeys.lastLoggedInUser,
+      LOCAL_STORAGE_KEYS.activePublicKey,
       publicKey
     );
   }
@@ -362,7 +360,7 @@ export class Identity {
       users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
     }
     this.#window.localStorage.setItem(
-      localStorageKeys.identityUsers,
+      LOCAL_STORAGE_KEYS.identityUsers,
       JSON.stringify(users)
     );
 
@@ -423,7 +421,7 @@ export class Identity {
         throw new Error('No active public key found');
       }
 
-      this.#window.localStorage.removeItem(localStorageKeys.lastLoggedInUser);
+      this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.activePublicKey);
       this.#purgeUserDataForPublicKey(publicKey);
     } else {
       this.setActiveUser(payload.publicKeyAdded);
@@ -434,16 +432,16 @@ export class Identity {
 
   #purgeUserDataForPublicKey(publicKey: string) {
     const users = this.#window.localStorage.getItem(
-      localStorageKeys.identityUsers
+      LOCAL_STORAGE_KEYS.identityUsers
     );
     if (users) {
       const usersObj = JSON.parse(users);
       delete usersObj[publicKey];
       if (Object.keys(usersObj).length === 0) {
-        this.#window.localStorage.removeItem(localStorageKeys.identityUsers);
+        this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.identityUsers);
       } else {
         this.#window.localStorage.setItem(
-          localStorageKeys.identityUsers,
+          LOCAL_STORAGE_KEYS.identityUsers,
           JSON.stringify(usersObj)
         );
       }
@@ -452,12 +450,12 @@ export class Identity {
 
   #handleDeriveMethod(payload: IdentityDerivePayload) {
     const loginKeyPair = this.#window.localStorage.getItem(
-      localStorageKeys.loginKeyPair
+      LOCAL_STORAGE_KEYS.loginKeyPair
     );
 
     if (this.users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
-      this.#window.localStorage.removeItem(localStorageKeys.loginKeyPair);
+      this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
     } else if (loginKeyPair) {
       const { seedHex } = JSON.parse(loginKeyPair);
       this.#updateUser(payload.publicKeyBase58Check, {
@@ -465,7 +463,7 @@ export class Identity {
       });
       // in the case of a login, we want to remove the login key pair from localStorage and patch the
       // publicKeyAdded field onto the payload
-      this.#window.localStorage.removeItem(localStorageKeys.loginKeyPair);
+      this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
       this.#pendingWindowRequest?.resolve({
         ...payload,
         publicKeyAdded: payload.publicKeyBase58Check,
@@ -488,7 +486,7 @@ export class Identity {
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
     const users = this.#window.localStorage.getItem(
-      localStorageKeys.identityUsers
+      LOCAL_STORAGE_KEYS.identityUsers
     );
     if (users) {
       const usersObj = JSON.parse(users);
@@ -501,17 +499,17 @@ export class Identity {
         };
       }
       this.#window.localStorage.setItem(
-        localStorageKeys.identityUsers,
+        LOCAL_STORAGE_KEYS.identityUsers,
         JSON.stringify(usersObj)
       );
     } else {
       this.#window.localStorage.setItem(
-        localStorageKeys.identityUsers,
+        LOCAL_STORAGE_KEYS.identityUsers,
         JSON.stringify({ [masterPublicKey]: attributes })
       );
     }
     this.#window.localStorage.setItem(
-      localStorageKeys.lastLoggedInUser,
+      LOCAL_STORAGE_KEYS.activePublicKey,
       masterPublicKey
     );
   }

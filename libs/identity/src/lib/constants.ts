@@ -22,3 +22,9 @@ export const PUBLIC_KEY_PREFIXES = Object.freeze({
     deso: [0x11, 0xc2, 0x0],
   },
 });
+
+export const LOCAL_STORAGE_KEYS = Object.freeze({
+  activePublicKey: 'desoActivePublicKey',
+  identityUsers: 'desoIdentityUsers',
+  loginKeyPair: 'desoLoginKeyPair',
+});

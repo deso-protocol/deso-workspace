@@ -156,48 +156,40 @@ export const getSignedJWT = async (
     ecUtils.hashToPrivateKey(seedHex)
   );
 
-  // TODO: convert all usage of Buffer to Uint8Array
-  const encodedSignature = derToJose(Buffer.from(signature));
-
-  return `${jwt}.${encodedSignature}`;
+  return `${jwt}.${derToJoseEncoding(signature)}`;
 };
 
-const MAX_OCTET = 0x80;
-
-// This is a modified version of the derToJose function from https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/ca25a2fd5ae9dd85036081632936e802a47a1289/src/ecdsa-sig-formatter.js#L32
-// The original package is not browser friendly and requires node polyfills.
-function derToJose(signature: Buffer) {
+// This is a modified version of the derToJose function from
+// https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/ca25a2fd5ae9dd85036081632936e802a47a1289/src/ecdsa-sig-formatter.js#L32
+// The original package is not browser friendly and requires node polyfills. We
+// also don't need to be quite as defensive as the original package since we
+// have full control of the input.
+function derToJoseEncoding(signature: Uint8Array) {
   const paramBytes = 32;
-  let offset = 0;
-  let seqLength = signature[offset++];
 
-  // TODO: Do we need this check?
-  if (seqLength === (MAX_OCTET | 1)) {
-    seqLength = signature[offset++];
-  }
-
-  const rLength = signature[offset++];
+  // TODO: clean up this mess. I think these might be static values for our use case.
+  let offset = 3;
+  const rLength = signature[offset];
+  offset += 1;
   const rOffset = offset;
-  offset += rLength;
-
-  const sLength = signature[offset++];
+  offset += rLength + 1;
+  const sLength = signature[offset];
+  offset += 1;
   const sOffset = offset;
   offset += sLength;
 
-  const rPadding = paramBytes - rLength,
-    sPadding = paramBytes - sLength;
+  const rPadding = paramBytes - rLength;
+  const sPadding = paramBytes - sLength;
 
-  // const dst = new Uint8Array(rPadding + rLength + sPadding + sLength);
-  const dst = Buffer.allocUnsafe(rPadding + rLength + sPadding + sLength);
+  const dst = new Uint8Array(rPadding + rLength + sPadding + sLength);
 
   for (offset = 0; offset < rPadding; ++offset) {
     dst[offset] = 0;
   }
-  signature.copy(
-    dst,
-    offset,
-    rOffset + Math.max(-rPadding, 0),
-    rOffset + rLength
+
+  dst.set(
+    signature.slice(rOffset + Math.max(-rPadding, 0), rOffset + rLength),
+    offset
   );
 
   offset = paramBytes;
@@ -205,20 +197,19 @@ function derToJose(signature: Buffer) {
   for (const o = offset; offset < o + sPadding; ++offset) {
     dst[offset] = 0;
   }
-  signature.copy(
-    dst,
-    offset,
-    sOffset + Math.max(-sPadding, 0),
-    sOffset + sLength
+
+  dst.set(
+    signature.slice(sOffset + Math.max(-sPadding, 0), sOffset + sLength),
+    offset
   );
 
-  // const chars = dst.reduce(
-  //   (data, byte) => data + String.fromCharCode(byte),
-  //   ''
-  // );
-  const base64 = dst.toString('base64');
-  // dst = base64Url(dst);
+  const base64EncodedSignature = window.btoa(
+    dst.reduce((data, byte) => data + String.fromCharCode(byte), '')
+  );
 
-  // NOTE: jwt base64url encoding is slightly different than the standard base64 encoding. See: https://tools.ietf.org/html/rfc7515#appendix-C
-  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  // JWT uses base64 url encoding, not standard base64. It just requires replacing some characters.
+  return base64EncodedSignature
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 }
