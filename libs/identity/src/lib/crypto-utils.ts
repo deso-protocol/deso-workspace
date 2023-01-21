@@ -162,112 +162,27 @@ export const getSignedJWT = async (
   return `${jwt}.${encodedSignature}`;
 };
 
-const MAX_OCTET = 0x80,
-  CLASS_UNIVERSAL = 0,
-  PRIMITIVE_BIT = 0x20,
-  TAG_SEQ = 0x10,
-  TAG_INT = 0x02,
-  ENCODED_TAG_SEQ = TAG_SEQ | PRIMITIVE_BIT | (CLASS_UNIVERSAL << 6),
-  ENCODED_TAG_INT = TAG_INT | (CLASS_UNIVERSAL << 6);
+const MAX_OCTET = 0x80;
 
-function base64Url(base64: string) {
-  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-}
-
+// This is a modified version of the derToJose function from https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/master/src/ecdsa-sig-formatter.js#L32
+// The original package is not browser friendly and requires node polyfills.
 function derToJose(signature: Buffer) {
   const paramBytes = 32;
-
-  // the DER encoded param should at most be the param size, plus a padding
-  // zero, since due to being a signed integer
-  const maxEncodedParamLength = paramBytes + 1;
-
-  const inputLength = signature.length;
-
   let offset = 0;
-  if (signature[offset++] !== ENCODED_TAG_SEQ) {
-    throw new Error('Could not find expected "seq"');
-  }
-
   let seqLength = signature[offset++];
+
+  // TODO: Do we need this check?
   if (seqLength === (MAX_OCTET | 1)) {
     seqLength = signature[offset++];
   }
 
-  if (inputLength - offset < seqLength) {
-    throw new Error(
-      '"seq" specified length of "' +
-        seqLength +
-        '", only "' +
-        (inputLength - offset) +
-        '" remaining'
-    );
-  }
-
-  if (signature[offset++] !== ENCODED_TAG_INT) {
-    throw new Error('Could not find expected "int" for "r"');
-  }
-
   const rLength = signature[offset++];
-
-  if (inputLength - offset - 2 < rLength) {
-    throw new Error(
-      '"r" specified length of "' +
-        rLength +
-        '", only "' +
-        (inputLength - offset - 2) +
-        '" available'
-    );
-  }
-
-  if (maxEncodedParamLength < rLength) {
-    throw new Error(
-      '"r" specified length of "' +
-        rLength +
-        '", max of "' +
-        maxEncodedParamLength +
-        '" is acceptable'
-    );
-  }
-
   const rOffset = offset;
   offset += rLength;
 
-  if (signature[offset++] !== ENCODED_TAG_INT) {
-    throw new Error('Could not find expected "int" for "s"');
-  }
-
   const sLength = signature[offset++];
-
-  if (inputLength - offset !== sLength) {
-    throw new Error(
-      '"s" specified length of "' +
-        sLength +
-        '", expected "' +
-        (inputLength - offset) +
-        '"'
-    );
-  }
-
-  if (maxEncodedParamLength < sLength) {
-    throw new Error(
-      '"s" specified length of "' +
-        sLength +
-        '", max of "' +
-        maxEncodedParamLength +
-        '" is acceptable'
-    );
-  }
-
   const sOffset = offset;
   offset += sLength;
-
-  if (offset !== inputLength) {
-    throw new Error(
-      'Expected to consume entire buffer, but "' +
-        (inputLength - offset) +
-        '" bytes remain'
-    );
-  }
 
   const rPadding = paramBytes - rLength,
     sPadding = paramBytes - sLength;
@@ -304,6 +219,6 @@ function derToJose(signature: Buffer) {
   const base64 = dst.toString('base64');
   // dst = base64Url(dst);
 
-  return base64Url(base64);
-  // return base64Url(window.btoa(chars));
+  // NOTE: jwt base64url encoding is slightly different than the standard base64 encoding. See: https://tools.ietf.org/html/rfc7515#appendix-C
+  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
