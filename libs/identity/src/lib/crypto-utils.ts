@@ -164,7 +164,7 @@ export const getSignedJWT = async (
 
 const MAX_OCTET = 0x80;
 
-// This is a modified version of the derToJose function from https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/master/src/ecdsa-sig-formatter.js#L32
+// This is a modified version of the derToJose function from https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/ca25a2fd5ae9dd85036081632936e802a47a1289/src/ecdsa-sig-formatter.js#L32
 // The original package is not browser friendly and requires node polyfills.
 function derToJose(signature: Buffer) {
   const paramBytes = 32;
