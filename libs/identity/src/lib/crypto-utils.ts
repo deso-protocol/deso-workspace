@@ -138,26 +138,36 @@ export const getSignedJWT = async (
     expiration,
   }: { derivedPublicKeyBase58Check?: string; expiration?: number } = {}
 ): Promise<string> => {
-  const header = { alg: 'ES256', typ: 'JWT' };
+  // Since our keys are generated using the secp256k1 curve, we should be identifying it properly via the ES256K algorithm.
+  // See: https://www.rfc-editor.org/rfc/rfc8812.html#name-jose-algorithms-registratio
+  // And this github issue for more context: https://github.com/auth0/node-jsonwebtoken/issues/862
+  const header = JSON.stringify({ alg: 'ES256', typ: 'JWT' });
   const issuedAt = Math.floor(Date.now() / 1000);
   const thirtyMinFromNow = issuedAt + 30 * 60;
-  const payload = {
+  const payload = JSON.stringify({
     ...(derivedPublicKeyBase58Check ? { derivedPublicKeyBase58Check } : {}),
     iat: issuedAt,
     exp: thirtyMinFromNow,
-  };
+  });
 
-  const jwt = `${window.btoa(JSON.stringify(header))}.${window.btoa(
-    JSON.stringify(payload)
-  )}`;
+  const jwt = `${urlSafeBase64(header)}.${urlSafeBase64(payload)}`;
 
   const [signature] = await sign(
     ecUtils.bytesToHex(await ecUtils.sha256(new TextEncoder().encode(jwt))),
     ecUtils.hashToPrivateKey(seedHex)
   );
+  const encodedSignature = derToJoseEncoding(signature);
 
-  return `${jwt}.${derToJoseEncoding(signature)}`;
+  return `${jwt}.${encodedSignature}`;
 };
+
+function urlSafeBase64(str: string) {
+  return window
+    .btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
 
 // This is a modified version of the derToJose function from
 // https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/ca25a2fd5ae9dd85036081632936e802a47a1289/src/ecdsa-sig-formatter.js#L32
@@ -181,13 +191,13 @@ function derToJoseEncoding(signature: Uint8Array) {
   const rPadding = paramBytes - rLength;
   const sPadding = paramBytes - sLength;
 
-  const dst = new Uint8Array(rPadding + rLength + sPadding + sLength);
+  const outPut = new Uint8Array(rPadding + rLength + sPadding + sLength);
 
   for (offset = 0; offset < rPadding; ++offset) {
-    dst[offset] = 0;
+    outPut[offset] = 0;
   }
 
-  dst.set(
+  outPut.set(
     signature.slice(rOffset + Math.max(-rPadding, 0), rOffset + rLength),
     offset
   );
@@ -195,21 +205,18 @@ function derToJoseEncoding(signature: Uint8Array) {
   offset = paramBytes;
 
   for (const o = offset; offset < o + sPadding; ++offset) {
-    dst[offset] = 0;
+    outPut[offset] = 0;
   }
 
-  dst.set(
+  outPut.set(
     signature.slice(sOffset + Math.max(-sPadding, 0), sOffset + sLength),
     offset
   );
 
-  const base64EncodedSignature = window.btoa(
-    dst.reduce((data, byte) => data + String.fromCharCode(byte), '')
+  const outputChars = outPut.reduce(
+    (data, byte) => data + String.fromCharCode(byte),
+    ''
   );
 
-  // JWT uses base64 url encoding, not standard base64. It just requires replacing some characters.
-  return base64EncodedSignature
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+  return urlSafeBase64(outputChars);
 }
