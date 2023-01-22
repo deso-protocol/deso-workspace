@@ -46,18 +46,23 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
   );
 }
 
+const originalTextEncoder = globalThis.TextEncoder;
+
 describe('identity.jwt()', () => {
   beforeAll(() => {
-    globalThis.TextEncoder = util.TextEncoder;
+    globalThis.TextEncoder = originalTextEncoder ?? util.TextEncoder;
+  });
+
+  afterAll(() => {
+    globalThis.TextEncoder = originalTextEncoder;
   });
 
   it('generates a jwt with a valid signature and can be verified using the correct public key', async () => {
     const identity = new Identity({ windowFake });
     const jwt = await identity.jwt();
-    const privateKey = ecUtils.hashToPrivateKey(testSeedHex);
     const parsedAndVerifiedJwt = verify(
       jwt,
-      getPemEncodePublicKey(privateKey),
+      getPemEncodePublicKey(ecUtils.hashToPrivateKey(testSeedHex)),
       {
         // See: https://github.com/auth0/node-jsonwebtoken/issues/862
         // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
@@ -81,11 +86,9 @@ describe('identity.jwt()', () => {
       'b3302883522db5863ded181b727153ddb1a7cd1deb5eaa00d406f9e08ae0bfe8024e889deab4a48026141cc1faaea55e0a28e3d87d9fe70cf60a98110110ea34';
     const identity = new Identity({ windowFake });
     const jwt = await identity.jwt();
-    const badPrivateKey = ecUtils.hashToPrivateKey(badSeedHex);
     let errorMessage = '';
-
     try {
-      verify(jwt, getPemEncodePublicKey(badPrivateKey), {
+      verify(jwt, getPemEncodePublicKey(ecUtils.hashToPrivateKey(badSeedHex)), {
         // See: https://github.com/auth0/node-jsonwebtoken/issues/862
         // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
         // even though this is the correct algorithm for JWTs signed
