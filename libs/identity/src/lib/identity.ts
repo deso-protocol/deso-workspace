@@ -352,9 +352,9 @@ export class Identity {
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
     });
+
     const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
-
     // mark the key as authorized
     if (users?.[ownerPublicKey]?.primaryDerivedKey) {
       users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
@@ -363,7 +363,6 @@ export class Identity {
       LOCAL_STORAGE_KEYS.identityUsers,
       JSON.stringify(users)
     );
-
     return result;
   }
 
@@ -464,10 +463,6 @@ export class Identity {
       // in the case of a login, we want to remove the login key pair from localStorage and patch the
       // publicKeyAdded field onto the payload
       this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
-      this.#pendingWindowRequest?.resolve({
-        ...payload,
-        publicKeyAdded: payload.publicKeyBase58Check,
-      });
       // Attempt to authorize the new derived key. If it fails due
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.

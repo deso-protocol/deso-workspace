@@ -87,7 +87,7 @@ describe('identity', () => {
       };
 
       let loginKeyPair = { publicKey: '', seedHex: '' };
-      const [resp] = await Promise.all([
+      await Promise.all([
         identity.login(),
         // login waits to resolve until it receives a message from the identity
         // here we fake sending that message
@@ -132,8 +132,14 @@ describe('identity', () => {
           derivedPublicKeyBase58Check: loginKeyPair.publicKey,
           // NOTE: we have updated our local record to include our generated derived seed hex
           derivedSeedHex: loginKeyPair.seedHex,
+          // The key was successfully authorized
+          isAuthorized: true,
         },
       });
+      // login keys cleaned up from local storage
+      expect(
+        windowFake.localStorage.getItem(LOCAL_STORAGE_KEYS.loginKeyPair)
+      ).toBe(null);
     });
   });
 
