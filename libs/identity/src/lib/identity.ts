@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
 import {
   DEFAULT_IDENTITY_URI,
@@ -15,9 +14,9 @@ import {
 } from './crypto-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
+  APIProvider,
   Deferred,
   IdentityConfiguration,
-  IdentityConstructorOptions,
   IdentityDerivePayload,
   IdentityLoginPayload,
   IdentityResponse,
@@ -29,6 +28,7 @@ import {
 // TODO: figure out how to deal with expired derived keys
 export class Identity {
   #window: Window;
+  #api: APIProvider;
   #identityURI: string = DEFAULT_IDENTITY_URI;
   #network: Network = 'mainnet';
   #nodeURI: string = DEFAULT_NODE_URI;
@@ -76,8 +76,9 @@ export class Identity {
     };
   }
 
-  constructor(options?: IdentityConstructorOptions) {
-    this.#window = options?.windowFake ?? window;
+  constructor(windowProvider: Window, apiProvider: APIProvider) {
+    this.#window = windowProvider;
+    this.#api = apiProvider;
 
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
@@ -191,7 +192,7 @@ export class Identity {
   }
 
   submitTx(TransactionHex: string) {
-    return axios.post(`${this.#nodeURI}/api/v0/submit-transaction`, {
+    return this.#api.post(`${this.#nodeURI}/api/v0/submit-transaction`, {
       TransactionHex,
     });
   }
@@ -319,11 +320,10 @@ export class Identity {
     MinFeeRateNanosPerKB: number;
     TransactionSpendingLimitHex: string;
   }) {
-    return axios.post(`${this.#nodeURI}/api/v0/authorize-derived-key`, options);
-  }
-
-  generateRandomKeyPair() {
-    return keygen();
+    return this.#api.post(
+      `${this.#nodeURI}/api/v0/authorize-derived-key`,
+      options
+    );
   }
 
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
@@ -352,7 +352,7 @@ export class Identity {
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
     });
-    const signedTx = await this.signTx(resp.data.TransactionHex);
+    const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
 
     // mark the key as authorized
@@ -573,6 +573,3 @@ export class Identity {
     }
   }
 }
-
-// export an instance that can be imported and used immediately
-export const identity = new Identity();

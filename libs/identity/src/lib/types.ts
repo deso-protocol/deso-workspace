@@ -67,8 +67,25 @@ export interface IdentityConfiguration {
   spendingLimitOptions?: TransactionSpendingLimitOptions;
 }
 
-export interface IdentityConstructorOptions {
-  windowFake: Window;
+export interface APIProvider {
+  post: (url: string, data: any) => Promise<any>;
+}
+
+export interface WindowProvider {
+  location: { search: string; pathname: string; href: string };
+  history: { replaceState: (state: any, title: string, url: string) => void };
+  localStorage: {
+    getItem: (key: string) => string | null;
+    setItem: (key: string, value: string) => void;
+    removeItem: (key: string) => void;
+  };
+  open: (
+    url: string,
+    title: string | undefined,
+    options: string
+  ) => Window | null;
+  addEventListener: (event: string, callback: (event: any) => void) => void;
+  removeEventListener: (event: string, callback: (event: any) => void) => void;
 }
 
 export interface LoginOptions {

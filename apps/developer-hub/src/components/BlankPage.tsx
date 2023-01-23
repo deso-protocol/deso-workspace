@@ -23,12 +23,6 @@ export function BlankPage() {
       <button onClick={() => identity.jwt()} className="ml-4">
         Generate jwt
       </button>
-      <button
-        onClick={() => console.log(identity.generateRandomKeyPair())}
-        className="ml-4"
-      >
-        Generate key pair
-      </button>
       <form
         onSubmit={(e: any) => {
           e.preventDefault();

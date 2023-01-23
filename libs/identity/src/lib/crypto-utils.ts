@@ -41,16 +41,11 @@ interface Base58CheckOptions {
 }
 
 export const keygen = (): KeyPair => {
-  if (!window.crypto) {
-    throw new Error(
-      'window.crypto is not available https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues'
-    );
-  }
   // hashToPrivateKey requires a byte array length >= 40 and <= 1024.
   // 64 is chosen somewhat arbitrarily here.
-  const seedHex = ecUtils.bytesToHex(
-    window.crypto.getRandomValues(new Uint8Array(64))
-  );
+  // ecUtils.randomBytes uses window.crypto.getRandomValues in the browser or
+  // crypto.randomBytes in node.
+  const seedHex = ecUtils.bytesToHex(ecUtils.randomBytes(64));
 
   // We are not using the native web crypto API to actually generate keys
   // because it does not support the secp256k1 curve. Instead, we are using
