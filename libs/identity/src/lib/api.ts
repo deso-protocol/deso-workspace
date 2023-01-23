@@ -14,7 +14,7 @@ function getOptions(customOptions: any = {}) {
   };
 }
 
-class APIError {
+export class APIError {
   message: string;
   status: number;
 

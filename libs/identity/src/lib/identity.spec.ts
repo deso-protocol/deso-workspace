@@ -2,6 +2,7 @@ import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
 import * as util from 'util';
+import { APIError } from './api';
 import { DEFAULT_IDENTITY_URI, LOCAL_STORAGE_KEYS } from './constants';
 import { Identity } from './identity';
 import { getAPIFake, getWindowFake } from './test-utils';
@@ -132,6 +133,14 @@ describe('identity', () => {
     });
 
     it('works even if authorizing the key fails', async () => {
+      apiFake.post = (url: string) => {
+        if (url.endsWith('authorize-derived-key')) {
+          throw new APIError('Failed to authorize derived key', 400);
+        }
+
+        return Promise.resolve(null);
+      };
+
       const derivePayload = {
         publicKeyBase58Check:
           'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
@@ -195,13 +204,13 @@ describe('identity', () => {
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
       expect(identity.currentUser).toEqual({
+        // NOTE: we don't have the isAuthorized flag if the call to authorize has failed, but
+        // we still have the current user data.
         primaryDerivedKey: {
           ...derivePayload,
           derivedPublicKeyBase58Check: loginKeyPair.publicKey,
           // NOTE: we have updated our local record to include our generated derived seed hex
           derivedSeedHex: loginKeyPair.seedHex,
-          // The key was successfully authorized
-          isAuthorized: true,
         },
       });
       // login keys cleaned up from local storage
