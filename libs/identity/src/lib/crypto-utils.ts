@@ -139,9 +139,10 @@ export const getSignedJWT = async (
   //
   // HOWEVER, the backend jwt lib used by deso foundation -
   // https://github.com/golang-jwt/jwt - (as well as many other jwt libraries)
-  // do not support ES256K. Instead, we use the more widely supported ES256 algo,
+  // do not support ES256K. So instead, we use the more widely supported ES256 algo,
   // which can still work for verifying our signatures. See this github issue
   // for more context: https://github.com/auth0/node-jsonwebtoken/issues/862
+  // If ES256K is ever supported by the backend jwt lib, we should change this.
   const header = JSON.stringify({ alg: 'ES256', typ: 'JWT' });
   const issuedAt = Math.floor(Date.now() / 1000);
   const thirtyMinFromNow = issuedAt + 30 * 60;
