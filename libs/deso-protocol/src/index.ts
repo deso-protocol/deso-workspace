@@ -15,6 +15,7 @@ import { Transactions } from './lib/transaction/Transaction';
 import { User } from './lib/user/User';
 import * as Utils from './lib/utils/Utils';
 import { Wallet } from './lib/wallet/Wallet';
+import { AccessGroup } from './lib/accessgroup/AccessGroup';
 
 export { Ethereum as Metamask } from './lib/metamask/Ethereum';
 // export * as Utils from './lib/utils/Utils';
@@ -48,6 +49,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
+    this.accessGroup = new AccessGroup(this.node, this.identity);
     this.ethereum = new Ethereum(
       this.node,
       this.identity,
@@ -76,6 +78,7 @@ export class Deso {
   public wallet: Wallet;
   public referral: Referral;
   public ethereum: Ethereum;
+  public accessGroup: AccessGroup;
   public utils = Utils;
 
   reinitialize(): void {
@@ -92,6 +95,7 @@ export class Deso {
     this.posts = new Posts(this.node, this.identity);
     this.wallet = new Wallet(this.node, this.identity);
     this.referral = new Referral(this.node, this.identity);
+    this.accessGroup = new AccessGroup(this.node, this.identity);
     this.ethereum = new Ethereum(
       this.node,
       this.identity,

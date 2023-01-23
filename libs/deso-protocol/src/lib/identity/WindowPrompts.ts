@@ -1,4 +1,5 @@
 import { IdentityDeriveQueryParams } from 'deso-protocol-types';
+
 export interface WindowFeatures {
   top: number;
   left: number;
@@ -131,6 +132,34 @@ export const requestPhoneVerification = (
   ) as Window;
   return prompt;
 };
+
+export const requestMessagingGroups = (
+  uri: string,
+  testnet = false,
+  { top = 0, left = 0, width = 800, height = 1000 }: WindowFeatures = {
+    top: 0,
+    left: 0,
+    width: 800,
+    height: 1000,
+  },
+  queryParams?: { [key: string]: string | boolean }
+): Window => {
+  let queryString = '';
+  if (queryParams) {
+    queryString = Object.keys(queryParams)
+      .map((param, i) => {
+        return `${i === 0 ? '' : '&'}${param}=${queryParams[param]}`;
+      })
+      .join('');
+  }
+  const prompt = window.open(
+    `${uri}/messaging-group?${queryString}${getTestnetQueryParam(testnet)}`,
+    null as unknown as any,
+    `toolbar=no, width=${width}, height=${height}, top=${top}, left=${left}, popup=1`
+  ) as Window;
+  return prompt;
+};
+
 const getTestnetQueryParam = (testnet?: boolean, excludeAmp?: boolean) => {
   return `${testnet ? `${excludeAmp ? '' : '&'}testnet=true` : ''}`;
 };

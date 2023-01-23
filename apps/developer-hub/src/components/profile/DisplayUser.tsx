@@ -46,7 +46,7 @@ const DisplayUser = ({ publicKey, isMyAccount }: DisplayUserProps) => {
   const getMyInfo = async (publicKey: string) => {
     let profileInfoResponse: GetSingleProfileResponse;
     if (publicKey !== null) {
-      const userInfoResponse = await deso.user.getUserStateless({
+      const userInfoResponse = await deso.user.getUsersStateless({
         PublicKeysBase58Check: [publicKey as string],
       });
 
