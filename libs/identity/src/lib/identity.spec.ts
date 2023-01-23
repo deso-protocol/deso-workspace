@@ -17,8 +17,6 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
 }
 
 const originalTextEncoder = globalThis.TextEncoder;
-// const originalFetch = globalThis.fetch;
-// const originalXHR = globalThis.XMLHttpRequest;
 
 describe('identity', () => {
   let identity: Identity;
@@ -38,16 +36,9 @@ describe('identity', () => {
       post: (url: string, data: any) => {
         if (url.endsWith('authorize-derived-key')) {
           return Promise.resolve({
-            TransactionHex:
-              '0142eedd6abbac93cd4d9e9a7d24198374ff5232a142a07f2843db7dd3f1eac3d30001039d469a9b471f891c4571e66e080f9de5069262207e5f908b3d4f5424ad4f9883e9f00205290000187b22426f6479223a226c6a736c646a666c6b73646a66227de807d4618cd7f199daffc29e170021039d469a9b471f891c4571e66e080f9de5069262207e5f908b3d4f5424ad4f98830046324402201f6d9df2066b28ba3105f879e128c1f3d7d276dbd68cd01a7f33b3c9c14c8faa02203cdb611ff594b8f9fecfac249c22a881fd10ab424d07e661596b1ae7ce7a82c8',
+            TransactionHex: ecUtils.bytesToHex(ecUtils.randomBytes(32)),
           });
         }
-
-        // if (url.endsWith('submit-transaction')) {
-        //   return Promise.resolve({
-
-        //   })
-        // }
 
         return Promise.resolve(null);
       },
@@ -58,8 +49,6 @@ describe('identity', () => {
   afterEach(() => {
     // restore the original globals
     globalThis.TextEncoder = originalTextEncoder;
-    // globalThis.fetch = originalFetch;
-    // globalThis.XMLHttpRequest = originalXHR;
   });
 
   describe('.login()', () => {
