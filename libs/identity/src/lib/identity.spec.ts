@@ -130,6 +130,85 @@ describe('identity', () => {
         windowFake.localStorage.getItem(LOCAL_STORAGE_KEYS.loginKeyPair)
       ).toBe(null);
     });
+
+    it('works even if authorizing the key fails', async () => {
+      const derivePayload = {
+        publicKeyBase58Check:
+          'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
+        btcDepositAddress: 'Not implemented yet',
+        ethDepositAddress: 'Not implemented yet',
+        expirationBlock: 209932,
+        network: 'mainnet',
+        accessSignature:
+          '304402206b856bec68082935a470e1db7628105551b966ccb3822c93a50754b55160fe5e02207d6c2dd28127419fb9e0bb58e6ea07b7d33bc8cd912dfe876d966ca56aed1aee',
+        jwt: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NzQ0MjEzNDIsImV4cCI6MTY3NzAxMzM0Mn0.9pvSmQ5YETLCE1zV76-KhfHdufJp5fkYBKEgl4gw9iQsp0bg91nNXnhnm92836zHydQvhLJPRLry6wZJyskcrg',
+        derivedJwt: '',
+        messagingPublicKeyBase58Check:
+          'BC1YLg1zXewYRmfkVYAJH6CLJsaZxHh6GyzaAWyDQsPVYuG5b5ab7Fb',
+        messagingPrivateKey:
+          '9816d3604045252a0210a05eba9ea7ca73c838929913199902c972fe2b9fe347',
+        messagingKeyName: 'default-key',
+        messagingKeySignature:
+          '30450221008965fe5e21139c84066ffd53ffa2ab3ef61fe714fec97b4fe411d6beab995ce402201df84d1d581a2cb73b0b135b6f2163f045ef9fab9975960548a46c6090d7eec3',
+        transactionSpendingLimitHex: '00000000000001',
+        signedUp: false,
+      };
+
+      let loginKeyPair = { publicKey: '', seedHex: '' };
+      await Promise.all([
+        identity.login(),
+        // login waits to resolve until it receives a message from the identity
+        // here we fake sending that message
+        new Promise((resolve) =>
+          setTimeout(() => {
+            // before identity sends the message we should have a login key pair in local storage
+            const keyPairJSON = windowFake.localStorage.getItem(
+              LOCAL_STORAGE_KEYS.loginKeyPair
+            );
+            if (keyPairJSON) {
+              loginKeyPair = JSON.parse(keyPairJSON);
+            }
+
+            // NOTE: identity does not provide the derived seed hex here because we generated the keys ourselves
+            postMessageListener({
+              origin: DEFAULT_IDENTITY_URI,
+              source: { close: jest.fn() },
+              data: {
+                service: 'identity',
+                method: 'derive',
+                payload: {
+                  ...derivePayload,
+                  derivedPublicKeyBase58Check: loginKeyPair.publicKey,
+                  derivedSeedHex: '',
+                },
+              },
+            });
+
+            resolve(undefined);
+          }, 1)
+        ),
+      ]);
+
+      expect(identity.activePublicKey).toEqual(
+        'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
+      );
+      expect(loginKeyPair.seedHex.length > 0).toBe(true);
+      expect(loginKeyPair.publicKey.length > 0).toBe(true);
+      expect(identity.currentUser).toEqual({
+        primaryDerivedKey: {
+          ...derivePayload,
+          derivedPublicKeyBase58Check: loginKeyPair.publicKey,
+          // NOTE: we have updated our local record to include our generated derived seed hex
+          derivedSeedHex: loginKeyPair.seedHex,
+          // The key was successfully authorized
+          isAuthorized: true,
+        },
+      });
+      // login keys cleaned up from local storage
+      expect(
+        windowFake.localStorage.getItem(LOCAL_STORAGE_KEYS.loginKeyPair)
+      ).toBe(null);
+    });
   });
 
   describe('.jwt()', () => {

@@ -466,14 +466,14 @@ export class Identity {
       // Attempt to authorize the new derived key. If it fails due
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.
-      this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
-        .catch(console.warn)
-        .finally(() => {
+      this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check).finally(
+        () => {
           this.#pendingWindowRequest?.resolve({
             ...payload,
             publicKeyAdded: payload.publicKeyBase58Check,
           });
-        });
+        }
+      );
     } else {
       this.#pendingWindowRequest?.resolve(payload);
     }
