@@ -68,6 +68,7 @@ export class Identity {
     return (this.users?.[activePublicKey] as StoredUser) ?? null;
   }
 
+  // TODO: add permissions to state. Should we just pass currentUser?
   get #state() {
     return {
       activePublicKey: this.activePublicKey,
@@ -260,14 +261,13 @@ export class Identity {
       throw new Error('Cannot sign jwt without a derived seed hex');
     }
 
-    // if the primary derived key has not been authorized, attempt authorize it before we generate the jwt.
-    // if this fails we just let the caller catch and handle the error since the jwt will be invalid anyway.
-    // TODO: figure out the proper way to handle this
-    // if (!primaryDerivedKey.isAuthorized) {
-    //   await this.#authorizePrimaryDerivedKey(
-    //     primaryDerivedKey.publicKeyBase58Check
-    //   );
-    // }
+    // if the primary derived key is invalid this could mean several things (expired, revoked, unauthorized, etc).
+    // we'll just try to authorize it and see if that fixes it.
+    if (!primaryDerivedKey.IsValid) {
+      await this.#authorizePrimaryDerivedKey(
+        primaryDerivedKey.publicKeyBase58Check
+      );
+    }
 
     return getSignedJWT(primaryDerivedKey.derivedSeedHex, {
       derivedPublicKeyBase58Check:
@@ -429,9 +429,6 @@ export class Identity {
       );
     }
 
-    // if (primaryDerivedKey.isAuthorized) {
-    //   return Promise.resolve();
-    // }
     const resp = await this.authorizeDerivedKey({
       OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
       DerivedPublicKeyBase58Check:
@@ -454,15 +451,6 @@ export class Identity {
     const result = await this.submitTx(signedTx);
 
     this.backgroundRefreshDerivedKeyPermissions();
-    // mark the key as authorized
-    if (users?.[ownerPublicKey]?.primaryDerivedKey) {
-      // TODO: figure out proper way to handle this
-      // users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
-    }
-    this.#window.localStorage.setItem(
-      LOCAL_STORAGE_KEYS.identityUsers,
-      JSON.stringify(users)
-    );
 
     return result;
   }
