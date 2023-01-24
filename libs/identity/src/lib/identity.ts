@@ -160,10 +160,12 @@ export class Identity {
         transactionSpendingLimitResponse: TransactionSpendingLimitResponse;
         derive: boolean;
         getFreeDeso?: boolean;
+        expirationDays: number;
       } = {
         derive: true,
         derivedPublicKey,
         transactionSpendingLimitResponse: this.#defaultTransactionSpendingLimit,
+        expirationDays: 36500, // 100 years. these login keys should essentially never expire.
       };
 
       if (getFreeDeso) {
