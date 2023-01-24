@@ -4,7 +4,7 @@
   "type": "commonjs",
   "dependencies": {
     "axios": "^0.25.0",
-    "deso-protocol-types": "^0.5.1",
+    "deso-protocol-types": "^0.5.4",
     "@types/bs58check": "^2.1.0",
     "tus-js-client": "^2.3.1",
     "crypto-browserify": "^3.12.0",
