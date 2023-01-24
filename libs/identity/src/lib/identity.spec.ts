@@ -3,7 +3,11 @@ import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
 import * as util from 'util';
 import { APIError } from './api';
-import { DEFAULT_IDENTITY_URI, LOCAL_STORAGE_KEYS } from './constants';
+import {
+  DEFAULT_IDENTITY_URI,
+  DEFAULT_NODE_URI,
+  LOCAL_STORAGE_KEYS,
+} from './constants';
 import { Identity } from './identity';
 import { getAPIFake, getWindowFake } from './test-utils';
 import { APIProvider } from './types';
@@ -34,15 +38,17 @@ describe('identity', () => {
       },
     });
     apiFake = getAPIFake({
-      post: (url: string, data: any) => {
-        if (url.endsWith('authorize-derived-key')) {
-          return Promise.resolve({
-            TransactionHex: ecUtils.bytesToHex(ecUtils.randomBytes(32)),
-          });
-        }
-
-        return Promise.resolve(null);
-      },
+      post: jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (url.endsWith('authorize-derived-key')) {
+            return Promise.resolve({
+              TransactionHex: ecUtils.bytesToHex(ecUtils.randomBytes(32)),
+            });
+          }
+          return Promise.resolve(null);
+        })
+        .mockName('api.post'),
     });
     identity = new Identity(windowFake, apiFake);
   });
@@ -266,6 +272,62 @@ describe('identity', () => {
         }
       );
 
+      // we should't call authorize if the key has already been authorized.
+      expect(apiFake.post).toHaveBeenCalledTimes(0);
+      expect(parsedAndVerifiedJwt).toEqual({
+        derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+    });
+
+    it('it attempts to authorize the primary derived key if it has not been authorized yet', async () => {
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [testPublicKeyBase58Check]: {
+            primaryDerivedKey: {
+              accessSignature: '0x0',
+              derivedSeedHex: testDerivedSeedHex,
+              derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
+              publicKeyBase58Check: testPublicKeyBase58Check,
+              expirationBlock: 209505,
+              isAuthorized: false,
+              transactionSpendingLimitHex: '0x0',
+            },
+          },
+        })
+      );
+
+      const jwt = await identity.jwt();
+      const parsedAndVerifiedJwt = verify(
+        jwt,
+        getPemEncodePublicKey(ecUtils.hashToPrivateKey(testDerivedSeedHex)),
+        {
+          // See: https://github.com/auth0/node-jsonwebtoken/issues/862
+          // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
+          // even though this is the correct algorithm for JWTs signed
+          // with secp256k1 keys: https://www.rfc-editor.org/rfc/rfc8812.html#name-jose-algorithms-registratio
+          // as a workaround, we can use this flag to force it to accept and
+          // verify signatures generated with secp256k1 keys
+          allowInvalidAsymmetricKeyTypes: true,
+        }
+      );
+
+      const [url, payload] = (apiFake.post as jest.Mock).mock.calls[0];
+      expect(url).toBe(`${DEFAULT_NODE_URI}/api/v0/authorize-derived-key`);
+      expect(payload).toEqual({
+        AccessSignature: '0x0',
+        DeleteKey: false,
+        DerivedKeySignature: false,
+        DerivedPublicKeyBase58Check:
+          'BC1YLiLrdnAcK3eCR32ykwqL7aJfYDs9GPf1Ws8gpqjW78Th94uD5jJ',
+        ExpirationBlock: 209505,
+        MinFeeRateNanosPerKB: 1000,
+        OwnerPublicKeyBase58Check:
+          'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
+        TransactionSpendingLimitHex: '0x0',
+      });
       expect(parsedAndVerifiedJwt).toEqual({
         derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
         iat: expect.any(Number),

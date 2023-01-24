@@ -246,7 +246,8 @@ export class Identity {
       );
     }
 
-    // if the primary derived key has not been authorized, authorize it before we generate the jwt.
+    // if the primary derived key has not been authorized, attempt authorize it before we generate the jwt.
+    // if this fails we just let the caller catch and handle the error since the jwt will be invalid anyway.
     if (!primaryDerivedKey.isAuthorized) {
       await this.#authorizePrimaryDerivedKey(
         primaryDerivedKey.publicKeyBase58Check
