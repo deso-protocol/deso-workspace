@@ -5,7 +5,7 @@ import {
 } from '@noble/secp256k1';
 import * as bs58 from 'bs58';
 import { PUBLIC_KEY_PREFIXES } from './constants';
-import { KeyPair, Network } from './types';
+import { jwtAlgorithm, KeyPair, Network } from './types';
 
 // Browser friendly version of node's Buffer.concat.
 function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
@@ -128,22 +128,16 @@ export const signTx = async (
 
 export const getSignedJWT = async (
   seedHex: string,
+  alg: jwtAlgorithm,
   {
     derivedPublicKeyBase58Check,
     expiration,
-  }: { derivedPublicKeyBase58Check?: string; expiration?: number } = {}
+  }: {
+    derivedPublicKeyBase58Check?: string;
+    expiration?: number;
+  }
 ): Promise<string> => {
-  // NOTE: Since our keys are generated using the secp256k1 curve, the correct
-  // JWT algorithm header *should* be ES256K.
-  // See: https://www.rfc-editor.org/rfc/rfc8812.html#name-jose-algorithms-registratio
-  //
-  // HOWEVER, the backend jwt lib used by deso foundation -
-  // https://github.com/golang-jwt/jwt - (as well as many other jwt libraries)
-  // do not support ES256K. So instead, we use the more widely supported ES256 algo,
-  // which can still work for verifying our signatures. See this github issue
-  // for more context: https://github.com/auth0/node-jsonwebtoken/issues/862
-  // If ES256K is ever supported by the backend jwt lib, we should change this.
-  const header = JSON.stringify({ alg: 'ES256', typ: 'JWT' });
+  const header = JSON.stringify({ alg, typ: 'JWT' });
   const issuedAt = Math.floor(Date.now() / 1000);
   const thirtyMinFromNow = issuedAt + 30 * 60;
   const payload = JSON.stringify({

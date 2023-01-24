@@ -24,6 +24,7 @@ import {
   IdentityDerivePayload,
   IdentityLoginPayload,
   IdentityResponse,
+  jwtAlgorithm,
   LoginOptions,
   Network,
   StoredUser,
@@ -42,6 +43,7 @@ export class Identity {
   #defaultTransactionSpendingLimit: TransactionSpendingLimitResponse =
     DEFAULT_TRANSACTION_SPENDING_LIMIT;
   #appName = 'unkown';
+  #jwtAlgorithm: jwtAlgorithm = 'ES256';
   #boundPostMessageListener?: (event: MessageEvent) => void;
   #subscriber?: (state: any) => void;
 
@@ -98,11 +100,13 @@ export class Identity {
     nodeURI = 'https://node.deso.org',
     spendingLimitOptions = DEFAULT_TRANSACTION_SPENDING_LIMIT,
     redirectURI,
+    jwtAlgorithm = 'ES256',
   }: IdentityConfiguration) {
     this.#identityURI = identityURI;
     this.#network = network;
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
+    this.#jwtAlgorithm = jwtAlgorithm;
     this.#defaultTransactionSpendingLimit = {
       ...DEFAULT_TRANSACTION_SPENDING_LIMIT,
       ...spendingLimitOptions,
@@ -262,14 +266,14 @@ export class Identity {
     }
 
     // if the primary derived key is invalid this could mean several things (expired, revoked, unauthorized, etc).
-    // we'll just try to authorize it and see if that fixes it.
+    // we'll just try to authorize it and see if that fixes it. Is there a better way to handle this?
     if (!primaryDerivedKey.IsValid) {
       await this.#authorizePrimaryDerivedKey(
         primaryDerivedKey.publicKeyBase58Check
       );
     }
 
-    return getSignedJWT(primaryDerivedKey.derivedSeedHex, {
+    return getSignedJWT(primaryDerivedKey.derivedSeedHex, this.#jwtAlgorithm, {
       derivedPublicKeyBase58Check:
         primaryDerivedKey.derivedPublicKeyBase58Check,
       expiration: 60 * 10,
