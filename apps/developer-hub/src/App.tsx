@@ -31,7 +31,7 @@ function App() {
     identity.configure({
       appName: 'Desojs V2 demo',
       identityURI: 'http://localhost:4201',
-      // redirectURI: `${window.location.origin}/devtest`,
+      redirectURI: `${window.location.origin}/devtest`,
     });
     identity.subscribe(setIdentityState);
   }, []);
