@@ -8,10 +8,7 @@ import { BlankPage } from './components/BlankPage';
 import DesoDrawer from './components/layout/Drawer/Drawer';
 import { Header } from './components/layout/Header/Header';
 import { PageNavigation } from './components/layout/PageNavigation';
-import {
-  DEFAULT_IDENTITY_STATE,
-  DesoIdentityContext,
-} from './services/DesoIdentityContext';
+import { DesoIdentityContext } from './services/DesoIdentityContext';
 import {
   forumRoute,
   getForumPosts,
@@ -23,19 +20,18 @@ import { AllThreadsONPage } from './threads/AllThreadsOnPage';
 function App() {
   const [forum, setForum] = useState<ReactElement[]>([]);
 
-  const [identityState, setIdentityState] = useState<IdentityState>(
-    DEFAULT_IDENTITY_STATE
-  );
+  const [identityState, setIdentityState] = useState<IdentityState>({
+    activePublicKey: identity.activePublicKey,
+    users: identity.users,
+  });
 
   useEffect(() => {
     getForumRoutes();
 
     identity.configure({
+      appName: 'Desojs V2 demo',
       identityURI: 'http://localhost:4201',
-      spendingLimitOptions: {
-        IsUnlimited: true,
-      },
-      //redirectURI: `${window.location.origin}/devtest`,
+      // redirectURI: `${window.location.origin}/devtest`,
     });
     identity.subscribe(setIdentityState);
   }, []);

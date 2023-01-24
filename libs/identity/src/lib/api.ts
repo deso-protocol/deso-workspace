@@ -1,15 +1,11 @@
 import { APIProvider } from './types';
 
 function buildOptions(customOptions: any = {}) {
-  const headers = customOptions.headers;
+  const headers = customOptions.headers ?? {};
   delete customOptions.headers;
 
   return {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers,
     ...customOptions,
   };
 }
@@ -43,7 +39,16 @@ export const api: APIProvider = {
   post(url: string, data: Record<string, any>): Promise<any> {
     return wrappedFetch(
       url,
-      buildOptions({ method: 'POST', body: JSON.stringify(data) })
+      buildOptions({
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
     );
+  },
+  get(url: string): Promise<any> {
+    return wrappedFetch(url, buildOptions({ method: 'GET' }));
   },
 };

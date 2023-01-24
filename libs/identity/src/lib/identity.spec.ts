@@ -21,6 +21,10 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
   );
 }
 
+// TODO: test cases
+// make sure we don't overwrite the derivedSeedHex with an empty string if it already exists (can happen during the
+// regular derive key flow).
+
 const originalTextEncoder = globalThis.TextEncoder;
 
 describe('identity', () => {

@@ -2,10 +2,14 @@ export const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
 export const DEFAULT_NODE_URI = 'https://node.deso.org';
 export const IDENTITY_SERVICE_VALUE = 'identity';
 
-// default is no permissions
+// since we issue a derived key and authorize it immediately after login the
+// default permission to authorize a derived key
 export const DEFAULT_PERMISSIONS = Object.freeze({
-  GlobalDESOLimit: 0,
-  TransactionCountLimitMap: {},
+  // set the limit very low, just enough to authorize a key
+  GlobalDESOLimit: 0.01 * 1e9,
+  TransactionCountLimitMap: {
+    AUTHORIZE_DERIVED_KEY: 1,
+  },
   CreatorCoinOperationLimitMap: {},
   DAOCoinOperationLimitMap: {},
   NFTOperationLimitMap: {},

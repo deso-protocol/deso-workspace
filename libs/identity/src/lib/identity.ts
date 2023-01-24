@@ -1,4 +1,7 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import {
+  AuthorizeDerivedKeyRequest,
+  TransactionSpendingLimitResponse,
+} from 'deso-protocol-types';
 import {
   DEFAULT_IDENTITY_URI,
   DEFAULT_NODE_URI,
@@ -25,6 +28,35 @@ import {
   StoredUser,
 } from './types';
 
+// walk the derived key spending limit obj and check if the specified permission are good.
+function compareTransactionSpendingLimits(
+  expectedPermissions: any,
+  actualPermissions: any
+): boolean {
+  for (const key in expectedPermissions) {
+    // if the key is null, it means there are no permissions for this key
+    if (actualPermissions[key] === null) {
+      return false;
+    }
+
+    if (typeof actualPermissions[key] === 'object') {
+      return compareTransactionSpendingLimits(
+        expectedPermissions[key],
+        actualPermissions[key]
+      );
+    }
+
+    // checks if a permissions value is above the queried limit. For example,
+    // if the expected permissions are `SUBMIT_POST: 2` and the actual permissions
+    // are `SUBMIT_POST: 1`, then this function will return false.
+    if (expectedPermissions[key] > actualPermissions[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // TODO: figure out how to deal with expired derived keys
 export class Identity {
   #window: Window;
@@ -37,6 +69,7 @@ export class Identity {
   #pendingWindowRequest?: Deferred;
   #defaultTransactionSpendingLimit: TransactionSpendingLimitResponse =
     DEFAULT_TRANSACTION_SPENDING_LIMIT;
+  #appName = 'unkown';
   #boundPostMessageListener?: (event: MessageEvent) => void;
   #subscriber?: (state: any) => void;
 
@@ -53,20 +86,14 @@ export class Identity {
     return storedUsers && JSON.parse(storedUsers);
   }
 
-  get currentUser(): StoredUser {
+  get currentUser(): StoredUser | null {
     const activePublicKey = this.activePublicKey;
 
     if (!activePublicKey) {
-      throw new Error('Cannot get user without an active public key');
+      return null;
     }
 
-    const currentUser = this.users?.[activePublicKey];
-
-    if (!currentUser) {
-      throw new Error(`No user found for public key: ${activePublicKey}`);
-    }
-
-    return currentUser as StoredUser;
+    return (this.users?.[activePublicKey] as StoredUser) ?? null;
   }
 
   get #state() {
@@ -79,7 +106,7 @@ export class Identity {
   constructor(windowProvider: Window, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
-
+    this.backgroundRefreshDerivedKeyPermissions();
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
 
@@ -185,16 +212,29 @@ export class Identity {
   }
 
   signTx(txHex: string) {
-    const { primaryDerivedKey } = this.currentUser;
+    const { primaryDerivedKey } = this.currentUser ?? {};
+
+    if (!primaryDerivedKey?.derivedSeedHex) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot sign transaction without a derived seed hex');
+    }
+
     return signTx(txHex, primaryDerivedKey.derivedSeedHex, {
       isDerivedKey: true,
     });
   }
 
-  submitTx(TransactionHex: string) {
-    return this.#api.post(`${this.#nodeURI}/api/v0/submit-transaction`, {
-      TransactionHex,
-    });
+  async submitTx(TransactionHex: string) {
+    const res = await this.#api.post(
+      `${this.#nodeURI}/api/v0/submit-transaction`,
+      {
+        TransactionHex,
+      }
+    );
+
+    this.backgroundRefreshDerivedKeyPermissions();
+
+    return res;
   }
 
   /**
@@ -211,10 +251,13 @@ export class Identity {
       return await this.submitTx(await this.signTx(tx.TransactionHex));
     } catch (e: any) {
       // if the derived key is not authorized, authorize it and try again
-      if (
-        e?.response?.data?.error?.includes('RuleErrorDerivedKeyNotAuthorized')
-      ) {
-        const { primaryDerivedKey } = this.currentUser;
+      if (e?.message?.includes('RuleErrorDerivedKeyNotAuthorized')) {
+        const { primaryDerivedKey } = this.currentUser ?? {};
+        if (!primaryDerivedKey) {
+          throw new Error(
+            'Cannot authorize derived key without a logged in user'
+          );
+        }
         await this.#authorizePrimaryDerivedKey(
           primaryDerivedKey.publicKeyBase58Check
         );
@@ -238,21 +281,21 @@ export class Identity {
   }
 
   async jwt() {
-    const { primaryDerivedKey } = this.currentUser;
+    const { primaryDerivedKey } = this.currentUser ?? {};
 
-    if (!primaryDerivedKey) {
-      throw new Error(
-        'Cannot generate a jwt without a primary derived key. Is a user logged in?'
-      );
+    if (!primaryDerivedKey?.derivedSeedHex) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot sign jwt without a derived seed hex');
     }
 
     // if the primary derived key has not been authorized, attempt authorize it before we generate the jwt.
     // if this fails we just let the caller catch and handle the error since the jwt will be invalid anyway.
-    if (!primaryDerivedKey.isAuthorized) {
-      await this.#authorizePrimaryDerivedKey(
-        primaryDerivedKey.publicKeyBase58Check
-      );
-    }
+    // TODO: figure out the proper way to handle this
+    // if (!primaryDerivedKey.isAuthorized) {
+    //   await this.#authorizePrimaryDerivedKey(
+    //     primaryDerivedKey.publicKeyBase58Check
+    //   );
+    // }
 
     return getSignedJWT(primaryDerivedKey.derivedSeedHex, {
       derivedPublicKeyBase58Check:
@@ -311,20 +354,97 @@ export class Identity {
     );
   }
 
-  authorizeDerivedKey(options: {
-    OwnerPublicKeyBase58Check: string;
-    DerivedPublicKeyBase58Check: string;
-    ExpirationBlock: number;
-    AccessSignature: string;
-    DeleteKey: boolean;
-    DerivedKeySignature: boolean;
-    MinFeeRateNanosPerKB: number;
-    TransactionSpendingLimitHex: string;
-  }) {
+  authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
     return this.#api.post(
       `${this.#nodeURI}/api/v0/authorize-derived-key`,
-      options
+      params
     );
+  }
+
+  async backgroundRefreshDerivedKeyPermissions() {
+    const { primaryDerivedKey } = this.currentUser ?? {};
+
+    if (!primaryDerivedKey) {
+      // if we don't have a logged in user, we just bail
+      return;
+    }
+
+    try {
+      const resp = await this.#api.get(
+        `${this.#nodeURI}/api/v0/get-single-derived-key/${
+          primaryDerivedKey.publicKeyBase58Check
+        }/${primaryDerivedKey.derivedPublicKeyBase58Check}`
+      );
+      this.#updateUser(primaryDerivedKey.publicKeyBase58Check, {
+        primaryDerivedKey: {
+          ...primaryDerivedKey,
+          transactionSpendingLimits:
+            resp.DerivedKey?.TransactionSpendingLimit ?? null,
+          IsValid: !!resp.DerivedKey?.IsValid,
+        },
+      });
+    } catch (e) {
+      // TODO: handle this better
+      if (this.#window.location.hostname === 'localhost') {
+        console.error(e);
+      }
+    }
+  }
+
+  hasPermissions(
+    permissionsToCheck: Partial<TransactionSpendingLimitResponse>
+  ): boolean {
+    const { primaryDerivedKey } = this.currentUser ?? {};
+
+    // If the key is expired, unauthorized, or has no money we can't do anything with it
+    if (!primaryDerivedKey?.IsValid) {
+      return false;
+    }
+
+    // if the key has no spending limits, we can't do anything with it
+    if (!primaryDerivedKey?.transactionSpendingLimits) {
+      return false;
+    }
+
+    return compareTransactionSpendingLimits(
+      permissionsToCheck,
+      primaryDerivedKey.transactionSpendingLimits
+    );
+  }
+
+  requestPermissions(
+    transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponse>
+  ) {
+    const { primaryDerivedKey } = this.currentUser ?? {};
+    if (!primaryDerivedKey) {
+      throw new Error('Cannot request permission without a logged in user');
+    }
+
+    const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
+      primaryDerivedKey;
+    return new Promise((resolve, reject) => {
+      this.#pendingWindowRequest = { resolve, reject };
+
+      if (
+        typeof transactionSpendingLimitResponse.TransactionCountLimitMap?.[
+          'AUTHORIZE_DERIVED_KEY'
+        ] === 'undefined'
+      ) {
+        transactionSpendingLimitResponse.TransactionCountLimitMap = {
+          AUTHORIZE_DERIVED_KEY: 1,
+          ...transactionSpendingLimitResponse.TransactionCountLimitMap,
+        };
+      }
+
+      const params = {
+        derive: true,
+        derivedPublicKey: derivedPublicKeyBase58Check,
+        publicKey: publicKeyBase58Check,
+        transactionSpendingLimitResponse,
+      };
+      console.log(params);
+      this.#launchIdentity('derive', params);
+    });
   }
 
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
@@ -337,10 +457,9 @@ export class Identity {
       );
     }
 
-    if (primaryDerivedKey.isAuthorized) {
-      return Promise.resolve();
-    }
-
+    // if (primaryDerivedKey.isAuthorized) {
+    //   return Promise.resolve();
+    // }
     const resp = await this.authorizeDerivedKey({
       OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
       DerivedPublicKeyBase58Check:
@@ -352,18 +471,27 @@ export class Identity {
       MinFeeRateNanosPerKB: 1000,
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
+      // TODO: figure out the best way to deal with these fields
+      Memo: this.#window.location.hostname,
+      AppName: this.#appName,
+      TransactionFees: [],
+      ExtraData: {},
     });
 
     const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
+
+    this.backgroundRefreshDerivedKeyPermissions();
     // mark the key as authorized
     if (users?.[ownerPublicKey]?.primaryDerivedKey) {
-      users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
+      // TODO: figure out proper way to handle this
+      // users[ownerPublicKey].primaryDerivedKey.isAuthorized = true;
     }
     this.#window.localStorage.setItem(
       LOCAL_STORAGE_KEYS.identityUsers,
       JSON.stringify(users)
     );
+
     return result;
   }
 
@@ -401,15 +529,17 @@ export class Identity {
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
-        this.#handleDeriveMethod(payload as IdentityDerivePayload);
+        this.#handleDeriveMethod(payload as IdentityDerivePayload).then(() => {
+          this.#subscriber?.(this.#state);
+        });
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
+        this.#subscriber?.(this.#state);
         break;
       default:
         throw new Error(`Unknown method: ${method}`);
     }
-    this.#subscriber?.(this.#state);
   }
 
   #handleLoginMethod(payload: IdentityLoginPayload) {
@@ -448,29 +578,61 @@ export class Identity {
     }
   }
 
-  #handleDeriveMethod(payload: IdentityDerivePayload) {
+  #handleDeriveMethod(payload: IdentityDerivePayload): Promise<any> {
+    const { primaryDerivedKey } = this.currentUser ?? {};
+
+    // NOTE: If we generated the keys and provided the derived public key,
+    // identity will respond with an empty string in the derivedSeedHex field.
+    // We don't want to inadvertently overwrite our derived seed hex with the
+    // empty string, so we delete the field if it's empty.
+    if (payload.derivedSeedHex === '') {
+      delete payload.derivedSeedHex;
+    }
+
+    if (
+      primaryDerivedKey &&
+      primaryDerivedKey.publicKeyBase58Check === payload.publicKeyBase58Check &&
+      primaryDerivedKey.derivedPublicKeyBase58Check ===
+        payload.derivedPublicKeyBase58Check
+    ) {
+      this.#updateUser(payload.publicKeyBase58Check, {
+        primaryDerivedKey: { ...primaryDerivedKey, ...payload },
+      });
+      // Attempt to authorize the derived key. If it fails due
+      // to no money we don't care. We'll try again the next time the user
+      // attempts to submit a tx.
+      return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
+        .catch((e) => {
+          if (this.#window.location.hostname === 'localhost') {
+            console.warn(e.message);
+          }
+        })
+        .finally(() => {
+          this.#pendingWindowRequest?.resolve(payload);
+        });
+    }
+
     const loginKeyPair = this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.loginKeyPair
     );
-
+    // in the case of a login, we clean up the login key pair from localStorage.
+    this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
     if (this.users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
-      this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
+      return Promise.resolve();
     } else if (loginKeyPair) {
       const { seedHex } = JSON.parse(loginKeyPair);
       this.#updateUser(payload.publicKeyBase58Check, {
         primaryDerivedKey: { ...payload, derivedSeedHex: seedHex },
       });
-      // in the case of a login, we want to remove the login key pair from localStorage and patch the
-      // publicKeyAdded field onto the payload
-      this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
       // Attempt to authorize the new derived key. If it fails due
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.
-      this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
+      return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
         .catch((e) => {
-          // NOTE: we should only log this in dev mode
-          console.warn(e.message);
+          if (this.#window.location.hostname === 'localhost') {
+            console.warn(e.message);
+          }
         })
         .finally(() => {
           this.#pendingWindowRequest?.resolve({
@@ -480,6 +642,7 @@ export class Identity {
         });
     } else {
       this.#pendingWindowRequest?.resolve(payload);
+      return Promise.resolve();
     }
   }
 

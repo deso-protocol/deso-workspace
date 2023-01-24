@@ -1,3 +1,5 @@
+import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+
 export type Network = 'mainnet' | 'testnet';
 
 export interface IdentityResponse {
@@ -8,7 +10,7 @@ export interface IdentityResponse {
 }
 
 export interface IdentityDerivePayload {
-  derivedSeedHex: string;
+  derivedSeedHex?: string;
   derivedPublicKeyBase58Check: string;
   publicKeyBase58Check: string;
   btcDepositAddress: string;
@@ -65,10 +67,16 @@ export interface IdentityConfiguration {
    * during login. If not provided, we will assume no permissions.
    */
   spendingLimitOptions?: TransactionSpendingLimitOptions;
+
+  /**
+   * The name of the app used to authorize derived keys. Defaults to unknown.
+   */
+  appName?: string;
 }
 
 export interface APIProvider {
   post: (url: string, data: any) => Promise<any>;
+  get: (url: string) => Promise<any>;
 }
 
 export interface WindowProvider {
@@ -94,7 +102,8 @@ export interface LoginOptions {
 
 export type StoredUser = {
   primaryDerivedKey: IdentityDerivePayload & {
-    isAuthorized?: boolean;
+    transactionSpendingLimits: TransactionSpendingLimitResponse;
+    IsValid?: boolean;
   };
 };
 
@@ -130,3 +139,5 @@ export interface KeyPair {
   private: Uint8Array;
   public: Uint8Array;
 }
+
+export type IdentityPermissions = 'SUBMIT_POST';
