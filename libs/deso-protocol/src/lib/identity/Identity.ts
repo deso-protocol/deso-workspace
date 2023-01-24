@@ -114,7 +114,9 @@ export class Identity {
   private setUser(user: LoginUser | null): void {
     this.loggedInUser = user;
     if (this.isBrowser()) {
-      localStorage.setItem('deso_user', JSON.stringify(user));
+      user
+        ? localStorage.setItem('deso_user', JSON.stringify(user))
+        : localStorage.removeItem('deso_user');
     }
   }
 
@@ -136,7 +138,9 @@ export class Identity {
   private setLoggedInKey(key: string) {
     this.loggedInKey = key;
     if (this.isBrowser()) {
-      localStorage.setItem('deso_user_key', key);
+      key
+        ? localStorage.setItem('deso_user_key', key)
+        : localStorage.removeItem('deso_user_key');
     }
   }
   //  end of getters/ setters
