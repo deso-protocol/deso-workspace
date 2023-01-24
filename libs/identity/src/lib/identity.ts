@@ -36,7 +36,7 @@ export class Identity {
   #identityURI: string = DEFAULT_IDENTITY_URI;
   #network: Network = 'mainnet';
   #nodeURI: string = DEFAULT_NODE_URI;
-  #identityWindow?: Window | null;
+  #identityPopupWindow?: Window | null;
   #redirectURI?: string;
   #pendingWindowRequest?: Deferred;
   #defaultTransactionSpendingLimit: TransactionSpendingLimitResponse =
@@ -487,7 +487,7 @@ export class Identity {
       );
     } else {
       this.#handleIdentityResponse(ev.data);
-      this.#identityWindow?.close();
+      this.#identityPopupWindow?.close();
       if (this.#boundPostMessageListener) {
         this.#window.removeEventListener(
           'message',
@@ -671,8 +671,8 @@ export class Identity {
   }
 
   #openIdentityPopup(url: string) {
-    if (this.#identityWindow) {
-      this.#identityWindow.close();
+    if (this.#identityPopupWindow) {
+      this.#identityPopupWindow.close();
     }
 
     const h = 1000;
@@ -680,7 +680,7 @@ export class Identity {
     const y = window.outerHeight / 2 + window.screenY - h / 2;
     const x = window.outerWidth / 2 + window.screenX - w / 2;
 
-    this.#identityWindow = this.#window.open(
+    this.#identityPopupWindow = this.#window.open(
       url,
       undefined,
       `toolbar=no, width=${w}, height=${h}, top=${y}, left=${x}`
