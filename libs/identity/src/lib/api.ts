@@ -1,6 +1,6 @@
 import { APIProvider } from './types';
 
-function getOptions(customOptions: any = {}) {
+function buildOptions(customOptions: any = {}) {
   const headers = customOptions.headers;
   delete customOptions.headers;
 
@@ -28,21 +28,22 @@ export class APIError {
   }
 }
 
+const wrappedFetch = (url: string, options: any) => {
+  return fetch(url, options).then((res) => {
+    if (!res.ok) {
+      return res.json().then((json) => {
+        throw new APIError(json.error, res.status);
+      });
+    }
+    return res.json();
+  });
+};
+
 export const api: APIProvider = {
   post(url: string, data: Record<string, any>): Promise<any> {
-    return fetch(
+    return wrappedFetch(
       url,
-      getOptions({
-        method: 'POST',
-        body: JSON.stringify(data),
-      })
-    ).then((res) => {
-      if (!res.ok) {
-        return res.json().then((json) => {
-          throw new APIError(json.error, res.status);
-        });
-      }
-      return res.json();
-    });
+      buildOptions({ method: 'POST', body: JSON.stringify(data) })
+    );
   },
 };

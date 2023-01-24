@@ -7,10 +7,10 @@ library:
 
 - `deso-protocol` manages signing by accessing a user's master key pair via the
   identity [iframe API](https://docs.deso.org/for-developers/identity/iframe-api/basics). This requires users to enable access to third party cookies
-  and local storage on many browsers (brave, Safari on IOS, Chrome in incognito
+  and local storage on many browsers (Brave, Safari on IOS, Chrome in incognito
   mode, etc).
   - Since this library is based on derived keys, it does not need to use
-    iframe API at all. We can sign transactions, encrypt, decrypt, and generate
+    the iframe API _at all_. We can sign transactions, encrypt, decrypt, and generate
     signed JWTs directly using derived keys, which means this works out of the box
     in pretty much any browser environment since it doesn't rely on third party
     storage.
@@ -23,7 +23,7 @@ library:
     permissions have been requested, you'll never need to ask users to approve
     transactions going forward which makes it easier to build better user
     experiences.
-- `deso-protocol` depends on node backend packages and requires configuring your
+- `deso-protocol` depends on many node backend packages and requires configuring your
   build system to include node polyfills.
   - This library does not depend on any backend packages. Everything here is
     browser friendly. Just npm install and use this immediately without any
