@@ -29,6 +29,7 @@ class LocalStorageFake implements Storage {
 export function getWindowFake(overrides: Partial<Window> = {}): Window {
   overrides.location = {
     ...window.location,
+    hostname: 'localhost.test',
     ...(overrides.location ?? {}),
   };
 
@@ -43,7 +44,8 @@ export function getWindowFake(overrides: Partial<Window> = {}): Window {
 
 export function getAPIFake(overrides: Partial<APIProvider> = {}): APIProvider {
   return {
-    post: () => Promise.resolve({}),
+    post: () => Promise.resolve(null),
+    get: () => Promise.resolve(null),
     ...overrides,
   };
 }

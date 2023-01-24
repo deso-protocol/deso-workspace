@@ -42,6 +42,36 @@ describe('identity', () => {
       },
     });
     apiFake = getAPIFake({
+      get: jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (url.includes('get-single-derived-key')) {
+            return Promise.resolve({
+              DerivedKey: {
+                OwnerPublicKeyBase58Check:
+                  'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
+                DerivedPublicKeyBase58Check:
+                  'BC1YLgWMZWj8TVmDB9eJ7ZtWYYZHBDUUsz5ENmbseF3pF7CmopfXhb7',
+                ExpirationBlock: 210445,
+                IsValid: true,
+                TransactionSpendingLimit: {
+                  GlobalDESOLimit: 1000000,
+                  TransactionCountLimitMap: null,
+                  CreatorCoinOperationLimitMap: null,
+                  DAOCoinOperationLimitMap: null,
+                  NFTOperationLimitMap: null,
+                  DAOCoinLimitOrderLimitMap: null,
+                  AssociationLimitMap: null,
+                  IsUnlimited: false,
+                },
+                Memo: '',
+              },
+            });
+          }
+
+          return Promise.resolve(null);
+        })
+        .mockName('api.get'),
       post: jest
         .fn()
         .mockImplementation((url: string) => {
@@ -86,6 +116,17 @@ describe('identity', () => {
         signedUp: false,
       };
 
+      const mockTxSpendingLimit = {
+        GlobalDESOLimit: 1000000,
+        TransactionCountLimitMap: null,
+        CreatorCoinOperationLimitMap: null,
+        DAOCoinOperationLimitMap: null,
+        NFTOperationLimitMap: null,
+        DAOCoinLimitOrderLimitMap: null,
+        AssociationLimitMap: null,
+        IsUnlimited: false,
+      };
+
       let loginKeyPair = { publicKey: '', seedHex: '' };
       await Promise.all([
         identity.login(),
@@ -101,6 +142,37 @@ describe('identity', () => {
               loginKeyPair = JSON.parse(keyPairJSON);
             }
 
+            const payload = {
+              ...derivePayload,
+              derivedPublicKeyBase58Check: loginKeyPair.publicKey,
+              derivedSeedHex: '',
+            };
+
+            apiFake.get = jest
+              .fn()
+              .mockImplementation((url: string) => {
+                if (
+                  url.endsWith(
+                    `get-single-derived-key/${payload.publicKeyBase58Check}/${payload.derivedPublicKeyBase58Check}`
+                  )
+                ) {
+                  return Promise.resolve({
+                    DerivedKey: {
+                      OwnerPublicKeyBase58Check: payload.publicKeyBase58Check,
+                      DerivedPublicKeyBase58Check:
+                        payload.derivedPublicKeyBase58Check,
+                      ExpirationBlock: 210445,
+                      IsValid: true,
+                      TransactionSpendingLimit: mockTxSpendingLimit,
+                      Memo: '',
+                    },
+                  });
+                }
+
+                return Promise.resolve(null);
+              })
+              .mockName('api.get');
+
             // NOTE: identity does not provide the derived seed hex here because we generated the keys ourselves
             postMessageListener({
               origin: DEFAULT_IDENTITY_URI,
@@ -108,11 +180,7 @@ describe('identity', () => {
               data: {
                 service: 'identity',
                 method: 'derive',
-                payload: {
-                  ...derivePayload,
-                  derivedPublicKeyBase58Check: loginKeyPair.publicKey,
-                  derivedSeedHex: '',
-                },
+                payload: payload,
               },
             });
 
@@ -132,8 +200,10 @@ describe('identity', () => {
           derivedPublicKeyBase58Check: loginKeyPair.publicKey,
           // NOTE: we have updated our local record to include our generated derived seed hex
           derivedSeedHex: loginKeyPair.seedHex,
-          // The key was successfully authorized
-          isAuthorized: true,
+          // The key is ready for use
+          IsValid: true,
+          // the key has its fetched permissions cached
+          transactionSpendingLimits: mockTxSpendingLimit,
         },
       });
       // login keys cleaned up from local storage
@@ -214,8 +284,8 @@ describe('identity', () => {
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
       expect(identity.currentUser).toEqual({
-        // NOTE: we don't have the isAuthorized flag if the call to authorize has failed, but
-        // we still have the current user data.
+        // NOTE: we don't have any of the get-single-derived-key data in this scenario.
+        // This means the user will have no permissions until they authorize the key.
         primaryDerivedKey: {
           ...derivePayload,
           derivedPublicKeyBase58Check: loginKeyPair.publicKey,
@@ -253,7 +323,7 @@ describe('identity', () => {
               derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
               publicKeyBase58Check: testPublicKeyBase58Check,
               expirationBlock: 209505,
-              isAuthorized: true,
+              IsValid: true,
             },
           },
         })
@@ -276,8 +346,12 @@ describe('identity', () => {
         }
       );
 
-      // we should't call authorize if the key has already been authorized.
-      expect(apiFake.post).toHaveBeenCalledTimes(0);
+      // we should't call authorize if the key is valid.
+      const authorizeCalls = (apiFake.post as jest.Mock).mock.calls.filter(
+        ([url]) => url.endsWith('authorize-derived-key')
+      );
+
+      expect(authorizeCalls.length).toBe(0);
       expect(parsedAndVerifiedJwt).toEqual({
         derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
         iat: expect.any(Number),
@@ -296,7 +370,6 @@ describe('identity', () => {
               derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
               publicKeyBase58Check: testPublicKeyBase58Check,
               expirationBlock: 209505,
-              isAuthorized: false,
               transactionSpendingLimitHex: '0x0',
             },
           },
@@ -321,16 +394,20 @@ describe('identity', () => {
       const [url, payload] = (apiFake.post as jest.Mock).mock.calls[0];
       expect(url).toBe(`${DEFAULT_NODE_URI}/api/v0/authorize-derived-key`);
       expect(payload).toEqual({
-        AccessSignature: '0x0',
-        DeleteKey: false,
-        DerivedKeySignature: false,
+        OwnerPublicKeyBase58Check:
+          'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
         DerivedPublicKeyBase58Check:
           'BC1YLiLrdnAcK3eCR32ykwqL7aJfYDs9GPf1Ws8gpqjW78Th94uD5jJ',
         ExpirationBlock: 209505,
+        AccessSignature: '0x0',
+        DeleteKey: false,
+        DerivedKeySignature: false,
         MinFeeRateNanosPerKB: 1000,
-        OwnerPublicKeyBase58Check:
-          'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
         TransactionSpendingLimitHex: '0x0',
+        Memo: windowFake.location.hostname,
+        AppName: 'unkown',
+        TransactionFees: [],
+        ExtraData: {},
       });
       expect(parsedAndVerifiedJwt).toEqual({
         derivedPublicKeyBase58Check: testDerivedPublicKeyBase58Check,
