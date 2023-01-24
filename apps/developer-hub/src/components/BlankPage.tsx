@@ -4,12 +4,12 @@ import { useContext } from 'react';
 import { DesoIdentityContext } from '../services/DesoIdentityContext';
 
 export function BlankPage() {
-  const { activePublicKey } = useContext(DesoIdentityContext);
+  const { currentUser } = useContext(DesoIdentityContext);
 
   return (
     <div>
       <h1>Desojs V2 demo</h1>
-      <p>Current user: {activePublicKey}</p>
+      <p>Current user: {currentUser?.publicKey ?? 'no user'}</p>
       <button onClick={() => identity.login()}>Login</button>
       <button onClick={() => identity.logout()} className="ml-4">
         Logout

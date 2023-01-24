@@ -20,10 +20,9 @@ import { AllThreadsONPage } from './threads/AllThreadsOnPage';
 function App() {
   const [forum, setForum] = useState<ReactElement[]>([]);
 
-  const [identityState, setIdentityState] = useState<IdentityState>({
-    activePublicKey: identity.activePublicKey,
-    users: identity.users,
-  });
+  const [identityState, setIdentityState] = useState<IdentityState>(
+    identity.state
+  );
 
   useEffect(() => {
     getForumRoutes();
@@ -31,7 +30,7 @@ function App() {
     identity.configure({
       appName: 'Desojs V2 demo',
       identityURI: 'http://localhost:4201',
-      redirectURI: `${window.location.origin}/devtest`,
+      // redirectURI: `${window.location.origin}/devtest`,
     });
     identity.subscribe(setIdentityState);
   }, []);

@@ -70,18 +70,35 @@ export class Identity {
     return (this.users?.[activePublicKey] as StoredUser) ?? null;
   }
 
-  // TODO: add permissions to state. Should we just pass currentUser?
-  get #state() {
+  /**
+   * The current internal state of identity. This is a combination of the
+   * current user and all other users stored in local storage.
+   */
+  get state() {
+    const allStoredUsers = this.users;
+    const activePublicKey = this.activePublicKey;
+    const currentUser = this.currentUser;
+
     return {
-      activePublicKey: this.activePublicKey,
-      desoUsers: this.users,
+      currentUser: currentUser && {
+        ...currentUser,
+        publicKey: currentUser.primaryDerivedKey.publicKeyBase58Check,
+      },
+      alternateUsers:
+        allStoredUsers &&
+        Object.keys(allStoredUsers).reduce((res, publicKey) => {
+          if (publicKey !== activePublicKey) {
+            res[publicKey] = allStoredUsers[publicKey];
+          }
+          return res;
+        }, {} as Record<string, StoredUser>),
     };
   }
 
   constructor(windowProvider: Window, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
-    this.backgroundRefreshDerivedKeyPermissions();
+    this.refreshDerivedKeyPermissions();
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
 
@@ -122,7 +139,7 @@ export class Identity {
    */
   subscribe(subscriber: (state: any) => void) {
     this.#subscriber = subscriber;
-    this.#subscriber(this.#state);
+    this.#subscriber(this.state);
   }
 
   /**
@@ -165,7 +182,7 @@ export class Identity {
         derive: true,
         derivedPublicKey,
         transactionSpendingLimitResponse: this.#defaultTransactionSpendingLimit,
-        expirationDays: 36500, // 100 years. these login keys should essentially never expire.
+        expirationDays: 3650, // 10 years. these login keys should essentially never expire.
       };
 
       if (getFreeDeso) {
@@ -211,7 +228,7 @@ export class Identity {
       }
     );
 
-    this.backgroundRefreshDerivedKeyPermissions();
+    this.refreshDerivedKeyPermissions();
 
     return res;
   }
@@ -339,7 +356,15 @@ export class Identity {
     );
   }
 
-  async backgroundRefreshDerivedKeyPermissions() {
+  /**
+   * Reloads the derived key permissions for the active user. NOTE: In general
+   * consumers should not need to call this directly, but it is exposed for
+   * advanced use cases. We call this internally any time derived key
+   * permissions are updated, a transaction is submitted, or the logged in user
+   * changes.
+   * @returns void
+   */
+  async refreshDerivedKeyPermissions() {
     const { primaryDerivedKey } = this.currentUser ?? {};
 
     if (!primaryDerivedKey) {
@@ -456,7 +481,7 @@ export class Identity {
     const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
 
-    this.backgroundRefreshDerivedKeyPermissions();
+    this.refreshDerivedKeyPermissions();
 
     return result;
   }
@@ -495,13 +520,17 @@ export class Identity {
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
-        this.#handleDeriveMethod(payload as IdentityDerivePayload).then(() => {
-          this.#subscriber?.(this.#state);
-        });
+        this.#handleDeriveMethod(payload as IdentityDerivePayload)
+          .then(() => {
+            return this.refreshDerivedKeyPermissions();
+          })
+          .then(() => {
+            this.#subscriber?.(this.state);
+          });
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
-        this.#subscriber?.(this.#state);
+        this.#subscriber?.(this.state);
         break;
       default:
         throw new Error(`Unknown method: ${method}`);
@@ -585,6 +614,8 @@ export class Identity {
     this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
     if (this.users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
+      // if the logged in user changes, we try to refresh the derived key permissions.
+      this.refreshDerivedKeyPermissions();
       return Promise.resolve();
     } else if (loginKeyPair) {
       const { seedHex } = JSON.parse(loginKeyPair);
@@ -622,6 +653,7 @@ export class Identity {
         usersObj[masterPublicKey] = attributes;
       } else {
         usersObj[masterPublicKey] = {
+          publicKey: masterPublicKey,
           ...usersObj[masterPublicKey],
           ...attributes,
         };
@@ -633,7 +665,9 @@ export class Identity {
     } else {
       this.#window.localStorage.setItem(
         LOCAL_STORAGE_KEYS.identityUsers,
-        JSON.stringify({ [masterPublicKey]: attributes })
+        JSON.stringify({
+          [masterPublicKey]: { publicKey: masterPublicKey, ...attributes },
+        })
       );
     }
     this.#window.localStorage.setItem(

@@ -116,6 +116,7 @@ export interface LoginOptions {
 }
 
 export type StoredUser = {
+  publicKey: string;
   primaryDerivedKey: IdentityDerivePayload & {
     transactionSpendingLimits: TransactionSpendingLimitResponse;
     IsValid?: boolean;
@@ -140,8 +141,8 @@ export interface IdentityLoginPayload {
 }
 
 export interface IdentityState {
-  activePublicKey: string | null;
-  users: Record<string, StoredUser> | null;
+  currentUser: StoredUser | null;
+  alternateUsers: Record<string, StoredUser> | null;
 }
 
 export interface Deferred {

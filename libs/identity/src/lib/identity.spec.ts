@@ -22,9 +22,10 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
 }
 
 // TODO: test cases
-// make sure we don't overwrite the derivedSeedHex with an empty string if it already exists (can happen during the
-// regular derive key flow).
-
+// - make sure we don't overwrite the derivedSeedHex with an empty string if it already exists (can happen during the
+//   regular derive key flow).
+// - test redirectURI cases
+// - test upgrade permissions cases
 const originalTextEncoder = globalThis.TextEncoder;
 
 describe('identity', () => {
@@ -93,7 +94,7 @@ describe('identity', () => {
   });
 
   describe('.login()', () => {
-    it('generates a derived key pair that can be deterministically recovered from the seedHex and attempts to authorize it', async () => {
+    it('generates a derived key pair, merges it with the identity payload, and attempts to authorize it', async () => {
       const derivePayload = {
         publicKeyBase58Check:
           'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay',
@@ -195,6 +196,7 @@ describe('identity', () => {
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
       expect(identity.currentUser).toEqual({
+        publicKey: derivePayload.publicKeyBase58Check,
         primaryDerivedKey: {
           ...derivePayload,
           derivedPublicKeyBase58Check: loginKeyPair.publicKey,
@@ -284,6 +286,7 @@ describe('identity', () => {
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
       expect(identity.currentUser).toEqual({
+        publicKey: derivePayload.publicKeyBase58Check,
         // NOTE: we don't have any of the get-single-derived-key data in this scenario.
         // This means the user will have no permissions until they authorize the key.
         primaryDerivedKey: {
@@ -441,5 +444,14 @@ describe('identity', () => {
 
       expect(errorMessage).toEqual('JsonWebTokenError: invalid signature');
     });
+  });
+
+  describe('.hasPermissions()', () => {
+    it.todo('returns true when the user has the required permissions');
+    it.todo(
+      'returns false when the user does not have the required permissions'
+    );
+    it.todo('works with a single permission');
+    it.todo('it works with multiple permissions');
   });
 });
