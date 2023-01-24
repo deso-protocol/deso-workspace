@@ -21,7 +21,6 @@ import {
   SendNewMessageResponse,
   SubmitTransactionResponse,
 } from 'deso-protocol-types';
-import { throwErrors } from '../../utils/Utils';
 import { Identity } from '../identity/Identity';
 import { Node } from '../Node/Node';
 

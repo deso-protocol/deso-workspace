@@ -5176,17 +5176,17 @@ export interface AccessGroupInfo {
 export interface MessageInfo {
   EncryptedText: string;
   TimestampNanos: number;
+  TimestampNanosString: string;
   ExtraData: { [k: string]: string };
 }
 
 export interface GetPaginatedMessagesForDmThreadRequest {
   UserGroupOwnerPublicKeyBase58Check: string;
   UserGroupKeyName: string;
-
   PartyGroupOwnerPublicKeyBase58Check: string;
   PartyGroupKeyName: string;
-
   StartTimeStamp: number;
+  StartTimeStampString: string;
   MaxMessagesToFetch: number;
 }
 
@@ -5197,8 +5197,8 @@ export interface GetPaginatedMessagesForDmThreadResponse {
 export interface GetPaginatedMessagesForGroupChatThreadRequest {
   UserPublicKeyBase58Check: string;
   AccessGroupKeyName: string;
-
   StartTimeStamp: number;
+  StartTimeStampString: string;
   MaxMessagesToFetch: number;
 }
 
