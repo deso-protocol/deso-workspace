@@ -7,6 +7,10 @@ Identity](https://docs.deso.org/for-developers/identity/identity).
 
 This is a brand new library and is a WIP. It has not been battle tested thoroughly and there are surely edge cases and bugs to be addressed and fixed.
 
+### Known limitations
+
+Actively working on adding encrypt/decrypt functionality.
+
 ## Quick start
 
 ```ts
