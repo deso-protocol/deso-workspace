@@ -98,7 +98,11 @@ export class Identity {
   constructor(windowProvider: Window, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
-    this.refreshDerivedKeyPermissions();
+
+    if (this.currentUser?.primaryDerivedKey) {
+      this.refreshDerivedKeyPermissions();
+    }
+
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
 
@@ -378,6 +382,7 @@ export class Identity {
           primaryDerivedKey.publicKeyBase58Check
         }/${primaryDerivedKey.derivedPublicKeyBase58Check}`
       );
+
       this.#updateUser(primaryDerivedKey.publicKeyBase58Check, {
         primaryDerivedKey: {
           ...primaryDerivedKey,
@@ -481,8 +486,6 @@ export class Identity {
     const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
 
-    this.refreshDerivedKeyPermissions();
-
     return result;
   }
 
@@ -520,13 +523,9 @@ export class Identity {
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
-        this.#handleDeriveMethod(payload as IdentityDerivePayload)
-          .then(() => {
-            return this.refreshDerivedKeyPermissions();
-          })
-          .then(() => {
-            this.#subscriber?.(this.state);
-          });
+        this.#handleDeriveMethod(payload as IdentityDerivePayload).then(() => {
+          this.#subscriber?.(this.state);
+        });
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
