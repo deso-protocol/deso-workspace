@@ -1,6 +1,6 @@
 {
   "name": "@deso-core/identity",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "commonjs",
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
