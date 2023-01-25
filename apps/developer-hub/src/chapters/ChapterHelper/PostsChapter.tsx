@@ -281,7 +281,7 @@ export const postChapter = {
             <Page
               demo={true}
               method={{
-                methodName: `deso.posts.getDiamondedPosts(request)`,
+                methodName: `deso.posts.GetLikesForPost(request)`,
                 params: this.params,
                 method: this.method,
               }}
