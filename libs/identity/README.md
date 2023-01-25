@@ -9,41 +9,41 @@ This is a brand new library and is a WIP. It has not been battle tested thorough
 ```ts
 import { identity } from '@deso-core/identity';
 
-// subscribe to identity state changes (user login/logout, permissions updated, etc)
-// this is useful for binding your preferred framework's state management system to
-// the identity instance's internal state. The function you provide to `subscribe` will
+// Subscribe to identity state changes (user login/logout, permissions updated, etc).
+// This is useful for binding your preferred framework's state management system to
+// the identity instance internal state. The function you provide to `subscribe` will
 // be called anytime identity state changes.
 identity.subscribe((state) => {
-  // the current user object contains the users current permissions (TransactionCountLimitMap),
-  // this value will be updated when the logged in user changes or when the permissions change
+  // The current user object contains the user's current permissions (TransactionCountLimitMap).
+  // This value will be updated when the logged in user changes or when the permissions change
   // for the current user.
+  // read more about the transaction count limit map here https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
   const currentUser = state.currentUser;
 
-  // a list of all users that a given user has logged in with (excluding currentUser).
-  // useful if you want to show a list of accounts and provide a way to switch accounts easily.
+  // A list of all users that a given user has logged in with (excluding currentUser).
+  // This is useful if you want to show a list of accounts and provide a way to switch accounts easily.
   const alernateUsers = state.alternateUsers;
 });
 
-// start a login flow
+// Start a login flow
 await identity.login();
 
-// logout
+// Start a logout flow
 await identity.logout();
 
-// switch users (for apps that manage multiple accounts for a single user)
-// not the publicKey here must be a user that has already logged in.
+// Switch users (for apps that manage multiple accounts for a single user).
+// NOTE: The publicKey here must be a user that has previously logged in.
 identity.setActiveUser(publicKey);
 
-// generate a jwt for making authenticated requests
+// Generate a jwt for making authenticated requests via `Authorization` http header.
 await identity.jwt();
 
-// sign and submit a transaction with auto retry if the user's derived key has not
-// been authorized yet. NOTE: this will throw if the user has not been granted the
-// proper permissions yet.
+// Sign and submit a transaction with auto retry if the user's derived key has not been authorized yet.
+// NOTE: This will throw if the user has not been granted the proper permissions yet.
 const buildTx = () => axios.post('https://node.deso.org/api/v0/submit-post');
 const submittedTx = await identity.signAndSubmit(buildTx);
 
-// for more advanced use cases, you might want to handle signing, submitting, and retrying yourself. Here's an example of handling each step of the process yourself. NOTE: you will have to handle any errors manually with this approach.
+// For more advanced use cases, you might want to handle signing, submitting, and retrying yourself. Here's an example of handling each step of the process yourself. NOTE: you will have to handle any errors manually with this approach.
 const postTransaction = await axios.post(
   'https://node.deso.org/api/v0/submit-post'
 );
@@ -51,16 +51,16 @@ const signedTx = await identity.signTx(postTransaction.TransactionHex);
 const submittedTx = await identity.submitTx(signedTx);
 
 // Checking for permissions is straightforward. Here we check if our app can post on behalf of a user
-// read more about the transaction count limit map here https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
-// this returns a boolean value synchronously
+// Read more about the transaction count limit map here https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
+// This returns a boolean value synchronously.
 const hasPermission = identity.hasPermissions({
   TransactionCountLimitMap: {
     SUBMIT_POST: 1,
   },
 });
 
-// request approval for permissions from a user
-// this will present the user with the deso identity approve derived key UI.
+// Here we request approval for permissions from a user.
+// This will present the user with the deso identity approve derived key UI.
 if (!hasPermissions) {
   await identity.requestPermissions({
     TransactionCountLimitMap: {
