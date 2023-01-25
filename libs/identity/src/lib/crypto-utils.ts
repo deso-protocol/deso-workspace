@@ -173,7 +173,6 @@ function urlSafeBase64(str: string) {
 function derToJoseEncoding(signature: Uint8Array) {
   const paramBytes = 32;
 
-  // TODO: clean up this mess. I think these might be static values for our use case.
   let offset = 3;
   const rLength = signature[offset];
   offset += 1;

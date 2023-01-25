@@ -1,6 +1,8 @@
 # @deso-core/identity
 
-## This is a WIP and should have a beta version published soon!
+### Disclaimer
+
+This is a brand new library and is a WIP. It has not been battle tested thoroughly and there are surely edge cases and bugs to be addressed an fixed.
 
 ## Quick start
 
@@ -16,11 +18,18 @@ identity.logout();
 // generate a jwt for making authenticated requests
 identity.jwt();
 
-// sign and submit a transaction
+// sign and submit a transaction with auto retry if the user's derived key has not
+// been authorized yet. NOTE: this will throw if the user has not been granted the
+// proper permissions yet.
 const buildTx = () => axios.post('https://node.deso.org/api/v0/submit-post');
 identity.signAndSubmit(buildTx);
 
-// check if your app can post on behalf of a user
+// for more advanced use cases, you might want to handle signing, submitting, and retrying yourself. Here's an example of handling each step of the process yourself. NOTE: you will have to handle any errors manually with this approach.
+const postTransaction = axios.post('https://node.deso.org/api/v0/submit-post');
+const signedTx = await identity.signTx(postTransaction.TransactionHex);
+const submittedTx = await identity.submitTx(signedTx);
+
+// Checking for permissions is straightforward. Here we check if our app can post on behalf of a user
 // read more about the transaction count limit map here https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
 identity.hasPermissions({
   TransactionCountLimitMap: {
@@ -29,11 +38,50 @@ identity.hasPermissions({
 });
 
 // request approval for permissions from a user
+// this will present the user with the deso identity approve derived key UI.
 identity.requestPermissions({
   TransactionCountLimitMap: {
     SUBMIT_POST: 1,
   },
 });
+```
+
+### Configuration
+
+**Make sure to call configure prior to calling any other identity methods.**
+
+```ts
+import { identity } from '@deso-core/identity';
+
+// NOTE: for most web apps no configuration is *required*, but here are some common use cases
+// you might want to know about.
+identity.configure({
+  // Optional redirect URI. This is mostly useful for native mobile use cases.
+  // Most web applications will not want to use it. If provided, we do a full
+  // redirect to the identity domain and pass data via query params back to the
+  // provided uri.
+  redirectURI: 'https://mydomain.com/my-redirect-path',
+
+  // This will be associated with all of the derived keys that your application authorizes.
+  appName: 'My Cool App',
+
+  // Here we indicate the permissions a user will be asked to approve when they
+  // log into your application. You may specify as many or as few permissions
+  // up front as you want. You may choose not to request any permissions up front
+  // and that's okay! Just remember that you will need to request them in your app
+  // progressively, and you can always request as many or as few as you want using the
+  // `requestPermissions` method.
+  // See more about these options here https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
+  spendingLimitOptions: {
+    // NOTE: this value is in Deso nanos, so 1 Deso * 1e9
+    GlobalDESOLimit: 1 * 1e9 // 1 Deso
+    TransactionCountLimitMap: { // Map of transaction type to the number of times this derived key is
+                                // allowed to perform this operation on behalf of the owner public key
+      BASIC_TRANSFER: 2, // 2 basic transfer transactions are authorized
+      SUBMIT_POST: 4, // 4 submit post transactions are authorized
+    },
+  }
+})
 ```
 
 Why a new library? This library is intended to solve many of the issues we have
