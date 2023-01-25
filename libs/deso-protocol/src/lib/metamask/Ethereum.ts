@@ -112,19 +112,20 @@ export class Ethereum {
     const prefix = PUBLIC_KEY_PREFIXES[network].deso;
     const key = messagingPublicKey.getPublic().encode('array', true);
     const desoKey = Uint8Array.from([...prefix, ...key]);
-    const encodedDesoKey = bs58check.encode(desoKey);
-    return encodedDesoKey;
+    return bs58check.encode(desoKey);
   }
 
   public async ethAddressToDeSoPublicKey(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = ''
+    etherscanAPIKey = '',
+    ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<string> {
     const txns = await this.getEtherscanTransactionsSignedByAddress(
       ethAddress,
       network,
-      etherscanAPIKey
+      etherscanAPIKey,
+      ethereumNetwork
     );
     if (txns.length === 0) {
       return Promise.reject(
@@ -139,7 +140,8 @@ export class Ethereum {
           await this.recoverETHPublicKeyAndAddressFromTransaction(
             txns[ii].hash,
             network,
-            etherscanAPIKey
+            etherscanAPIKey,
+            ethereumNetwork
           );
         break;
       } catch (e) {
@@ -155,7 +157,7 @@ export class Ethereum {
     return publicKeyHexToDeSoPublicKey(recoveredETHPublicKey.slice(2), network);
   }
 
-  desoNetworkToETHNetwork(network: Network): string {
+  desoNetworkToETHNetwork(network: Network): 'goerli' | 'homestead' {
     // should really be Networkish from ethers.
     return network === 'testnet' ? 'goerli' : 'homestead';
   }
@@ -163,10 +165,11 @@ export class Ethereum {
   public async recoverETHPublicKeyAndAddressFromTransaction(
     transactionHashHex: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = ''
+    etherscanAPIKey = '',
+    ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<string[]> {
     const etherscanProvider = new ethers.providers.EtherscanProvider(
-      this.desoNetworkToETHNetwork(network),
+      ethereumNetwork ?? this.desoNetworkToETHNetwork(network),
       etherscanAPIKey
     );
     const txn = await etherscanProvider.getTransaction(transactionHashHex);
@@ -224,12 +227,14 @@ export class Ethereum {
   async getEtherscanTransactionsSignedByAddress(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = ''
+    etherscanAPIKey = '',
+    ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<EtherscanTransaction[]> {
     const allTransactions = await this.getETHTransactionsForETHAddress(
       ethAddress,
       network,
-      etherscanAPIKey
+      etherscanAPIKey,
+      ethereumNetwork
     );
     return allTransactions.filter(
       (txn) => txn.from.toLowerCase() === ethAddress.toLowerCase()
@@ -239,15 +244,19 @@ export class Ethereum {
   async getETHTransactionsForETHAddress(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = ''
+    etherscanAPIKey = '',
+    ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<EtherscanTransaction[]> {
     const apiKeyQueryParam = etherscanAPIKey
       ? `&apikey=${etherscanAPIKey}`
       : '';
+    const isTestnet = ethereumNetwork
+      ? ethereumNetwork === 'goerli'
+      : network === 'testnet';
     const data = (
       await axios.get(
         `https://api${
-          network === 'testnet' ? '-goerli' : ''
+          isTestnet ? '-goerli' : ''
         }.etherscan.io/api?module=account&action=txlist&address=${ethAddress}${apiKeyQueryParam}`
       )
     ).data as EtherscanTransactionsByAddressResponse;
