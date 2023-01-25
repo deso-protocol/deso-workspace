@@ -1,16 +1,6 @@
 # @deso-core/identity
 
-## Installation
-
-Use your preferred package manager:
-
-```sh
-npm i @deso-core/identity
-```
-
-```sh
-yarn add @deso-core/identity
-```
+## This is a WIP and should have a beta version published soon!
 
 ## Quick start
 
