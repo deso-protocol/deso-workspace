@@ -1,5 +1,8 @@
 # @deso-core/identity
 
+Client side library meant to be used for building web3 applications with [DeSo
+Identity](https://docs.deso.org/for-developers/identity/identity).
+
 ### Disclaimer
 
 This is a brand new library and is a WIP. It has not been battle tested thoroughly and there are surely edge cases and bugs to be addressed and fixed.
