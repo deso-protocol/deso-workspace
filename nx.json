@@ -1,5 +1,5 @@
 {
-  "npmScope": "deso-workspace",
+  "npmScope": "deso-core",
   "affected": {
     "defaultBase": "master"
   },
