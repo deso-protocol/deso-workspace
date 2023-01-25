@@ -420,7 +420,7 @@ export class Identity {
   ) {
     const { primaryDerivedKey } = this.currentUser ?? {};
     if (!primaryDerivedKey) {
-      throw new Error('Cannot request permission without a logged in user');
+      throw new Error('Cannot request permissions without a logged in user');
     }
 
     const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
