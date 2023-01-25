@@ -560,7 +560,7 @@ export const decryptAccessGroupMessage = async (
       );
       const privateEncryptionKey = decryptedKey
         .getPrivate()
-        .toBuffer(undefined, 32);
+        .toArrayLike(Buffer, undefined, 32);
       const decryptedMessageBuffer =
         decryptAccessGroupMessageFromPrivateMessagingKey(
           privateEncryptionKey.toString('hex'),
@@ -589,7 +589,7 @@ export function decryptMessageFromPrivateMessagingKey(
     privateMessagingKey
   )
     .getPrivate()
-    .toBuffer(undefined, 32);
+    .toArrayLike(Buffer, undefined, 32);
   const publicEncryptionKey = publicKeyToECBuffer(
     encryptedMessage.IsSender
       ? (encryptedMessage.RecipientMessagingPublicKey as string)
@@ -612,7 +612,7 @@ export function decryptAccessGroupMessageFromPrivateMessagingKey(
     privateMessagingKey
   )
     .getPrivate()
-    .toBuffer(undefined, 32);
+    .toArrayLike(Buffer, undefined, 32);
   const isRecipient =
     message.RecipientInfo.OwnerPublicKeyBase58Check ===
       userPublicKeyBase58Check &&
@@ -905,7 +905,7 @@ export function encryptMessageFromPrivateMessagingKey(
   const privateKey = seedHexToPrivateKey(privateMessagingKey);
   const groupPrivateEncryptionKeyBuffer = privateKey
     .getPrivate()
-    .toBuffer(undefined, 32);
+    .toArrayLike(Buffer, undefined, 32);
   const publicKeyBuffer = publicKeyToECBuffer(recipientPublicKey);
   return encryptShared(
     groupPrivateEncryptionKeyBuffer,
