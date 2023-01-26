@@ -30,7 +30,6 @@ import {
   StoredUser,
 } from './types';
 
-// TODO: figure out how to deal with expired derived keys
 export class Identity {
   #window: Window;
   #api: APIProvider;
