@@ -2,7 +2,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
-    "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -14,6 +13,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "inlineSources": true,
+    "inlineSourceMap": true,
     "paths": {
       "@deso-core/identity": ["libs/identity/src/index.ts"],
       "deso-protocol": ["libs/deso-protocol/src/index.ts"],
