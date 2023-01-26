@@ -2,6 +2,11 @@
   "name": "@deso-core/identity",
   "version": "0.0.1",
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deso-protocol/deso-workspace.git",
+    "directory": "libs/identity"
+  },
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
     "bs58": "^5.0.0",
