@@ -10,6 +10,8 @@ import {
   GetAccessGroupsResponse,
   GetBulkAccessGroupEntriesRequest,
   GetBulkAccessGroupEntriesResponse,
+  GetPaginatedAccessGroupMembersRequest,
+  GetPaginatedAccessGroupMembersResponse,
   GetPaginatedMessagesForDmThreadRequest,
   GetPaginatedMessagesForDmThreadResponse,
   GetPaginatedMessagesForGroupChatThreadRequest,
@@ -219,3 +221,14 @@ export class AccessGroup {
     ).data;
   }
 }
+
+export const GetPaginatedAccessGroupMembers = async (
+  request: GetPaginatedAccessGroupMembersRequest
+): Promise<GetPaginatedAccessGroupMembersResponse> => {
+  return (
+    await axios.post(
+      `${this.node.getUri()}/get-paginated-access-group-members`,
+      request
+    )
+  ).data;
+};

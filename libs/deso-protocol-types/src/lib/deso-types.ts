@@ -5210,8 +5210,25 @@ export interface GetUserMessageThreadsRequest {
   UserPublicKeyBase58Check: string;
 }
 
+export interface PublicKeyToProfileEntryResponseMap {
+  [k: string]: ProfileEntryResponse | null;
+}
+
 export interface GetUserMessageThreadsResponse {
   MessageThreads: NewMessageEntryResponse[];
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+}
+
+export interface GetPaginatedAccessGroupMembersRequest {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+  StartingAccessGroupMemberPublicKeyBase58Check?: string;
+  MaxMembersToFetch: number;
+}
+
+export interface GetPaginatedAccessGroupMembersResponse {
+  AccessGroupMembersBase58Check: string[];
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
 }
 
 export type DecryptedMessageEntryResponse = NewMessageEntryResponse & {
