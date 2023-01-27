@@ -305,7 +305,7 @@ describe('identity', () => {
 
   describe('.jwt()', () => {
     const testDerivedSeedHex =
-      'a9bf25f68e2f9302f7f41835dc6e68a483146ef996d0ff11a76b8d4dc38ee832a37bce43086f7209c8e92e1db1884ed28fceac3b9359d356445bb5cfa1ffc9b5';
+      'a9bf25f68e2f9302f7f41835dc6e68a483146ef996d0ff11a76b8d4dc38ee832';
     const testDerivedPublicKeyBase58Check =
       'BC1YLiLrdnAcK3eCR32ykwqL7aJfYDs9GPf1Ws8gpqjW78Th94uD5jJ';
     const testPublicKeyBase58Check =
@@ -337,7 +337,7 @@ describe('identity', () => {
       const jwt = await identity.jwt();
       const parsedAndVerifiedJwt = verify(
         jwt,
-        getPemEncodePublicKey(ecUtils.hashToPrivateKey(testDerivedSeedHex)),
+        getPemEncodePublicKey(ecUtils.hexToBytes(testDerivedSeedHex)),
         {
           // See: https://github.com/auth0/node-jsonwebtoken/issues/862
           // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
@@ -382,7 +382,7 @@ describe('identity', () => {
       const jwt = await identity.jwt();
       const parsedAndVerifiedJwt = verify(
         jwt,
-        getPemEncodePublicKey(ecUtils.hashToPrivateKey(testDerivedSeedHex)),
+        getPemEncodePublicKey(ecUtils.hexToBytes(testDerivedSeedHex)),
         {
           // See: https://github.com/auth0/node-jsonwebtoken/issues/862
           // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
@@ -421,23 +421,19 @@ describe('identity', () => {
 
     it('is invalid when verified with the wrong public key', async () => {
       const badSeedHex =
-        'b3302883522db5863ded181b727153ddb1a7cd1deb5eaa00d406f9e08ae0bfe8024e889deab4a48026141cc1faaea55e0a28e3d87d9fe70cf60a98110110ea34';
+        'b3302883522db5863ded181b727153ddb1a7cd1deb5eaa00d406f9e08ae0bfe8';
       const jwt = await identity.jwt();
       let errorMessage = '';
       try {
-        verify(
-          jwt,
-          getPemEncodePublicKey(ecUtils.hashToPrivateKey(badSeedHex)),
-          {
-            // See: https://github.com/auth0/node-jsonwebtoken/issues/862
-            // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
-            // even though this is the correct algorithm for JWTs signed
-            // with secp256k1 keys: https://www.rfc-editor.org/rfc/rfc8812.html#name-jose-algorithms-registratio
-            // as a workaround, we can use this flag to force it to accept and
-            // verify signatures generated with secp256k1 keys
-            allowInvalidAsymmetricKeyTypes: true,
-          }
-        );
+        verify(jwt, getPemEncodePublicKey(ecUtils.hexToBytes(badSeedHex)), {
+          // See: https://github.com/auth0/node-jsonwebtoken/issues/862
+          // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
+          // even though this is the correct algorithm for JWTs signed
+          // with secp256k1 keys: https://www.rfc-editor.org/rfc/rfc8812.html#name-jose-algorithms-registratio
+          // as a workaround, we can use this flag to force it to accept and
+          // verify signatures generated with secp256k1 keys
+          allowInvalidAsymmetricKeyTypes: true,
+        });
       } catch (e: any) {
         errorMessage = e.toString();
       }

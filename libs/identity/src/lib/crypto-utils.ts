@@ -40,25 +40,21 @@ interface Base58CheckOptions {
   network: Network;
 }
 
+// We are not using the native web crypto API to actually generate keys
+// because it does not support the secp256k1 curve. Instead, we are using
+// https://github.com/paulmillr/noble-secp256k1 which is a browser friendly
+// alternative to the node elliptic package which is far smaller and only
+// focuses on supporting the ec algorithm we are actually interested in here.
+// If the web crypto API ever adds support for secp256k1, we should change
+// this to use it.
+//
+// See the following for more info:
+// https://github.com/w3c/webcrypto/issues/82
 export const keygen = (): KeyPair => {
-  // hashToPrivateKey requires a byte array length >= 40 and <= 1024.
-  // 64 is chosen somewhat arbitrarily here.
   // ecUtils.randomBytes uses window.crypto.getRandomValues in the browser or
   // crypto.randomBytes in node.
-  const seedHex = ecUtils.bytesToHex(ecUtils.randomBytes(64));
-
-  // We are not using the native web crypto API to actually generate keys
-  // because it does not support the secp256k1 curve. Instead, we are using
-  // https://github.com/paulmillr/noble-secp256k1 which is a browser friendly
-  // alternative to the node elliptic package which is far smaller and only
-  // focuses on supporting the ec algorithm we are actually interested in here.
-  // If the web crypto API ever adds support for secp256k1, we should change
-  // this to use it.
-  //
-  // See the following for more info:
-  // https://github.com/w3c/webcrypto/issues/82
-  //
-  const privateKey = ecUtils.hashToPrivateKey(seedHex);
+  const privateKey = ecUtils.randomBytes(32);
+  const seedHex = ecUtils.bytesToHex(privateKey);
 
   return {
     seedHex,
@@ -105,7 +101,7 @@ export const signTx = async (
   const transactionBytes = ecUtils.hexToBytes(txHex);
   const hashedTxBytes = await sha256X2(transactionBytes);
   const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
-  const privateKey = ecUtils.hashToPrivateKey(seedHex);
+  const privateKey = ecUtils.hexToBytes(seedHex);
   const [signatureBytes, recoveryParam] = await sign(
     transactionHashHex,
     privateKey
@@ -150,7 +146,7 @@ export const getSignedJWT = async (
 
   const [signature] = await sign(
     ecUtils.bytesToHex(await ecUtils.sha256(new TextEncoder().encode(jwt))),
-    ecUtils.hashToPrivateKey(seedHex)
+    ecUtils.hexToBytes(seedHex)
   );
   const encodedSignature = derToJoseEncoding(signature);
 
