@@ -46,37 +46,14 @@ export class Identity {
   #boundPostMessageListener?: (event: MessageEvent) => void;
   #subscriber?: (state: any) => void;
 
-  get activePublicKey(): string | null {
-    return this.#window.localStorage.getItem(
-      LOCAL_STORAGE_KEYS.activePublicKey
-    );
-  }
-
-  get users(): Record<string, StoredUser> | null {
-    const storedUsers = this.#window.localStorage.getItem(
-      LOCAL_STORAGE_KEYS.identityUsers
-    );
-    return storedUsers && JSON.parse(storedUsers);
-  }
-
-  get currentUser(): StoredUser | null {
-    const activePublicKey = this.activePublicKey;
-
-    if (!activePublicKey) {
-      return null;
-    }
-
-    return (this.users?.[activePublicKey] as StoredUser) ?? null;
-  }
-
   /**
    * The current internal state of identity. This is a combination of the
    * current user and all other users stored in local storage.
    */
   get state() {
-    const allStoredUsers = this.users;
-    const activePublicKey = this.activePublicKey;
-    const currentUser = this.currentUser;
+    const allStoredUsers = this.#users;
+    const activePublicKey = this.#activePublicKey;
+    const currentUser = this.#currentUser;
 
     return {
       currentUser: currentUser && {
@@ -94,11 +71,34 @@ export class Identity {
     };
   }
 
+  get #activePublicKey(): string | null {
+    return this.#window.localStorage.getItem(
+      LOCAL_STORAGE_KEYS.activePublicKey
+    );
+  }
+
+  get #users(): Record<string, StoredUser> | null {
+    const storedUsers = this.#window.localStorage.getItem(
+      LOCAL_STORAGE_KEYS.identityUsers
+    );
+    return storedUsers && JSON.parse(storedUsers);
+  }
+
+  get #currentUser(): StoredUser | null {
+    const activePublicKey = this.#activePublicKey;
+
+    if (!activePublicKey) {
+      return null;
+    }
+
+    return (this.#users?.[activePublicKey] as StoredUser) ?? null;
+  }
+
   constructor(windowProvider: Window, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
 
-    if (this.currentUser?.primaryDerivedKey) {
+    if (this.#currentUser?.primaryDerivedKey) {
       this.refreshDerivedKeyPermissions();
     }
 
@@ -199,7 +199,7 @@ export class Identity {
   logout(): Promise<IdentityLoginPayload> {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
-      const publicKey = this.activePublicKey;
+      const publicKey = this.#activePublicKey;
       if (!publicKey) {
         this.#pendingWindowRequest.reject(
           new Error('cannot logout without an active public key')
@@ -211,7 +211,7 @@ export class Identity {
   }
 
   signTx(txHex: string) {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
 
     if (!primaryDerivedKey?.derivedSeedHex) {
       // This *should* never happen, but just in case we throw here to surface any bugs.
@@ -251,7 +251,7 @@ export class Identity {
     } catch (e: any) {
       // if the derived key is not authorized, authorize it and try again
       if (e?.message?.includes('RuleErrorDerivedKeyNotAuthorized')) {
-        const { primaryDerivedKey } = this.currentUser ?? {};
+        const { primaryDerivedKey } = this.#currentUser ?? {};
         if (!primaryDerivedKey) {
           throw new Error(
             'Cannot authorize derived key without a logged in user'
@@ -280,7 +280,7 @@ export class Identity {
   }
 
   async jwt() {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
 
     if (!primaryDerivedKey?.derivedSeedHex) {
       // This *should* never happen, but just in case we throw here to surface any bugs.
@@ -305,7 +305,7 @@ export class Identity {
   getDeso() {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
-      const activePublicKey = this.activePublicKey;
+      const activePublicKey = this.#activePublicKey;
 
       if (!activePublicKey) {
         this.#pendingWindowRequest.reject(
@@ -324,7 +324,7 @@ export class Identity {
   verifyPhoneNumber() {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
-      const activePublicKey = this.activePublicKey;
+      const activePublicKey = this.#activePublicKey;
 
       if (!activePublicKey) {
         this.#pendingWindowRequest.reject(
@@ -339,10 +339,10 @@ export class Identity {
   }
 
   setActiveUser(publicKey: string) {
-    if (!this.users?.[publicKey]) {
+    if (!this.#users?.[publicKey]) {
       throw new Error(
         `No user found for public key. Known users: ${JSON.stringify(
-          this.users ?? {}
+          this.#users ?? {}
         )}`
       );
     }
@@ -350,6 +350,8 @@ export class Identity {
       LOCAL_STORAGE_KEYS.activePublicKey,
       publicKey
     );
+
+    this.#subscriber?.(this.state);
   }
 
   authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
@@ -368,7 +370,7 @@ export class Identity {
    * @returns void
    */
   async refreshDerivedKeyPermissions() {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
 
     if (!primaryDerivedKey) {
       // if we don't have a logged in user, we just bail
@@ -401,7 +403,7 @@ export class Identity {
   hasPermissions(
     permissionsToCheck: Partial<TransactionSpendingLimitResponse>
   ): boolean {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
 
     // If the key is expired, unauthorized, or has no money we can't do anything with it
     if (!primaryDerivedKey?.IsValid) {
@@ -422,7 +424,7 @@ export class Identity {
   requestPermissions(
     transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponse>
   ) {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
     if (!primaryDerivedKey) {
       throw new Error('Cannot request permissions without a logged in user');
     }
@@ -455,7 +457,7 @@ export class Identity {
   }
 
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
-    const users = this.users;
+    const users = this.#users;
     const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
 
     if (!primaryDerivedKey) {
@@ -538,7 +540,7 @@ export class Identity {
   #handleLoginMethod(payload: IdentityLoginPayload) {
     // no publicKeyAdded means the user is logging out. We just remove their data from localStorage
     if (!payload.publicKeyAdded) {
-      const publicKey = this.activePublicKey;
+      const publicKey = this.#activePublicKey;
 
       if (!publicKey) {
         throw new Error('No active public key found');
@@ -572,7 +574,7 @@ export class Identity {
   }
 
   #handleDeriveMethod(payload: IdentityDerivePayload): Promise<any> {
-    const { primaryDerivedKey } = this.currentUser ?? {};
+    const { primaryDerivedKey } = this.#currentUser ?? {};
 
     // NOTE: If we generated the keys and provided the derived public key,
     // identity will respond with an empty string in the derivedSeedHex field.
@@ -610,7 +612,7 @@ export class Identity {
     );
     // in the case of a login, we clean up the login key pair from localStorage.
     this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
-    if (this.users?.[payload.publicKeyBase58Check]) {
+    if (this.#users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
       // if the logged in user changes, we try to refresh the derived key permissions.
       this.refreshDerivedKeyPermissions();

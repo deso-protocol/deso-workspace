@@ -190,12 +190,12 @@ describe('identity', () => {
         ),
       ]);
 
-      expect(identity.activePublicKey).toEqual(
+      expect(identity.state.currentUser?.publicKey).toEqual(
         'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
       );
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
-      expect(identity.currentUser).toEqual({
+      expect(identity.state.currentUser).toEqual({
         publicKey: derivePayload.publicKeyBase58Check,
         primaryDerivedKey: {
           ...derivePayload,
@@ -280,12 +280,12 @@ describe('identity', () => {
         ),
       ]);
 
-      expect(identity.activePublicKey).toEqual(
+      expect(identity.state.currentUser?.publicKey).toEqual(
         'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
       );
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
-      expect(identity.currentUser).toEqual({
+      expect(identity.state.currentUser).toEqual({
         publicKey: derivePayload.publicKeyBase58Check,
         // NOTE: we don't have any of the get-single-derived-key data in this scenario.
         // This means the user will have no permissions until they authorize the key.
