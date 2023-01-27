@@ -42,7 +42,8 @@ export function BlankPage() {
           identity.signAndSubmitTx(() =>
             axios
               .post('https://node.deso.org/api/v0/submit-post', {
-                UpdaterPublicKeyBase58Check: identity.activePublicKey,
+                UpdaterPublicKeyBase58Check:
+                  identity.state.currentUser?.publicKey,
                 BodyObj: {
                   Body: body,
                   ImageURLs: [],
