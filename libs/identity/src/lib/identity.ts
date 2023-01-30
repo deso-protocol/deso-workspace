@@ -127,8 +127,21 @@ export class Identity {
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
     this.#jwtAlgorithm = jwtAlgorithm;
-    this.#defaultTransactionSpendingLimit = {
+    const defaultOptions: TransactionSpendingLimitResponse = {
       ...DEFAULT_TRANSACTION_SPENDING_LIMIT,
+    };
+    if (spendingLimitOptions.IsUnlimited) {
+      Object.keys(defaultOptions).forEach((key) => {
+        const k = key as keyof TransactionSpendingLimitResponse;
+        if (k === 'GlobalDESOLimit') {
+          defaultOptions[k] = 0;
+        } else {
+          defaultOptions[k] = undefined;
+        }
+      });
+    }
+    this.#defaultTransactionSpendingLimit = {
+      ...defaultOptions,
       ...spendingLimitOptions,
     };
   }
