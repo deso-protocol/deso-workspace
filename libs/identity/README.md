@@ -125,7 +125,7 @@ identity.configure({
 })
 ```
 
-Why a new library? This library is intended to solve many of the issues we have
+### Why a new library? This library is intended to solve many of the issues we have
 with the existing
 [deso-protocol](https://github.com/deso-protocol/deso-workspace/tree/master/libs/deso-protocol)
 library:
