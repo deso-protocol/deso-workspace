@@ -3,13 +3,11 @@
 Client side library meant to be used for building web3 applications with [DeSo
 Identity](https://docs.deso.org/for-developers/identity/identity).
 
-### Disclaimer
+### Install
 
-This is a brand new library and is a WIP. It has not been battle tested thoroughly and there are surely edge cases and bugs to be addressed and fixed.
-
-### Known limitations
-
-Actively working on adding encrypt/decrypt functionality.
+```sh
+npm install @deso-core/identity
+```
 
 ## Quick start
 
@@ -126,6 +124,7 @@ identity.configure({
 ```
 
 ### Why a new library? This library is intended to solve many of the issues we have
+
 with the existing
 [deso-protocol](https://github.com/deso-protocol/deso-workspace/tree/master/libs/deso-protocol)
 library:
