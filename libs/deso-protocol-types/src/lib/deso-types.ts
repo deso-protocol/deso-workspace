@@ -4492,6 +4492,31 @@ export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
   TransactionFees: TransactionFee[] | null;
 }
 
+export interface AssociationLimitMapItem {
+  AssociationClass: 'Post' | 'User' | 'Undefined';
+  AssociationType: string;
+  AppScopeType: 'Any' | 'Scoped' | 'Undefined';
+  AppPublicKeyBase58Check: string;
+  AssociationOperation: 'Any' | 'Create' | 'Delete' | 'Undefined';
+  OpCount: number;
+}
+
+export interface AccessGroupLimitMapItem {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  ScopeType: 'Any' | 'Scoped' | 'Undefined';
+  AccessGroupKeyName: string;
+  OperationType: 'Any' | 'Create' | 'Update' | 'Unknown';
+  OpCount: number;
+}
+
+export interface AccessGroupMemberLimitMapItem {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  ScopeType: 'Any' | 'Scoped' | 'Undefined';
+  AccessGroupKeyName: string;
+  OperationType: 'Any' | 'Add' | 'Remove' | 'Update' | 'Unknown';
+  OpCount: number;
+}
+
 // struct2ts:types/generated/types.TransactionSpendingLimitResponse
 export interface TransactionSpendingLimitResponse {
   GlobalDESOLimit?: number;
@@ -4502,6 +4527,9 @@ export interface TransactionSpendingLimitResponse {
     [key: string]: { [key: number]: { [key: string]: number } };
   };
   DAOCoinLimitOrderLimitMap?: { [key: string]: { [key: string]: number } };
+  AssociationLimitMap?: AssociationLimitMapItem[];
+  AccessGroupLimitMap?: AccessGroupLimitMapItem[];
+  AccessGroupMemberLimitMap?: AccessGroupMemberLimitMapItem[];
   IsUnlimited?: boolean;
 }
 
@@ -5295,4 +5323,108 @@ export interface GetSnapshotEpochMetadataResponse {
 
 export interface GetStateChecksumResponse {
   StateChecksumHex: string;
+}
+
+export interface AssociationQuery {
+  TransactorPublicKeyBase58Check: string;
+  AppPublicKeyBase58Check: string;
+  AssociationType: string;
+  AssociationTypePrefix: string;
+  AssociationValue: string;
+  AssociationValuePrefix: string;
+  AssociationValues: string[];
+  Limit: number;
+  LastSeenAssociationID: string;
+  SortDescending: boolean;
+  IncludeTransactorProfile: boolean;
+  IncludeAppProfile: boolean;
+}
+
+export interface UserAssociationQuery extends AssociationQuery {
+  TargetUserPublicKeyBase58Check: string;
+  IncludeTargetUserProfile: boolean;
+}
+
+export interface PostAssociationQuery extends AssociationQuery {
+  PostHashHex: string;
+  IncludePostEntry: boolean;
+  IncludePostAuthorProfile: boolean;
+}
+
+export interface CreateAssociationRequest {
+  TransactorPublicKeyBase58Check: string;
+  AppPublicKeyBase58Check: string;
+  AssociationType: string;
+  AssociationValue: string;
+  ExtraData: { [k: string]: string };
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+}
+
+export interface CreateUserAssociationRequest extends CreateAssociationRequest {
+  TargetUserPublicKeyBase58Check: string;
+}
+
+export interface CreatePostAssociationRequest extends CreateAssociationRequest {
+  PostHashHex: string;
+}
+
+export interface AssociationResponse {
+  AssociationID: string;
+  TransactorPublicKeyBase58Check: string;
+  AppPublicKeyBase58Check: string;
+  AssociationType: string;
+  AssociationValue: string;
+  ExtraData: { [k: string]: string };
+  BlockHeight: number;
+  TransactorProfile: ProfileEntryResponse | null;
+  AppProfile: ProfileEntryResponse | null;
+}
+
+export interface UserAssociationResponse extends AssociationResponse {
+  TargetUserPublicKeyBase58Check: string;
+  TargetUserProfile: ProfileEntryResponse | null;
+}
+
+export interface PostAssociationResponse extends AssociationResponse {
+  PostHashHex: string;
+  PostEntry: PostEntryResponse | null;
+  PostAuthorProfile: ProfileEntryResponse | null;
+}
+
+export interface UserAssociationsResponse {
+  Associations: UserAssociationResponse[];
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+}
+
+export interface PostAssociationsResponse {
+  Associations: PostAssociationResponse[];
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+}
+
+export interface DeleteAssociationRequest {
+  TransactorPublicKeyBase58Check: string;
+  AssociationID: string;
+  ExtraData: { [k: string]: string };
+  MinFeeRateNanosPerKB: number;
+  TransactionFees: TransactionFee[];
+}
+
+export interface AssociationTxnResponse {
+  SpendAmountNanos: number;
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  FeeNames: number;
+  Transaction: MsgDeSoTxn;
+  TransactionHex: string;
+  TxnHashHex: string;
+}
+
+export interface AssociationsCountResponse {
+  Count: number;
+}
+
+export interface AssociationCountsResponse {
+  Counts: { [k: string]: number };
+  Total: number;
 }
