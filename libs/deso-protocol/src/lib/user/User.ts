@@ -199,7 +199,7 @@ export class User {
   ): Promise<
     AuthorizeDerivedKeyResponse &
       DeSoProtocolSubmitTransactionResponse & {
-        DerivedPrivateUserInfo: DerivedPrivateUserInfo;
+        DerivedPrivateUser: DerivedPrivateUserInfo;
       }
   > {
     throwErrors(['MinFeeRateNanosPerKB'], request);
@@ -236,7 +236,11 @@ export class User {
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then((stRes) => ({ ...apiResponse, ...stRes }))
+      .then((stRes) => ({
+        ...apiResponse,
+        ...stRes,
+        ...{ DerivedPrivateUser: derivedPrivateUser },
+      }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
