@@ -7,6 +7,7 @@ import {
   DEFAULT_NODE_URI,
   LOCAL_STORAGE_KEYS,
 } from './constants';
+import { keygen, publicKeyToBase58Check } from './crypto-utils';
 import { Identity } from './identity';
 import { getAPIFake, getWindowFake, setupTestPolyfills } from './test-utils';
 import { APIProvider } from './types';
@@ -424,6 +425,29 @@ describe('identity', () => {
       }
 
       expect(errorMessage).toEqual('JsonWebTokenError: invalid signature');
+    });
+  });
+
+  describe('.encrypt/decrypt()', () => {
+    it('encrypts a message', async () => {
+      const senderKeys = await keygen();
+      const recipientKeys = await keygen();
+      const message = 'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+
+      const encryptedMsg = await identity.encrypt(
+        senderKeys.seedHex,
+        await publicKeyToBase58Check(recipientKeys.public),
+        message
+      );
+
+      const decryptedMsg = await identity.decrypt(
+        recipientKeys.seedHex,
+        await publicKeyToBase58Check(senderKeys.public),
+        encryptedMsg
+      );
+
+      expect(encryptedMsg).not.toEqual(message);
+      expect(decryptedMsg).toEqual(message);
     });
   });
 

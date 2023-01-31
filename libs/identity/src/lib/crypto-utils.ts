@@ -163,16 +163,66 @@ function urlSafeBase64(str: string) {
     .replace(/=/g, '');
 }
 
-// export const encrypt = (
-//   recipientSeedHex: string,
-//   senderPublicKeyBase58Check: string,
-//   encryptedPayload: string
-// ) => {
-//   const privateKey = ecUtils.hexToBytes(recipientSeedHex);
-//   // we need bs58check to decode the public key into bytes
-//   const publicKey = bs58Decode(senderPublicKeyBase58Check);
-//   const sharedSecret = getSharedSecret(privateKey);
-// };
+export const encrypt = async (
+  senderSeedHex: string,
+  recipientPublicKeyBase58Check: string,
+  plaintext: string
+): Promise<string> => {
+  const privateKey = ecUtils.hexToBytes(senderSeedHex);
+  const recipientPublicKey = await bs58PublicKeyToBytes(
+    recipientPublicKeyBase58Check
+  );
+  const sharedPrivateKey = await getSharedPrivateKey(
+    privateKey,
+    recipientPublicKey
+  );
+
+  // Q: do we need this to be compressed?
+  const sharedPublicKey = getPublicKey(
+    sharedPrivateKey
+    /* true isCompressed */
+  );
+
+  const ephemPrivateKey = ecUtils.randomBytes(32);
+
+  // Q: do we need this to be compressed?
+  const ephemPublicKey = getPublicKey(ephemPrivateKey /* true isCompressed */);
+
+  const privKey = await getSharedPrivateKey(ephemPrivateKey, sharedPublicKey);
+  const encryptionKey = privKey.slice(0, 16);
+  const iv = ecUtils.randomBytes(16);
+  const macKey = await ecUtils.sha256(privKey.slice(16));
+  const bytes = new TextEncoder().encode(plaintext);
+  const cryptoKey = await window.crypto.subtle.importKey(
+    'raw',
+    encryptionKey,
+    'AES-CTR',
+    true,
+    ['encrypt']
+  );
+  const cipherBytes = await window.crypto.subtle.encrypt(
+    {
+      name: 'AES-CTR',
+      counter: iv,
+      length: 128,
+    },
+    cryptoKey,
+    bytes
+  );
+  const hmac = await ecUtils.hmacSha256(
+    macKey,
+    new Uint8Array([...iv, ...new Uint8Array(cipherBytes)])
+  );
+
+  return ecUtils.bytesToHex(
+    new Uint8Array([
+      ...ephemPublicKey,
+      ...iv,
+      ...new Uint8Array(cipherBytes),
+      ...hmac,
+    ])
+  );
+};
 
 export const bs58PublicKeyToBytes = async (str: string) => {
   const bytes = bs58.decode(str);

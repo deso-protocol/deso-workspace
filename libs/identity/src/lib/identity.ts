@@ -11,6 +11,7 @@ import {
 } from './constants';
 import {
   decrypt,
+  encrypt,
   getSignedJWT,
   keygen,
   publicKeyToBase58Check,
@@ -293,13 +294,25 @@ export class Identity {
     }
   }
 
-  encrypt() {
-    throw new Error('Not implemented');
+  /**
+   * @param senderSeedHex
+   * @param recipientPublicKeyBase58Check
+   * @param plaintext
+   * @returns Hex encoded ciphertext
+   */
+  encrypt(
+    senderSeedHex: string,
+    recipientPublicKeyBase58Check: string,
+    plaintext: string
+  ): Promise<string> {
+    return encrypt(senderSeedHex, recipientPublicKeyBase58Check, plaintext);
   }
 
   /**
-   * NOTE: for messaging we need to use the messaging key pairs, not the login key pairs.
-   * @param seedHex
+   * @param recipientSeedHex
+   * @param senderPublicKeyBase58Check
+   * @param cipherTextHex
+   * @returns plaintext
    */
   decrypt(
     recipientSeedHex: string,
