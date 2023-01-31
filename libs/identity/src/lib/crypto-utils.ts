@@ -305,24 +305,6 @@ export const getSharedPrivateKey = async (
   return kdf(sharedSecret, 32);
 };
 
-export const getEncryptionKey = async (
-  privateKey: Uint8Array,
-  publicKey: Uint8Array,
-  cipherAndIv: Uint8Array
-) => {
-  // check hmac
-  const privKey = await getSharedPrivateKey(privateKey, publicKey);
-  // const px = getSharedSecret(sharedPrivateKey, ephemPublicKey);
-  // const hash = kdf(px, 32);
-  const encryptionKey = privKey.slice(0, 16);
-  const macKey = await ecUtils.sha256(privKey.slice(16));
-  // const macKey = createHash('sha256').update(privKey.slice(16)).digest();
-  // const dataToMac = cipherAndIv;
-  const hmacGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
-
-  // assert(hmacGood.equals(msgMac), "Incorrect MAC");
-};
-
 export const decodePublicKey = async (publicKeyBase58Check: string) => {
   const decoded = await bs58PublicKeyToBytes(publicKeyBase58Check);
   const withPrefixRemoved = decoded.slice(3);
