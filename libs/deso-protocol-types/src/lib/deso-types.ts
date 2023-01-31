@@ -5188,7 +5188,7 @@ export interface GetAccessGroupMemberRequest {
 
 export interface GetPaginatedAccessGroupMembersRequest {
   AccessGroupOwnerPublicKeyBase58Check: string;
-  AccssGroupKeyName: string;
+  AccessGroupKeyName: string;
   StartingAccessGroupMemberPublicKeyBase58Check: string;
   MaxMembersToFetch: number;
 }
