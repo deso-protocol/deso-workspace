@@ -11,6 +11,7 @@ import {
   MessagingGroupPayload,
   RequestOptions,
   SendMessageStatelessRequest,
+  SubmitTransactionResponse,
 } from 'deso-protocol-types';
 import { convertExtraDataToHex } from '../../utils/Utils';
 import { Node } from '../Node/Node';
@@ -43,6 +44,12 @@ let deferredOnReady: (value: unknown) => void;
 const onReady = new Promise((resolve) => {
   deferredOnReady = resolve;
 });
+
+export type DeSoProtocolSubmitTransactionResponse = {
+  SubmitTransactionResponse:
+    | { TransactionHex: string }
+    | SubmitTransactionResponse;
+};
 
 export class Identity {
   private node: Node;
@@ -362,14 +369,19 @@ export class Identity {
     return true;
   }
 
+  // TODO: we should support multiple methods of signing
+  // including but not limited to signing with a local seed hex
+  // without the use of identity as well as signing
+  // with a derived key's seed hex.
   public async submitTransaction(
     TransactionHex: string,
     options: RequestOptions = { broadcast: this.isBrowser() },
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
-  ) {
+  ): Promise<DeSoProtocolSubmitTransactionResponse> {
     // don't submit the transaction, instead just return the api response from the
     // previous call
-    if (options?.broadcast === false) return { TransactionHex };
+    if (options?.broadcast === false)
+      return { SubmitTransactionResponse: { TransactionHex } };
     // server app? then you can't call the iframe
     if (!this.isBrowser()) throw Error(SERVER_ERROR);
     if (extraData?.ExtraData && Object.keys(extraData?.ExtraData).length > 0) {
@@ -393,9 +405,11 @@ export class Identity {
           this.getUri(),
           this.transactions,
           this.isTestnet()
-        );
+        ).then((approveSignAndSubmitResponse) => ({
+          SubmitTransactionResponse: approveSignAndSubmitResponse,
+        }));
       }
-      return res;
+      return { SubmitTransactionResponse: res };
     });
   }
 

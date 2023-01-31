@@ -2844,6 +2844,7 @@ export interface GetExchangeRateResponse {
   USDCentsPerBitCloutExchangeRate: number;
   USDCentsPerBitCloutReserveExchangeRate: number;
   USDCentsPerDeSoCoinbase: number;
+  USDCentsPerDeSoBlockchainDotCom: number;
 }
 
 // struct2ts:types/generated/types.BlockchainDeSoTickerResponse
@@ -3372,6 +3373,15 @@ export interface GetVideoStatusResponse {
   Dimensions: { [key: string]: any };
 }
 
+export interface GetVideoDimensionsResponse {
+  Height: number;
+  Width: number;
+}
+
+export interface EnableVideoDownloadResponse {
+  Default: { [k: string]: any };
+}
+
 // struct2ts:types/generated/types.GetMessagesStatelessRequest
 export interface GetMessagesStatelessRequest {
   PublicKeyBase58Check: string;
@@ -3889,11 +3899,31 @@ export interface GetPostsStatelessRequest {
   MediaRequired: boolean;
   PostsByDESOMinutesLookback: number;
   AddGlobalFeedBool: boolean;
+  OnlyNFTs: boolean;
+  OnlyPosts: boolean;
 }
 
 // struct2ts:types/generated/types.GetPostsStatelessResponse
 export interface GetPostsStatelessResponse {
   PostsFound: PostEntryResponse[] | null;
+}
+
+export interface GetPostsHashHexListRequest {
+  PostsHashHexList: string[];
+  ReaderPublicKeyBase58Check: string;
+  OrderBy: string;
+  OnlyNFTs: boolean;
+  OnlyPosts: boolean;
+}
+
+export interface SkippedPostEntryResponse {
+  PostHashHex: string;
+  Error: string;
+}
+
+export interface GetPostsHashHexListResponse {
+  PostsFound: PostEntryResponse[];
+  PostsSkipped: SkippedPostEntryResponse[];
 }
 
 // struct2ts:types/generated/types.GetSinglePostRequest
@@ -3928,6 +3958,8 @@ export interface GetPostsForPublicKeyRequest {
   LastPostHashHex: string;
   NumToFetch: number;
   MediaRequired: boolean;
+  OnlyNFTs: boolean;
+  OnlyPosts: boolean;
 }
 
 // struct2ts:types/generated/types.GetPostsForPublicKeyResponse
@@ -5115,6 +5147,33 @@ export interface CheckPartyAccessGroupsResponse {
   IsRecipientAccessGroupKey: boolean;
 }
 
+export interface GetAccessGroupInfoRequest {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+}
+
+export interface GetAccessGroupMemberRequest {
+  AccessGroupMemberPublicKeyBase58Check: string;
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccessGroupKeyName: string;
+}
+
+export interface GetPaginatedAccessGroupMembersRequest {
+  AccessGroupOwnerPublicKeyBase58Check: string;
+  AccssGroupKeyName: string;
+  StartingAccessGroupMemberPublicKeyBase58Check: string;
+  MaxMembersToFetch: number;
+}
+
+export interface PublicKeyToProfileEntryResponseMap {
+  [k: string]: ProfileEntryResponse | null;
+}
+
+export interface GetPaginatedAccessGroupMembersResponse {
+  AccessGroupMembersBase58Check: string[];
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+}
+
 export interface GroupOwnerAndGroupKeyNamePair {
   GroupOwnerPublicKeyBase58Check: string;
   GroupKeyName: string;
@@ -5139,6 +5198,8 @@ export interface SendNewMessageRequest {
   RecipientAccessGroupKeyName: string;
 
   EncryptedMessageText: string;
+
+  TimestampNanosString: string;
 
   MinFeeRateNanosPerKB: number;
   TransactionFees: TransactionFee[];
@@ -5192,6 +5253,8 @@ export interface GetPaginatedMessagesForDmThreadRequest {
 
 export interface GetPaginatedMessagesForDmThreadResponse {
   ThreadMessages: NewMessageEntryResponse[];
+
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
 }
 
 export interface GetPaginatedMessagesForGroupChatThreadRequest {
@@ -5204,6 +5267,8 @@ export interface GetPaginatedMessagesForGroupChatThreadRequest {
 
 export interface GetPaginatedMessagesForGroupChatThreadResponse {
   GroupChatMessages: NewMessageEntryResponse[];
+
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
 }
 
 export interface GetUserMessageThreadsRequest {
@@ -5212,6 +5277,8 @@ export interface GetUserMessageThreadsRequest {
 
 export interface GetUserMessageThreadsResponse {
   MessageThreads: NewMessageEntryResponse[];
+
+  PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
 }
 
 export type DecryptedMessageEntryResponse = NewMessageEntryResponse & {
@@ -5219,3 +5286,13 @@ export type DecryptedMessageEntryResponse = NewMessageEntryResponse & {
   IsSender: boolean;
   error: string;
 };
+
+export interface GetSnapshotEpochMetadataResponse {
+  SnapshotBlockHeight: number;
+  CurrentEpochChecksumHex: string;
+  CurrentEpochBlockHashHex: string;
+}
+
+export interface GetStateChecksumResponse {
+  StateChecksumHex: string;
+}

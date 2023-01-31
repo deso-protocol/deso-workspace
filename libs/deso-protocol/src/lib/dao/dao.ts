@@ -14,7 +14,10 @@ import {
   TransferDAOCoinRequest,
   TransferDAOCoinResponse,
 } from 'deso-protocol-types';
-import { Identity } from '../identity/Identity';
+import {
+  DeSoProtocolSubmitTransactionResponse,
+  Identity,
+} from '../identity/Identity';
 import { Node } from '../Node/Node';
 
 export class DAO {
@@ -33,14 +36,17 @@ export class DAO {
     request: Partial<REQUEST>,
     endpoint: string,
     options?: RequestOptions
-  ): Promise<RESPONSE> {
+  ): Promise<RESPONSE & DeSoProtocolSubmitTransactionResponse> {
     request = { ...{ MinFeeRateNanosPerKB: 1000 }, ...request };
     const response = (
       await axios.post<RESPONSE>(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
       .submitTransaction(response.TransactionHex, options)
-      .then(() => response);
+      .then((submitTransactionResponse) => ({
+        ...response,
+        ...submitTransactionResponse,
+      }));
   }
 
   private async executePost<REQUEST, RESPONSE>(

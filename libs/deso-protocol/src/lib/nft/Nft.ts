@@ -3,6 +3,7 @@ import {
   AcceptNFTBidRequest,
   AcceptNFTBidResponse,
   AcceptNFTTransferRequest,
+  AcceptNFTTransferResponse,
   BurnNFTRequest,
   BurnNFTResponse,
   CreateNFTBidRequest,
@@ -28,7 +29,10 @@ import {
   UpdateNFTRequest,
   UpdateNFTResponse,
 } from 'deso-protocol-types';
-import { Identity } from '../identity/Identity';
+import {
+  DeSoProtocolSubmitTransactionResponse,
+  Identity,
+} from '../identity/Identity';
 import { Node } from '../Node/Node';
 
 export class Nft {
@@ -98,14 +102,14 @@ export class Nft {
   public async createNft(
     request: Partial<CreateNFTRequest>,
     options?: RequestOptions
-  ): Promise<CreateNFTResponse> {
+  ): Promise<CreateNFTResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'create-nft';
     const apiResponse: CreateNFTResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data as CreateNFTResponse;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -114,15 +118,15 @@ export class Nft {
   public async updateNft(
     request: Partial<UpdateNFTRequest>,
     options?: RequestOptions
-  ): Promise<UpdateNFTResponse> {
+  ): Promise<UpdateNFTResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'update-nft';
     const apiResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data as UpdateNFTResponse;
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -131,17 +135,15 @@ export class Nft {
   public async createNftBid(
     request: Partial<CreateNFTBidRequest>,
     options?: RequestOptions
-  ): Promise<CreateNFTBidResponse> {
+  ): Promise<CreateNFTBidResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'create-nft-bid';
     const apiResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data as CreateNFTBidResponse;
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => {
-        return apiResponse;
-      })
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -150,14 +152,14 @@ export class Nft {
   public async acceptNftBid(
     request: Partial<AcceptNFTBidRequest>,
     options?: RequestOptions
-  ): Promise<AcceptNFTBidResponse> {
+  ): Promise<AcceptNFTBidResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'accept-nft-bid';
-    const apiResponse = await (
+    const apiResponse = (await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data) as AcceptNFTBidResponse;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -166,14 +168,14 @@ export class Nft {
   public async transferNft(
     request: Partial<TransferNFTRequest>,
     options?: RequestOptions
-  ): Promise<TransferNFTResponse> {
+  ): Promise<TransferNFTResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'transfer-nft';
-    const apiResponse = await (
+    const apiResponse = (await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data) as TransferNFTResponse;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -182,15 +184,17 @@ export class Nft {
   public async acceptNftTransfer(
     request: Partial<AcceptNFTTransferRequest>,
     options?: RequestOptions
-  ): Promise<TransferNFTResponse> {
+  ): Promise<
+    AcceptNFTTransferResponse & DeSoProtocolSubmitTransactionResponse
+  > {
     const endpoint = 'accept-nft-transfer';
     const apiResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data as AcceptNFTTransferResponse;
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -198,14 +202,14 @@ export class Nft {
   public async burnNft(
     request: Partial<BurnNFTRequest>,
     options?: RequestOptions
-  ): Promise<BurnNFTResponse> {
+  ): Promise<BurnNFTResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'burn-nft';
     const apiResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
-    ).data;
+    ).data as BurnNFTResponse;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });

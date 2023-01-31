@@ -1,12 +1,17 @@
 import axios from 'axios';
 import {
+  BuyOrSellCreatorCoinRequest,
+  BuyOrSellCreatorCoinResponse,
   RequestOptions,
   SendDeSoRequest,
   SendDeSoResponse,
   TransferCreatorCoinRequest,
   TransferCreatorCoinResponse,
 } from 'deso-protocol-types';
-import { Identity } from '../identity/Identity';
+import {
+  DeSoProtocolSubmitTransactionResponse,
+  Identity,
+} from '../identity/Identity';
 
 import { Node } from '../Node/Node';
 
@@ -21,30 +26,32 @@ export class Wallet {
   public async sendDesoRequest(
     request: Partial<SendDeSoRequest>,
     options?: RequestOptions
-  ): Promise<SendDeSoResponse> {
+  ): Promise<SendDeSoResponse & DeSoProtocolSubmitTransactionResponse> {
     const endpoint = 'send-deso';
-    const apiResponse = (
+    const apiResponse: SendDeSoResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
   }
 
   public async buyOrSellCreatorCoin(
-    request: Partial<SendDeSoRequest>,
+    request: Partial<BuyOrSellCreatorCoinRequest>,
     options?: RequestOptions
-  ): Promise<SendDeSoResponse> {
+  ): Promise<
+    BuyOrSellCreatorCoinResponse & DeSoProtocolSubmitTransactionResponse
+  > {
     const endpoint = 'buy-or-sell-creator-coin';
-    const apiResponse = (
+    const apiResponse: BuyOrSellCreatorCoinResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
@@ -53,14 +60,16 @@ export class Wallet {
   public async transferCreatorCoin(
     request: Partial<TransferCreatorCoinRequest>,
     options?: RequestOptions
-  ): Promise<TransferCreatorCoinResponse> {
+  ): Promise<
+    TransferCreatorCoinResponse & DeSoProtocolSubmitTransactionResponse
+  > {
     const endpoint = 'transfer-creator-coin';
-    const apiResponse = (
+    const apiResponse: TransferCreatorCoinResponse = (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
     ).data;
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({ ...apiResponse, ...stRes }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });
