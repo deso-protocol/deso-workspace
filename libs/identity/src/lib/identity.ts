@@ -10,6 +10,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from './constants';
 import {
+  decrypt,
   getSignedJWT,
   keygen,
   publicKeyToBase58Check,
@@ -45,6 +46,7 @@ export class Identity {
   #jwtAlgorithm: jwtAlgorithm = 'ES256';
   #boundPostMessageListener?: (event: MessageEvent) => void;
   #subscriber?: (state: any) => void;
+  #didConfigure = false;
 
   /**
    * The current internal state of identity. This is a combination of the
@@ -98,10 +100,6 @@ export class Identity {
     this.#window = windowProvider;
     this.#api = apiProvider;
 
-    if (this.#currentUser?.primaryDerivedKey) {
-      this.refreshDerivedKeyPermissions();
-    }
-
     // Check if the URL contains identity query params at startup
     const queryParams = new URLSearchParams(this.#window.location.search);
 
@@ -112,6 +110,14 @@ export class Identity {
 
       this.#handleIdentityResponse(initialResponse);
     }
+
+    // TODO: figure out a better way to handle this. Maybe we have a separate .create method that
+    // returns a new instance of Identity?
+    setTimeout(() => {
+      if (!this.#didConfigure) {
+        this.refreshDerivedKeyPermissions();
+      }
+    }, 50);
   }
 
   configure({
@@ -144,6 +150,9 @@ export class Identity {
       ...defaultOptions,
       ...spendingLimitOptions,
     };
+
+    this.#didConfigure = true;
+    this.refreshDerivedKeyPermissions();
   }
 
   /**
@@ -288,8 +297,16 @@ export class Identity {
     throw new Error('Not implemented');
   }
 
-  decrypt() {
-    throw new Error('Not implemented');
+  /**
+   * NOTE: for messaging we need to use the messaging key pairs, not the login key pairs.
+   * @param seedHex
+   */
+  decrypt(
+    recipientSeedHex: string,
+    senderPublicKeyBase58Check: string,
+    cipherTextHex: string
+  ) {
+    return decrypt(recipientSeedHex, senderPublicKeyBase58Check, cipherTextHex);
   }
 
   async jwt() {
@@ -406,7 +423,7 @@ export class Identity {
         },
       });
     } catch (e) {
-      // TODO: handle this better
+      // TODO: handle this better?
       if (this.#window.location.hostname === 'localhost') {
         console.error(e);
       }
@@ -464,7 +481,7 @@ export class Identity {
         publicKey: publicKeyBase58Check,
         transactionSpendingLimitResponse,
       };
-      console.log(params);
+
       this.#launchIdentity('derive', params);
     });
   }

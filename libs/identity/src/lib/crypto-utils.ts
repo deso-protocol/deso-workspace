@@ -1,5 +1,7 @@
 import {
   getPublicKey,
+  getSharedSecret as nobleGetSharedSecret,
+  Point,
   sign as ecSign,
   utils as ecUtils,
 } from '@noble/secp256k1';
@@ -160,6 +162,155 @@ function urlSafeBase64(str: string) {
     .replace(/\//g, '_')
     .replace(/=/g, '');
 }
+
+// export const encrypt = (
+//   recipientSeedHex: string,
+//   senderPublicKeyBase58Check: string,
+//   encryptedPayload: string
+// ) => {
+//   const privateKey = ecUtils.hexToBytes(recipientSeedHex);
+//   // we need bs58check to decode the public key into bytes
+//   const publicKey = bs58Decode(senderPublicKeyBase58Check);
+//   const sharedSecret = getSharedSecret(privateKey);
+// };
+
+export const bs58PublicKeyToBytes = async (str: string) => {
+  const bytes = bs58.decode(str);
+  const payload = bytes.slice(0, -4);
+  const checksumA = bytes.slice(-4);
+  const checksumB = await sha256X2(payload);
+
+  if (
+    (checksumA[0] ^ checksumB[0]) |
+    (checksumA[1] ^ checksumB[1]) |
+    (checksumA[2] ^ checksumB[2]) |
+    (checksumA[3] ^ checksumB[3])
+  ) {
+    throw new Error('Invalid checksum');
+  }
+
+  return Point.fromHex(ecUtils.bytesToHex(payload.slice(3))).toRawBytes(false);
+};
+
+export const decrypt = async (
+  recipientSeedHex: string,
+  senderPublicKeyBase58Check: string,
+  cipherTextHex: string
+) => {
+  const cipherBytes = ecUtils.hexToBytes(cipherTextHex);
+  const metaLength = 113;
+
+  if (cipherBytes.length < metaLength) {
+    throw new Error('invalid cipher text. data too small.');
+  }
+
+  if (!(cipherBytes[0] >= 2 && cipherBytes[0] <= 4)) {
+    throw new Error('invalid cipher text.');
+  }
+
+  const privateKey = ecUtils.hexToBytes(recipientSeedHex);
+  const publicKey = await bs58PublicKeyToBytes(senderPublicKeyBase58Check);
+  const sharedPrivateKey = await getSharedPrivateKey(privateKey, publicKey);
+
+  const ephemPublicKey = cipherBytes.slice(0, 65);
+  const cipherTextLength = cipherBytes.length - metaLength;
+  const iv = cipherBytes.slice(65, 65 + 16);
+  const cipherAndIv = cipherBytes.slice(65, 65 + 16 + cipherTextLength);
+  const ciphertext = cipherAndIv.slice(16);
+  const msgMac = cipherBytes.slice(65 + 16 + cipherTextLength);
+  const privKey = await getSharedPrivateKey(sharedPrivateKey, ephemPublicKey);
+  const encryptionKey = privKey.slice(0, 16);
+  const macKey = await ecUtils.sha256(privKey.slice(16));
+  const hmacGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
+
+  // check hmac
+  for (let i = 0; i < hmacGood.length; i++) {
+    if (msgMac[i] !== hmacGood[i]) throw new Error('incorrect MAC');
+  }
+
+  const cryptoKey = await window.crypto.subtle.importKey(
+    'raw',
+    encryptionKey,
+    'AES-CTR',
+    true,
+    ['decrypt']
+  );
+
+  const decryptedBuffer = await window.crypto.subtle.decrypt(
+    { name: 'AES-CTR', counter: iv, length: 128 },
+    cryptoKey,
+    ciphertext
+  );
+
+  return new TextDecoder().decode(decryptedBuffer);
+};
+
+export const getSharedPrivateKey = async (
+  privKey: Uint8Array,
+  pubKey: Uint8Array
+) => {
+  const sharedSecret = await getSharedSecret(privKey, pubKey);
+
+  return kdf(sharedSecret, 32);
+};
+
+export const getEncryptionKey = async (
+  privateKey: Uint8Array,
+  publicKey: Uint8Array,
+  cipherAndIv: Uint8Array
+) => {
+  // check hmac
+  const privKey = await getSharedPrivateKey(privateKey, publicKey);
+  // const px = getSharedSecret(sharedPrivateKey, ephemPublicKey);
+  // const hash = kdf(px, 32);
+  const encryptionKey = privKey.slice(0, 16);
+  const macKey = await ecUtils.sha256(privKey.slice(16));
+  // const macKey = createHash('sha256').update(privKey.slice(16)).digest();
+  // const dataToMac = cipherAndIv;
+  const hmacGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
+
+  // assert(hmacGood.equals(msgMac), "Incorrect MAC");
+};
+
+export const decodePublicKey = async (publicKeyBase58Check: string) => {
+  const decoded = await bs58PublicKeyToBytes(publicKeyBase58Check);
+  const withPrefixRemoved = decoded.slice(3);
+  const senderPubKeyHex = ecUtils.bytesToHex(withPrefixRemoved);
+
+  return Point.fromHex(senderPubKeyHex).toRawBytes(false);
+};
+
+export const getSharedSecret = async (
+  privKey: Uint8Array,
+  pubKey: Uint8Array
+) => {
+  // passing true to compress the public key, and then slicing off the first byte
+  // matches the implementation of derive in the elliptic package.
+  // https://github.com/paulmillr/noble-secp256k1/issues/28#issuecomment-946538037
+  return nobleGetSharedSecret(privKey, pubKey, true).slice(1);
+};
+
+// taken from reference implementation in the deso chat app:
+// https://github.com/deso-protocol/access-group-messaging-app/blob/cd5c237f5e5729196aac0da161d0851bde78092c/src/services/crypto-utils.service.tsx#L91
+export const kdf = async (secret: Uint8Array, outputLength: number) => {
+  let ctr = 1;
+  let written = 0;
+  let result = new Uint8Array();
+
+  while (written < outputLength) {
+    const hash = await ecUtils.sha256(
+      new Uint8Array([
+        ...new Uint8Array([ctr >> 24, ctr >> 16, ctr >> 8, ctr]),
+        ...secret,
+      ])
+    );
+    result = new Uint8Array([...result, ...hash]);
+    written += 32;
+    ctr += 1;
+  }
+
+  return result;
+};
 
 // This is a modified version of the derToJose function from
 // https://github.com/Brightspace/node-ecdsa-sig-formatter/blob/ca25a2fd5ae9dd85036081632936e802a47a1289/src/ecdsa-sig-formatter.js#L32
