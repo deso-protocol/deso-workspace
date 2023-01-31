@@ -19,16 +19,6 @@ import { identity } from '@deso-core/identity';
 // NOTE: For most web apps no configuration is *required*, but here are some
 // common use cases you might want to know about.
 identity.configure({
-  // Optional redirect URI. This is mostly useful for native mobile use cases.
-  // Most web applications will not want to use it. If provided, we do a full
-  // redirect to the identity domain and pass data via query params back to the
-  // provided uri.
-  redirectURI: 'https://mydomain.com/my-redirect-path',
-
-  // This will be associated with all of the derived keys that your application
-  // authorizes.
-  appName: 'My Cool App',
-
   // Here we indicate the permissions a user will be asked to approve when they
   // log into your application. You may specify as many or as few permissions up
   // front as you want. You may choose not to request any permissions up front
@@ -48,6 +38,16 @@ identity.configure({
       SUBMIT_POST: 4, // 4 submit post transactions are authorized
     },
   }
+
+  // Optional redirect URI. This is mostly useful for native mobile use cases.
+  // Most web applications will not want to use it. If provided, we do a full
+  // redirect to the identity domain and pass data via query params back to the
+  // provided uri.
+  redirectURI: 'https://mydomain.com/my-redirect-path',
+
+  // This will be associated with all of the derived keys that your application
+  // authorizes.
+  appName: 'My Cool App',
 })
 ```
 
