@@ -147,7 +147,7 @@ export class Association {
 
   public async GetUserAssociations(
     request: Partial<UserAssociationQuery>
-  ): Promise<UserAssociationResponse> {
+  ): Promise<UserAssociationsResponse> {
     return this.executeAssociationQuery<UserAssociationsResponse>(
       request,
       'query',
@@ -157,7 +157,7 @@ export class Association {
 
   public async GetPostAssociations(
     request: Partial<PostAssociationQuery>
-  ): Promise<PostAssociationResponse> {
+  ): Promise<PostAssociationsResponse> {
     return this.executeAssociationQuery<PostAssociationsResponse>(
       request,
       'query',
@@ -187,7 +187,7 @@ export class Association {
 
   public async CountUserAssociationsByValues(
     request: Partial<UserAssociationQuery>
-  ): Promise<AssociationsCountResponse> {
+  ): Promise<AssociationCountsResponse> {
     return this.executeAssociationQuery<AssociationCountsResponse>(
       request,
       'counts',
@@ -197,7 +197,7 @@ export class Association {
 
   public async CountPostAssociationsByValues(
     request: Partial<PostAssociationQuery>
-  ): Promise<AssociationsCountResponse> {
+  ): Promise<AssociationCountsResponse> {
     return this.executeAssociationQuery<AssociationCountsResponse>(
       request,
       'counts',
