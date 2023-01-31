@@ -176,18 +176,9 @@ export const encrypt = async (
     privateKey,
     recipientPublicKey
   );
-
-  // Q: do we need this to be compressed?
-  const sharedPublicKey = getPublicKey(
-    sharedPrivateKey
-    /* true isCompressed */
-  );
-
+  const sharedPublicKey = getPublicKey(sharedPrivateKey);
   const ephemPrivateKey = ecUtils.randomBytes(32);
-
-  // Q: do we need this to be compressed?
-  const ephemPublicKey = getPublicKey(ephemPrivateKey /* true isCompressed */);
-
+  const ephemPublicKey = getPublicKey(ephemPrivateKey);
   const privKey = await getSharedPrivateKey(ephemPrivateKey, sharedPublicKey);
   const encryptionKey = privKey.slice(0, 16);
   const iv = ecUtils.randomBytes(16);
