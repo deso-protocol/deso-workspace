@@ -9,6 +9,8 @@ import {
   GetPostsDiamondedBySenderForReceiverResponse,
   GetPostsForPublicKeyRequest,
   GetPostsForPublicKeyResponse,
+  GetPostsHashHexListRequest,
+  GetPostsHashHexListResponse,
   GetPostsStatelessRequest,
   GetPostsStatelessResponse,
   GetQuoteRepostsForPostRequest,
@@ -21,6 +23,7 @@ import {
   RequestOptions,
   SubmitPostRequest,
   SubmitPostResponse,
+  SubmitTransactionResponse,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/Utils';
 import { Identity } from '../identity/Identity';
@@ -52,7 +55,9 @@ export class Posts {
     extraData?: Omit<AppendExtraDataRequest, 'TransactionHex'>
   ): Promise<{
     constructedTransactionResponse: SubmitPostResponse;
-    submittedTransactionResponse: any;
+    submittedTransactionResponse:
+      | { TransactionHex: string }
+      | SubmitTransactionResponse;
   }> {
     if (!request.UpdaterPublicKeyBase58Check) {
       throw Error('UpdaterPublicKeyBase58Check is required');
@@ -76,7 +81,8 @@ export class Posts {
       .then((submittedTransactionResponse) => {
         return {
           constructedTransactionResponse,
-          submittedTransactionResponse,
+          submittedTransactionResponse:
+            submittedTransactionResponse.SubmitTransactionResponse,
         };
       })
       .catch((e: Error) => {
@@ -90,6 +96,14 @@ export class Posts {
     const endpoint = 'get-posts-stateless';
     return await (
       await axios.post(`${this.node.getUri()}/${endpoint}`, request)
+    ).data;
+  }
+
+  public async getPostsHashHexList(
+    request: Partial<GetPostsHashHexListRequest>
+  ): Promise<GetPostsHashHexListResponse> {
+    return (
+      await axios.post(`${this.node.getUri()}/get-posts-hashhexlist`, request)
     ).data;
   }
 

@@ -24,9 +24,13 @@ import {
   GetUserGlobalMetadataResponse,
   UpdateUserGlobalMetadataRequest,
   RequestOptions,
+  DerivedPrivateUserInfo,
 } from 'deso-protocol-types';
 import { throwErrors } from '../../utils/Utils';
-import { Identity } from '../identity/Identity';
+import {
+  DeSoProtocolSubmitTransactionResponse,
+  Identity,
+} from '../identity/Identity';
 import { Node } from '../Node/Node';
 export class User {
   private node: Node;
@@ -192,7 +196,12 @@ export class User {
   public async authorizeDerivedKey(
     request: Partial<AuthorizeDerivedKeyParams>,
     options?: RequestOptions
-  ): Promise<AuthorizeDerivedKeyResponse> {
+  ): Promise<
+    AuthorizeDerivedKeyResponse &
+      DeSoProtocolSubmitTransactionResponse & {
+        DerivedPrivateUser: DerivedPrivateUserInfo;
+      }
+  > {
     throwErrors(['MinFeeRateNanosPerKB'], request);
     const derivedPrivateUser = await this.identity.derive({
       publicKey: this.identity.getUserKey() || undefined,
@@ -227,7 +236,11 @@ export class User {
 
     return await this.identity
       .submitTransaction(apiResponse.TransactionHex, options)
-      .then(() => apiResponse)
+      .then((stRes) => ({
+        ...apiResponse,
+        ...stRes,
+        ...{ DerivedPrivateUser: derivedPrivateUser },
+      }))
       .catch(() => {
         throw Error('something went wrong while signing');
       });

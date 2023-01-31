@@ -1,7 +1,9 @@
 import axios from 'axios';
 import {
+  EnableVideoDownloadResponse,
   GetFullTikTokURLRequest,
   GetFullTikTokURLResponse,
+  GetVideoDimensionsResponse,
   GetVideoStatusRequest,
   GetVideoStatusResponse,
   UploadImageRequest,
@@ -69,5 +71,21 @@ export class Media {
     const endpoint = 'get-full-tiktok-url';
     return (await axios.post(`${this.node.getUri()}/${endpoint}`, request))
       .data;
+  }
+
+  public async EnableVideoDownload(
+    videoId: string
+  ): Promise<EnableVideoDownloadResponse> {
+    return (
+      await axios.post(`${this.node.getUri()}/enable-video-download/${videoId}`)
+    ).data;
+  }
+
+  public async GetVideoDimensions(
+    videoId: string
+  ): Promise<GetVideoDimensionsResponse> {
+    return (
+      await axios.post(`${this.node.getUri()}/get-video-dimensions/${videoId}`)
+    ).data;
   }
 }
