@@ -24,9 +24,11 @@ identity.configure({
   // front as you want. You may choose not to request any permissions up front
   // and that's okay! Just remember that you will need to request them in your
   // app progressively, and you can always request as many or as few as you want
-  // using the `requestPermissions` method.  See more about these options here
+  // using the `requestPermissions` method described in the usage section.
+  //
+  // See more about the spending limit options object here
   // https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
-  // See an exhaustive list of transaction types here:
+  // And See an exhaustive list of transaction types here:
   // https://github.com/deso-protocol/core/blob/a836e4d2e92f59f7570c7a00f82a3107ec80dd02/lib/network.go#L244
   spendingLimitOptions: {
     // NOTE: this value is in Deso nanos, so 1 Deso * 1e9
