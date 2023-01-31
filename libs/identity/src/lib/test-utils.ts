@@ -1,3 +1,5 @@
+import { webcrypto } from 'crypto';
+import { TextDecoder, TextEncoder } from 'util';
 import { APIProvider } from './types';
 
 class LocalStorageFake implements Storage {
@@ -48,4 +50,11 @@ export function getAPIFake(overrides: Partial<APIProvider> = {}): APIProvider {
     get: () => Promise.resolve(null),
     ...overrides,
   };
+}
+
+export function setupTestPolyfills() {
+  // https://davidwalsh.name/window-crypto-node
+  globalThis.crypto = webcrypto as unknown as Crypto;
+  globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
+  globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
 }

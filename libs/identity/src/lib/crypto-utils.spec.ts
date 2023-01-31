@@ -2,9 +2,16 @@ import { utils as ecUtils } from '@noble/secp256k1';
 import * as bs58check from 'bs58check';
 import { createDecipheriv, createHash, createHmac } from 'crypto';
 import { ec as EC } from 'elliptic';
-import { bs58PublicKeyToBytes, getSharedSecret, kdf } from './crypto-utils';
+import {
+  bs58PublicKeyToBytes,
+  decrypt,
+  getSharedSecret,
+  kdf,
+} from './crypto-utils';
+import { setupTestPolyfills } from './test-utils';
 
 describe('crypto-utils', () => {
+  beforeAll(setupTestPolyfills);
   describe('decodePublicKey()', () => {
     it('decoded public key matches the implementation from the deso chat app', async () => {
       // see https://github.com/deso-protocol/access-group-messaging-app/blob/cd5c237f5e5729196aac0da161d0851bde78092c/src/services/crypto-utils.service.tsx#L39
@@ -52,22 +59,18 @@ describe('crypto-utils', () => {
   describe('decrypt', () => {
     // TODO: we need to polyfill crypto.subtle for this to work in node
     it('it works', async () => {
-      // const recipientSeedHex =
-      //   '7397527efd6752f00ecdd105acc1d91ec9f4a12ea835b246489e6e1be0e980e3';
-      // const senderPublicKeyBs58Check =
-      //   'tBCKVNhD9Kn6WzxT1EdgR3Tf3Yop6CXQSDZnvMLbST6C33DTbsnku4';
-      // const encryptedMessage =
-      //   '04b0a85301079a387401bba0efe3e5479c16378236de7fd902b4d9bc5e30f8967d5e0ef3585ad9323b6c0765f0aab1f515493a10e80d73065991010008eff1e2880e70cacdadb11bd002510f35c0a9249f2f0b50bc1d797e06671ba42f0cc01e1ba0385c5e7cc25fe6d90c5ac728283a40fc6d2ec70430028209d86fb0359bb17d3cde5bbc6bafda13cb1eba5f64e6b13c8d64';
-      // await decrypt(
-      //   recipientSeedHex,
-      //   senderPublicKeyBs58Check,
-      //   encryptedMessage
-      // );
-      // await decryptShared(
-      //   Buffer.from(recipientSeedHex, 'hex'),
-      //   publicKeyToECBuffer(senderPublicKeyBs58Check),
-      //   Buffer.from(encryptedMessage, 'hex')
-      // );
+      const recipientSeedHex =
+        '7397527efd6752f00ecdd105acc1d91ec9f4a12ea835b246489e6e1be0e980e3';
+      const senderPublicKeyBs58Check =
+        'tBCKVNhD9Kn6WzxT1EdgR3Tf3Yop6CXQSDZnvMLbST6C33DTbsnku4';
+      const encryptedMessage =
+        '04b0a85301079a387401bba0efe3e5479c16378236de7fd902b4d9bc5e30f8967d5e0ef3585ad9323b6c0765f0aab1f515493a10e80d73065991010008eff1e2880e70cacdadb11bd002510f35c0a9249f2f0b50bc1d797e06671ba42f0cc01e1ba0385c5e7cc25fe6d90c5ac728283a40fc6d2ec70430028209d86fb0359bb17d3cde5bbc6bafda13cb1eba5f64e6b13c8d64';
+      const decryptedMsg = await decrypt(
+        recipientSeedHex,
+        senderPublicKeyBs58Check,
+        encryptedMessage
+      );
+      expect(decryptedMsg).toEqual('Hi. This is my first test message!');
     });
   });
 });

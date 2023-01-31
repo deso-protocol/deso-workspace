@@ -238,7 +238,7 @@ export const decrypt = async (
 
   if (!isValidHmac(msgMac, hmacKnownGood)) throw new Error('incorrect MAC');
 
-  const cryptoKey = await window.crypto.subtle.importKey(
+  const cryptoKey = await globalThis.crypto.subtle.importKey(
     'raw',
     encryptionKey,
     'AES-CTR',
@@ -246,7 +246,7 @@ export const decrypt = async (
     ['decrypt']
   );
 
-  const decryptedBuffer = await window.crypto.subtle.decrypt(
+  const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
     { name: 'AES-CTR', counter: iv, length: 128 },
     cryptoKey,
     ciphertext

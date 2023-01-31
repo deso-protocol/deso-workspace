@@ -1,7 +1,6 @@
 import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
-import * as util from 'util';
 import { APIError } from './api';
 import {
   DEFAULT_IDENTITY_URI,
@@ -9,7 +8,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from './constants';
 import { Identity } from './identity';
-import { getAPIFake, getWindowFake } from './test-utils';
+import { getAPIFake, getWindowFake, setupTestPolyfills } from './test-utils';
 import { APIProvider } from './types';
 
 function getPemEncodePublicKey(privateKey: Uint8Array): string {
@@ -21,22 +20,13 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
   );
 }
 
-// TODO: test cases
-// - make sure we don't overwrite the derivedSeedHex with an empty string if it already exists (can happen during the
-//   regular derive key flow).
-// - test redirectURI cases
-// - test upgrade permissions cases
-const originalTextEncoder = globalThis.TextEncoder;
-
 describe('identity', () => {
   let identity: Identity;
   let windowFake: Window;
   let apiFake: APIProvider;
   let postMessageListener: (args: any) => any;
-
+  beforeAll(setupTestPolyfills);
   beforeEach(() => {
-    // jest runs in node which has TextEncoder available in its util package.
-    globalThis.TextEncoder = originalTextEncoder ?? util.TextEncoder;
     windowFake = getWindowFake({
       addEventListener: (message: any, listener: (args: any) => void): void => {
         postMessageListener = listener;
@@ -86,11 +76,6 @@ describe('identity', () => {
         .mockName('api.post'),
     });
     identity = new Identity(windowFake, apiFake);
-  });
-
-  afterEach(() => {
-    // restore the original globals
-    globalThis.TextEncoder = originalTextEncoder;
   });
 
   describe('.login()', () => {
