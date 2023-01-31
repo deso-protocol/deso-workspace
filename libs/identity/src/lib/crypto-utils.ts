@@ -192,6 +192,20 @@ export const bs58PublicKeyToBytes = async (str: string) => {
   return Point.fromHex(ecUtils.bytesToHex(payload.slice(3))).toRawBytes(false);
 };
 
+const isValidHmac = (candidate: Uint8Array, knownGood: Uint8Array) => {
+  if (candidate.length !== knownGood.length) {
+    return false;
+  }
+
+  for (let i = 0; i < knownGood.length; i++) {
+    if (candidate[i] !== knownGood[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const decrypt = async (
   recipientSeedHex: string,
   senderPublicKeyBase58Check: string,
@@ -211,7 +225,6 @@ export const decrypt = async (
   const privateKey = ecUtils.hexToBytes(recipientSeedHex);
   const publicKey = await bs58PublicKeyToBytes(senderPublicKeyBase58Check);
   const sharedPrivateKey = await getSharedPrivateKey(privateKey, publicKey);
-
   const ephemPublicKey = cipherBytes.slice(0, 65);
   const cipherTextLength = cipherBytes.length - metaLength;
   const iv = cipherBytes.slice(65, 65 + 16);
@@ -221,12 +234,9 @@ export const decrypt = async (
   const privKey = await getSharedPrivateKey(sharedPrivateKey, ephemPublicKey);
   const encryptionKey = privKey.slice(0, 16);
   const macKey = await ecUtils.sha256(privKey.slice(16));
-  const hmacGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
+  const hmacKnownGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
 
-  // check hmac
-  for (let i = 0; i < hmacGood.length; i++) {
-    if (msgMac[i] !== hmacGood[i]) throw new Error('incorrect MAC');
-  }
+  if (!isValidHmac(msgMac, hmacKnownGood)) throw new Error('incorrect MAC');
 
   const cryptoKey = await window.crypto.subtle.importKey(
     'raw',
