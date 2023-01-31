@@ -130,14 +130,14 @@ if (!hasPermissions) {
 // Encrypt plain text. Likely you would be using the messagingPrivateKey found on the
 // identity user's derived key to be used for encrypted chat or messaging applications.
 // Returns a promise that resolves to a hex encoded encrypted string.
-await encrypt(
+const encryptedMessageHex = await encrypt(
   senderMessagingPrivateSeedHex,
   recipientPublicKeyBase58Check,
   plaintextMsg
 );
 
 // Decrypt cipher text. Returns a promise that resolves to a decrypted, plaintext string.
-await decrypt(
+const decryptedMessagePlaintext = await decrypt(
   recipientMessagingPrivateSeedHex,
   senderPublicKeyBase58Check,
   hexEncodedCipherText
