@@ -9,7 +9,47 @@ Identity](https://docs.deso.org/for-developers/identity/identity).
 npm install @deso-core/identity
 ```
 
-## Quick start
+### Configuration
+
+**Make sure to call configure prior to calling any other identity methods.**
+
+```ts
+import { identity } from '@deso-core/identity';
+
+// NOTE: For most web apps no configuration is *required*, but here are some
+// common use cases you might want to know about.
+identity.configure({
+  // Optional redirect URI. This is mostly useful for native mobile use cases.
+  // Most web applications will not want to use it. If provided, we do a full
+  // redirect to the identity domain and pass data via query params back to the
+  // provided uri.
+  redirectURI: 'https://mydomain.com/my-redirect-path',
+
+  // This will be associated with all of the derived keys that your application
+  // authorizes.
+  appName: 'My Cool App',
+
+  // Here we indicate the permissions a user will be asked to approve when they
+  // log into your application. You may specify as many or as few permissions up
+  // front as you want. You may choose not to request any permissions up front
+  // and that's okay! Just remember that you will need to request them in your
+  // app progressively, and you can always request as many or as few as you want
+  // using the `requestPermissions` method.  See more about these options here
+  // https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
+  spendingLimitOptions: {
+    // NOTE: this value is in Deso nanos, so 1 Deso * 1e9
+    GlobalDESOLimit: 1 * 1e9 // 1 Deso
+    // Map of transaction type to the number of times this derived key is
+    // allowed to perform this operation on behalf of the owner public key
+    TransactionCountLimitMap: {
+      BASIC_TRANSFER: 2, // 2 basic transfer transactions are authorized
+      SUBMIT_POST: 4, // 4 submit post transactions are authorized
+    },
+  }
+})
+```
+
+## Usage
 
 ```ts
 import { identity } from '@deso-core/identity';
@@ -64,7 +104,8 @@ const submittedTx = await identity.submitTx(signedTx);
 
 // Checking for permissions is straightforward. Here we check if our app can
 // post on behalf of a user Read more about the transaction count limit map here
-// https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
+// https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse and you can find an exhaustive list
+// of available transaction types here: https://github.com/deso-protocol/core/blob/a836e4d2e92f59f7570c7a00f82a3107ec80dd02/lib/network.go#L244
 // This returns a boolean value synchronously.
 const hasPermission = identity.hasPermissions({
   TransactionCountLimitMap: {
@@ -81,46 +122,22 @@ if (!hasPermissions) {
     },
   });
 }
-```
 
-### Configuration
+// Encrypt plain text. Likely you would be using the messagingPrivateKey found on the
+// identity user's derived key to be used for encrypted chat or messaging applications.
+// Returns a promise that resolves to a hex encoded encrypted string.
+await encrypt(
+  senderMessagingPrivateSeedHex,
+  recipientPublicKeyBase58Check,
+  plaintextMsg
+);
 
-**Make sure to call configure prior to calling any other identity methods.**
-
-```ts
-import { identity } from '@deso-core/identity';
-
-// NOTE: For most web apps no configuration is *required*, but here are some
-// common use cases you might want to know about.
-identity.configure({
-  // Optional redirect URI. This is mostly useful for native mobile use cases.
-  // Most web applications will not want to use it. If provided, we do a full
-  // redirect to the identity domain and pass data via query params back to the
-  // provided uri.
-  redirectURI: 'https://mydomain.com/my-redirect-path',
-
-  // This will be associated with all of the derived keys that your application
-  // authorizes.
-  appName: 'My Cool App',
-
-  // Here we indicate the permissions a user will be asked to approve when they
-  // log into your application. You may specify as many or as few permissions up
-  // front as you want. You may choose not to request any permissions up front
-  // and that's okay! Just remember that you will need to request them in your
-  // app progressively, and you can always request as many or as few as you want
-  // using the `requestPermissions` method.  See more about these options here
-  // https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
-  spendingLimitOptions: {
-    // NOTE: this value is in Deso nanos, so 1 Deso * 1e9
-    GlobalDESOLimit: 1 * 1e9 // 1 Deso
-    // Map of transaction type to the number of times this derived key is
-    // allowed to perform this operation on behalf of the owner public key
-    TransactionCountLimitMap: {
-      BASIC_TRANSFER: 2, // 2 basic transfer transactions are authorized
-      SUBMIT_POST: 4, // 4 submit post transactions are authorized
-    },
-  }
-})
+// Decrypt cipher text. Returns a promise that resolves to a decrypted, plaintext string.
+await decrypt(
+  recipientMessagingPrivateSeedHex,
+  senderPublicKeyBase58Check,
+  hexEncodedCipherText
+);
 ```
 
 ### Why a new library? This library is intended to solve many of the issues we have
