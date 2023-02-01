@@ -21,7 +21,7 @@ function App() {
   const [forum, setForum] = useState<ReactElement[]>([]);
 
   const [identityState, setIdentityState] = useState<IdentityState>(
-    identity.state
+    identity.snapshot()
   );
 
   useEffect(() => {
