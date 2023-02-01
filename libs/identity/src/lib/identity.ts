@@ -275,6 +275,18 @@ export class Identity {
   }
 
   /**
+   * Generic sign and submit transaction method
+   * @param tx response from any create transaction endpoint
+   */
+  async signAndSubmit(tx: { TransactionHex: string }) {
+    return await this.submitTx(await this.signTx(tx.TransactionHex));
+  }
+
+  /**
+   * @deprecated Use signAndSubmit instead. Since we don't support unauthorized
+   * keys anymore, this is no longer necessary. It's only purpose was to
+   * authorize a derived key if it wasn't already authorized and retry the
+   * transaction.
    *
    * @param constructTx generic function for constructing a transaction. Should
    * return a promise that resolves to a transaction object.
