@@ -597,5 +597,42 @@ describe('identity', () => {
       });
       expect(hasPermissions).toBe(true);
     });
+    it('works if checking unlimited permissions for a specific tx', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                TransactionCountLimitMap: {
+                  BASIC_TRANSFER: 1e9,
+                  SUBMIT_POST: 2,
+                },
+                CreatorCoinOperationLimitMap: {
+                  BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+                    any: 1,
+                    buy: 2,
+                    sell: 3,
+                  },
+                },
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          BASIC_TRANSFER: 'UNLIMITED',
+        },
+      });
+      expect(hasPermissions).toBe(true);
+    });
   });
 });

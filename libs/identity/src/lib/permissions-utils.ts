@@ -16,7 +16,12 @@ export function compareTransactionSpendingLimits(
     const actualVal = getDeepValue(actualPermissions, path);
     if (
       typeof actualVal === 'undefined' ||
-      (typeof actualVal === 'number' && actualVal < expectedVal)
+      (typeof actualVal === 'number' &&
+        typeof actualVal === 'number' &&
+        actualVal < expectedVal) ||
+      (typeof actualVal === 'number' &&
+        expectedVal === 'UNLIMITED' &&
+        actualVal < 1e9)
     ) {
       hasAllPermissions = false;
     }

@@ -34,6 +34,7 @@ import {
   LoginOptions,
   Network,
   StoredUser,
+  TransactionSpendingLimitResponseOptions,
 } from './types';
 
 export class Identity {
@@ -525,8 +526,11 @@ export class Identity {
   }
 
   hasPermissions(
-    permissionsToCheck: Partial<TransactionSpendingLimitResponse>
+    permissionsToCheck: Partial<TransactionSpendingLimitResponseOptions>
   ): boolean {
+    if (Object.keys(permissionsToCheck).length === 0)
+      throw new Error('You must pass at least one permission to check');
+
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
     // If the key is expired, unauthorized, or has no money we can't do anything with it
