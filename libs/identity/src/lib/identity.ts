@@ -8,7 +8,6 @@ import {
   DEFAULT_PERMISSIONS as DEFAULT_TRANSACTION_SPENDING_LIMIT,
   IDENTITY_SERVICE_VALUE,
   LOCAL_STORAGE_KEYS,
-  NO_MONEY_ERROR,
 } from './constants';
 import {
   decrypt,
@@ -18,6 +17,7 @@ import {
   publicKeyToBase58Check,
   signTx,
 } from './crypto-utils';
+import { ERROR_TYPES } from './error-types';
 import { compareTransactionSpendingLimits } from './permissions-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
@@ -295,13 +295,14 @@ export class Identity {
             'Cannot authorize derived key without a logged in user'
           );
         }
+        // if the derived key is not authorized
+        // we try to authorize it and retry
         await this.#authorizePrimaryDerivedKey(
           primaryDerivedKey.publicKeyBase58Check
-        ).catch((e) => {
-          throw e;
-        });
+        );
 
         // reconstruct the original transaction and try again
+        // this will throw if the previous authorization failed
         const tx = await constructTx();
         return this.submitTx(await this.signTx(tx.TransactionHex));
       }
@@ -518,15 +519,16 @@ export class Identity {
     });
   }
 
-  #parseDerivedKeyError(e: Error) {
+  #getErrorType(e: Error): ERROR_TYPES | undefined {
     if (
       e?.message?.indexOf(
         'Total input 0 is not sufficient to cover the spend amount'
       ) >= 0
     ) {
-      return NO_MONEY_ERROR;
+      return ERROR_TYPES.NO_MONEY;
     }
-    return e.message;
+
+    return undefined;
   }
 
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
@@ -555,8 +557,6 @@ export class Identity {
       AppName: this.#appName,
       TransactionFees: [],
       ExtraData: {},
-    }).catch((e) => {
-      throw new Error(this.#parseDerivedKeyError(e));
     });
 
     const signedTx = await this.signTx(resp.TransactionHex);
@@ -599,9 +599,14 @@ export class Identity {
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
-        this.#handleDeriveMethod(payload as IdentityDerivePayload).then(() => {
-          this.#subscriber?.(this.state);
-        });
+        this.#handleDeriveMethod(payload as IdentityDerivePayload)
+          .then((res) => {
+            this.#subscriber?.(this.state);
+            this.#pendingWindowRequest?.resolve(res);
+          })
+          .catch((e) =>
+            this.#pendingWindowRequest?.reject(this.#getErrorInstance(e))
+          );
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
@@ -648,7 +653,9 @@ export class Identity {
     }
   }
 
-  #handleDeriveMethod(payload: IdentityDerivePayload): Promise<any> {
+  async #handleDeriveMethod(
+    payload: IdentityDerivePayload
+  ): Promise<IdentityDerivePayload> {
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
     // NOTE: If we generated the keys and provided the derived public key,
@@ -659,6 +666,15 @@ export class Identity {
       delete payload.derivedSeedHex;
     }
 
+    // we may or may not have a login key pair in localStorage. If we do, it means we
+    // initiated a login flow.
+    const maybeLoginKeyPair = this.#window.localStorage.getItem(
+      LOCAL_STORAGE_KEYS.loginKeyPair
+    );
+    // in the case of a login, we always clean up the login key pair from localStorage.
+    this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
+
+    // This means we're doing a derived key permissions upgrade for the current user (not a login).
     if (
       primaryDerivedKey &&
       primaryDerivedKey.publicKeyBase58Check === payload.publicKeyBase58Check &&
@@ -668,54 +684,42 @@ export class Identity {
       this.#updateUser(payload.publicKeyBase58Check, {
         primaryDerivedKey: { ...primaryDerivedKey, ...payload },
       });
-      // Attempt to authorize the derived key. If it fails due
-      // to no money we don't care. We'll try again the next time the user
-      // attempts to submit a tx.
-      return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
-        .then(() => {
-          this.#pendingWindowRequest?.resolve(payload);
-        })
-        .catch((e) => {
-          if (this.#window.location.hostname === 'localhost') {
-            this.#pendingWindowRequest?.reject(e);
-          }
-        });
+
+      return this.#authorizePrimaryDerivedKey(
+        payload.publicKeyBase58Check
+      ).then(() => payload);
     }
 
-    const loginKeyPair = this.#window.localStorage.getItem(
-      LOCAL_STORAGE_KEYS.loginKeyPair
-    );
-    // in the case of a login, we clean up the login key pair from localStorage.
-    this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.loginKeyPair);
+    // This means we're just switching to a user we already have in localStorage.
     if (this.#users?.[payload.publicKeyBase58Check]) {
       this.setActiveUser(payload.publicKeyBase58Check);
-      // if the logged in user changes, we try to refresh the derived key permissions.
+      // if the logged in user changes, we try to refresh the derived key permissions in the background
+      // and just return the payload immediately.
       this.refreshDerivedKeyPermissions();
-      return Promise.resolve();
-    } else if (loginKeyPair) {
-      const { seedHex } = JSON.parse(loginKeyPair);
+      return payload;
+
+      // This means we're logging in a user we haven't seen yet
+    } else if (maybeLoginKeyPair) {
+      const { seedHex } = JSON.parse(maybeLoginKeyPair);
       this.#updateUser(payload.publicKeyBase58Check, {
         primaryDerivedKey: { ...payload, derivedSeedHex: seedHex },
       });
-      // Attempt to authorize the new derived key. If it fails due
-      // to no money we don't care. We'll try again the next time the user
-      // attempts to submit a tx.
-      return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
-        .then(() => {
-          this.#pendingWindowRequest?.resolve({
-            ...payload,
-            publicKeyAdded: payload.publicKeyBase58Check,
-          });
-        })
-        .catch((e) => {
-          if (this.#window.location.hostname === 'localhost') {
-            this.#pendingWindowRequest?.reject(e);
-          }
-        });
-    } else {
-      this.#pendingWindowRequest?.resolve(payload);
-      return Promise.resolve();
+
+      return this.#authorizePrimaryDerivedKey(
+        payload.publicKeyBase58Check
+      ).then(() => ({
+        ...payload,
+        publicKeyAdded: payload.publicKeyBase58Check,
+      }));
     }
+
+    // NOTE: We should never get here since the previous conditions *should* be
+    // exhaustive for current use cases. If we add use cases for alternate
+    // derived keys besides the primary derived key, we'll need to add more
+    // logic here.
+    throw new Error(
+      `unhandled derive flow with payload ${JSON.stringify(payload)}`
+    );
   }
 
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
@@ -808,5 +812,23 @@ export class Identity {
       this.#window.addEventListener('message', this.#boundPostMessageListener);
       this.#openIdentityPopup(url);
     }
+  }
+
+  #getErrorInstance(e: any): Error {
+    const errorType = this.#getErrorType(e);
+    if (!errorType) return e;
+
+    return new DeSoCoreError(e.message, errorType, e);
+  }
+}
+
+class DeSoCoreError extends Error {
+  type: ERROR_TYPES;
+
+  constructor(message: string, type: ERROR_TYPES, originalError: any = {}) {
+    super(message);
+    Object.assign(this, originalError);
+    this.type = type;
+    this.name = 'DeSoCoreError';
   }
 }

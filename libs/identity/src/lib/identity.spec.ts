@@ -8,6 +8,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from './constants';
 import { keygen, publicKeyToBase58Check } from './crypto-utils';
+import { ERROR_TYPES } from './error-types';
 import { Identity } from './identity';
 import { getAPIFake, getWindowFake, setupTestPolyfills } from './test-utils';
 import { APIProvider } from './types';
@@ -200,10 +201,13 @@ describe('identity', () => {
       ).toBe(null);
     });
 
-    it('works even if authorizing the key fails', async () => {
+    it('throws an error with the expected type if authorizing the key fails due to no money', async () => {
       apiFake.post = (url: string) => {
         if (url.endsWith('authorize-derived-key')) {
-          throw new APIError('Failed to authorize derived key', 400);
+          throw new APIError(
+            'Total input 0 is not sufficient to cover the spend amount',
+            400
+          );
         }
 
         return Promise.resolve(null);
@@ -232,60 +236,47 @@ describe('identity', () => {
       };
 
       let loginKeyPair = { publicKey: '', seedHex: '' };
-      await Promise.all([
-        identity.login(),
-        // login waits to resolve until it receives a message from the identity
-        // here we fake sending that message
-        new Promise((resolve) =>
-          setTimeout(() => {
-            // before identity sends the message we should have a login key pair in local storage
-            const keyPairJSON = windowFake.localStorage.getItem(
-              LOCAL_STORAGE_KEYS.loginKeyPair
-            );
-            if (keyPairJSON) {
-              loginKeyPair = JSON.parse(keyPairJSON);
-            }
+      let error: any;
 
-            // NOTE: identity does not provide the derived seed hex here because we generated the keys ourselves
-            postMessageListener({
-              origin: DEFAULT_IDENTITY_URI,
-              source: { close: jest.fn() },
-              data: {
-                service: 'identity',
-                method: 'derive',
-                payload: {
-                  ...derivePayload,
-                  derivedPublicKeyBase58Check: loginKeyPair.publicKey,
-                  derivedSeedHex: '',
+      try {
+        await Promise.all([
+          identity.login(),
+          // login waits to resolve until it receives a message from the identity
+          // here we fake sending that message
+          new Promise((resolve) =>
+            setTimeout(() => {
+              // before identity sends the message we should have a login key pair in local storage
+              const keyPairJSON = windowFake.localStorage.getItem(
+                LOCAL_STORAGE_KEYS.loginKeyPair
+              );
+              if (keyPairJSON) {
+                loginKeyPair = JSON.parse(keyPairJSON);
+              }
+
+              // NOTE: identity does not provide the derived seed hex here because we generated the keys ourselves
+              postMessageListener({
+                origin: DEFAULT_IDENTITY_URI,
+                source: { close: jest.fn() },
+                data: {
+                  service: 'identity',
+                  method: 'derive',
+                  payload: {
+                    ...derivePayload,
+                    derivedPublicKeyBase58Check: loginKeyPair.publicKey,
+                    derivedSeedHex: '',
+                  },
                 },
-              },
-            });
+              });
 
-            resolve(undefined);
-          }, 1)
-        ),
-      ]);
+              resolve(undefined);
+            }, 1)
+          ),
+        ]);
+      } catch (e: any) {
+        error = e;
+      }
 
-      expect(identity.state.currentUser?.publicKey).toEqual(
-        'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
-      );
-      expect(loginKeyPair.seedHex.length > 0).toBe(true);
-      expect(loginKeyPair.publicKey.length > 0).toBe(true);
-      expect(identity.state.currentUser).toEqual({
-        publicKey: derivePayload.publicKeyBase58Check,
-        // NOTE: we don't have any of the get-single-derived-key data in this scenario.
-        // This means the user will have no permissions until they authorize the key.
-        primaryDerivedKey: {
-          ...derivePayload,
-          derivedPublicKeyBase58Check: loginKeyPair.publicKey,
-          // NOTE: we have updated our local record to include our generated derived seed hex
-          derivedSeedHex: loginKeyPair.seedHex,
-        },
-      });
-      // login keys cleaned up from local storage
-      expect(
-        windowFake.localStorage.getItem(LOCAL_STORAGE_KEYS.loginKeyPair)
-      ).toBe(null);
+      expect(error.type).toEqual(ERROR_TYPES.NO_MONEY);
     });
   });
 
