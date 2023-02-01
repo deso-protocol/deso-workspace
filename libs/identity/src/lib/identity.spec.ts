@@ -634,5 +634,42 @@ describe('identity', () => {
       });
       expect(hasPermissions).toBe(true);
     });
+    it('it returns false if checking for a permission that does not exist yet', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                TransactionCountLimitMap: {
+                  SUBMIT_POST: 2,
+                },
+                CreatorCoinOperationLimitMap: {
+                  BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+                    any: 1,
+                    buy: 2,
+                    sell: 3,
+                  },
+                },
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          // basic transfer is not in the user's actual permissions
+          BASIC_TRANSFER: 1,
+        },
+      });
+      expect(hasPermissions).toBe(false);
+    });
   });
 });
