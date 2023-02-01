@@ -211,7 +211,7 @@ export class Ethereum {
           nonce: parseInt(txn.nonce, 16),
           data: txn.input,
           chainId: parseInt(
-            txn.chainId || ethNet === 'goerli' ? '0x5' : '0x1',
+            txn.chainId ? txn.chainId : ethNet === 'goerli' ? '0x5' : '0x1',
             16
           ),
           to: txn.to,
@@ -224,7 +224,7 @@ export class Ethereum {
           nonce: parseInt(txn.nonce, 16),
           data: txn.input,
           chainId: parseInt(
-            txn.chainId || ethNet === 'goerli' ? '0x5' : '0x1',
+            txn.chainId ? txn.chainId : ethNet === 'goerli' ? '0x5' : '0x1',
             16
           ),
           to: txn.to,
