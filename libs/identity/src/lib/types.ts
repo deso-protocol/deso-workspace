@@ -81,7 +81,7 @@ export interface IdentityConfiguration {
    * The default permissions and spending limits that will be presented to the user
    * during login. If not provided, we will assume no permissions.
    */
-  spendingLimitOptions?: TransactionSpendingLimitOptions;
+  spendingLimitOptions?: TransactionSpendingLimitResponseOptions;
 
   /**
    * The name of the app used to authorize derived keys. Defaults to unknown.
