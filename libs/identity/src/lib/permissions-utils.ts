@@ -17,7 +17,7 @@ export function compareTransactionSpendingLimits(
     if (
       typeof actualVal === 'undefined' ||
       (typeof actualVal === 'number' &&
-        typeof actualVal === 'number' &&
+        typeof expectedVal === 'number' &&
         actualVal < expectedVal) ||
       (typeof actualVal === 'number' &&
         expectedVal === 'UNLIMITED' &&
