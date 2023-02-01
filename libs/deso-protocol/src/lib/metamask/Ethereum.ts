@@ -242,7 +242,7 @@ export class Ethereum {
     const msgBytes = ethers.utils.arrayify(msgHash); // create binary hash
     const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
     const recoveredAddress = ethers.utils.computeAddress(recoveredPubKey);
-    if (recoveredAddress != txn.from) {
+    if (recoveredAddress.toLowerCase() != txn.from.toLowerCase()) {
       return Promise.reject('recovered incorrect address');
     }
     return [recoveredPubKey, recoveredAddress];
