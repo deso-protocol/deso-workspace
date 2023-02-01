@@ -1,4 +1,9 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import {
+  AccessGroupLimitMapItem,
+  AccessGroupMemberLimitMapItem,
+  AssociationLimitMapItem,
+  TransactionSpendingLimitResponse,
+} from 'deso-protocol-types';
 
 export type Network = 'mainnet' | 'testnet';
 
@@ -28,16 +33,25 @@ export interface IdentityDerivePayload {
   signedUp: boolean;
 }
 
-export interface TransactionSpendingLimitOptions {
-  IsUnlimited?: boolean;
+export interface TransactionSpendingLimitResponseOptions {
   GlobalDESOLimit?: number;
-  TransactionCountLimitMap?: { [key: string]: number };
-  CreatorCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
-  DAOCoinOperationLimitMap?: { [key: string]: { [key: string]: number } };
-  NFTOperationLimitMap?: {
-    [key: string]: { [key: number]: { [key: string]: number } };
+  TransactionCountLimitMap?: { [key: string]: number | 'UNLIMITED' };
+  CreatorCoinOperationLimitMap?: {
+    [key: string]: { [key: string]: number | 'UNLIMITED' };
   };
-  DAOCoinLimitOrderLimitMap?: { [key: string]: { [key: string]: number } };
+  DAOCoinOperationLimitMap?: {
+    [key: string]: { [key: string]: number | 'UNLIMITED' };
+  };
+  NFTOperationLimitMap?: {
+    [key: string]: { [key: number]: { [key: string]: number | 'UNLIMITED' } };
+  };
+  DAOCoinLimitOrderLimitMap?: {
+    [key: string]: { [key: string]: number | 'UNLIMITED' };
+  };
+  AssociationLimitMap?: AssociationLimitMapItem[];
+  AccessGroupLimitMap?: AccessGroupLimitMapItem[];
+  AccessGroupMemberLimitMap?: AccessGroupMemberLimitMapItem[];
+  IsUnlimited?: boolean;
 }
 
 export type jwtAlgorithm = 'ES256K' | 'ES256';

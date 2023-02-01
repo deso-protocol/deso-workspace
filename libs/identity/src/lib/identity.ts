@@ -18,7 +18,10 @@ import {
   signTx,
 } from './crypto-utils';
 import { ERROR_TYPES } from './error-types';
-import { compareTransactionSpendingLimits } from './permissions-utils';
+import {
+  buildTransactionSpendingLimitResponse,
+  compareTransactionSpendingLimits,
+} from './permissions-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
   APIProvider,
@@ -195,45 +198,16 @@ export class Identity {
     redirectURI,
     jwtAlgorithm = 'ES256',
   }: IdentityConfiguration) {
+    this.#didConfigure = true;
     this.#identityURI = identityURI;
     this.#network = network;
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
     this.#jwtAlgorithm = jwtAlgorithm;
-    const defaultOptions: TransactionSpendingLimitResponse = {
-      ...DEFAULT_TRANSACTION_SPENDING_LIMIT,
-    };
-
-    // Add the AUTHORIZE_DERIVED_KEY permission if it's not already there
-    // as a convenience
-    if (
-      typeof spendingLimitOptions.TransactionCountLimitMap?.[
-        'AUTHORIZE_DERIVED_KEY'
-      ] === 'undefined'
-    ) {
-      spendingLimitOptions.TransactionCountLimitMap = {
-        AUTHORIZE_DERIVED_KEY: 1,
-        ...spendingLimitOptions.TransactionCountLimitMap,
-      };
-    }
-
-    if (spendingLimitOptions.IsUnlimited) {
-      Object.keys(defaultOptions).forEach((key) => {
-        const k = key as keyof TransactionSpendingLimitResponse;
-        if (k === 'GlobalDESOLimit') {
-          defaultOptions[k] = 0;
-        } else {
-          defaultOptions[k] = undefined;
-        }
-      });
-    }
-    this.#defaultTransactionSpendingLimit = {
-      ...defaultOptions,
-      ...spendingLimitOptions,
-    };
+    this.#defaultTransactionSpendingLimit =
+      buildTransactionSpendingLimitResponse(spendingLimitOptions);
 
     this.refreshDerivedKeyPermissions();
-    this.#didConfigure = true;
   }
 
   /**
@@ -584,22 +558,13 @@ export class Identity {
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject };
 
-      if (
-        typeof transactionSpendingLimitResponse.TransactionCountLimitMap?.[
-          'AUTHORIZE_DERIVED_KEY'
-        ] === 'undefined'
-      ) {
-        transactionSpendingLimitResponse.TransactionCountLimitMap = {
-          AUTHORIZE_DERIVED_KEY: 1,
-          ...transactionSpendingLimitResponse.TransactionCountLimitMap,
-        };
-      }
-
       const params = {
         derive: true,
         derivedPublicKey: derivedPublicKeyBase58Check,
         publicKey: publicKeyBase58Check,
-        transactionSpendingLimitResponse,
+        transactionSpendingLimitResponse: buildTransactionSpendingLimitResponse(
+          transactionSpendingLimitResponse
+        ),
       };
 
       this.#launchIdentity('derive', params);
