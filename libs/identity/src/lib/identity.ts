@@ -8,6 +8,7 @@ import {
   DEFAULT_PERMISSIONS as DEFAULT_TRANSACTION_SPENDING_LIMIT,
   IDENTITY_SERVICE_VALUE,
   LOCAL_STORAGE_KEYS,
+  NO_MONEY_ERROR,
 } from './constants';
 import {
   decrypt,
@@ -137,6 +138,20 @@ export class Identity {
     const defaultOptions: TransactionSpendingLimitResponse = {
       ...DEFAULT_TRANSACTION_SPENDING_LIMIT,
     };
+
+    // Add the AUTHORIZE_DERIVED_KEY permission if it's not already there
+    // as a convenience
+    if (
+      typeof spendingLimitOptions.TransactionCountLimitMap?.[
+        'AUTHORIZE_DERIVED_KEY'
+      ] === 'undefined'
+    ) {
+      spendingLimitOptions.TransactionCountLimitMap = {
+        AUTHORIZE_DERIVED_KEY: 1,
+        ...spendingLimitOptions.TransactionCountLimitMap,
+      };
+    }
+
     if (spendingLimitOptions.IsUnlimited) {
       Object.keys(defaultOptions).forEach((key) => {
         const k = key as keyof TransactionSpendingLimitResponse;
@@ -282,7 +297,9 @@ export class Identity {
         }
         await this.#authorizePrimaryDerivedKey(
           primaryDerivedKey.publicKeyBase58Check
-        );
+        ).catch((e) => {
+          throw e;
+        });
 
         // reconstruct the original transaction and try again
         const tx = await constructTx();
@@ -335,7 +352,9 @@ export class Identity {
     if (!primaryDerivedKey.IsValid) {
       await this.#authorizePrimaryDerivedKey(
         primaryDerivedKey.publicKeyBase58Check
-      );
+      ).catch((e) => {
+        throw e;
+      });
     }
 
     return getSignedJWT(primaryDerivedKey.derivedSeedHex, this.#jwtAlgorithm, {
@@ -499,6 +518,17 @@ export class Identity {
     });
   }
 
+  #parseDerivedKeyError(e: Error) {
+    if (
+      e?.message?.indexOf(
+        'Total input 0 is not sufficient to cover the spend amount'
+      ) >= 0
+    ) {
+      return NO_MONEY_ERROR;
+    }
+    return e.message;
+  }
+
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
     const users = this.#users;
     const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
@@ -525,6 +555,8 @@ export class Identity {
       AppName: this.#appName,
       TransactionFees: [],
       ExtraData: {},
+    }).catch((e) => {
+      throw new Error(this.#parseDerivedKeyError(e));
     });
 
     const signedTx = await this.signTx(resp.TransactionHex);
@@ -640,13 +672,13 @@ export class Identity {
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.
       return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
+        .then(() => {
+          this.#pendingWindowRequest?.resolve(payload);
+        })
         .catch((e) => {
           if (this.#window.location.hostname === 'localhost') {
-            console.warn(e.message);
+            this.#pendingWindowRequest?.reject(e);
           }
-        })
-        .finally(() => {
-          this.#pendingWindowRequest?.resolve(payload);
         });
     }
 
@@ -669,16 +701,16 @@ export class Identity {
       // to no money we don't care. We'll try again the next time the user
       // attempts to submit a tx.
       return this.#authorizePrimaryDerivedKey(payload.publicKeyBase58Check)
-        .catch((e) => {
-          if (this.#window.location.hostname === 'localhost') {
-            console.warn(e.message);
-          }
-        })
-        .finally(() => {
+        .then(() => {
           this.#pendingWindowRequest?.resolve({
             ...payload,
             publicKeyAdded: payload.publicKeyBase58Check,
           });
+        })
+        .catch((e) => {
+          if (this.#window.location.hostname === 'localhost') {
+            this.#pendingWindowRequest?.reject(e);
+          }
         });
     } else {
       this.#pendingWindowRequest?.resolve(payload);

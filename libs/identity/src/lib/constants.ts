@@ -4,6 +4,10 @@ export const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
 export const DEFAULT_NODE_URI = 'https://node.deso.org';
 export const IDENTITY_SERVICE_VALUE = 'identity';
 
+// Error messages
+export const NO_MONEY_ERROR =
+  'User does not have sufficient funds in their wallet to complete the transaction';
+
 // since we issue a derived key and authorize it immediately after login the
 // default permission to authorize a derived key
 export const DEFAULT_PERMISSIONS: TransactionSpendingLimitResponse =
