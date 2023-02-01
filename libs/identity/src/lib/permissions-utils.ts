@@ -6,30 +6,19 @@ export function compareTransactionSpendingLimits(
   expectedPermissions: any,
   actualPermissions: any
 ): boolean {
-  for (const key in expectedPermissions) {
-    // if the key is null, it means there are no permissions for this key
-    if (actualPermissions[key] === null) {
-      return false;
-    }
+  let hasAllPermissions = true;
 
-    if (typeof actualPermissions[key] === 'object') {
-      return compareTransactionSpendingLimits(
-        expectedPermissions[key],
-        actualPermissions[key]
-      );
+  walkObj(expectedPermissions, (expectedVal, path) => {
+    const actualVal = getDeepValue(actualPermissions, path);
+    if (
+      typeof actualVal === 'undefined' ||
+      (typeof actualVal === 'number' && actualVal < expectedVal)
+    ) {
+      hasAllPermissions = false;
     }
+  });
 
-    // checks if a permissions value is above the queried limit. For example,
-    // if the expected permissions are `SUBMIT_POST: 2` and the actual permissions
-    // are `SUBMIT_POST: 1`, then this function will return false. If the expected
-    // permissions are querying for multiple permissions values, then if *any* of
-    // them are below the queried limit, this function will return false.
-    if (expectedPermissions[key] > actualPermissions[key]) {
-      return false;
-    }
-  }
-
-  return true;
+  return hasAllPermissions;
 }
 
 export function buildTransactionSpendingLimitResponse(
@@ -77,6 +66,21 @@ function walkObj(
     }
   } else {
     callback(node, path);
+  }
+}
+
+function getDeepValue(obj: any, path: string[]): any {
+  const currKey = path[0];
+
+  if (typeof obj[currKey] === 'undefined') {
+    obj[currKey];
+    return;
+  }
+
+  if (path.length === 1) {
+    return obj[currKey];
+  } else {
+    return getDeepValue(obj[currKey], path.slice(1));
   }
 }
 

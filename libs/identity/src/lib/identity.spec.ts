@@ -443,11 +443,132 @@ describe('identity', () => {
   });
 
   describe('.hasPermissions()', () => {
-    it.todo('returns true when the user has the required permissions');
-    it.todo(
-      'returns false when the user does not have the required permissions'
-    );
-    it.todo('works with a single permission');
-    it.todo('it works with multiple permissions');
+    it('returns true when the user has all the required permissions', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                TransactionCountLimitMap: {
+                  BASIC_TRANSFER: 1,
+                  SUBMIT_POST: 2,
+                },
+                CreatorCoinOperationLimitMap: {
+                  BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+                    any: 1,
+                    buy: 2,
+                    sell: 3,
+                  },
+                },
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          BASIC_TRANSFER: 1,
+          SUBMIT_POST: 1,
+        },
+        CreatorCoinOperationLimitMap: {
+          BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+            any: 1,
+            buy: 1,
+            sell: 2,
+          },
+        },
+      });
+      expect(hasPermissions).toBe(true);
+    });
+    it('returns false when the user does not have the required permissions', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                TransactionCountLimitMap: {
+                  BASIC_TRANSFER: 1,
+                  SUBMIT_POST: 2,
+                },
+                CreatorCoinOperationLimitMap: {
+                  BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+                    any: 1,
+                    buy: 2,
+                    sell: 3,
+                  },
+                },
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          BASIC_TRANSFER: 1,
+          SUBMIT_POST: 1,
+        },
+        CreatorCoinOperationLimitMap: {
+          BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+            any: 1,
+            buy: 1,
+            sell: 4, // this is more than the user can do
+          },
+        },
+      });
+      expect(hasPermissions).toBe(false);
+    });
+    it('works with a single permission', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                TransactionCountLimitMap: {
+                  BASIC_TRANSFER: 1,
+                  SUBMIT_POST: 2,
+                },
+                CreatorCoinOperationLimitMap: {
+                  BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
+                    any: 1,
+                    buy: 2,
+                    sell: 3,
+                  },
+                },
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          SUBMIT_POST: 3, // more than the user can do
+        },
+      });
+      expect(hasPermissions).toBe(false);
+    });
   });
 });
