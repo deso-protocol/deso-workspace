@@ -1,12 +1,16 @@
 import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
 import { TransactionSpendingLimitResponseOptions } from './types';
 
-// walk the derived key spending limit obj and check if the specified permission are good.
 export function compareTransactionSpendingLimits(
   expectedPermissions: any,
   actualPermissions: any
 ): boolean {
   let hasAllPermissions = true;
+
+  // if the key is unlimited then we don't need to check anything else
+  if (actualPermissions?.IsUnlimited) {
+    return hasAllPermissions;
+  }
 
   walkObj(expectedPermissions, (expectedVal, path) => {
     const actualVal = getDeepValue(actualPermissions, path);

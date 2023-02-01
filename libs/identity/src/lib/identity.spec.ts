@@ -570,5 +570,32 @@ describe('identity', () => {
       });
       expect(hasPermissions).toBe(false);
     });
+    it('works if the key has unlimited permissions', () => {
+      const activeUserKey =
+        'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s';
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        activeUserKey
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [activeUserKey]: {
+            primaryDerivedKey: {
+              IsValid: true,
+              transactionSpendingLimits: {
+                IsUnlimited: true, // unlimited permissions
+              },
+            },
+          },
+        })
+      );
+      const hasPermissions = identity.hasPermissions({
+        TransactionCountLimitMap: {
+          SUBMIT_POST: 3, // doesn't matter what we check, it should be allowed
+        },
+      });
+      expect(hasPermissions).toBe(true);
+    });
   });
 });
