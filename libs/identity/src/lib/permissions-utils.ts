@@ -72,8 +72,15 @@ function walkObj(
 function getDeepValue(obj: any, path: string[]): any {
   const currKey = path[0];
 
+  if (
+    obj === null ||
+    typeof obj !== 'object' ||
+    typeof obj[currKey] === 'undefined'
+  ) {
+    return;
+  }
+
   if (typeof obj[currKey] === 'undefined') {
-    obj[currKey];
     return;
   }
 
