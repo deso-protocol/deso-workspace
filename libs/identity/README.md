@@ -147,10 +147,10 @@ const decryptedMessagePlaintext = await decrypt(
 ### Why a new library? This library is intended to solve many of the issues we have
 
 with the existing
-[deso-protocol](https://github.com/deso-protocol/deso-workspace/tree/master/libs/deso-protocol)
+[deso-protocol](https://github.com/deso-protocol/deso-workspace/tree/main/libs/deso-protocol)
 library:
 
-- `deso-protocol` manages signing by accessing a user's master key pair via the
+- `deso-protocol` manages signing by accessing a user's main key pair via the
   identity [iframe
   API](https://docs.deso.org/for-developers/identity/iframe-api/basics). This
   requires users to enable access to third party cookies and local storage on many

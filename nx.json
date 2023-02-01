@@ -1,7 +1,7 @@
 {
   "npmScope": "deso-core",
   "affected": {
-    "defaultBase": "master"
+    "defaultBase": "main"
   },
   "cli": {
     "defaultCollection": "@nrwl/react"
