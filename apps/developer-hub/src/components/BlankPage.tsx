@@ -43,7 +43,7 @@ export function BlankPage() {
             axios
               .post('https://node.deso.org/api/v0/submit-post', {
                 UpdaterPublicKeyBase58Check:
-                  identity.state.currentUser?.publicKey,
+                  identity.snapshot().currentUser?.publicKey,
                 BodyObj: {
                   Body: body,
                   ImageURLs: [],

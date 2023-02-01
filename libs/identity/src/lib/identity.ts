@@ -34,25 +34,81 @@ import {
 } from './types';
 
 export class Identity {
+  /**
+   * @private
+   */
   #window: Window;
+
+  /**
+   * @private
+   */
   #api: APIProvider;
+
+  /**
+   * @private
+   */
   #identityURI: string = DEFAULT_IDENTITY_URI;
+
+  /**
+   * @private
+   */
   #network: Network = 'mainnet';
+
+  /**
+   * @private
+   */
   #nodeURI: string = DEFAULT_NODE_URI;
+
+  /**
+   * @private
+   */
   #identityPopupWindow?: Window | null;
+
+  /**
+   * @private
+   */
   #redirectURI?: string;
+
+  /**
+   * @private
+   */
   #pendingWindowRequest?: Deferred;
+
+  /**
+   * @private
+   */
   #defaultTransactionSpendingLimit: TransactionSpendingLimitResponse =
     DEFAULT_TRANSACTION_SPENDING_LIMIT;
+
+  /**
+   * @private
+   */
   #appName = 'unkown';
+
+  /**
+   * @private
+   */
   #jwtAlgorithm: jwtAlgorithm = 'ES256';
+
+  /**
+   * @private
+   */
   #boundPostMessageListener?: (event: MessageEvent) => void;
+
+  /**
+   * @private
+   */
   #subscriber?: (state: any) => void;
+
+  /**
+   * @private
+   */
   #didConfigure = false;
 
   /**
    * The current internal state of identity. This is a combination of the
    * current user and all other users stored in local storage.
+   * @private
    */
   get #state() {
     const allStoredUsers = this.#users;
@@ -75,12 +131,18 @@ export class Identity {
     };
   }
 
+  /**
+   * @private
+   */
   get #activePublicKey(): string | null {
     return this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.activePublicKey
     );
   }
 
+  /**
+   * @private
+   */
   get #users(): Record<string, StoredUser> | null {
     const storedUsers = this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.identityUsers
@@ -88,6 +150,9 @@ export class Identity {
     return storedUsers && JSON.parse(storedUsers);
   }
 
+  /**
+   * @private
+   */
   get #currentUser(): StoredUser | null {
     const activePublicKey = this.#activePublicKey;
 
@@ -167,8 +232,8 @@ export class Identity {
       ...spendingLimitOptions,
     };
 
-    this.#didConfigure = true;
     this.refreshDerivedKeyPermissions();
+    this.#didConfigure = true;
   }
 
   /**
@@ -541,6 +606,9 @@ export class Identity {
     });
   }
 
+  /**
+   * @private
+   */
   #getErrorType(e: Error): ERROR_TYPES | undefined {
     if (
       e?.message?.indexOf(
@@ -553,6 +621,9 @@ export class Identity {
     return undefined;
   }
 
+  /**
+   * @private
+   */
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
     const users = this.#users;
     const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
@@ -587,6 +658,9 @@ export class Identity {
     return result;
   }
 
+  /**
+   * @private
+   */
   #handlePostMessage(ev: MessageEvent) {
     if (
       ev.origin !== this.#identityURI ||
@@ -618,6 +692,9 @@ export class Identity {
     }
   }
 
+  /**
+   * @private
+   */
   #handleIdentityResponse({ method, payload = {} }: IdentityResponse) {
     switch (method) {
       case 'derive':
@@ -639,6 +716,9 @@ export class Identity {
     }
   }
 
+  /**
+   * @private
+   */
   #handleLoginMethod(payload: IdentityLoginPayload) {
     // no publicKeyAdded means the user is logging out. We just remove their data from localStorage
     if (!payload.publicKeyAdded) {
@@ -657,6 +737,9 @@ export class Identity {
     this.#pendingWindowRequest?.resolve(payload);
   }
 
+  /**
+   * @private
+   */
   #purgeUserDataForPublicKey(publicKey: string) {
     const users = this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.identityUsers
@@ -675,6 +758,9 @@ export class Identity {
     }
   }
 
+  /**
+   * @private
+   */
   async #handleDeriveMethod(
     payload: IdentityDerivePayload
   ): Promise<IdentityDerivePayload> {
@@ -744,6 +830,9 @@ export class Identity {
     );
   }
 
+  /**
+   * @private
+   */
   #updateUser(masterPublicKey: string, attributes: Record<string, any>) {
     const users = this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.identityUsers
@@ -777,6 +866,9 @@ export class Identity {
     );
   }
 
+  /**
+   * @private
+   */
   #buildQueryParams(paramsPojo: Record<string, any>) {
     const qps = new URLSearchParams(
       Object.entries(paramsPojo).reduce((acc, [k, v]) => {
@@ -799,6 +891,9 @@ export class Identity {
     return qps;
   }
 
+  /**
+   * @private
+   */
   #openIdentityPopup(url: string) {
     if (this.#identityPopupWindow) {
       this.#identityPopupWindow.close();
@@ -816,6 +911,9 @@ export class Identity {
     );
   }
 
+  /**
+   * @private
+   */
   #launchIdentity(path: string, params: Record<string, any>) {
     const qps = this.#buildQueryParams(params);
     const url = `${this.#identityURI}/${path.replace(/^\//, '')}?${qps}`;
@@ -836,6 +934,9 @@ export class Identity {
     }
   }
 
+  /**
+   * @private
+   */
   #getErrorInstance(e: any): Error {
     const errorType = this.#getErrorType(e);
     if (!errorType) return e;
