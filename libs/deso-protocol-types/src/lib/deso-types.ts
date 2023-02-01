@@ -2951,7 +2951,10 @@ export interface InfuraResponse {
   id: number;
   jsonrpc: string;
   result: any;
-  error: any;
+  error: {
+    code: number;
+    message: string;
+  };
 }
 
 // struct2ts:types/generated/types.InfuraTx
@@ -2970,12 +2973,17 @@ export interface InfuraTx {
   v: string;
   r: string;
   s: string;
+  maxPriorityFeePerGas: string | null;
+  maxFeePerGas: string | null;
+  chainId: string | null;
+  type: string;
 }
 
 // struct2ts:types/generated/types.QueryETHRPCRequest
 export interface QueryETHRPCRequest {
   Method: string;
-  Params: any;
+  Params: any[];
+  UseNetwork?: string;
 }
 
 // struct2ts:types/generated/types.HeaderResponse
