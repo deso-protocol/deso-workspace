@@ -89,10 +89,6 @@ function getDeepValue(obj: any, path: string[]): any {
     return;
   }
 
-  if (typeof obj[currKey] === 'undefined') {
-    return;
-  }
-
   if (path.length === 1) {
     return obj[currKey];
   } else {
