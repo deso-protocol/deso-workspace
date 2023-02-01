@@ -14,10 +14,16 @@ import {
 } from '../utils/Utils';
 import { ec } from 'elliptic';
 import axios from 'axios';
+import {
+  InfuraResponse,
+  InfuraTx,
+  QueryETHRPCRequest,
+} from 'deso-protocol-types';
 
 export class Ethereum {
   private identity: Identity;
   private social: Social;
+  private node: Node;
 
   constructor(
     node: Node,
@@ -28,6 +34,7 @@ export class Ethereum {
   ) {
     this.identity = identity;
     this.social = social;
+    this.node = node;
   }
 
   public async getENS(EthereumAddress: string): Promise<string | null> {
@@ -118,13 +125,11 @@ export class Ethereum {
   public async ethAddressToDeSoPublicKey(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = '',
     ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<string> {
     const txns = await this.getEtherscanTransactionsSignedByAddress(
       ethAddress,
       network,
-      etherscanAPIKey,
       ethereumNetwork
     );
     if (txns.length === 0) {
@@ -140,7 +145,6 @@ export class Ethereum {
           await this.recoverETHPublicKeyAndAddressFromTransaction(
             txns[ii].hash,
             network,
-            etherscanAPIKey,
             ethereumNetwork
           );
         break;
@@ -162,21 +166,35 @@ export class Ethereum {
     return network === 'testnet' ? 'goerli' : 'homestead';
   }
 
+  async getTransactionByHash(
+    transactionHashHex: string,
+    ethereumNetwork?: 'goerli' | 'homestead'
+  ): Promise<InfuraTx> {
+    return this.QueryETHRPC({
+      Method: 'eth_getTransactionByHash',
+      Params: [transactionHashHex],
+      UseNetwork: ethereumNetwork
+        ? ethereumNetwork === 'homestead'
+          ? 'mainnet'
+          : 'goerli'
+        : undefined,
+    }).then((res) => res.result as InfuraTx);
+  }
+
   public async recoverETHPublicKeyAndAddressFromTransaction(
     transactionHashHex: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = '',
     ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<string[]> {
-    const etherscanProvider = new ethers.providers.EtherscanProvider(
-      ethereumNetwork ?? this.desoNetworkToETHNetwork(network),
-      etherscanAPIKey
+    const ethNet = ethereumNetwork ?? this.desoNetworkToETHNetwork(network);
+    const txn = await this.getTransactionByHash(
+      transactionHashHex,
+      ethereumNetwork ?? this.desoNetworkToETHNetwork(network)
     );
-    const txn = await etherscanProvider.getTransaction(transactionHashHex);
     const expandedSig = {
       r: txn.r as string,
       s: txn.s as string,
-      v: txn.v as number,
+      v: parseInt(txn.v, 16) as number,
     };
 
     const signature = ethers.utils.joinSignature(expandedSig);
@@ -184,25 +202,31 @@ export class Ethereum {
     // Special thanks for this answer on ethereum.stackexchange.com: https://ethereum.stackexchange.com/a/126308
     let txnData: any;
     // TODO: figure out how to handle AccessList (type 1) transactions.
-    switch (txn.type) {
+    switch (parseInt(txn.type, 16)) {
       case 0:
         txnData = {
           gasPrice: txn.gasPrice,
-          gasLimit: txn.gasLimit,
+          gasLimit: txn.gas,
           value: txn.value,
-          nonce: txn.nonce,
-          data: txn.data,
-          chainId: txn.chainId,
+          nonce: parseInt(txn.nonce, 16),
+          data: txn.input,
+          chainId: parseInt(
+            txn.chainId || ethNet === 'goerli' ? '0x5' : '0x1',
+            16
+          ),
           to: txn.to,
         };
         break;
       case 2:
         txnData = {
-          gasLimit: txn.gasLimit,
+          gasLimit: txn.gas,
           value: txn.value,
-          nonce: txn.nonce,
-          data: txn.data,
-          chainId: txn.chainId,
+          nonce: parseInt(txn.nonce, 16),
+          data: txn.input,
+          chainId: parseInt(
+            txn.chainId || ethNet === 'goerli' ? '0x5' : '0x1',
+            16
+          ),
           to: txn.to,
           type: 2,
           maxFeePerGas: txn.maxFeePerGas,
@@ -227,13 +251,11 @@ export class Ethereum {
   async getEtherscanTransactionsSignedByAddress(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = '',
     ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<EtherscanTransaction[]> {
     const allTransactions = await this.getETHTransactionsForETHAddress(
       ethAddress,
       network,
-      etherscanAPIKey,
       ethereumNetwork
     );
     return allTransactions.filter(
@@ -241,25 +263,30 @@ export class Ethereum {
     );
   }
 
+  public async QueryETHRPC(
+    request: Partial<QueryETHRPCRequest>
+  ): Promise<InfuraResponse> {
+    return (await axios.post(`${this.node.getUri()}/query-eth-rpc`, request))
+      .data;
+  }
+
   async getETHTransactionsForETHAddress(
     ethAddress: string,
     network: Network = 'mainnet',
-    etherscanAPIKey = '',
     ethereumNetwork: 'goerli' | 'homestead' | undefined = undefined
   ): Promise<EtherscanTransaction[]> {
-    const apiKeyQueryParam = etherscanAPIKey
-      ? `&apikey=${etherscanAPIKey}`
-      : '';
     const isTestnet = ethereumNetwork
       ? ethereumNetwork === 'goerli'
       : network === 'testnet';
     const data = (
       await axios.get(
-        `https://api${
-          isTestnet ? '-goerli' : ''
-        }.etherscan.io/api?module=account&action=txlist&address=${ethAddress}${apiKeyQueryParam}`
+        `${this.node.getUri()}/get-eth-transactions-for-eth-address/${ethAddress}${
+          ethereumNetwork
+            ? `?eth_network=${isTestnet ? 'goerli' : 'mainnet'}`
+            : ''
+        }`
       )
-    ).data as EtherscanTransactionsByAddressResponse;
+    ).data;
     if (data.status !== '1' || !data.message.startsWith('OK')) {
       return Promise.reject('Error fetching transactions');
     }
