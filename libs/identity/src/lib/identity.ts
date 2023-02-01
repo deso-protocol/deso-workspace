@@ -54,7 +54,7 @@ export class Identity {
    * The current internal state of identity. This is a combination of the
    * current user and all other users stored in local storage.
    */
-  get state() {
+  get #state() {
     const allStoredUsers = this.#users;
     const activePublicKey = this.#activePublicKey;
     const currentUser = this.#currentUser;
@@ -180,7 +180,17 @@ export class Identity {
    */
   subscribe(subscriber: (state: any) => void) {
     this.#subscriber = subscriber;
-    this.#subscriber(this.state);
+    this.#subscriber(this.#state);
+  }
+
+  /**
+   * In general you should use the subscribe method to listen to changes to observe and react to the
+   * state over time, but if you need a snapshot of the current state you can use this method.
+   *
+   * @returns the current state of identity at a given point in time.
+   */
+  snapshot() {
+    return this.#state;
   }
 
   /**
@@ -426,7 +436,7 @@ export class Identity {
       publicKey
     );
 
-    this.#subscriber?.(this.state);
+    this.#subscriber?.(this.#state);
   }
 
   authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
@@ -613,7 +623,7 @@ export class Identity {
       case 'derive':
         this.#handleDeriveMethod(payload as IdentityDerivePayload)
           .then((res) => {
-            this.#subscriber?.(this.state);
+            this.#subscriber?.(this.#state);
             this.#pendingWindowRequest?.resolve(res);
           })
           .catch((e) =>
@@ -622,7 +632,7 @@ export class Identity {
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
-        this.#subscriber?.(this.state);
+        this.#subscriber?.(this.#state);
         break;
       default:
         throw new Error(`Unknown method: ${method}`);

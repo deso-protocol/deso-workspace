@@ -177,12 +177,12 @@ describe('identity', () => {
         ),
       ]);
 
-      expect(identity.state.currentUser?.publicKey).toEqual(
+      expect(identity.snapshot().currentUser?.publicKey).toEqual(
         'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
       );
       expect(loginKeyPair.seedHex.length > 0).toBe(true);
       expect(loginKeyPair.publicKey.length > 0).toBe(true);
-      expect(identity.state.currentUser).toEqual({
+      expect(identity.snapshot().currentUser).toEqual({
         publicKey: derivePayload.publicKeyBase58Check,
         primaryDerivedKey: {
           ...derivePayload,
@@ -202,12 +202,11 @@ describe('identity', () => {
     });
 
     it('throws an error with the expected type if authorizing the key fails due to no money', async () => {
+      const errorMsg =
+        'Total input 0 is not sufficient to cover the spend amount';
       apiFake.post = (url: string) => {
         if (url.endsWith('authorize-derived-key')) {
-          throw new APIError(
-            'Total input 0 is not sufficient to cover the spend amount',
-            400
-          );
+          throw new APIError(errorMsg, 400);
         }
 
         return Promise.resolve(null);
@@ -277,6 +276,7 @@ describe('identity', () => {
       }
 
       expect(error.type).toEqual(ERROR_TYPES.NO_MONEY);
+      expect(error.message).toEqual(errorMsg);
     });
   });
 
