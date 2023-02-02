@@ -193,6 +193,38 @@ export class Identity {
     }, 50);
   }
 
+  /**
+   * Configures the identity instance. This should be called before any other
+   * method calls, ideally before any app code is run.  The most important
+   * configuration options are `spendingLimitOptions` and `appName`.
+   * `spendingLimitOptions` is used to determine the default permissions that a
+   * user will be asked to approve when logging into an app. `appName` is used
+   * to identity derived keys issued by an app.
+   *
+   * See more about the spending limit options object here
+   * https://docs.deso.org/for-developers/backend/blockchain-data/basics/data-types#transactionspendinglimitresponse
+   *
+   * And See an exhaustive list of transaction types here:
+   * https://github.com/deso-protocol/core/blob/a836e4d2e92f59f7570c7a00f82a3107ec80dd02/lib/network.go#L244
+   *
+   * @example
+   * ```typescript
+   * import { identity } from '@deso/identity';
+   *
+   * identity.configure({
+   *   spendingLimitOptions: {
+   *     // NOTE: this value is in Deso nanos, 1000000000 nanos (or 1e9) = 1 Deso
+   *     GlobalDESOLimit: 1 * 1e9 // 1 Deso
+   *     // Map of transaction type to the number of times this derived key is
+   *     // allowed to perform this operation on behalf of the owner public key
+   *     TransactionCountLimitMap: {
+   *       BASIC_TRANSFER: 2, // 2 basic transfer transactions are authorized
+   *       SUBMIT_POST: 'UNLIMITED', // unlimited submit post transactions are authorized
+   *     },
+   *   }
+   * });
+   * ```
+   */
   configure({
     identityURI = DEFAULT_IDENTITY_URI,
     network = 'mainnet',
@@ -216,9 +248,31 @@ export class Identity {
   /**
    * Allows listening to changes to identity state. The subscriber will be
    * called with the new state any time a user logs in, logs out, approves a
-   * derived key, etc.
-   * @param subscriber
-   * @returns
+   * derived key, etc. Apps can use this to sync their state with the identity
+   * instance such that their application reacts to changes and re-renders
+   * accordingly.
+   *
+   * NOTE: This method could be very chatty. Depending on the needs of your
+   * application, you may want to implement some caching or memoization to
+   * reduce any unnecessary re-renders or network calls.
+   *
+   * @example
+   * ```typescript
+   * identity.subscribe(({ event, currentUser, alternateUsers }) => {
+   *   if (event === NOTIFICATION_EVENTS.AUTHORIZE_DERIVED_KEY_START) {
+   *     // show a loading indicator while the underlying network call to authorize the derived key is made.
+   *   }
+   *
+   *   if (event === NOTIFICATION_EVENTS.LOGIN_END) {
+   *      // do something with currentUser
+   *   }
+   *
+   *   // see and exhaustive list of events here: https://github.com/deso-protocol/deso-workspace/blob/a3c02742a342610bb6af8f2b1396d5430931cf41/libs/identity/src/lib/types.ts#L182
+   * });
+   * ```
+   *
+   * @param subscriber this is a callback that will be called with the current
+   * state and the event that triggered the change.
    */
   subscribe(subscriber: (notification: SubscriberNotification) => void) {
     this.#subscriber = subscriber;
@@ -226,17 +280,41 @@ export class Identity {
   }
 
   /**
-   * In general you should use the subscribe method to listen to changes to observe and react to the
-   * state over time, but if you need a snapshot of the current state you can use this method.
-   *
-   * @returns the current state of identity at a given point in time.
+   * Returns the current underlying state of the identity instance. In general,
+   * you should use the `subscribe` method to listen to changes to observe and
+   * react to the state over time, but if you need a snapshot of the current
+   * state you can use this method. Can be useful for debugging or setting up
+   * initial state in your app.
    */
-  snapshot() {
+  snapshot(): {
+    currentUser: StoredUser | null;
+    alternateUsers: Record<string, StoredUser> | null;
+  } {
     return this.#state;
   }
 
   /**
-   * @returns returns a promise that resolves to the payload
+   * Starts a login flow. This will open a new window and prompt the user to
+   * select an existing account or create a new account. If there is an error
+   * during the login flow, the promise will reject with an error which you can
+   * catch and handle in your app by showing some error feedback in the UI.
+   *
+   * @example
+   * ```typescript
+   * import { identity, ERROR_TYPES } from '@deso/identity';
+   *
+   *
+   * await identity.login().catch((err) => {
+   *   if (err.type === ERROR_TYPES.NO_MONEY) {
+   *     // handle no money error
+   *   } else {
+   *     // handle other errors
+   *   }
+   * });
+   * ```
+   *
+   * @returns returns a promise that resolves to the identity login
+   * payload, or rejects if there was an error.
    */
   async login(
     { getFreeDeso }: LoginOptions = { getFreeDeso: true }
@@ -292,7 +370,25 @@ export class Identity {
     });
   }
 
-  logout(): Promise<IdentityLoginPayload> {
+  /**
+   * Starts a logout flow. This will open a new window and prompt the user to
+   * confirm they want to logout. Similar to the login flow, if there is an error
+   * the returned promise will reject with an error which you can catch and handle.
+   *
+   * @example
+   * ```typescript
+   * import { identity } from '@deso/identity';
+   *
+   *
+   * await identity.logout().catch((err) => {
+   *   // handle errors
+   * });
+   * ```
+   *
+   * @returns returns a promise that resolves to undefined, or rejects if there
+   * was an error.
+   */
+  logout(): Promise<undefined> {
     const event = NOTIFICATION_EVENTS.LOGOUT_START;
     this.#subscriber?.({ event, ...this.#state });
     return new Promise((resolve, reject) => {
@@ -308,7 +404,26 @@ export class Identity {
     });
   }
 
-  signTx(txHex: string) {
+  /**
+   * Signs a transaction hex using the derived key issued to the currently
+   * active user when they logged into an application. The `TransactionHex`
+   * parameter should come from a transaction object returned from a transaction
+   * construction endpoint, such as the `submit-post` endpoint of the DeSo
+   * backend api.
+   *
+   * We return a signed transaction hex value that can be used to submit a
+   * transaction to the network for confirmation. This method is used internally
+   * by the signAndSubmit method, which is a convenience method to sign and
+   * submit a transaction in a single step. It can also be used as a standalone
+   * method if you want to sign a transaction and submit it yourself.
+   *
+   *
+   * @example
+   * ```typescript
+   * const signedTxHex = await identity.signTx(txHex);
+   * ```
+   */
+  signTx(TransactionHex: string) {
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
     if (!primaryDerivedKey?.derivedSeedHex) {
@@ -316,11 +431,22 @@ export class Identity {
       throw new Error('Cannot sign transaction without a derived seed hex');
     }
 
-    return signTx(txHex, primaryDerivedKey.derivedSeedHex, {
+    return signTx(TransactionHex, primaryDerivedKey.derivedSeedHex, {
       isDerivedKey: true,
     });
   }
 
+  /**
+   * Submits a signed transaction to the network for confirmation. NOTE: you
+   * must sign a transaction before submitting it. This method is used
+   * internally by the `signAndSubmit` method, which is a convenience method to
+   * sign and submit a transaction in a single step.
+   *
+   * @example
+   * ```typescript
+   * const submittedTx = await identity.submitTx(signedTxHex);
+   * ```
+   */
   async submitTx(TransactionHex: string) {
     const res = await this.#api.post(
       `${this.#nodeURI}/api/v0/submit-transaction`,
@@ -335,8 +461,19 @@ export class Identity {
   }
 
   /**
-   * Generic sign and submit transaction method
-   * @param tx response from any create transaction endpoint
+   * This is a convenience method to sign and submit a transaction in a single
+   * step. It receives a transaction object and signs it using the derived key
+   * issued to the currently logged in user. This can be chained with
+   * transaction construction promises that return a transaction object such as
+   * a promise that wraps the call to the `submit-post` endpoint of the DeSo
+   * backend api.
+   *
+   * @example
+   * ```typescript
+   * const transactionObject = await myApiClient.post('https://node.deso.org/api/v0/submit-post', { ...data });
+   *
+   * await identity.signAndSubmit(transactionObject);
+   * ```
    */
   async signAndSubmit(tx: { TransactionHex: string }) {
     return await this.submitTx(await this.signTx(tx.TransactionHex));
@@ -385,10 +522,20 @@ export class Identity {
   }
 
   /**
-   * @param senderSeedHex
-   * @param recipientPublicKeyBase58Check
-   * @param plaintext
-   * @returns Hex encoded ciphertext
+   * Encrypt an arbitrary string using the sender's seed hex and the recipient's
+   * public key. Typically this would make use of the sender's
+   * messagingPrivateKey for building chat or messaging applications.
+   *
+   * @example
+   * ```typescript
+   * const message = "Hi, this is my first encrypted message!";
+   *
+   * const cipherText = await identity.encrypt(
+   *   senderPrivateMessagingSeedHex,
+   *   recipientPublicKeyBase58Check,
+   *   message
+   * );
+   * ```
    */
   encrypt(
     senderSeedHex: string,
@@ -399,10 +546,21 @@ export class Identity {
   }
 
   /**
-   * @param recipientSeedHex
-   * @param senderPublicKeyBase58Check
-   * @param cipherTextHex
-   * @returns plaintext
+   * Decrypt a hex encoded encrypted message using the recipient's private seed
+   * hex and the sender's public key. Typically this would make use of the
+   * recipient's messagingPrivateKey for building chat or messaging
+   * applications.
+   *
+   * @example
+   * ```typescript
+   * const cipherTextHex = "df6f3ff4695edb569631af4494b9f05d86c7fb8572226a356e03678aa56b7875";
+   *
+   * const plaintext = await identity.decrypt(
+   *   recipientPrivateMessagingSeedHex,
+   *   senderPublicKeyBase58Check,
+   *   cipherTextHex
+   * );
+   * ```
    */
   decrypt(
     recipientSeedHex: string,
@@ -412,6 +570,22 @@ export class Identity {
     return decrypt(recipientSeedHex, senderPublicKeyBase58Check, cipherTextHex);
   }
 
+  /**
+   * Get a jwt token signed by the derived key issued to the currently active user. This can be used to pass to
+   * authenticated endpoints on the DeSo backend api or to create authenticated endpoints on your own backend.
+   * Typically this will be used to construct an Authorization header or pass as a parameter in a post body.
+   *
+   * @example
+   * ```typescript
+   * const token = await identity.jwt();
+   *
+   * const authHeaders = {
+   *   Authorization: `Bearer ${token}`,
+   * }
+   *
+   * myApiClient.post('https://myapi.com/some-authenticated-endpoint', { ...data }, { headers: authHeaders });
+   * ```
+   */
   async jwt() {
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
@@ -427,6 +601,17 @@ export class Identity {
     });
   }
 
+  /**
+   * This method will open a new identity window with a options for getting deso
+   * by verifying a phone number or buying/transferring deso anonymously for the
+   * currently logged in user. NOTE: A user must already be logged in to use
+   * this method.
+   *
+   * @example
+   * ```typescript
+   * await identity.getDeso();
+   * ```
+   */
   getDeso() {
     const event = NOTIFICATION_EVENTS.GET_FREE_DESO_START;
     this.#subscriber?.({ event, ...this.#state });
@@ -448,6 +633,15 @@ export class Identity {
     });
   }
 
+  /**
+   * This method is very similar to getDeso, but it will only present the option
+   * for verifying a phone number to get deso. Also requires a user to be logged in.
+   *
+   * @example
+   * ```typescript
+   * await identity.verifyPhoneNumber();
+   * ```
+   */
   verifyPhoneNumber() {
     const event = NOTIFICATION_EVENTS.VERIFY_PHONE_NUMBER_START;
     this.#subscriber?.({ event, ...this.#state });
@@ -467,19 +661,26 @@ export class Identity {
     });
   }
 
+  /**
+   * This method will set the currently active user. This is useful for changing
+   * accounts when a user has logged into an application with multiple accounts.
+   * NOTE: This method will not trigger a login event, but, rather, it will do a
+   * lookup on all the users that have already been logged in to find the user
+   * with the matching public key.  If the key is not found, it will throw an
+   * error. The users that are available to be set as active are provided via
+   * the `alternateUsers` property on the state object.
+   *
+   * @example
+   * ```typescript
+   * identity.setActiveUser(someLoggedInPublicKey);
+   * ```
+   */
   setActiveUser(publicKey: string) {
     this.#setActiveUser(publicKey);
     this.#subscriber?.({
       event: NOTIFICATION_EVENTS.CHANGE_ACTIVE_USER,
       ...this.#state,
     });
-  }
-
-  authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
-    return this.#api.post(
-      `${this.#nodeURI}/api/v0/authorize-derived-key`,
-      params
-    );
   }
 
   /**
@@ -521,6 +722,23 @@ export class Identity {
     }
   }
 
+  /**
+   * Checks if a user's derived key has the permissions to perform a given
+   * action or batch of actions. The permissions are passed in as an object with
+   * the same shape as the `TransactionSpendingLimitResponseOptions` type, which
+   * is the same as the `spendingLimitOptions` passed to the configure method.
+   *
+   * @example
+   * Here we check if the user has the permissions to submit at least 1 post.
+   *
+   * ```typescript
+   * const hasPermissions = identity.hasPermissions({
+   *   TransactionCountLimitMap: {
+   *     SUBMIT_POST: 1,
+   *    },
+   * });
+   * ```
+   */
   hasPermissions(
     permissionsToCheck: Partial<TransactionSpendingLimitResponseOptions>
   ): boolean {
@@ -545,6 +763,22 @@ export class Identity {
     );
   }
 
+  /**
+   * This method will request permissions from the user to perform an action or
+   * batch of actions. It will open an identity window and prompt the user to
+   * approve the permissions requested. It also takes a
+   * `TransactionSpendingLimitResponseOptions` object.
+   *
+   * @example
+   *
+   * ```typescript
+   * await identity.requestPermissions({
+   *   TransactionCountLimitMap: {
+   *     SUBMIT_POST: 'UNLIMITED',
+   *    },
+   * });
+   * ```
+   */
   requestPermissions(
     transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponseOptions>
   ) {
@@ -572,6 +806,16 @@ export class Identity {
 
       this.#launchIdentity('derive', params);
     });
+  }
+
+  /**
+   * @private
+   */
+  #authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
+    return this.#api.post(
+      `${this.#nodeURI}/api/v0/authorize-derived-key`,
+      params
+    );
   }
 
   /**
@@ -623,7 +867,7 @@ export class Identity {
       );
     }
 
-    const resp = await this.authorizeDerivedKey({
+    const resp = await this.#authorizeDerivedKey({
       OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
       DerivedPublicKeyBase58Check:
         primaryDerivedKey.derivedPublicKeyBase58Check,
