@@ -180,20 +180,82 @@ export interface SubscriberNotification {
 }
 
 export enum NOTIFICATION_EVENTS {
-  REQUEST_PERMISSIONS_START = 'REQUEST_PERMISSIONS_START',
-  REQUEST_PERMISSIONS_END = 'REQUEST_PERMISSIONS_END',
-  LOGIN_START = 'LOGIN_START',
-  LOGIN_END = 'LOGIN_END',
-  LOGOUT_START = 'LOGOUT_START',
-  LOGOUT_END = 'LOGOUT_END',
-  GET_FREE_DESO_START = 'GET_FREE_DESO_START',
-  GET_FREE_DESO_END = 'GET_FREE_DESO_END',
-  VERIFY_PHONE_NUMBER_START = 'VERIFY_PHONE_NUMBER_START',
-  VERIFY_PHONE_NUMBER_END = 'VERIFY_PHONE_NUMBER_END',
+  /**
+   * This event is fired when the consuming app subscribes to the identity.
+   */
+  SUBSCRIBE = 'SUBSCRIBE',
+
+  /**
+   * This is an intermediate event fired AFTER the user completes an identity flow
+   * that requires a derived key authorization. This event is fired BEFORE the the
+   * request to authorize the derived key is made.
+   */
   AUTHORIZE_DERIVED_KEY_START = 'AUTHORIZE_DERIVED_KEY_START',
+
+  /**
+   * This is an intermediate event fired AFTER the user completes an identity
+   * flow that requires a derived key authorization. This event is fired AFTER
+   * the request to authorize the derived key is made.
+   */
   AUTHORIZE_DERIVED_KEY_END = 'AUTHORIZE_DERIVED_KEY_END',
 
-  // these are synchronous so no need for start/end
-  SUBSCRIBE = 'SUBSCRIBE',
+  /**
+   * This event is fired when the user opens the permissions approval popup.
+   */
+  REQUEST_PERMISSIONS_START = 'REQUEST_PERMISSIONS_START',
+
+  /**
+   * This event is fired when the user completes approving permissions, and
+   * comes AFTER the intermediate AUTHORIZE_DERIVED_KEY events.
+   */
+  REQUEST_PERMISSIONS_END = 'REQUEST_PERMISSIONS_END',
+
+  /**
+   * This event is fired when the user opens the login popup.
+   */
+  LOGIN_START = 'LOGIN_START',
+
+  /**
+   * This event is fired when the user completes logging in, and
+   * comes AFTER the intermediate AUTHORIZE_DERIVED_KEY events.
+   */
+  LOGIN_END = 'LOGIN_END',
+
+  /**
+   * This event is fired when the user opens the logout popup.
+   */
+  LOGOUT_START = 'LOGOUT_START',
+
+  /**
+   * This event is fired when the user completes logging out, and
+   * comes AFTER the intermediate AUTHORIZE_DERIVED_KEY events.
+   */
+  LOGOUT_END = 'LOGOUT_END',
+
+  /**
+   * This event is fired when the user opens the get deso popup.
+   */
+  GET_FREE_DESO_START = 'GET_FREE_DESO_START',
+
+  /**
+   * This event is fired when the user completes the get deso flow, and comes
+   * AFTER the intermediate AUTHORIZE_DERIVED_KEY events.
+   */
+  GET_FREE_DESO_END = 'GET_FREE_DESO_END',
+
+  /**
+   * This event is fired when the user opens the verify phone number popup.
+   */
+  VERIFY_PHONE_NUMBER_START = 'VERIFY_PHONE_NUMBER_START',
+
+  /**
+   * This event is fired when the user completes the verify phone number flow,
+   * and comes AFTER the intermediate AUTHORIZE_DERIVED_KEY events.
+   */
+  VERIFY_PHONE_NUMBER_END = 'VERIFY_PHONE_NUMBER_END',
+
+  /**
+   * This event is fired when the consuming app switches the active user.
+   */
   CHANGE_ACTIVE_USER = 'CHANGE_ACTIVE_USER',
 }

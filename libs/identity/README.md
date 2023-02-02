@@ -63,6 +63,11 @@ import { identity } from '@deso-core/identity';
 // system to the identity instance internal state. The function you provide to
 // `subscribe` will be called anytime identity state changes.
 identity.subscribe((state) => {
+  // The event property is a string value that tells you what triggered the
+  // subscribe call. Useful for setting loading states or otherwise making
+  // decisions about how you want your app to react to identity state.
+  // You can see an exhaustive list of the events here: https://github.com/deso-protocol/deso-workspace/blob/48667a975348a452c9726a8be9dbad1de7acc130/libs/identity/src/lib/types.ts#L182
+  const event = state.event;
   // The current user object contains the user's current permissions
   // (TransactionCountLimitMap).  This value will be updated when the logged in
   // user changes or when the permissions change for the current user.  read
