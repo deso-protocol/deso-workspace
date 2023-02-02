@@ -68,6 +68,7 @@ identity.subscribe((state) => {
   // decisions about how you want your app to react to identity state.
   // You can see an exhaustive list of the events here: https://github.com/deso-protocol/deso-workspace/blob/48667a975348a452c9726a8be9dbad1de7acc130/libs/identity/src/lib/types.ts#L182
   const event = state.event;
+  
   // The current user object contains the user's current permissions
   // (TransactionCountLimitMap).  This value will be updated when the logged in
   // user changes or when the permissions change for the current user.  read
