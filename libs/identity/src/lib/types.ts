@@ -181,13 +181,13 @@ export interface SubscriberNotification {
 
 export enum NOTIFICATION_EVENTS {
   /**
-   * This event is fired when the consuming app subscribes to the identity.
+   * This event is fired when the consuming app initially subscribes to identity.
    */
   SUBSCRIBE = 'SUBSCRIBE',
 
   /**
    * This is an intermediate event fired AFTER the user completes an identity flow
-   * that requires a derived key authorization. This event is fired BEFORE the the
+   * that requires a derived key authorization. This event is fired BEFORE the
    * request to authorize the derived key is made.
    */
   AUTHORIZE_DERIVED_KEY_START = 'AUTHORIZE_DERIVED_KEY_START',
