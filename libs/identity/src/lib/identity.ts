@@ -546,7 +546,7 @@ export class Identity {
   }
 
   requestPermissions(
-    transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponse>
+    transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponseOptions>
   ) {
     const { primaryDerivedKey } = this.#currentUser ?? {};
     if (!primaryDerivedKey) {
