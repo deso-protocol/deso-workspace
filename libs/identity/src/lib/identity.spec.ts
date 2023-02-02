@@ -672,4 +672,12 @@ describe('identity', () => {
       expect(hasPermissions).toBe(false);
     });
   });
+  describe('.subscribe()', () => {
+    it.todo('it notifies the caller of the correct events');
+  });
+  describe('authorize error handling', () => {
+    it.todo(
+      'it properly handles the case where a users derived key cannot be authorized'
+    );
+  });
 });

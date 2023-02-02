@@ -33,7 +33,9 @@ import {
   jwtAlgorithm,
   LoginOptions,
   Network,
+  NOTIFICATION_EVENTS,
   StoredUser,
+  SubscriberNotification,
   TransactionSpendingLimitResponseOptions,
 } from './types';
 
@@ -76,7 +78,7 @@ export class Identity {
   /**
    * @private
    */
-  #pendingWindowRequest?: Deferred;
+  #pendingWindowRequest?: Deferred & { event: NOTIFICATION_EVENTS };
 
   /**
    * @private
@@ -218,9 +220,9 @@ export class Identity {
    * @param subscriber
    * @returns
    */
-  subscribe(subscriber: (state: any) => void) {
+  subscribe(subscriber: (notification: SubscriberNotification) => void) {
     this.#subscriber = subscriber;
-    this.#subscriber(this.#state);
+    this.#subscriber({ event: 'SUBSCRIBE', ...this.#state });
   }
 
   /**
@@ -239,6 +241,12 @@ export class Identity {
   async login(
     { getFreeDeso }: LoginOptions = { getFreeDeso: true }
   ): Promise<IdentityDerivePayload> {
+    const event = NOTIFICATION_EVENTS.LOGIN_START;
+    this.#subscriber?.({
+      event,
+      ...this.#state,
+    });
+
     let derivedPublicKey: string;
     const loginKeyPair = this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.loginKeyPair
@@ -261,7 +269,7 @@ export class Identity {
     }
 
     return new Promise((resolve, reject) => {
-      this.#pendingWindowRequest = { resolve, reject };
+      this.#pendingWindowRequest = { resolve, reject, event };
 
       const identityParams: {
         derivedPublicKey: string;
@@ -285,8 +293,10 @@ export class Identity {
   }
 
   logout(): Promise<IdentityLoginPayload> {
+    const event = NOTIFICATION_EVENTS.LOGOUT_START;
+    this.#subscriber?.({ event, ...this.#state });
     return new Promise((resolve, reject) => {
-      this.#pendingWindowRequest = { resolve, reject };
+      this.#pendingWindowRequest = { resolve, reject, event };
       const publicKey = this.#activePublicKey;
       if (!publicKey) {
         this.#pendingWindowRequest.reject(
@@ -428,8 +438,10 @@ export class Identity {
   }
 
   getDeso() {
+    const event = NOTIFICATION_EVENTS.GET_FREE_DESO_START;
+    this.#subscriber?.({ event, ...this.#state });
     return new Promise((resolve, reject) => {
-      this.#pendingWindowRequest = { resolve, reject };
+      this.#pendingWindowRequest = { resolve, reject, event };
       const activePublicKey = this.#activePublicKey;
 
       if (!activePublicKey) {
@@ -447,8 +459,10 @@ export class Identity {
   }
 
   verifyPhoneNumber() {
+    const event = NOTIFICATION_EVENTS.VERIFY_PHONE_NUMBER_START;
+    this.#subscriber?.({ event, ...this.#state });
     return new Promise((resolve, reject) => {
-      this.#pendingWindowRequest = { resolve, reject };
+      this.#pendingWindowRequest = { resolve, reject, event };
       const activePublicKey = this.#activePublicKey;
 
       if (!activePublicKey) {
@@ -464,19 +478,11 @@ export class Identity {
   }
 
   setActiveUser(publicKey: string) {
-    if (!this.#users?.[publicKey]) {
-      throw new Error(
-        `No user found for public key. Known users: ${JSON.stringify(
-          this.#users ?? {}
-        )}`
-      );
-    }
-    this.#window.localStorage.setItem(
-      LOCAL_STORAGE_KEYS.activePublicKey,
-      publicKey
-    );
-
-    this.#subscriber?.(this.#state);
+    this.#setActiveUser(publicKey);
+    this.#subscriber?.({
+      event: NOTIFICATION_EVENTS.CHANGE_ACTIVE_USER,
+      ...this.#state,
+    });
   }
 
   authorizeDerivedKey(params: AuthorizeDerivedKeyRequest) {
@@ -557,10 +563,13 @@ export class Identity {
       throw new Error('Cannot request permissions without a logged in user');
     }
 
+    const event = NOTIFICATION_EVENTS.REQUEST_PERMISSIONS_START;
+    this.#subscriber?.({ event, ...this.#state });
+
     const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
       primaryDerivedKey;
     return new Promise((resolve, reject) => {
-      this.#pendingWindowRequest = { resolve, reject };
+      this.#pendingWindowRequest = { resolve, reject, event };
 
       const params = {
         derive: true,
@@ -573,6 +582,23 @@ export class Identity {
 
       this.#launchIdentity('derive', params);
     });
+  }
+
+  /**
+   * @private
+   */
+  #setActiveUser(publicKey: string) {
+    if (!this.#users?.[publicKey]) {
+      throw new Error(
+        `No user found for public key. Known users: ${JSON.stringify(
+          this.#users ?? {}
+        )}`
+      );
+    }
+    this.#window.localStorage.setItem(
+      LOCAL_STORAGE_KEYS.activePublicKey,
+      publicKey
+    );
   }
 
   /**
@@ -669,16 +695,40 @@ export class Identity {
       case 'derive':
         this.#handleDeriveMethod(payload as IdentityDerivePayload)
           .then((res) => {
-            this.#subscriber?.(this.#state);
+            const state = this.#state;
+            this.#subscriber?.({
+              event:
+                this.#pendingWindowRequest?.event ===
+                NOTIFICATION_EVENTS.LOGIN_START
+                  ? NOTIFICATION_EVENTS.LOGIN_END
+                  : NOTIFICATION_EVENTS.REQUEST_PERMISSIONS_END,
+              ...state,
+            });
             this.#pendingWindowRequest?.resolve(res);
           })
-          .catch((e) =>
-            this.#pendingWindowRequest?.reject(this.#getErrorInstance(e))
-          );
+          .catch((e) => {
+            // if we're in a login flow just don't let the user log in if we
+            // can't authorize their derived key.  we've already stored the user
+            // in local storage before attempting to authorize, so we remove
+            // their data.
+            if (
+              this.#pendingWindowRequest?.event ===
+                NOTIFICATION_EVENTS.LOGIN_START &&
+              this.#state.currentUser
+            ) {
+              this.#purgeUserDataForPublicKey(
+                this.#state.currentUser.publicKey
+              );
+              this.#window.localStorage.removeItem(
+                LOCAL_STORAGE_KEYS.activePublicKey
+              );
+            }
+            // propagate the error to the external caller
+            this.#pendingWindowRequest?.reject(this.#getErrorInstance(e));
+          });
         break;
       case 'login':
         this.#handleLoginMethod(payload as IdentityLoginPayload);
-        this.#subscriber?.(this.#state);
         break;
       default:
         throw new Error(`Unknown method: ${method}`);
@@ -689,7 +739,10 @@ export class Identity {
    * @private
    */
   #handleLoginMethod(payload: IdentityLoginPayload) {
-    // no publicKeyAdded means the user is logging out. We just remove their data from localStorage
+    // NOTE: this is a bit counterintuitive, but a missing publicKeyAdded
+    // identifies this as a logout (even though the method is 'login'), and we
+    // don't actually support login via the identity "login" method so don't
+    // look for it here. We only support it via the "derive" method.
     if (!payload.publicKeyAdded) {
       const publicKey = this.#activePublicKey;
 
@@ -699,11 +752,46 @@ export class Identity {
 
       this.#window.localStorage.removeItem(LOCAL_STORAGE_KEYS.activePublicKey);
       this.#purgeUserDataForPublicKey(publicKey);
-    } else {
-      this.setActiveUser(payload.publicKeyAdded);
-    }
+      this.#subscriber?.({
+        event: NOTIFICATION_EVENTS.LOGOUT_END,
+        ...this.#state,
+      });
+      this.#pendingWindowRequest?.resolve(payload);
 
-    this.#pendingWindowRequest?.resolve(payload);
+      // This condition identifies the "get deso" flow where a user did not
+      // login, but was simply prompted to get some free deso.
+    } else if (
+      payload.publicKeyAdded &&
+      !payload.signedUp &&
+      payload.publicKeyAdded === this.#activePublicKey
+    ) {
+      // const expectedEvent = NOTIFICATION_EVENTS.GET_FREE_DESO_START;
+      let endEvent: NOTIFICATION_EVENTS;
+      const startEvent = this.#pendingWindowRequest?.event;
+      if (startEvent === NOTIFICATION_EVENTS.GET_FREE_DESO_START) {
+        endEvent = NOTIFICATION_EVENTS.GET_FREE_DESO_END;
+      } else if (startEvent === NOTIFICATION_EVENTS.VERIFY_PHONE_NUMBER_START) {
+        endEvent = NOTIFICATION_EVENTS.VERIFY_PHONE_NUMBER_END;
+      } else {
+        throw new Error(`unexpected identity event: ${startEvent}`);
+      }
+
+      this.#authorizePrimaryDerivedKey(payload.publicKeyAdded)
+        .then(() => {
+          this.#pendingWindowRequest?.resolve(payload);
+          this.#subscriber?.({
+            event: endEvent,
+            ...this.#state,
+          });
+        })
+        .catch((e) => {
+          this.#pendingWindowRequest?.reject(this.#getErrorInstance(e));
+        });
+    } else {
+      // not sure how we would get here, but lets log it just in case we haven't actually
+      // handled all the cases.
+      console.warn('unhandled identity login payload', payload);
+    }
   }
 
   /**
@@ -767,9 +855,10 @@ export class Identity {
       ).then(() => payload);
     }
 
-    // This means we're just switching to a user we already have in localStorage.
+    // This means we're just switching to a user we already have in localStorage, we use the stored user bc they
+    // may already have an authorized derived key that we can use.
     if (this.#users?.[payload.publicKeyBase58Check]) {
-      this.setActiveUser(payload.publicKeyBase58Check);
+      this.#setActiveUser(payload.publicKeyBase58Check);
       // if the logged in user changes, we try to refresh the derived key permissions in the background
       // and just return the payload immediately.
       this.refreshDerivedKeyPermissions();

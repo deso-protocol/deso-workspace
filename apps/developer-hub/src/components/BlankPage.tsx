@@ -17,6 +17,12 @@ export function BlankPage() {
       <button onClick={() => identity.jwt()} className="ml-4">
         Generate jwt
       </button>
+      <button onClick={() => identity.getDeso()} className="ml-4">
+        Get Deso
+      </button>
+      <button onClick={() => identity.verifyPhoneNumber()} className="ml-4">
+        Verify phone number
+      </button>
       <form
         onSubmit={(e: any) => {
           e.preventDefault();

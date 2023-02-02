@@ -31,6 +31,7 @@ export interface IdentityDerivePayload {
   messagingKeySignature: string;
   transactionSpendingLimitHex: string;
   signedUp: boolean;
+  publicKeyAdded?: string;
 }
 
 export interface TransactionSpendingLimitResponseOptions {
@@ -152,6 +153,8 @@ export interface IdentityUser {
 export interface IdentityLoginPayload {
   users: Record<string, IdentityUser>;
   publicKeyAdded: string;
+  phoneNumberSuccess: boolean;
+  signedUp: boolean;
 }
 
 export interface IdentityState {
@@ -170,4 +173,25 @@ export interface KeyPair {
   public: Uint8Array;
 }
 
-export type IdentityPermissions = 'SUBMIT_POST';
+export interface SubscriberNotification {
+  event: string;
+  currentUser: StoredUser | null;
+  alternateUsers: Record<string, StoredUser> | null;
+}
+
+export enum NOTIFICATION_EVENTS {
+  REQUEST_PERMISSIONS_START = 'REQUEST_PERMISSIONS_START',
+  REQUEST_PERMISSIONS_END = 'REQUEST_PERMISSIONS_END',
+  LOGIN_START = 'LOGIN_START',
+  LOGIN_END = 'LOGIN_END',
+  LOGOUT_START = 'LOGOUT_START',
+  LOGOUT_END = 'LOGOUT_END',
+  GET_FREE_DESO_START = 'GET_FREE_DESO_START',
+  GET_FREE_DESO_END = 'GET_FREE_DESO_END',
+  VERIFY_PHONE_NUMBER_START = 'VERIFY_PHONE_NUMBER_START',
+  VERIFY_PHONE_NUMBER_END = 'VERIFY_PHONE_NUMBER_END',
+
+  // these are synchronous so no need for start/end
+  SUBSCRIBE = 'SUBSCRIBE',
+  CHANGE_ACTIVE_USER = 'CHANGE_ACTIVE_USER',
+}

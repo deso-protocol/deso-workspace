@@ -32,7 +32,10 @@ function App() {
       // identityURI: 'http://localhost:4201',
       // redirectURI: `${window.location.origin}/devtest`,
     });
-    identity.subscribe(setIdentityState);
+    identity.subscribe(({ event, currentUser, alternateUsers }) => {
+      console.log(event);
+      setIdentityState({ currentUser, alternateUsers });
+    });
   }, []);
 
   const getForumRoutes = async () => {
