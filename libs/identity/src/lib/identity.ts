@@ -222,7 +222,7 @@ export class Identity {
    */
   subscribe(subscriber: (notification: SubscriberNotification) => void) {
     this.#subscriber = subscriber;
-    this.#subscriber({ event: 'SUBSCRIBE', ...this.#state });
+    this.#subscriber({ event: NOTIFICATION_EVENTS.SUBSCRIBE, ...this.#state });
   }
 
   /**
