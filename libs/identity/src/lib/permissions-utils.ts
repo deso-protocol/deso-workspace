@@ -33,10 +33,16 @@ export function compareTransactionSpendingLimits(
 export function buildTransactionSpendingLimitResponse(
   spendingLimitOptions: Partial<TransactionSpendingLimitResponseOptions>
 ): TransactionSpendingLimitResponse {
-  if (spendingLimitOptions?.IsUnlimited) {
+  if (spendingLimitOptions.IsUnlimited) {
     return {
       IsUnlimited: true,
     };
+  }
+
+  if (spendingLimitOptions.GlobalDESOLimit?.toString() === 'UNLIMITED') {
+    throw new Error(
+      'GlobalDESOLimit cannot be unlimited. You must specify a specific limit, or set the IsUnlimited flag to true.'
+    );
   }
 
   const result: TransactionSpendingLimitResponse = {};
