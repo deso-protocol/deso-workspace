@@ -200,6 +200,11 @@ export enum NOTIFICATION_EVENTS {
   AUTHORIZE_DERIVED_KEY_END = 'AUTHORIZE_DERIVED_KEY_END',
 
   /**
+   * This event is fired if the request to authorize a derived key fails.
+   */
+  AUTHORIZE_DERIVED_KEY_FAIL = 'AUTHORIZE_DERIVED_KEY_FAIL',
+
+  /**
    * This event is fired when the user opens the permissions approval popup.
    */
   REQUEST_PERMISSIONS_START = 'REQUEST_PERMISSIONS_START',

@@ -420,16 +420,6 @@ export class Identity {
       throw new Error('Cannot sign jwt without a derived seed hex');
     }
 
-    // if the primary derived key is invalid this could mean several things (expired, revoked, unauthorized, etc).
-    // we'll just try to authorize it and see if that fixes it. Is there a better way to handle this?
-    if (!primaryDerivedKey.IsValid) {
-      await this.#authorizePrimaryDerivedKey(
-        primaryDerivedKey.publicKeyBase58Check
-      ).catch((e) => {
-        throw e;
-      });
-    }
-
     return getSignedJWT(primaryDerivedKey.derivedSeedHex, this.#jwtAlgorithm, {
       derivedPublicKeyBase58Check:
         primaryDerivedKey.derivedPublicKeyBase58Check,
@@ -731,6 +721,10 @@ export class Identity {
                 LOCAL_STORAGE_KEYS.activePublicKey
               );
             }
+            this.#subscriber?.({
+              event: NOTIFICATION_EVENTS.AUTHORIZE_DERIVED_KEY_FAIL,
+              ...this.#state,
+            });
             // propagate the error to the external caller
             this.#pendingWindowRequest?.reject(this.#getErrorInstance(e));
           });
@@ -767,7 +761,8 @@ export class Identity {
       this.#pendingWindowRequest?.resolve(payload);
 
       // This condition identifies the "get deso" flow where a user did not
-      // login, but was simply prompted to get some free deso.
+      // login, but was simply prompted to get some free deso. We really should
+      // never get into this state since we now require a login to get free deso.
     } else if (
       payload.publicKeyAdded &&
       !payload.signedUp &&
@@ -793,6 +788,10 @@ export class Identity {
           });
         })
         .catch((e) => {
+          this.#subscriber?.({
+            event: NOTIFICATION_EVENTS.AUTHORIZE_DERIVED_KEY_FAIL,
+            ...this.#state,
+          });
           this.#pendingWindowRequest?.reject(this.#getErrorInstance(e));
         });
     } else {

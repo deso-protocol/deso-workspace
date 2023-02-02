@@ -1,7 +1,7 @@
 import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
 
 export const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
-export const DEFAULT_NODE_URI = 'https://node.deso.org';
+export const DEFAULT_NODE_URI = 'https://blockproducer.deso.org';
 export const IDENTITY_SERVICE_VALUE = 'identity';
 
 // Error messages
