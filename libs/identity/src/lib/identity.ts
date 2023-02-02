@@ -620,6 +620,10 @@ export class Identity {
    * @private
    */
   async #authorizePrimaryDerivedKey(ownerPublicKey: string) {
+    this.#subscriber?.({
+      event: NOTIFICATION_EVENTS.AUTHORIZE_DERIVED_KEY_START,
+      ...this.#state,
+    });
     const users = this.#users;
     const primaryDerivedKey = users?.[ownerPublicKey]?.primaryDerivedKey;
 
@@ -650,6 +654,10 @@ export class Identity {
     const signedTx = await this.signTx(resp.TransactionHex);
     const result = await this.submitTx(signedTx);
 
+    this.#subscriber?.({
+      event: NOTIFICATION_EVENTS.AUTHORIZE_DERIVED_KEY_END,
+      ...this.#state,
+    });
     return result;
   }
 
