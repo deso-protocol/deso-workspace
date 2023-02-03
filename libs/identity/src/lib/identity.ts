@@ -89,7 +89,7 @@ export class Identity {
   /**
    * @private
    */
-  #appName = 'unkown';
+  #appName = '';
 
   /**
    * @private
@@ -232,6 +232,7 @@ export class Identity {
     spendingLimitOptions = DEFAULT_TRANSACTION_SPENDING_LIMIT,
     redirectURI,
     jwtAlgorithm = 'ES256',
+    appName = '',
   }: IdentityConfiguration) {
     this.#didConfigure = true;
     this.#identityURI = identityURI;
@@ -239,6 +240,7 @@ export class Identity {
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
     this.#jwtAlgorithm = jwtAlgorithm;
+    this.#appName = appName;
     this.#defaultTransactionSpendingLimit =
       buildTransactionSpendingLimitResponse(spendingLimitOptions);
 
@@ -867,6 +869,12 @@ export class Identity {
       );
     }
 
+    const trimmedAppName = this.#appName.trim();
+    const Memo =
+      trimmedAppName.length > 0
+        ? trimmedAppName
+        : this.#window.location.hostname;
+
     const resp = await this.#authorizeDerivedKey({
       OwnerPublicKeyBase58Check: primaryDerivedKey.publicKeyBase58Check,
       DerivedPublicKeyBase58Check:
@@ -878,8 +886,7 @@ export class Identity {
       MinFeeRateNanosPerKB: 1000,
       TransactionSpendingLimitHex:
         primaryDerivedKey.transactionSpendingLimitHex,
-      // TODO: figure out the best way to deal with these fields
-      Memo: this.#window.location.hostname,
+      Memo,
       AppName: this.#appName,
       TransactionFees: [],
       ExtraData: {},

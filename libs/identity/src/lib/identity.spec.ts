@@ -111,6 +111,11 @@ describe('identity', () => {
         IsUnlimited: false,
       };
 
+      const testAppName = 'My Cool App';
+      identity.configure({
+        appName: testAppName,
+      });
+
       let loginKeyPair = { publicKey: '', seedHex: '' };
       await Promise.all([
         identity.login(),
@@ -195,6 +200,24 @@ describe('identity', () => {
       expect(
         windowFake.localStorage.getItem(LOCAL_STORAGE_KEYS.loginKeyPair)
       ).toBe(null);
+      // authorize derive key called with the correct payload
+      const [_, authorizePayload] = (apiFake.post as jest.Mock).mock.calls.find(
+        ([url]) => url.endsWith('authorize-derived-key')
+      );
+      expect(authorizePayload).toEqual({
+        OwnerPublicKeyBase58Check: derivePayload.publicKeyBase58Check,
+        DerivedPublicKeyBase58Check: loginKeyPair.publicKey,
+        ExpirationBlock: 209932,
+        AccessSignature: derivePayload.accessSignature,
+        DeleteKey: false,
+        DerivedKeySignature: false,
+        MinFeeRateNanosPerKB: 1000,
+        TransactionSpendingLimitHex: '00000000000001',
+        Memo: testAppName,
+        AppName: testAppName,
+        TransactionFees: [],
+        ExtraData: {},
+      });
     });
 
     it('throws an error with the expected type if authorizing the key fails due to no money', async () => {
