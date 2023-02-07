@@ -312,7 +312,10 @@ export class Identity {
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.isBrowser()) throw Error(SERVER_ERROR);
-      if (this.skipIdentityEmbed) return;
+      if (this.skipIdentityEmbed) {
+        resolve(true);
+        return;
+      }
       let frame = document.getElementById('identity');
       if (frame && createNewIdentityFrame) {
         frame.remove();
