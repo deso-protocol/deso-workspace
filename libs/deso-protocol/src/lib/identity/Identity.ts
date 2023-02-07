@@ -352,6 +352,9 @@ export class Identity {
   }
 
   private async guardFeatureSupport(): Promise<boolean> {
+    if (this.skipIdentityEmbed) {
+      return true;
+    }
     const payload = await callIdentityMethodAndExecute(
       undefined,
       'info',
