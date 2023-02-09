@@ -56,6 +56,27 @@ export function buildTransactionSpendingLimitResponse(
   );
 
   if (
+    !(result.AccessGroupLimitMap instanceof Array) &&
+    typeof result.AccessGroupLimitMap === 'object'
+  ) {
+    result.AccessGroupLimitMap = Object.values(result.AccessGroupLimitMap);
+  }
+  if (
+    !(result.AccessGroupMemberLimitMap instanceof Array) &&
+    typeof result.AccessGroupMemberLimitMap === 'object'
+  ) {
+    result.AccessGroupMemberLimitMap = Object.values(
+      result.AccessGroupMemberLimitMap
+    );
+  }
+  if (
+    !(result.AssociationLimitMap instanceof Array) &&
+    typeof result.AssociationLimitMap === 'object'
+  ) {
+    result.AssociationLimitMap = Object.values(result.AssociationLimitMap);
+  }
+
+  if (
     !result.TransactionCountLimitMap ||
     typeof result.TransactionCountLimitMap?.['AUTHORIZE_DERIVED_KEY'] ===
       'undefined'
@@ -65,7 +86,6 @@ export function buildTransactionSpendingLimitResponse(
       AUTHORIZE_DERIVED_KEY: 1,
     };
   }
-
   return result;
 }
 
@@ -104,7 +124,6 @@ function getDeepValue(obj: any, path: string[]): any {
 
 function setDeepValue(obj: any, path: string[], value: any) {
   const currKey = path[0];
-
   if (typeof obj[currKey] === 'undefined') {
     obj[currKey] = {};
   }
