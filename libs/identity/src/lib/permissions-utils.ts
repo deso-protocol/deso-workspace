@@ -55,6 +55,18 @@ export function buildTransactionSpendingLimitResponse(
     []
   );
 
+  if (result.AccessGroupLimitMap) {
+    result.AccessGroupLimitMap = Object.values(result.AccessGroupLimitMap);
+  }
+  if (result.AccessGroupMemberLimitMap) {
+    result.AccessGroupMemberLimitMap = Object.values(
+      result.AccessGroupMemberLimitMap
+    );
+  }
+  if (result.AssociationLimitMap) {
+    result.AssociationLimitMap = Object.values(result.AssociationLimitMap);
+  }
+
   if (
     !result.TransactionCountLimitMap ||
     typeof result.TransactionCountLimitMap?.['AUTHORIZE_DERIVED_KEY'] ===
@@ -65,7 +77,6 @@ export function buildTransactionSpendingLimitResponse(
       AUTHORIZE_DERIVED_KEY: 1,
     };
   }
-
   return result;
 }
 
@@ -104,7 +115,6 @@ function getDeepValue(obj: any, path: string[]): any {
 
 function setDeepValue(obj: any, path: string[], value: any) {
   const currKey = path[0];
-
   if (typeof obj[currKey] === 'undefined') {
     obj[currKey] = {};
   }

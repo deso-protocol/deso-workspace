@@ -38,6 +38,7 @@ export interface IdentityConfig {
   uri?: string;
   network?: DeSoNetwork;
   host?: 'browser' | 'server';
+  skipIdentityEmbed?: boolean;
 }
 
 let deferredOnReady: (value: unknown) => void;
@@ -61,14 +62,16 @@ export class Identity {
   private transactions: Transactions;
   private storageGranted = false;
   public host: 'browser' | 'server';
+  private skipIdentityEmbed: boolean;
   constructor(
-    { host = 'browser', node, network, uri }: IdentityConfig,
+    { host = 'browser', node, network, uri, skipIdentityEmbed }: IdentityConfig,
     transactions: Transactions
   ) {
     this.host = host;
     this.node = node;
     this.network = network || DeSoNetwork.mainnet;
     this.transactions = transactions;
+    this.skipIdentityEmbed = skipIdentityEmbed ?? false;
     if (this.isBrowser()) {
       const user = localStorage.getItem('deso_user');
       const users = localStorage.getItem('deso_users');
@@ -309,6 +312,10 @@ export class Identity {
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.isBrowser()) throw Error(SERVER_ERROR);
+      if (this.skipIdentityEmbed) {
+        resolve(true);
+        return;
+      }
       let frame = document.getElementById('identity');
       if (frame && createNewIdentityFrame) {
         frame.remove();
@@ -345,6 +352,9 @@ export class Identity {
   }
 
   private async guardFeatureSupport(): Promise<boolean> {
+    if (this.skipIdentityEmbed) {
+      return true;
+    }
     const payload = await callIdentityMethodAndExecute(
       undefined,
       'info',
