@@ -1,5 +1,9 @@
 import {
+  AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
+  ChatType,
+  DecryptedMessageEntryResponse,
+  NewMessageEntryResponse,
   SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
@@ -42,6 +46,7 @@ import {
   SubscriberNotification,
   TransactionSpendingLimitResponseOptions,
 } from './types';
+import path = require('path');
 
 export class Identity {
   /**
@@ -537,13 +542,13 @@ export class Identity {
    * ```typescript
    * const message = "Hi, this is my first encrypted message!";
    *
-   * const cipherText = await identity.encryptChatMessage(
+   * const cipherText = await identity.encryptMessage(
    *   recipientPublicKeyBase58Check,
    *   message
    * );
    * ```
    */
-  encryptChatMessage(
+  encryptMessage(
     recipientPublicKeyBase58Check: string,
     messagePlainText: string
   ) {
@@ -561,35 +566,63 @@ export class Identity {
     );
   }
 
-  /**
-   * Decrypt a hex encoded encrypted message using the sender's public key.
-   *
-   * @example
-   * ```typescript
-   * const cipherTextHex = "df6f3ff4695edb569631af4494b9f05d86c7fb8572226a356e03678aa56b7875";
-   *
-   * const plaintext = await identity.decryptChatMessage(
-   *   senderPublicKeyBase58Check,
-   *   cipherTextHex
-   * );
-   * ```
-   */
-  decryptChatMessage(
-    senderPublicKeyBase58Check: string,
-    cipherTextHex: string
-  ) {
-    const { primaryDerivedKey } = this.#currentUser ?? {};
+  async decryptMessage(
+    message: NewMessageEntryResponse,
+    groups: AccessGroupEntryResponse[]
+  ): Promise<DecryptedMessageEntryResponse> {
+    const { primaryDerivedKey, publicKey: userPublicKeyBase58Check } =
+      this.#currentUser ?? {};
 
-    if (!primaryDerivedKey?.messagingPrivateKey) {
+    if (!(primaryDerivedKey?.messagingPrivateKey && userPublicKeyBase58Check)) {
       // This *should* never happen, but just in case we throw here to surface any bugs.
-      throw new Error('Cannot encrypt message without a private messaging key');
+      throw new Error('Cannot decrypt messages without a logged in user');
     }
 
-    return decryptChatMessage(
-      primaryDerivedKey.messagingPrivateKey,
-      senderPublicKeyBase58Check,
-      cipherTextHex
-    );
+    const isSender =
+      message.SenderInfo.OwnerPublicKeyBase58Check ===
+        userPublicKeyBase58Check &&
+      (message.SenderInfo.AccessGroupKeyName === 'default-key' ||
+        !message.SenderInfo.AccessGroupKeyName);
+    let DecryptedMessage = '';
+    let errorMsg = '';
+
+    switch (message.ChatType) {
+      case ChatType.DM:
+        if (
+          message?.MessageInfo?.ExtraData &&
+          message.MessageInfo.ExtraData['unencrypted']
+        ) {
+          // Q: should we be doing text encode/decode here? Is unencrypted text stored as a hex string?
+          DecryptedMessage = message.MessageInfo.EncryptedText;
+        } else {
+          try {
+            DecryptedMessage = await this.#decryptDM(
+              primaryDerivedKey.messagingPrivateKey,
+              userPublicKeyBase58Check,
+              message,
+              isSender
+            );
+          } catch (e: any) {
+            errorMsg = e?.toString() ?? 'Could not decrypt direct message';
+          }
+        }
+        break;
+      case ChatType.GROUPCHAT:
+        try {
+          DecryptedMessage = await this.#decryptGroupChat(groups, message);
+        } catch (e: any) {
+          errorMsg = e?.toString() ?? 'Could not decrypt group message';
+        }
+        break;
+      default:
+        // If we add new chat types, we need to add explicit support for them.
+        throw new Error(`unsupported chat type: ${message.ChatType}`);
+    }
+
+    return {
+      ...message,
+      ...{ DecryptedMessage, IsSender: isSender, error: errorMsg },
+    };
   }
 
   async decryptAccessGroupKeyPair(encryptedKeyHex: string) {
@@ -1321,6 +1354,76 @@ export class Identity {
     if (!errorType) return e;
 
     return new DeSoCoreError(e.message, errorType, e);
+  }
+
+  /**
+   *
+   * @private
+   */
+  async #decryptGroupChat(
+    groups: AccessGroupEntryResponse[],
+    message: NewMessageEntryResponse
+  ) {
+    // ASSUMPTION: if it's a group chat, then the RECIPIENT has the group key name we need?
+    const accessGroup = groups.find((g) => {
+      return (
+        g.AccessGroupKeyName === message.RecipientInfo.AccessGroupKeyName &&
+        g.AccessGroupOwnerPublicKeyBase58Check ===
+          message.RecipientInfo.OwnerPublicKeyBase58Check &&
+        g.AccessGroupMemberEntryResponse
+      );
+    });
+
+    if (!accessGroup?.AccessGroupMemberEntryResponse?.EncryptedKey) {
+      throw new Error('access group key not found for group message');
+    }
+
+    const decryptedKeys = await this.decryptAccessGroupKeyPair(
+      accessGroup.AccessGroupMemberEntryResponse.EncryptedKey
+    );
+
+    return decryptChatMessage(
+      decryptedKeys.seedHex,
+      message.SenderInfo.AccessGroupPublicKeyBase58Check,
+      message.MessageInfo.EncryptedText
+    );
+  }
+
+  /**
+   * @private
+   */
+  async #decryptDM(
+    userPublicKeyBase58Check: string,
+    privateKeyHex: string,
+    message: NewMessageEntryResponse,
+    isSender: boolean
+  ) {
+    const accessGroupInfo = isSender
+      ? message.SenderInfo
+      : message.RecipientInfo;
+
+    if (
+      message?.MessageInfo?.ExtraData &&
+      message.MessageInfo.ExtraData['unencrypted']
+    ) {
+      // Q: should we be doing text encode/decode here? Is unencrypted text stored as a hex string?
+      return message.MessageInfo.EncryptedText;
+    } else {
+      const isRecipient =
+        message.RecipientInfo.OwnerPublicKeyBase58Check ===
+          userPublicKeyBase58Check &&
+        message.RecipientInfo.AccessGroupKeyName ===
+          accessGroupInfo.AccessGroupKeyName;
+      const senderPublicKeyBase58Check = isRecipient
+        ? message.SenderInfo.AccessGroupPublicKeyBase58Check
+        : message.RecipientInfo.AccessGroupPublicKeyBase58Check;
+
+      return decryptChatMessage(
+        privateKeyHex,
+        senderPublicKeyBase58Check,
+        message.MessageInfo.EncryptedText
+      );
+    }
   }
 }
 

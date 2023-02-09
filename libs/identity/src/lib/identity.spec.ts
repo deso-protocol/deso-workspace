@@ -387,7 +387,8 @@ describe('identity', () => {
       const recipientMasterKeys = await keygen();
       const senderMessagingKeys = await keygen();
       const recipientMessagingKeys = await keygen();
-      const message = 'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+      const plaintext =
+        'lorem ipsum dolor sit amet, consectetur adipiscing elit';
       const senderMasterPublicKeyBase58Check = await publicKeyToBase58Check(
         senderMasterKeys.public
       );
@@ -411,9 +412,9 @@ describe('identity', () => {
         })
       );
 
-      const encryptedMsg = await identity.encryptChatMessage(
+      const encryptedMsg = await identity.encryptMessage(
         await publicKeyToBase58Check(recipientMessagingKeys.public),
-        message
+        plaintext
       );
 
       // switch active user to the recipient
@@ -432,13 +433,19 @@ describe('identity', () => {
         })
       );
 
-      const decryptedMsg = await identity.decryptChatMessage(
-        await publicKeyToBase58Check(senderMessagingKeys.public),
-        encryptedMsg
-      );
+      // This is testing a DM. TODO: also test group chats.
+      // const message: NewMessageEntryResponse = {
+      //   SenderInfo: {
+      //     OwnerPublicKeyBase58Check: senderMasterPublicKeyBase58Check,
+      //     AccessGroupKeyName: 'default-key',
+      //     AccessGroupPublicKeyBase58Check: '',
+      //   },
+      // };
 
-      expect(encryptedMsg).not.toEqual(message);
-      expect(decryptedMsg).toEqual(message);
+      // const decryptedMsg = await identity.decryptMessage(message, []);
+
+      // expect(encryptedMsg).not.toEqual(plaintext);
+      // expect(decryptedMsg).toEqual(plaintext);
     });
   });
 

@@ -207,15 +207,15 @@ export const encryptChatMessage = async (
  * @returns cipher text as a hex string
  */
 export const encrypt = async (
-  rawPublicKey: Uint8Array | string,
+  publicKey: Uint8Array | string,
   plaintext: string
 ): Promise<string> => {
   const ephemPrivateKey = ecUtils.randomBytes(32);
   const ephemPublicKey = getPublicKey(ephemPrivateKey);
   const publicKeyBytes =
-    typeof rawPublicKey === 'string'
-      ? await bs58PublicKeyToBytes(rawPublicKey)
-      : rawPublicKey;
+    typeof publicKey === 'string'
+      ? await bs58PublicKeyToBytes(publicKey)
+      : publicKey;
   const privKey = await getSharedPrivateKey(ephemPrivateKey, publicKeyBytes);
   const encryptionKey = privKey.slice(0, 16);
   const iv = ecUtils.randomBytes(16);
