@@ -566,6 +566,13 @@ export class Identity {
     );
   }
 
+  /**
+   * @param message This is a message object returned any of the messages
+   * endpoints of the DeSo backend api, could be a DM or a Group message.
+   * @param groups This is an array of group chats the user belongs to. This is
+   * required to decrypt group messages.
+   * @returns
+   */
   async decryptMessage(
     message: NewMessageEntryResponse,
     groups: AccessGroupEntryResponse[]
@@ -621,6 +628,12 @@ export class Identity {
     };
   }
 
+  /**
+   * Decrypts the encrypted access group private key that we will need to use to decrypt group messages.
+   *
+   * @param encryptedKeyHex
+   * @returns returns a promise that resolves t the decrypted key pair.
+   */
   async decryptAccessGroupKeyPair(encryptedKeyHex: string) {
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
@@ -637,8 +650,13 @@ export class Identity {
     return keygen(decryptedPrivateKeyHex);
   }
 
-  // TODO: add a test to make sure the output matches deso-protocol's
-  // getAccessGroupStandardDerivation output and docs for this.
+  /**
+   * Generate a key pair for an access group. This is used to encrypt and
+   * decrypt group messages.
+   *
+   * @param groupName the plaintext name of the group chat
+   * @returns a promise that resolves to the new key info.
+   */
   async accessGroupStandardDerivation(
     groupName: string
   ): Promise<AccessGroupPrivateInfo> {
