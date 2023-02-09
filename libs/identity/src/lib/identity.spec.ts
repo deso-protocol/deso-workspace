@@ -1,4 +1,5 @@
 import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
+import { ChatType, NewMessageEntryResponse } from 'deso-protocol-types';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
 import { APIError } from './api';
@@ -395,8 +396,13 @@ describe('identity', () => {
       const recipientMasterPublicKeyBase58Check = await publicKeyToBase58Check(
         recipientMasterKeys.public
       );
+      const senderMessagingPublicKeyBase58Check = await publicKeyToBase58Check(
+        senderMessagingKeys.public
+      );
+      const recipientMessagingPublicKeyBase58Check =
+        await publicKeyToBase58Check(recipientMessagingKeys.public);
 
-      // set active user to the sender
+      // set active user to the sender and encrypt a message
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.activePublicKey,
         senderMasterPublicKeyBase58Check
@@ -412,12 +418,13 @@ describe('identity', () => {
         })
       );
 
-      const encryptedMsg = await identity.encryptMessage(
-        await publicKeyToBase58Check(recipientMessagingKeys.public),
+      // encrypt message with the recipient's messaging public key
+      const encryptedMsgHex = await identity.encryptMessage(
+        recipientMessagingPublicKeyBase58Check,
         plaintext
       );
 
-      // switch active user to the recipient
+      // switch active user to the recipient and decrypt the message
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.activePublicKey,
         recipientMasterPublicKeyBase58Check
@@ -426,6 +433,7 @@ describe('identity', () => {
         LOCAL_STORAGE_KEYS.identityUsers,
         JSON.stringify({
           [recipientMasterPublicKeyBase58Check]: {
+            publicKey: recipientMasterPublicKeyBase58Check,
             primaryDerivedKey: {
               messagingPrivateKey: recipientMessagingKeys.seedHex,
             },
@@ -433,19 +441,35 @@ describe('identity', () => {
         })
       );
 
-      // This is testing a DM. TODO: also test group chats.
-      // const message: NewMessageEntryResponse = {
-      //   SenderInfo: {
-      //     OwnerPublicKeyBase58Check: senderMasterPublicKeyBase58Check,
-      //     AccessGroupKeyName: 'default-key',
-      //     AccessGroupPublicKeyBase58Check: '',
-      //   },
-      // };
+      // This is testing a DM. TODO: also test group chats, unencrypted chats, and errors.
+      const message: NewMessageEntryResponse = {
+        ChatType: ChatType.DM,
+        SenderInfo: {
+          OwnerPublicKeyBase58Check: senderMasterPublicKeyBase58Check,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check: senderMessagingPublicKeyBase58Check,
+        },
+        RecipientInfo: {
+          OwnerPublicKeyBase58Check: recipientMasterPublicKeyBase58Check,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check:
+            recipientMessagingPublicKeyBase58Check,
+        },
+        MessageInfo: {
+          EncryptedText: encryptedMsgHex,
 
-      // const decryptedMsg = await identity.decryptMessage(message, []);
+          // we don't care about these fields for this test, but they have to be
+          // here to make the type checker happy
+          TimestampNanos: 0,
+          TimestampNanosString: '',
+          ExtraData: {},
+        },
+      };
 
-      // expect(encryptedMsg).not.toEqual(plaintext);
-      // expect(decryptedMsg).toEqual(plaintext);
+      const { DecryptedMessage } = await identity.decryptMessage(message, []);
+
+      expect(encryptedMsgHex).not.toEqual(plaintext);
+      expect(DecryptedMessage).toEqual(plaintext);
     });
   });
 

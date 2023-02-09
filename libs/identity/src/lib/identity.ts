@@ -572,7 +572,6 @@ export class Identity {
   ): Promise<DecryptedMessageEntryResponse> {
     const { primaryDerivedKey, publicKey: userPublicKeyBase58Check } =
       this.#currentUser ?? {};
-
     if (!(primaryDerivedKey?.messagingPrivateKey && userPublicKeyBase58Check)) {
       // This *should* never happen, but just in case we throw here to surface any bugs.
       throw new Error('Cannot decrypt messages without a logged in user');
@@ -588,17 +587,14 @@ export class Identity {
 
     switch (message.ChatType) {
       case ChatType.DM:
-        if (
-          message?.MessageInfo?.ExtraData &&
-          message.MessageInfo.ExtraData['unencrypted']
-        ) {
-          // Q: should we be doing text encode/decode here? Is unencrypted text stored as a hex string?
+        if (message.MessageInfo?.ExtraData?.['unencrypted']) {
+          // TODO: we need to decode this from hex
           DecryptedMessage = message.MessageInfo.EncryptedText;
         } else {
           try {
             DecryptedMessage = await this.#decryptDM(
-              primaryDerivedKey.messagingPrivateKey,
               userPublicKeyBase58Check,
+              primaryDerivedKey.messagingPrivateKey,
               message,
               isSender
             );
@@ -1406,7 +1402,7 @@ export class Identity {
       message?.MessageInfo?.ExtraData &&
       message.MessageInfo.ExtraData['unencrypted']
     ) {
-      // Q: should we be doing text encode/decode here? Is unencrypted text stored as a hex string?
+      // TODO: we should be doing text encode/decode here.
       return message.MessageInfo.EncryptedText;
     } else {
       const isRecipient =
@@ -1414,13 +1410,14 @@ export class Identity {
           userPublicKeyBase58Check &&
         message.RecipientInfo.AccessGroupKeyName ===
           accessGroupInfo.AccessGroupKeyName;
-      const senderPublicKeyBase58Check = isRecipient
+
+      const publicDecryptionKey = isRecipient
         ? message.SenderInfo.AccessGroupPublicKeyBase58Check
         : message.RecipientInfo.AccessGroupPublicKeyBase58Check;
 
       return decryptChatMessage(
         privateKeyHex,
-        senderPublicKeyBase58Check,
+        publicDecryptionKey,
         message.MessageInfo.EncryptedText
       );
     }

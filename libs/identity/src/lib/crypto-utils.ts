@@ -286,13 +286,12 @@ const isValidHmac = (candidate: Uint8Array, knownGood: Uint8Array) => {
 
 export const decryptChatMessage = async (
   recipientSeedHex: string,
-  senderPublicKeyBase58Check: string,
+  publicDecryptionKey: string,
   cipherTextHex: string
 ) => {
   const privateKey = ecUtils.hexToBytes(recipientSeedHex);
-  const publicKey = await bs58PublicKeyToBytes(senderPublicKeyBase58Check);
+  const publicKey = await bs58PublicKeyToBytes(publicDecryptionKey);
   const sharedPrivateKey = await getSharedPrivateKey(privateKey, publicKey);
-
   return decrypt(sharedPrivateKey, cipherTextHex);
 };
 
@@ -323,7 +322,9 @@ export const decrypt = async (
   const macKey = await ecUtils.sha256(sharedSecretKey.slice(16));
   const hmacKnownGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
 
-  if (!isValidHmac(msgMac, hmacKnownGood)) throw new Error('incorrect MAC');
+  if (!isValidHmac(msgMac, hmacKnownGood)) {
+    throw new Error('incorrect MAC');
+  }
 
   const cryptoKey = await globalThis.crypto.subtle.importKey(
     'raw',
