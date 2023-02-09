@@ -381,23 +381,29 @@ describe('identity', () => {
     });
   });
 
-  describe('.encrypt/decrypt()', () => {
+  describe('.encryptChatMessage/decryptChatMessage()', () => {
     it('encrypts and decrypts a message', async () => {
-      const masterKeys = await keygen();
+      const senderMasterKeys = await keygen();
+      const recipientMasterKeys = await keygen();
       const senderMessagingKeys = await keygen();
       const recipientMessagingKeys = await keygen();
       const message = 'lorem ipsum dolor sit amet, consectetur adipiscing elit';
-      const masterPublicKeyBase58Check = await publicKeyToBase58Check(
-        masterKeys.public
+      const senderMasterPublicKeyBase58Check = await publicKeyToBase58Check(
+        senderMasterKeys.public
       );
+      const recipientMasterPublicKeyBase58Check = await publicKeyToBase58Check(
+        recipientMasterKeys.public
+      );
+
+      // set active user to the sender
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.activePublicKey,
-        masterPublicKeyBase58Check
+        senderMasterPublicKeyBase58Check
       );
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.identityUsers,
         JSON.stringify({
-          [masterPublicKeyBase58Check]: {
+          [senderMasterPublicKeyBase58Check]: {
             primaryDerivedKey: {
               messagingPrivateKey: senderMessagingKeys.seedHex,
             },
@@ -408,6 +414,22 @@ describe('identity', () => {
       const encryptedMsg = await identity.encryptChatMessage(
         await publicKeyToBase58Check(recipientMessagingKeys.public),
         message
+      );
+
+      // switch active user to the recipient
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        recipientMasterPublicKeyBase58Check
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [recipientMasterPublicKeyBase58Check]: {
+            primaryDerivedKey: {
+              messagingPrivateKey: recipientMessagingKeys.seedHex,
+            },
+          },
+        })
       );
 
       const decryptedMsg = await identity.decryptChatMessage(

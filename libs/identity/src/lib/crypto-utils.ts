@@ -196,22 +196,27 @@ export const encryptChatMessage = async (
     privateKey,
     recipientPublicKey
   );
-  const sharedPublicKey = await publicKeyToBase58Check(
-    getPublicKey(sharedPrivateKey)
-  );
+  const sharedPublicKey = getPublicKey(sharedPrivateKey);
 
   return encrypt(sharedPublicKey, message);
 };
 
+/**
+ * @param publicEncryptionKey could be in raw bytes or base58check format
+ * @param plaintext
+ * @returns cipher text as a hex string
+ */
 export const encrypt = async (
-  publicEncryptionKeyBase58Check: string,
+  rawPublicKey: Uint8Array | string,
   plaintext: string
 ): Promise<string> => {
-  const publicKey = await bs58PublicKeyToBytes(publicEncryptionKeyBase58Check);
-  console.log('publicKey', publicKey);
   const ephemPrivateKey = ecUtils.randomBytes(32);
   const ephemPublicKey = getPublicKey(ephemPrivateKey);
-  const privKey = await getSharedPrivateKey(ephemPrivateKey, publicKey);
+  const publicKeyBytes =
+    typeof rawPublicKey === 'string'
+      ? await bs58PublicKeyToBytes(rawPublicKey)
+      : rawPublicKey;
+  const privKey = await getSharedPrivateKey(ephemPrivateKey, publicKeyBytes);
   const encryptionKey = privKey.slice(0, 16);
   const iv = ecUtils.randomBytes(16);
   const macKey = await ecUtils.sha256(privKey.slice(16));
@@ -306,15 +311,12 @@ export const decrypt = async (
     throw new Error('invalid cipher text.');
   }
 
-  const privateKey =
-    typeof privateDecryptionKey === 'string'
-      ? ecUtils.hexToBytes(privateDecryptionKey)
-      : privateDecryptionKey;
+  const privateKey = normalizeSeed(privateDecryptionKey);
   const ephemPublicKey = cipherBytes.slice(0, 65);
   const cipherTextLength = cipherBytes.length - metaLength;
   const iv = cipherBytes.slice(65, 65 + 16);
   const cipherAndIv = cipherBytes.slice(65, 65 + 16 + cipherTextLength);
-  const ciphertext = cipherAndIv.slice(16);
+  const cipherText = cipherAndIv.slice(16);
   const msgMac = cipherBytes.slice(65 + 16 + cipherTextLength);
   const sharedSecretKey = await getSharedPrivateKey(privateKey, ephemPublicKey);
   const encryptionKey = sharedSecretKey.slice(0, 16);
@@ -334,7 +336,7 @@ export const decrypt = async (
   const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
     { name: 'AES-CTR', counter: iv, length: 128 },
     cryptoKey,
-    ciphertext
+    cipherText
   );
 
   return new TextDecoder().decode(decryptedBuffer);
