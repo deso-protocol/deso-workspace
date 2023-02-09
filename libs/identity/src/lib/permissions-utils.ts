@@ -55,24 +55,15 @@ export function buildTransactionSpendingLimitResponse(
     []
   );
 
-  if (
-    !(result.AccessGroupLimitMap instanceof Array) &&
-    typeof result.AccessGroupLimitMap === 'object'
-  ) {
+  if (result.AccessGroupLimitMap) {
     result.AccessGroupLimitMap = Object.values(result.AccessGroupLimitMap);
   }
-  if (
-    !(result.AccessGroupMemberLimitMap instanceof Array) &&
-    typeof result.AccessGroupMemberLimitMap === 'object'
-  ) {
+  if (result.AccessGroupMemberLimitMap) {
     result.AccessGroupMemberLimitMap = Object.values(
       result.AccessGroupMemberLimitMap
     );
   }
-  if (
-    !(result.AssociationLimitMap instanceof Array) &&
-    typeof result.AssociationLimitMap === 'object'
-  ) {
+  if (result.AssociationLimitMap) {
     result.AssociationLimitMap = Object.values(result.AssociationLimitMap);
   }
 
