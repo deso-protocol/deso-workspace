@@ -382,20 +382,36 @@ describe('identity', () => {
   });
 
   describe('.encrypt/decrypt()', () => {
-    it('encrypts a message', async () => {
-      const senderKeys = await keygen();
-      const recipientKeys = await keygen();
+    it('encrypts and decrypts a message', async () => {
+      const masterKeys = await keygen();
+      const senderMessagingKeys = await keygen();
+      const recipientMessagingKeys = await keygen();
       const message = 'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+      const masterPublicKeyBase58Check = await publicKeyToBase58Check(
+        masterKeys.public
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        masterPublicKeyBase58Check
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [masterPublicKeyBase58Check]: {
+            primaryDerivedKey: {
+              messagingPrivateKey: senderMessagingKeys.seedHex,
+            },
+          },
+        })
+      );
 
-      const encryptedMsg = await identity.encrypt(
-        senderKeys.seedHex,
-        await publicKeyToBase58Check(recipientKeys.public),
+      const encryptedMsg = await identity.encryptChatMessage(
+        await publicKeyToBase58Check(recipientMessagingKeys.public),
         message
       );
 
-      const decryptedMsg = await identity.decrypt(
-        recipientKeys.seedHex,
-        await publicKeyToBase58Check(senderKeys.public),
+      const decryptedMsg = await identity.decryptChatMessage(
+        await publicKeyToBase58Check(senderMessagingKeys.public),
         encryptedMsg
       );
 

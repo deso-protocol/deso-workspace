@@ -130,12 +130,14 @@ export interface LoginOptions {
   getFreeDeso: boolean;
 }
 
+export type PrimaryDerivedKeyInfo = IdentityDerivePayload & {
+  transactionSpendingLimits: TransactionSpendingLimitResponse;
+  IsValid?: boolean;
+};
+
 export type StoredUser = {
   publicKey: string;
-  primaryDerivedKey: IdentityDerivePayload & {
-    transactionSpendingLimits: TransactionSpendingLimitResponse;
-    IsValid?: boolean;
-  };
+  primaryDerivedKey: PrimaryDerivedKeyInfo;
 };
 
 export interface IdentityUser {
@@ -174,9 +176,15 @@ export interface KeyPair {
 }
 
 export interface SubscriberNotification {
-  event: string;
+  event: NOTIFICATION_EVENTS;
   currentUser: StoredUser | null;
   alternateUsers: Record<string, StoredUser> | null;
+}
+
+export interface AccessGroupPrivateInfo {
+  AccessGroupPublicKeyBase58Check: string;
+  AccessGroupPrivateKeyHex: string;
+  AccessGroupKeyName: string;
 }
 
 export enum NOTIFICATION_EVENTS {

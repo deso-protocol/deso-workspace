@@ -1,5 +1,6 @@
 import {
   AuthorizeDerivedKeyRequest,
+  SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 import {
@@ -11,7 +12,9 @@ import {
 } from './constants';
 import {
   decrypt,
-  encrypt,
+  decryptChatMessage,
+  deriveAccessGroupKeyPair,
+  encryptChatMessage,
   getSignedJWT,
   keygen,
   publicKeyToBase58Check,
@@ -24,6 +27,7 @@ import {
 } from './permissions-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
+  AccessGroupPrivateInfo,
   APIProvider,
   Deferred,
   IdentityConfiguration,
@@ -335,7 +339,7 @@ export class Identity {
     if (loginKeyPair) {
       derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
     } else {
-      const keys = keygen();
+      const keys = await keygen();
       derivedPublicKey = await publicKeyToBase58Check(keys.public, {
         network: this.#network,
       });
@@ -477,7 +481,9 @@ export class Identity {
    * await identity.signAndSubmit(transactionObject);
    * ```
    */
-  async signAndSubmit(tx: { TransactionHex: string }) {
+  async signAndSubmit(tx: {
+    TransactionHex: string;
+  }): Promise<SubmitTransactionResponse> {
     return await this.submitTx(await this.signTx(tx.TransactionHex));
   }
 
@@ -524,52 +530,109 @@ export class Identity {
   }
 
   /**
-   * Encrypt an arbitrary string using the sender's seed hex and the recipient's
-   * public key. Typically this would make use of the sender's
-   * messagingPrivateKey for building chat or messaging applications.
+   * Encrypt an arbitrary string using the recipient's
+   * public key.
    *
    * @example
    * ```typescript
    * const message = "Hi, this is my first encrypted message!";
    *
-   * const cipherText = await identity.encrypt(
-   *   senderPrivateMessagingSeedHex,
+   * const cipherText = await identity.encryptChatMessage(
    *   recipientPublicKeyBase58Check,
    *   message
    * );
    * ```
    */
-  encrypt(
-    senderSeedHex: string,
+  encryptChatMessage(
     recipientPublicKeyBase58Check: string,
-    plaintext: string
-  ): Promise<string> {
-    return encrypt(senderSeedHex, recipientPublicKeyBase58Check, plaintext);
+    messagePlainText: string
+  ) {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot encrypt message without a private messaging key');
+    }
+
+    return encryptChatMessage(
+      primaryDerivedKey.messagingPrivateKey,
+      recipientPublicKeyBase58Check,
+      messagePlainText
+    );
   }
 
   /**
-   * Decrypt a hex encoded encrypted message using the recipient's private seed
-   * hex and the sender's public key. Typically this would make use of the
-   * recipient's messagingPrivateKey for building chat or messaging
-   * applications.
+   * Decrypt a hex encoded encrypted message using the sender's public key.
    *
    * @example
    * ```typescript
    * const cipherTextHex = "df6f3ff4695edb569631af4494b9f05d86c7fb8572226a356e03678aa56b7875";
    *
-   * const plaintext = await identity.decrypt(
-   *   recipientPrivateMessagingSeedHex,
+   * const plaintext = await identity.decryptChatMessage(
    *   senderPublicKeyBase58Check,
    *   cipherTextHex
    * );
    * ```
    */
-  decrypt(
-    recipientSeedHex: string,
+  decryptChatMessage(
     senderPublicKeyBase58Check: string,
     cipherTextHex: string
   ) {
-    return decrypt(recipientSeedHex, senderPublicKeyBase58Check, cipherTextHex);
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot encrypt message without a private messaging key');
+    }
+
+    return decryptChatMessage(
+      primaryDerivedKey.messagingPrivateKey,
+      senderPublicKeyBase58Check,
+      cipherTextHex
+    );
+  }
+
+  async decryptAccessGroupKeyPair(encryptedKeyHex: string) {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot encrypt message without a private messaging key');
+    }
+
+    const decryptedPrivateKeyHex = await decrypt(
+      primaryDerivedKey.messagingPrivateKey,
+      encryptedKeyHex
+    );
+
+    return keygen(decryptedPrivateKeyHex);
+  }
+
+  // TODO: add a test to make sure the output matches deso-protocol's
+  // getAccessGroupStandardDerivation output and docs for this.
+  async accessGroupStandardDerivation(
+    groupName: string
+  ): Promise<AccessGroupPrivateInfo> {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot derive access group without a messaging key');
+    }
+
+    const keys = await deriveAccessGroupKeyPair(
+      primaryDerivedKey.messagingPrivateKey,
+      groupName
+    );
+    const publicKeyBase58Check = await publicKeyToBase58Check(keys.public, {
+      network: this.#network,
+    });
+
+    return {
+      AccessGroupPrivateKeyHex: keys.seedHex,
+      AccessGroupPublicKeyBase58Check: publicKeyBase58Check,
+      AccessGroupKeyName: groupName,
+    };
   }
 
   /**
