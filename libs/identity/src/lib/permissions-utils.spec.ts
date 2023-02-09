@@ -44,6 +44,24 @@ describe('permissions-utils', () => {
             },
           },
         },
+        AccessGroupLimitMap: [
+          {
+            AccessGroupOwnerPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            ScopeType: 'Any',
+            AccessGroupKeyName: '',
+            OperationType: 'Any',
+            OpCount: 'UNLIMITED',
+          },
+          {
+            AccessGroupOwnerPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            ScopeType: 'Scoped',
+            AccessGroupKeyName: 'default-key',
+            OperationType: 'Any',
+            OpCount: 1,
+          },
+        ],
       };
 
       expect(
@@ -88,6 +106,24 @@ describe('permissions-utils', () => {
             },
           },
         },
+        AccessGroupLimitMap: [
+          {
+            AccessGroupOwnerPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            ScopeType: 'Any',
+            AccessGroupKeyName: '',
+            OperationType: 'Any',
+            OpCount: 1e9,
+          },
+          {
+            AccessGroupOwnerPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            ScopeType: 'Scoped',
+            AccessGroupKeyName: 'default-key',
+            OperationType: 'Any',
+            OpCount: 1,
+          },
+        ],
       });
     });
     it('sets AUTHORIZE_DERIVED_KEY to 1 if it was not passed', () => {

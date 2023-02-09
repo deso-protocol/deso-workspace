@@ -49,9 +49,16 @@ export interface TransactionSpendingLimitResponseOptions {
   DAOCoinLimitOrderLimitMap?: {
     [key: string]: { [key: string]: number | 'UNLIMITED' };
   };
-  AssociationLimitMap?: AssociationLimitMapItem[];
-  AccessGroupLimitMap?: AccessGroupLimitMapItem[];
-  AccessGroupMemberLimitMap?: AccessGroupMemberLimitMapItem[];
+  AssociationLimitMap?: (Omit<AssociationLimitMapItem, 'OpCount'> & {
+    OpCount: number | 'UNLIMITED';
+  })[];
+  AccessGroupLimitMap?: (Omit<AccessGroupLimitMapItem, 'OpCount'> & {
+    OpCount: number | 'UNLIMITED';
+  })[];
+  AccessGroupMemberLimitMap?: (Omit<
+    AccessGroupMemberLimitMapItem,
+    'OpCount'
+  > & { OpCount: number | 'UNLIMITED' })[];
   IsUnlimited?: boolean;
 }
 
