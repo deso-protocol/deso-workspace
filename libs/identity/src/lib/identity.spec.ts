@@ -383,57 +383,42 @@ describe('identity', () => {
   });
 
   describe('.encryptChatMessage/decryptChatMessage()', () => {
-    it('encrypts and decrypts a message', async () => {
-      const senderMasterKeys = await keygen();
-      const recipientMasterKeys = await keygen();
+    it('encrypts and decrypts a DM chat message', async () => {
+      const senderOwnerKeys = await keygen();
+      const recipientOwnerKeys = await keygen();
       const senderMessagingKeys = await keygen();
       const recipientMessagingKeys = await keygen();
-      const plaintext =
-        'lorem ipsum dolor sit amet, consectetur adipiscing elit';
-      const senderMasterPublicKeyBase58Check = await publicKeyToBase58Check(
-        senderMasterKeys.public
+      const senderOwnerPKBase58 = await publicKeyToBase58Check(
+        senderOwnerKeys.public
       );
-      const recipientMasterPublicKeyBase58Check = await publicKeyToBase58Check(
-        recipientMasterKeys.public
+      const recipientOwnerPKBase58 = await publicKeyToBase58Check(
+        recipientOwnerKeys.public
       );
-      const senderMessagingPublicKeyBase58Check = await publicKeyToBase58Check(
+      const senderMessagingPKBase58 = await publicKeyToBase58Check(
         senderMessagingKeys.public
       );
-      const recipientMessagingPublicKeyBase58Check =
-        await publicKeyToBase58Check(recipientMessagingKeys.public);
+      const recipientMessagingPKBase58 = await publicKeyToBase58Check(
+        recipientMessagingKeys.public
+      );
+
+      const plaintextMsg =
+        'lorem ipsum dolor sit amet, consectetur adipiscing elit';
 
       // set active user to the sender and encrypt a message
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.activePublicKey,
-        senderMasterPublicKeyBase58Check
+        senderOwnerPKBase58
       );
       windowFake.localStorage.setItem(
         LOCAL_STORAGE_KEYS.identityUsers,
         JSON.stringify({
-          [senderMasterPublicKeyBase58Check]: {
+          [senderOwnerPKBase58]: {
             primaryDerivedKey: {
               messagingPrivateKey: senderMessagingKeys.seedHex,
             },
           },
-        })
-      );
-
-      // encrypt message with the recipient's messaging public key
-      const encryptedMsgHex = await identity.encryptMessage(
-        recipientMessagingPublicKeyBase58Check,
-        plaintext
-      );
-
-      // switch active user to the recipient and decrypt the message
-      windowFake.localStorage.setItem(
-        LOCAL_STORAGE_KEYS.activePublicKey,
-        recipientMasterPublicKeyBase58Check
-      );
-      windowFake.localStorage.setItem(
-        LOCAL_STORAGE_KEYS.identityUsers,
-        JSON.stringify({
-          [recipientMasterPublicKeyBase58Check]: {
-            publicKey: recipientMasterPublicKeyBase58Check,
+          [recipientOwnerPKBase58]: {
+            publicKey: recipientOwnerPKBase58,
             primaryDerivedKey: {
               messagingPrivateKey: recipientMessagingKeys.seedHex,
             },
@@ -441,19 +426,30 @@ describe('identity', () => {
         })
       );
 
-      // This is testing a DM. TODO: also test group chats, unencrypted chats, and errors.
+      // encrypt message with the recipient's messaging public key
+      const encryptedMsgHex = await identity.encryptMessage(
+        recipientMessagingPKBase58,
+        plaintextMsg
+      );
+
+      // switch active user to the recipient and decrypt the message
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        recipientOwnerPKBase58
+      );
+
+      // This is testing a DM. TODO: also test group chats.
       const message: NewMessageEntryResponse = {
         ChatType: ChatType.DM,
         SenderInfo: {
-          OwnerPublicKeyBase58Check: senderMasterPublicKeyBase58Check,
+          OwnerPublicKeyBase58Check: senderOwnerPKBase58,
           AccessGroupKeyName: 'default-key',
-          AccessGroupPublicKeyBase58Check: senderMessagingPublicKeyBase58Check,
+          AccessGroupPublicKeyBase58Check: senderMessagingPKBase58,
         },
         RecipientInfo: {
-          OwnerPublicKeyBase58Check: recipientMasterPublicKeyBase58Check,
+          OwnerPublicKeyBase58Check: recipientOwnerPKBase58,
           AccessGroupKeyName: 'default-key',
-          AccessGroupPublicKeyBase58Check:
-            recipientMessagingPublicKeyBase58Check,
+          AccessGroupPublicKeyBase58Check: recipientMessagingPKBase58,
         },
         MessageInfo: {
           EncryptedText: encryptedMsgHex,
@@ -466,10 +462,84 @@ describe('identity', () => {
         },
       };
 
-      const { DecryptedMessage } = await identity.decryptMessage(message, []);
+      const { DecryptedMessage, error } = await identity.decryptMessage(
+        message,
+        []
+      );
 
-      expect(encryptedMsgHex).not.toEqual(plaintext);
-      expect(DecryptedMessage).toEqual(plaintext);
+      expect(error).toBe('');
+      expect(encryptedMsgHex).not.toEqual(plaintextMsg);
+      expect(DecryptedMessage).toEqual(plaintextMsg);
+    });
+
+    it('decodes hex encoded, un-encrypted plaintext', async () => {
+      const senderOwnerKeys = await keygen();
+      const recipientOwnerKeys = await keygen();
+      const recipientMessagingKeys = await keygen();
+      const senderOwnerPKBase58 = await publicKeyToBase58Check(
+        senderOwnerKeys.public
+      );
+      const recipientOwnerPKBase58 = await publicKeyToBase58Check(
+        recipientOwnerKeys.public
+      );
+
+      const plaintextMsg =
+        'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+      const textEncoder = new TextEncoder();
+      const bytes = textEncoder.encode(plaintextMsg);
+      const hexEncodedMsg = ecUtils.bytesToHex(new Uint8Array(bytes));
+
+      // we only need to set the active user to the recipient, since we're not
+      // decrypting anything.
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        recipientOwnerPKBase58
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [recipientOwnerPKBase58]: {
+            publicKey: recipientOwnerPKBase58,
+            primaryDerivedKey: {
+              messagingPrivateKey: recipientMessagingKeys.seedHex,
+            },
+          },
+        })
+      );
+
+      const message: NewMessageEntryResponse = {
+        ChatType: ChatType.DM,
+        SenderInfo: {
+          OwnerPublicKeyBase58Check: senderOwnerPKBase58,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check: senderOwnerPKBase58,
+        },
+        RecipientInfo: {
+          OwnerPublicKeyBase58Check: recipientOwnerPKBase58,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check: recipientOwnerPKBase58,
+        },
+        MessageInfo: {
+          EncryptedText: hexEncodedMsg,
+
+          // we don't care about these fields for this test, but they have to be
+          // here to make the type checker happy
+          TimestampNanos: 0,
+          TimestampNanosString: '',
+          ExtraData: {
+            // this is the important thing for this test
+            unencrypted: '1',
+          },
+        },
+      };
+
+      const { DecryptedMessage, error } = await identity.decryptMessage(
+        message,
+        []
+      );
+
+      expect(error).toBe('');
+      expect(DecryptedMessage).toEqual(plaintextMsg);
     });
   });
 
