@@ -46,7 +46,6 @@ import {
   SubscriberNotification,
   TransactionSpendingLimitResponseOptions,
 } from './types';
-import path = require('path');
 
 export class Identity {
   /**
