@@ -1,3 +1,4 @@
+import { utils as ecUtils } from '@noble/secp256k1';
 import {
   AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
@@ -594,8 +595,9 @@ export class Identity {
     switch (message.ChatType) {
       case ChatType.DM:
         if (message.MessageInfo?.ExtraData?.['unencrypted']) {
-          // TODO: we need to decode this from hex
-          DecryptedMessage = message.MessageInfo.EncryptedText;
+          const bytes = ecUtils.hexToBytes(message.MessageInfo.EncryptedText);
+          const textDecoder = new TextDecoder();
+          DecryptedMessage = textDecoder.decode(bytes);
         } else {
           try {
             DecryptedMessage = await this.#decryptDM(
