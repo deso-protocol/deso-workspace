@@ -52,10 +52,13 @@ interface Base58CheckOptions {
 //
 // See the following for more info:
 // https://github.com/w3c/webcrypto/issues/82
-export const keygen = (): KeyPair => {
-  // ecUtils.randomBytes uses window.crypto.getRandomValues in the browser or
-  // crypto.randomBytes in node.
-  const privateKey = ecUtils.randomBytes(32);
+//
+// If you don't provide a seed, a random one will be generated for you and a
+// random key pair will be returned. If you do provide a seed, it should be a
+// randomly generated 32 byte value (Uint8Array of length 32 or hex string of
+// length 64)
+export const keygen = (seed?: string | Uint8Array): KeyPair => {
+  const privateKey = seed ? normalizeSeed(seed) : ecUtils.randomBytes(32);
   const seedHex = ecUtils.bytesToHex(privateKey);
 
   return {
@@ -65,8 +68,25 @@ export const keygen = (): KeyPair => {
   };
 };
 
-const sha256X2 = async (data: Uint8Array): Promise<Uint8Array> =>
-  ecUtils.sha256(await ecUtils.sha256(data));
+const normalizeSeed = (seed: string | Uint8Array): Uint8Array => {
+  if (typeof seed === 'string') {
+    return ecUtils.hexToBytes(seed);
+  } else {
+    return seed;
+  }
+};
+
+/**
+ *
+ * @param data could be a hex string or a byte array (Uint8Array)
+ * @returns
+ */
+export const sha256X2 = async (
+  data: Uint8Array | string
+): Promise<Uint8Array> => {
+  const d = typeof data === 'string' ? ecUtils.hexToBytes(data) : data;
+  return ecUtils.sha256(await ecUtils.sha256(d));
+};
 
 export const publicKeyToBase58Check = async (
   publicKeyBytes: Uint8Array,
@@ -163,11 +183,11 @@ function urlSafeBase64(str: string) {
     .replace(/=/g, '');
 }
 
-export const encrypt = async (
+export const encryptChatMessage = async (
   senderSeedHex: string,
   recipientPublicKeyBase58Check: string,
-  plaintext: string
-): Promise<string> => {
+  message: string
+) => {
   const privateKey = ecUtils.hexToBytes(senderSeedHex);
   const recipientPublicKey = await bs58PublicKeyToBytes(
     recipientPublicKeyBase58Check
@@ -177,9 +197,26 @@ export const encrypt = async (
     recipientPublicKey
   );
   const sharedPublicKey = getPublicKey(sharedPrivateKey);
+
+  return encrypt(sharedPublicKey, message);
+};
+
+/**
+ * @param publicEncryptionKey could be in raw bytes or base58check format
+ * @param plaintext
+ * @returns cipher text as a hex string
+ */
+export const encrypt = async (
+  publicKey: Uint8Array | string,
+  plaintext: string
+): Promise<string> => {
   const ephemPrivateKey = ecUtils.randomBytes(32);
   const ephemPublicKey = getPublicKey(ephemPrivateKey);
-  const privKey = await getSharedPrivateKey(ephemPrivateKey, sharedPublicKey);
+  const publicKeyBytes =
+    typeof publicKey === 'string'
+      ? await bs58PublicKeyToBytes(publicKey)
+      : publicKey;
+  const privKey = await getSharedPrivateKey(ephemPrivateKey, publicKeyBytes);
   const encryptionKey = privKey.slice(0, 16);
   const iv = ecUtils.randomBytes(16);
   const macKey = await ecUtils.sha256(privKey.slice(16));
@@ -247,9 +284,19 @@ const isValidHmac = (candidate: Uint8Array, knownGood: Uint8Array) => {
   return true;
 };
 
-export const decrypt = async (
+export const decryptChatMessage = async (
   recipientSeedHex: string,
-  senderPublicKeyBase58Check: string,
+  publicDecryptionKey: string,
+  cipherTextHex: string
+) => {
+  const privateKey = ecUtils.hexToBytes(recipientSeedHex);
+  const publicKey = await bs58PublicKeyToBytes(publicDecryptionKey);
+  const sharedPrivateKey = await getSharedPrivateKey(privateKey, publicKey);
+  return decrypt(sharedPrivateKey, cipherTextHex);
+};
+
+export const decrypt = async (
+  privateDecryptionKey: Uint8Array | string,
   cipherTextHex: string
 ) => {
   const cipherBytes = ecUtils.hexToBytes(cipherTextHex);
@@ -263,21 +310,21 @@ export const decrypt = async (
     throw new Error('invalid cipher text.');
   }
 
-  const privateKey = ecUtils.hexToBytes(recipientSeedHex);
-  const publicKey = await bs58PublicKeyToBytes(senderPublicKeyBase58Check);
-  const sharedPrivateKey = await getSharedPrivateKey(privateKey, publicKey);
+  const privateKey = normalizeSeed(privateDecryptionKey);
   const ephemPublicKey = cipherBytes.slice(0, 65);
   const cipherTextLength = cipherBytes.length - metaLength;
   const iv = cipherBytes.slice(65, 65 + 16);
   const cipherAndIv = cipherBytes.slice(65, 65 + 16 + cipherTextLength);
-  const ciphertext = cipherAndIv.slice(16);
+  const cipherText = cipherAndIv.slice(16);
   const msgMac = cipherBytes.slice(65 + 16 + cipherTextLength);
-  const privKey = await getSharedPrivateKey(sharedPrivateKey, ephemPublicKey);
-  const encryptionKey = privKey.slice(0, 16);
-  const macKey = await ecUtils.sha256(privKey.slice(16));
+  const sharedSecretKey = await getSharedPrivateKey(privateKey, ephemPublicKey);
+  const encryptionKey = sharedSecretKey.slice(0, 16);
+  const macKey = await ecUtils.sha256(sharedSecretKey.slice(16));
   const hmacKnownGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
 
-  if (!isValidHmac(msgMac, hmacKnownGood)) throw new Error('incorrect MAC');
+  if (!isValidHmac(msgMac, hmacKnownGood)) {
+    throw new Error('incorrect MAC');
+  }
 
   const cryptoKey = await globalThis.crypto.subtle.importKey(
     'raw',
@@ -290,7 +337,7 @@ export const decrypt = async (
   const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
     { name: 'AES-CTR', counter: iv, length: 128 },
     cryptoKey,
-    ciphertext
+    cipherText
   );
 
   return new TextDecoder().decode(decryptedBuffer);
@@ -394,4 +441,17 @@ function derToJoseEncoding(signature: Uint8Array) {
   );
 
   return urlSafeBase64(outputChars);
+}
+
+export async function deriveAccessGroupKeyPair(
+  privateKeyHex: string,
+  groupKeyName: string
+): Promise<KeyPair> {
+  const secretHash = await sha256X2(privateKeyHex);
+  const keyNameHash = await sha256X2(new TextEncoder().encode(groupKeyName));
+  const privateKey = await sha256X2(
+    new Uint8Array([...secretHash, ...keyNameHash])
+  );
+
+  return keygen(privateKey);
 }

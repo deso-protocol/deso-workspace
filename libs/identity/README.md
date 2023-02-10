@@ -68,7 +68,7 @@ identity.subscribe((state) => {
   // decisions about how you want your app to react to identity state.
   // You can see an exhaustive list of the events here: https://github.com/deso-protocol/deso-workspace/blob/48667a975348a452c9726a8be9dbad1de7acc130/libs/identity/src/lib/types.ts#L182
   const event = state.event;
-  
+
   // The current user object contains the user's current permissions
   // (TransactionCountLimitMap).  This value will be updated when the logged in
   // user changes or when the permissions change for the current user.  read
@@ -133,20 +133,27 @@ if (!hasPermissions) {
   });
 }
 
-// Encrypt plain text. Likely you would be using the messagingPrivateKey found on the
-// identity user's derived key to be used for encrypted chat or messaging applications.
-// Returns a promise that resolves to a hex encoded encrypted string.
-const encryptedMessageHex = await encrypt(
-  senderMessagingPrivateSeedHex,
+// Encrypt plain text with the recipients public key. This can be subsequently
+// decrypted using the recipient's private key.
+const encryptedMessageHex = await identity.encryptMessage(
   recipientPublicKeyBase58Check,
   plaintextMsg
 );
 
-// Decrypt cipher text. Returns a promise that resolves to a decrypted, plaintext string.
-const decryptedMessagePlaintext = await decrypt(
-  recipientMessagingPrivateSeedHex,
-  senderPublicKeyBase58Check,
-  hexEncodedCipherText
+// Decrypt a message returned from any of the message endpoints of the deso
+// backend messages api. If it is a group message you will need to fetch the
+// groups the user is a member of and provide them. If it's known that the
+// message is not a a group message you can pass an empty array for the groups
+// parameter.
+//
+// See the api docs for sending and receiving messages here:
+// https://docs.deso.org/deso-backend/api/messages-endpoints
+//
+// See the api docs for access groups here:
+// https://docs.deso.org/deso-backend/api/access-group-endpoints
+const decryptedMessagePlaintext = await identity.decryptMessage(
+  message,
+  accessGroups
 );
 ```
 

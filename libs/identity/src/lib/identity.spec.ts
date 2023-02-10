@@ -1,4 +1,5 @@
 import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
+import { ChatType, NewMessageEntryResponse } from 'deso-protocol-types';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
 import { APIError } from './api';
@@ -381,26 +382,94 @@ describe('identity', () => {
     });
   });
 
-  describe('.encrypt/decrypt()', () => {
-    it('encrypts a message', async () => {
-      const senderKeys = await keygen();
-      const recipientKeys = await keygen();
-      const message = 'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+  describe('.encryptChatMessage/decryptChatMessage()', () => {
+    it('encrypts and decrypts a message', async () => {
+      const senderMasterKeys = await keygen();
+      const recipientMasterKeys = await keygen();
+      const senderMessagingKeys = await keygen();
+      const recipientMessagingKeys = await keygen();
+      const plaintext =
+        'lorem ipsum dolor sit amet, consectetur adipiscing elit';
+      const senderMasterPublicKeyBase58Check = await publicKeyToBase58Check(
+        senderMasterKeys.public
+      );
+      const recipientMasterPublicKeyBase58Check = await publicKeyToBase58Check(
+        recipientMasterKeys.public
+      );
+      const senderMessagingPublicKeyBase58Check = await publicKeyToBase58Check(
+        senderMessagingKeys.public
+      );
+      const recipientMessagingPublicKeyBase58Check =
+        await publicKeyToBase58Check(recipientMessagingKeys.public);
 
-      const encryptedMsg = await identity.encrypt(
-        senderKeys.seedHex,
-        await publicKeyToBase58Check(recipientKeys.public),
-        message
+      // set active user to the sender and encrypt a message
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        senderMasterPublicKeyBase58Check
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [senderMasterPublicKeyBase58Check]: {
+            primaryDerivedKey: {
+              messagingPrivateKey: senderMessagingKeys.seedHex,
+            },
+          },
+        })
       );
 
-      const decryptedMsg = await identity.decrypt(
-        recipientKeys.seedHex,
-        await publicKeyToBase58Check(senderKeys.public),
-        encryptedMsg
+      // encrypt message with the recipient's messaging public key
+      const encryptedMsgHex = await identity.encryptMessage(
+        recipientMessagingPublicKeyBase58Check,
+        plaintext
       );
 
-      expect(encryptedMsg).not.toEqual(message);
-      expect(decryptedMsg).toEqual(message);
+      // switch active user to the recipient and decrypt the message
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.activePublicKey,
+        recipientMasterPublicKeyBase58Check
+      );
+      windowFake.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.identityUsers,
+        JSON.stringify({
+          [recipientMasterPublicKeyBase58Check]: {
+            publicKey: recipientMasterPublicKeyBase58Check,
+            primaryDerivedKey: {
+              messagingPrivateKey: recipientMessagingKeys.seedHex,
+            },
+          },
+        })
+      );
+
+      // This is testing a DM. TODO: also test group chats, unencrypted chats, and errors.
+      const message: NewMessageEntryResponse = {
+        ChatType: ChatType.DM,
+        SenderInfo: {
+          OwnerPublicKeyBase58Check: senderMasterPublicKeyBase58Check,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check: senderMessagingPublicKeyBase58Check,
+        },
+        RecipientInfo: {
+          OwnerPublicKeyBase58Check: recipientMasterPublicKeyBase58Check,
+          AccessGroupKeyName: 'default-key',
+          AccessGroupPublicKeyBase58Check:
+            recipientMessagingPublicKeyBase58Check,
+        },
+        MessageInfo: {
+          EncryptedText: encryptedMsgHex,
+
+          // we don't care about these fields for this test, but they have to be
+          // here to make the type checker happy
+          TimestampNanos: 0,
+          TimestampNanosString: '',
+          ExtraData: {},
+        },
+      };
+
+      const { DecryptedMessage } = await identity.decryptMessage(message, []);
+
+      expect(encryptedMsgHex).not.toEqual(plaintext);
+      expect(DecryptedMessage).toEqual(plaintext);
     });
   });
 

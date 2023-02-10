@@ -1,5 +1,10 @@
 import {
+  AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
+  ChatType,
+  DecryptedMessageEntryResponse,
+  NewMessageEntryResponse,
+  SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 import {
@@ -11,7 +16,9 @@ import {
 } from './constants';
 import {
   decrypt,
-  encrypt,
+  decryptChatMessage,
+  deriveAccessGroupKeyPair,
+  encryptChatMessage,
   getSignedJWT,
   keygen,
   publicKeyToBase58Check,
@@ -24,6 +31,7 @@ import {
 } from './permissions-utils';
 import { parseQueryParams } from './query-param-utils';
 import {
+  AccessGroupPrivateInfo,
   APIProvider,
   Deferred,
   IdentityConfiguration,
@@ -335,7 +343,7 @@ export class Identity {
     if (loginKeyPair) {
       derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
     } else {
-      const keys = keygen();
+      const keys = await keygen();
       derivedPublicKey = await publicKeyToBase58Check(keys.public, {
         network: this.#network,
       });
@@ -477,7 +485,9 @@ export class Identity {
    * await identity.signAndSubmit(transactionObject);
    * ```
    */
-  async signAndSubmit(tx: { TransactionHex: string }) {
+  async signAndSubmit(tx: {
+    TransactionHex: string;
+  }): Promise<SubmitTransactionResponse> {
     return await this.submitTx(await this.signTx(tx.TransactionHex));
   }
 
@@ -524,52 +534,151 @@ export class Identity {
   }
 
   /**
-   * Encrypt an arbitrary string using the sender's seed hex and the recipient's
-   * public key. Typically this would make use of the sender's
-   * messagingPrivateKey for building chat or messaging applications.
+   * Encrypt an arbitrary string using the recipient's
+   * public key.
    *
    * @example
    * ```typescript
    * const message = "Hi, this is my first encrypted message!";
    *
-   * const cipherText = await identity.encrypt(
-   *   senderPrivateMessagingSeedHex,
+   * const cipherText = await identity.encryptMessage(
    *   recipientPublicKeyBase58Check,
    *   message
    * );
    * ```
    */
-  encrypt(
-    senderSeedHex: string,
+  encryptMessage(
     recipientPublicKeyBase58Check: string,
-    plaintext: string
-  ): Promise<string> {
-    return encrypt(senderSeedHex, recipientPublicKeyBase58Check, plaintext);
+    messagePlainText: string
+  ) {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot encrypt message without a private messaging key');
+    }
+
+    return encryptChatMessage(
+      primaryDerivedKey.messagingPrivateKey,
+      recipientPublicKeyBase58Check,
+      messagePlainText
+    );
   }
 
   /**
-   * Decrypt a hex encoded encrypted message using the recipient's private seed
-   * hex and the sender's public key. Typically this would make use of the
-   * recipient's messagingPrivateKey for building chat or messaging
-   * applications.
-   *
-   * @example
-   * ```typescript
-   * const cipherTextHex = "df6f3ff4695edb569631af4494b9f05d86c7fb8572226a356e03678aa56b7875";
-   *
-   * const plaintext = await identity.decrypt(
-   *   recipientPrivateMessagingSeedHex,
-   *   senderPublicKeyBase58Check,
-   *   cipherTextHex
-   * );
-   * ```
+   * @param message This is a message object returned any of the messages
+   * endpoints of the DeSo backend api, could be a DM or a Group message.
+   * @param groups This is an array of group chats the user belongs to. This is
+   * required to decrypt group messages.
+   * @returns
    */
-  decrypt(
-    recipientSeedHex: string,
-    senderPublicKeyBase58Check: string,
-    cipherTextHex: string
-  ) {
-    return decrypt(recipientSeedHex, senderPublicKeyBase58Check, cipherTextHex);
+  async decryptMessage(
+    message: NewMessageEntryResponse,
+    groups: AccessGroupEntryResponse[]
+  ): Promise<DecryptedMessageEntryResponse> {
+    const { primaryDerivedKey, publicKey: userPublicKeyBase58Check } =
+      this.#currentUser ?? {};
+    if (!(primaryDerivedKey?.messagingPrivateKey && userPublicKeyBase58Check)) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot decrypt messages without a logged in user');
+    }
+
+    const isSender =
+      message.SenderInfo.OwnerPublicKeyBase58Check ===
+        userPublicKeyBase58Check &&
+      (message.SenderInfo.AccessGroupKeyName === 'default-key' ||
+        !message.SenderInfo.AccessGroupKeyName);
+    let DecryptedMessage = '';
+    let errorMsg = '';
+
+    switch (message.ChatType) {
+      case ChatType.DM:
+        if (message.MessageInfo?.ExtraData?.['unencrypted']) {
+          // TODO: we need to decode this from hex
+          DecryptedMessage = message.MessageInfo.EncryptedText;
+        } else {
+          try {
+            DecryptedMessage = await this.#decryptDM(
+              userPublicKeyBase58Check,
+              primaryDerivedKey.messagingPrivateKey,
+              message,
+              isSender
+            );
+          } catch (e: any) {
+            errorMsg = e?.toString() ?? 'Could not decrypt direct message';
+          }
+        }
+        break;
+      case ChatType.GROUPCHAT:
+        try {
+          DecryptedMessage = await this.#decryptGroupChat(groups, message);
+        } catch (e: any) {
+          errorMsg = e?.toString() ?? 'Could not decrypt group message';
+        }
+        break;
+      default:
+        // If we add new chat types, we need to add explicit support for them.
+        throw new Error(`unsupported chat type: ${message.ChatType}`);
+    }
+
+    return {
+      ...message,
+      ...{ DecryptedMessage, IsSender: isSender, error: errorMsg },
+    };
+  }
+
+  /**
+   * Decrypts the encrypted access group private key that we will need to use to decrypt group messages.
+   *
+   * @param encryptedKeyHex
+   * @returns returns a promise that resolves t the decrypted key pair.
+   */
+  async decryptAccessGroupKeyPair(encryptedKeyHex: string) {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot encrypt message without a private messaging key');
+    }
+
+    const decryptedPrivateKeyHex = await decrypt(
+      primaryDerivedKey.messagingPrivateKey,
+      encryptedKeyHex
+    );
+
+    return keygen(decryptedPrivateKeyHex);
+  }
+
+  /**
+   * Generate a key pair for an access group. This is used to encrypt and
+   * decrypt group messages.
+   *
+   * @param groupName the plaintext name of the group chat
+   * @returns a promise that resolves to the new key info.
+   */
+  async accessGroupStandardDerivation(
+    groupName: string
+  ): Promise<AccessGroupPrivateInfo> {
+    const { primaryDerivedKey } = this.#currentUser ?? {};
+
+    if (!primaryDerivedKey?.messagingPrivateKey) {
+      // This *should* never happen, but just in case we throw here to surface any bugs.
+      throw new Error('Cannot derive access group without a messaging key');
+    }
+
+    const keys = await deriveAccessGroupKeyPair(
+      primaryDerivedKey.messagingPrivateKey,
+      groupName
+    );
+    const publicKeyBase58Check = await publicKeyToBase58Check(keys.public, {
+      network: this.#network,
+    });
+
+    return {
+      AccessGroupPrivateKeyHex: keys.seedHex,
+      AccessGroupPublicKeyBase58Check: publicKeyBase58Check,
+      AccessGroupKeyName: groupName,
+    };
   }
 
   /**
@@ -1258,6 +1367,77 @@ export class Identity {
     if (!errorType) return e;
 
     return new DeSoCoreError(e.message, errorType, e);
+  }
+
+  /**
+   *
+   * @private
+   */
+  async #decryptGroupChat(
+    groups: AccessGroupEntryResponse[],
+    message: NewMessageEntryResponse
+  ) {
+    // ASSUMPTION: if it's a group chat, then the RECIPIENT has the group key name we need?
+    const accessGroup = groups.find((g) => {
+      return (
+        g.AccessGroupKeyName === message.RecipientInfo.AccessGroupKeyName &&
+        g.AccessGroupOwnerPublicKeyBase58Check ===
+          message.RecipientInfo.OwnerPublicKeyBase58Check &&
+        g.AccessGroupMemberEntryResponse
+      );
+    });
+
+    if (!accessGroup?.AccessGroupMemberEntryResponse?.EncryptedKey) {
+      throw new Error('access group key not found for group message');
+    }
+
+    const decryptedKeys = await this.decryptAccessGroupKeyPair(
+      accessGroup.AccessGroupMemberEntryResponse.EncryptedKey
+    );
+
+    return decryptChatMessage(
+      decryptedKeys.seedHex,
+      message.SenderInfo.AccessGroupPublicKeyBase58Check,
+      message.MessageInfo.EncryptedText
+    );
+  }
+
+  /**
+   * @private
+   */
+  async #decryptDM(
+    userPublicKeyBase58Check: string,
+    privateKeyHex: string,
+    message: NewMessageEntryResponse,
+    isSender: boolean
+  ) {
+    const accessGroupInfo = isSender
+      ? message.SenderInfo
+      : message.RecipientInfo;
+
+    if (
+      message?.MessageInfo?.ExtraData &&
+      message.MessageInfo.ExtraData['unencrypted']
+    ) {
+      // TODO: we should be doing text encode/decode here.
+      return message.MessageInfo.EncryptedText;
+    } else {
+      const isRecipient =
+        message.RecipientInfo.OwnerPublicKeyBase58Check ===
+          userPublicKeyBase58Check &&
+        message.RecipientInfo.AccessGroupKeyName ===
+          accessGroupInfo.AccessGroupKeyName;
+
+      const publicDecryptionKey = isRecipient
+        ? message.SenderInfo.AccessGroupPublicKeyBase58Check
+        : message.RecipientInfo.AccessGroupPublicKeyBase58Check;
+
+      return decryptChatMessage(
+        privateKeyHex,
+        publicDecryptionKey,
+        message.MessageInfo.EncryptedText
+      );
+    }
   }
 }
 
