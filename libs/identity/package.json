@@ -7,6 +7,14 @@
     "url": "https://github.com/deso-protocol/deso-workspace.git",
     "directory": "libs/identity"
   },
+  "keywords": [
+    "deso",
+    "decentralized",
+    "identity",
+    "social",
+    "crypto",
+    "wallet"
+  ],
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
     "bs58": "^5.0.0",
