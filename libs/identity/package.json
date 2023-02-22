@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
+    "@noble/hashes": "^1.2.0",
     "bs58": "^5.0.0",
     "deso-protocol-types": "0.5.7"
   }

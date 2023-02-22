@@ -344,8 +344,8 @@ export class Identity {
     if (loginKeyPair) {
       derivedPublicKey = JSON.parse(loginKeyPair).publicKey;
     } else {
-      const keys = await keygen();
-      derivedPublicKey = await publicKeyToBase58Check(keys.public, {
+      const keys = keygen();
+      derivedPublicKey = publicKeyToBase58Check(keys.public, {
         network: this.#network,
       });
       this.#window.localStorage.setItem(
@@ -658,9 +658,7 @@ export class Identity {
    * @param groupName the plaintext name of the group chat
    * @returns a promise that resolves to the new key info.
    */
-  async accessGroupStandardDerivation(
-    groupName: string
-  ): Promise<AccessGroupPrivateInfo> {
+  accessGroupStandardDerivation(groupName: string): AccessGroupPrivateInfo {
     const { primaryDerivedKey } = this.#currentUser ?? {};
 
     if (!primaryDerivedKey?.messagingPrivateKey) {
@@ -668,11 +666,11 @@ export class Identity {
       throw new Error('Cannot derive access group without a messaging key');
     }
 
-    const keys = await deriveAccessGroupKeyPair(
+    const keys = deriveAccessGroupKeyPair(
       primaryDerivedKey.messagingPrivateKey,
       groupName
     );
-    const publicKeyBase58Check = await publicKeyToBase58Check(keys.public, {
+    const publicKeyBase58Check = publicKeyToBase58Check(keys.public, {
       network: this.#network,
     });
 

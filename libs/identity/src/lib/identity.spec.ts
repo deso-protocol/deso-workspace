@@ -7,7 +7,7 @@ import { DEFAULT_IDENTITY_URI, LOCAL_STORAGE_KEYS } from './constants';
 import { keygen, publicKeyToBase58Check } from './crypto-utils';
 import { ERROR_TYPES } from './error-types';
 import { Identity } from './identity';
-import { getAPIFake, getWindowFake, setupTestPolyfills } from './test-utils';
+import { getAPIFake, getWindowFake } from './test-utils';
 import { APIProvider } from './types';
 
 function getPemEncodePublicKey(privateKey: Uint8Array): string {
@@ -24,7 +24,6 @@ describe('identity', () => {
   let windowFake: Window;
   let apiFake: APIProvider;
   let postMessageListener: (args: any) => any;
-  beforeAll(setupTestPolyfills);
   beforeEach(() => {
     windowFake = getWindowFake({
       addEventListener: (message: any, listener: (args: any) => void): void => {

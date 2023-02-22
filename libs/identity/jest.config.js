@@ -11,4 +11,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/libs/identity',
+  setupFilesAfterEnv: ['<rootDir>/src/lib/setup-jest.ts'],
 };

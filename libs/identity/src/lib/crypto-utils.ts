@@ -1,3 +1,4 @@
+import { sha256 } from '@noble/hashes/sha256';
 import {
   getPublicKey,
   getSharedSecret as nobleGetSharedSecret,
@@ -81,23 +82,21 @@ const normalizeSeed = (seed: string | Uint8Array): Uint8Array => {
  * @param data could be a hex string or a byte array (Uint8Array)
  * @returns
  */
-export const sha256X2 = async (
-  data: Uint8Array | string
-): Promise<Uint8Array> => {
+export const sha256X2 = (data: Uint8Array | string): Uint8Array => {
   const d = typeof data === 'string' ? ecUtils.hexToBytes(data) : data;
-  return ecUtils.sha256(await ecUtils.sha256(d));
+  return sha256(sha256(d));
 };
 
-export const publicKeyToBase58Check = async (
+export const publicKeyToBase58Check = (
   publicKeyBytes: Uint8Array,
   options?: Base58CheckOptions
-): Promise<string> => {
+): string => {
   const prefix = PUBLIC_KEY_PREFIXES[options?.network ?? 'mainnet'].deso;
   // This is the same as the implementation in the bs58check package, but we
   // slightly modify it to use the browser friendly version of Buffer.concat.
   // See: https://github.com/bitcoinjs/bs58check/blob/12b3e700f355c5c49d0be3f8fc29be6c66e753e9/base.js#L1
   const bytes = new Uint8Array([...prefix, ...publicKeyBytes]);
-  const checksum = await sha256X2(bytes);
+  const checksum = sha256X2(bytes);
   return bs58.encode(concatUint8Arrays([bytes, checksum], bytes.length + 4));
 };
 
@@ -121,7 +120,7 @@ export const signTx = async (
   options?: SignOptions
 ): Promise<string> => {
   const transactionBytes = ecUtils.hexToBytes(txHex);
-  const hashedTxBytes = await sha256X2(transactionBytes);
+  const hashedTxBytes = sha256X2(transactionBytes);
   const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
   const privateKey = ecUtils.hexToBytes(seedHex);
   const [signatureBytes, recoveryParam] = await sign(
@@ -165,9 +164,8 @@ export const getSignedJWT = async (
   });
 
   const jwt = `${urlSafeBase64(header)}.${urlSafeBase64(payload)}`;
-
   const [signature] = await sign(
-    ecUtils.bytesToHex(await ecUtils.sha256(new TextEncoder().encode(jwt))),
+    ecUtils.bytesToHex(sha256(new Uint8Array(new TextEncoder().encode(jwt)))),
     ecUtils.hexToBytes(seedHex)
   );
   const encodedSignature = derToJoseEncoding(signature);
@@ -189,7 +187,7 @@ export const encryptChatMessage = async (
   message: string
 ) => {
   const privateKey = ecUtils.hexToBytes(senderSeedHex);
-  const recipientPublicKey = await bs58PublicKeyToBytes(
+  const recipientPublicKey = bs58PublicKeyToBytes(
     recipientPublicKeyBase58Check
   );
   const sharedPrivateKey = await getSharedPrivateKey(
@@ -219,7 +217,7 @@ export const encrypt = async (
   const privKey = await getSharedPrivateKey(ephemPrivateKey, publicKeyBytes);
   const encryptionKey = privKey.slice(0, 16);
   const iv = ecUtils.randomBytes(16);
-  const macKey = await ecUtils.sha256(privKey.slice(16));
+  const macKey = sha256(privKey.slice(16));
   const bytes = new TextEncoder().encode(plaintext);
   const cryptoKey = await window.crypto.subtle.importKey(
     'raw',
@@ -252,11 +250,11 @@ export const encrypt = async (
   );
 };
 
-export const bs58PublicKeyToBytes = async (str: string) => {
+export const bs58PublicKeyToBytes = (str: string) => {
   const bytes = bs58.decode(str);
   const payload = bytes.slice(0, -4);
   const checksumA = bytes.slice(-4);
-  const checksumB = await sha256X2(payload);
+  const checksumB = sha256X2(payload);
 
   if (
     (checksumA[0] ^ checksumB[0]) |
@@ -319,7 +317,7 @@ export const decrypt = async (
   const msgMac = cipherBytes.slice(65 + 16 + cipherTextLength);
   const sharedSecretKey = await getSharedPrivateKey(privateKey, ephemPublicKey);
   const encryptionKey = sharedSecretKey.slice(0, 16);
-  const macKey = await ecUtils.sha256(sharedSecretKey.slice(16));
+  const macKey = sha256(sharedSecretKey.slice(16));
   const hmacKnownGood = await ecUtils.hmacSha256(macKey, cipherAndIv);
 
   if (!isValidHmac(msgMac, hmacKnownGood)) {
@@ -372,13 +370,13 @@ export const getSharedSecret = async (
 
 // taken from reference implementation in the deso chat app:
 // https://github.com/deso-protocol/access-group-messaging-app/blob/cd5c237f5e5729196aac0da161d0851bde78092c/src/services/crypto-utils.service.tsx#L91
-export const kdf = async (secret: Uint8Array, outputLength: number) => {
+export const kdf = (secret: Uint8Array, outputLength: number) => {
   let ctr = 1;
   let written = 0;
   let result = new Uint8Array();
 
   while (written < outputLength) {
-    const hash = await ecUtils.sha256(
+    const hash = sha256(
       new Uint8Array([
         ...new Uint8Array([ctr >> 24, ctr >> 16, ctr >> 8, ctr]),
         ...secret,
@@ -443,15 +441,13 @@ function derToJoseEncoding(signature: Uint8Array) {
   return urlSafeBase64(outputChars);
 }
 
-export async function deriveAccessGroupKeyPair(
+export function deriveAccessGroupKeyPair(
   privateKeyHex: string,
   groupKeyName: string
-): Promise<KeyPair> {
-  const secretHash = await sha256X2(privateKeyHex);
-  const keyNameHash = await sha256X2(new TextEncoder().encode(groupKeyName));
-  const privateKey = await sha256X2(
-    new Uint8Array([...secretHash, ...keyNameHash])
-  );
+): KeyPair {
+  const secretHash = sha256X2(privateKeyHex);
+  const keyNameHash = sha256X2(new TextEncoder().encode(groupKeyName));
+  const privateKey = sha256X2(new Uint8Array([...secretHash, ...keyNameHash]));
 
   return keygen(privateKey);
 }
