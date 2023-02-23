@@ -772,6 +772,172 @@ describe('identity', () => {
       expect(hasPermissions).toBe(false);
     });
   });
+  describe('.desoAddressToEthereumAddress()', () => {
+    it('works', () => {
+      expect(
+        identity.desoAddressToEthereumAddress(
+          'BC1YLiSayiRJKRut5gNW8CnN7vGugm3UzH8wXJiwx4io4FJKgRTGVqF'
+        )
+      ).toEqual('0x648D0cdA8D9C79fcC3D808fE35c2BF3887bcB6db');
+    });
+  });
+  describe('.ethereumAddressToDesoAddress()', () => {
+    it('works for mainnet', async () => {
+      const ethAddress = '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db';
+      const ethTransactionsForAddressResponse = {
+        status: '1',
+        message: 'OK',
+        result: [
+          // This is is just a partial result object. We only care about the from field and the hash.
+          {
+            from: ethAddress,
+            hash: '0x1aeac6a985eeb2937e5a3069e149d70c1b623e3da96853755bfe2b9940a58f14',
+          },
+        ],
+      };
+
+      const queryETHRPCForTransactionResponse = {
+        id: 1,
+        jsonrpc: '2.0',
+        result: {
+          accessList: [],
+          blockHash:
+            '0x0e5fe1cd87180c85350c464e235a5e9e70bb0a4b4b5eff033cc600b4ed76f88f',
+          blockNumber: '0x70b92e',
+          chainId: '0x5',
+          from: '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db',
+          gas: '0x5208',
+          gasPrice: '0x73a20d11',
+          hash: '0x5a63939f9f5f6c90d4a302395e8f9d92be4e4b85d2430ede1d52aa62442c705d',
+          input: '0x',
+          maxFeePerGas: '0x73a20d17',
+          maxPriorityFeePerGas: '0x73a20d00',
+          nonce: '0x0',
+          r: '0xb348e2bdba7eb4b833f77684709a15094d5f94307309f3fa47f6c603d5390894',
+          s: '0x5993e2aa5653427090178d9714840924ca73a775b79e916d9f8ca4ed2294ca2d',
+          to: '0xc8b2fdcf829e3d56f9917cd6356a1bb206101152',
+          transactionIndex: '0x71',
+          type: '0x2',
+          v: '0x1',
+          value: '0x5a0369b1f2b48',
+        },
+        error: {
+          code: 0,
+          message: '',
+        },
+      };
+
+      apiFake.get = jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (
+            url.endsWith(
+              `get-eth-transactions-for-eth-address/${ethAddress}?eth_network=mainnet`
+            )
+          ) {
+            return Promise.resolve(ethTransactionsForAddressResponse);
+          }
+
+          return Promise.resolve(null);
+        })
+        .mockName('api.get');
+
+      apiFake.post = jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (url.endsWith('query-eth-rpc')) {
+            return Promise.resolve(queryETHRPCForTransactionResponse);
+          }
+
+          return Promise.resolve(null);
+        })
+        .mockName('api.get');
+
+      expect(
+        await identity.ethereumAddressToDesoAddress(
+          '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db'
+        )
+      ).toEqual('BC1YLiSayiRJKRut5gNW8CnN7vGugm3UzH8wXJiwx4io4FJKgRTGVqF');
+    });
+    it('works for testnet', async () => {
+      identity.configure({ network: 'testnet' });
+      const ethAddress = '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db';
+      const ethTransactionsForAddressResponse = {
+        status: '1',
+        message: 'OK',
+        result: [
+          // This is is just a partial result object. We only care about the from field and the hash.
+          {
+            from: ethAddress,
+            hash: '0x1aeac6a985eeb2937e5a3069e149d70c1b623e3da96853755bfe2b9940a58f14',
+          },
+        ],
+      };
+
+      const queryETHRPCForTransactionResponse = {
+        id: 1,
+        jsonrpc: '2.0',
+        result: {
+          accessList: [],
+          blockHash:
+            '0x0e5fe1cd87180c85350c464e235a5e9e70bb0a4b4b5eff033cc600b4ed76f88f',
+          blockNumber: '0x70b92e',
+          chainId: '0x5',
+          from: '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db',
+          gas: '0x5208',
+          gasPrice: '0x73a20d11',
+          hash: '0x5a63939f9f5f6c90d4a302395e8f9d92be4e4b85d2430ede1d52aa62442c705d',
+          input: '0x',
+          maxFeePerGas: '0x73a20d17',
+          maxPriorityFeePerGas: '0x73a20d00',
+          nonce: '0x0',
+          r: '0xb348e2bdba7eb4b833f77684709a15094d5f94307309f3fa47f6c603d5390894',
+          s: '0x5993e2aa5653427090178d9714840924ca73a775b79e916d9f8ca4ed2294ca2d',
+          to: '0xc8b2fdcf829e3d56f9917cd6356a1bb206101152',
+          transactionIndex: '0x71',
+          type: '0x2',
+          v: '0x1',
+          value: '0x5a0369b1f2b48',
+        },
+        error: {
+          code: 0,
+          message: '',
+        },
+      };
+
+      apiFake.get = jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (
+            url.endsWith(
+              `get-eth-transactions-for-eth-address/${ethAddress}?eth_network=goerli`
+            )
+          ) {
+            return Promise.resolve(ethTransactionsForAddressResponse);
+          }
+
+          return Promise.resolve(null);
+        })
+        .mockName('api.get');
+
+      apiFake.post = jest
+        .fn()
+        .mockImplementation((url: string) => {
+          if (url.endsWith('query-eth-rpc')) {
+            return Promise.resolve(queryETHRPCForTransactionResponse);
+          }
+
+          return Promise.resolve(null);
+        })
+        .mockName('api.get');
+
+      expect(
+        await identity.ethereumAddressToDesoAddress(
+          '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db'
+        )
+      ).toEqual('tBCKXZpzthFjXpopawpaFNbvKaw55ZFvMt1T2Psh56c7CDH7dRU7fm');
+    });
+  });
   describe('.subscribe()', () => {
     it.todo('it notifies the caller of the correct events');
   });

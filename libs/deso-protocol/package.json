@@ -1,25 +1,10 @@
 {
   "name": "deso-protocol",
-  "version": "0.7.38",
+  "version": "0.7.37-beta.11",
   "type": "commonjs",
   "dependencies": {
-    "axios": "^0.25.0",
-    "deso-protocol-types": "^0.5.7",
-    "@types/bs58check": "^2.1.0",
-    "tus-js-client": "^2.3.1",
-    "crypto-browserify": "^3.12.0",
-    "stream-browserify": "^3.0.0",
-    "stream-http": "^3.2.0",
-    "https-browserify": "^1.0.0",
-    "os-browserify": "^0.3.0",
-    "url": "^0.11.0",
-    "process": "^0.11.10",
-    "bip39": "^3.0.4",
-    "hdkey": "github:deso-protocol/hdkey",
-    "buffer": "^6.0.3",
-    "assert": "^2.0.0",
-    "ethers": "^5.6.6",
-    "sha256": "^0.2.0",
-    "sha3": "^2.1.4"
+    "@deso-core/identity": "^0.0.17-beta.4",
+    "@deso-core/data": "^0.0.8",
+    "deso-protocol-types": "0.5.7"
   }
 }

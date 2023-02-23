@@ -1,4 +1,7 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import {
+  DeSoNetwork,
+  TransactionSpendingLimitResponse,
+} from 'deso-protocol-types';
 
 export const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
 export const DEFAULT_NODE_URI = 'https://blockproducer.deso.org';
@@ -38,4 +41,12 @@ export const LOCAL_STORAGE_KEYS = Object.freeze({
   activePublicKey: 'desoActivePublicKey',
   identityUsers: 'desoIdentityUsers',
   loginKeyPair: 'desoLoginKeyPair',
+});
+
+export const DESO_NETWORK_TO_ETH_NETWORK: Record<
+  DeSoNetwork,
+  'mainnet' | 'goerli'
+> = Object.freeze({
+  mainnet: 'mainnet',
+  testnet: 'goerli',
 });

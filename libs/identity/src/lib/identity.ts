@@ -1,21 +1,28 @@
-import { utils as ecUtils } from '@noble/secp256k1';
+import { keccak_256 } from '@noble/hashes/sha3';
+import { Point, utils as ecUtils } from '@noble/secp256k1';
 import {
   AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
   ChatType,
   DecryptedMessageEntryResponse,
+  InfuraResponse,
+  InfuraTx,
   NewMessageEntryResponse,
+  QueryETHRPCRequest,
   SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
+import { ethers } from 'ethers';
 import {
   DEFAULT_IDENTITY_URI,
   DEFAULT_NODE_URI,
   DEFAULT_PERMISSIONS as DEFAULT_TRANSACTION_SPENDING_LIMIT,
+  DESO_NETWORK_TO_ETH_NETWORK,
   IDENTITY_SERVICE_VALUE,
   LOCAL_STORAGE_KEYS,
 } from './constants';
 import {
+  bs58PublicKeyToBytes,
   decrypt,
   decryptChatMessage,
   deriveAccessGroupKeyPair,
@@ -35,6 +42,8 @@ import {
   AccessGroupPrivateInfo,
   APIProvider,
   Deferred,
+  EtherscanTransaction,
+  EtherscanTransactionsByAddressResponse,
   IdentityConfiguration,
   IdentityDerivePayload,
   IdentityLoginPayload,
@@ -178,6 +187,15 @@ export class Identity {
     return (this.#users?.[activePublicKey] as StoredUser) ?? null;
   }
 
+  /**
+   * The configured nodeURI used for any network calls. Making this accessible
+   * behind a getter ensures it is read-only and can only be set via the
+   * configure call.
+   */
+  get nodeURI() {
+    return this.#nodeURI;
+  }
+
   constructor(windowProvider: Window, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
@@ -243,17 +261,21 @@ export class Identity {
     jwtAlgorithm = 'ES256',
     appName = '',
   }: IdentityConfiguration) {
-    this.#didConfigure = true;
     this.#identityURI = identityURI;
     this.#network = network;
     this.#nodeURI = nodeURI;
     this.#redirectURI = redirectURI;
     this.#jwtAlgorithm = jwtAlgorithm;
     this.#appName = appName;
-    this.#defaultTransactionSpendingLimit =
-      buildTransactionSpendingLimitResponse(spendingLimitOptions);
 
-    this.refreshDerivedKeyPermissions();
+    if (!this.#didConfigure) {
+      this.#defaultTransactionSpendingLimit =
+        buildTransactionSpendingLimitResponse(spendingLimitOptions);
+
+      this.refreshDerivedKeyPermissions();
+    }
+
+    this.#didConfigure = true;
   }
 
   /**
@@ -917,6 +939,151 @@ export class Identity {
 
       this.#launchIdentity('derive', params);
     });
+  }
+
+  desoAddressToEthereumAddress(address: string) {
+    const desoPKBytes = bs58PublicKeyToBytes(address).slice(1);
+    const ethPKHex = ecUtils.bytesToHex(keccak_256(desoPKBytes)).slice(24);
+    // EIP-55 requires a checksum. Reference implementation: https://eips.ethereum.org/EIPS/eip-55
+    const checksum = ecUtils.bytesToHex(keccak_256(ethPKHex));
+
+    return Array.from(ethPKHex).reduce(
+      (ethAddress, char, index) =>
+        ethAddress +
+        (parseInt(checksum[index], 16) >= 8 ? char.toUpperCase() : char),
+      '0x'
+    );
+  }
+
+  // TODO: make sure this works and write a test for it...
+  async ethereumAddressToDesoAddress(address: string) {
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
+
+    const transactions = await this.#getETHTransactionsSignedByAddress(address);
+    if (transactions.length === 0) {
+      throw new Error(
+        `ETH address must sign at least one transaction in order to recover its public key: ${address}`
+      );
+    }
+
+    const ethNet = DESO_NETWORK_TO_ETH_NETWORK[this.#network];
+    let ethereumPublicKey = '';
+
+    for (const { hash } of transactions) {
+      try {
+        const resp = await this.#queryETHRPC({
+          Method: 'eth_getTransactionByHash',
+          Params: [hash],
+          UseNetwork: ethNet,
+        });
+        const txn = resp.result as InfuraTx;
+        const signature = ethers.utils.joinSignature({
+          r: txn.r,
+          s: txn.s,
+          v: parseInt(txn.v, 16),
+        });
+
+        // Special thanks for this answer on ethereum.stackexchange.com: https://ethereum.stackexchange.com/a/126308
+        let txnData: any;
+        // TODO: figure out how to handle AccessList (type 1) transactions.
+        switch (parseInt(txn.type, 16)) {
+          case 0:
+            txnData = {
+              gasPrice: txn.gasPrice,
+              gasLimit: txn.gas,
+              value: txn.value,
+              nonce: parseInt(txn.nonce, 16),
+              data: txn.input,
+              chainId: parseInt(
+                txn.chainId ? txn.chainId : ethNet === 'goerli' ? '0x5' : '0x1',
+                16
+              ),
+              to: txn.to,
+            };
+            break;
+          case 2:
+            txnData = {
+              gasLimit: txn.gas,
+              value: txn.value,
+              nonce: parseInt(txn.nonce, 16),
+              data: txn.input,
+              chainId: parseInt(
+                txn.chainId ? txn.chainId : ethNet === 'goerli' ? '0x5' : '0x1',
+                16
+              ),
+              to: txn.to,
+              type: 2,
+              maxFeePerGas: txn.maxFeePerGas,
+              maxPriorityFeePerGas: txn.maxPriorityFeePerGas,
+            };
+            break;
+          default:
+            throw new Error('Unsupported txn type');
+        }
+
+        const rstxn = await ethers.utils.resolveProperties(txnData);
+        const raw = ethers.utils.serializeTransaction(rstxn as any); // returns RLP encoded transactionHash
+        const msgHash = ethers.utils.keccak256(raw); // as specified by ECDSA
+        const msgBytes = ethers.utils.arrayify(msgHash); // create binary hash
+        const recoveredPubKey = ethers.utils.recoverPublicKey(
+          msgBytes,
+          signature
+        );
+        const recoveredAddress = ethers.utils.computeAddress(recoveredPubKey);
+        if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+          throw new Error(
+            `recovered address ${recoveredAddress} does not match expected address ${address}`
+          );
+        }
+        ethereumPublicKey = recoveredPubKey.slice(2);
+        // break out of the loop for the first successful recovery
+        break;
+      } catch (e) {
+        // log the error but keep looking
+        console.error(`error recovering public key from txn: ${hash}`, e);
+      }
+    }
+
+    if (!ethereumPublicKey) {
+      throw new Error(
+        `failed to recover public key for eth address: ${address}`
+      );
+    }
+
+    const compressedEthKey = Point.fromHex(ethereumPublicKey).toRawBytes(true);
+    return publicKeyToBase58Check(compressedEthKey, { network: this.#network });
+  }
+
+  #queryETHRPC(params: QueryETHRPCRequest): Promise<InfuraResponse> {
+    return this.#api.post(`${this.#nodeURI}/api/v0/query-eth-rpc`, params);
+  }
+
+  async #getETHTransactionsSignedByAddress(
+    address: string
+  ): Promise<EtherscanTransaction[]> {
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
+
+    const resp = (await this.#api.get(
+      `${
+        this.#nodeURI
+      }/api/v0/get-eth-transactions-for-eth-address/${address}?eth_network=${
+        DESO_NETWORK_TO_ETH_NETWORK[this.#network]
+      }`
+    )) as EtherscanTransactionsByAddressResponse;
+
+    if (resp.status !== '1' || !resp.message.startsWith('OK')) {
+      throw new Error(
+        `Error fetching ETH transactions for address ${address}: ${resp.message}`
+      );
+    }
+
+    return resp.result.filter(
+      (tx) => tx.from.toLowerCase() === address.toLowerCase()
+    );
   }
 
   /**

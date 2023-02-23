@@ -1,0 +1,60 @@
+export const ethTransactionsForAddressResponse = {
+  status: '1',
+  message: 'OK',
+  result: [
+    {
+      blockNumber: '7387421',
+      timeStamp: '1660254456',
+      hash: '0x1aeac6a985eeb2937e5a3069e149d70c1b623e3da96853755bfe2b9940a58f14',
+      nonce: '20',
+      blockHash:
+        '0x26b0f86d18e1b058538341b4dccf508188cc7f491a1cf59ec07f4af040442873',
+      transactionIndex: '51',
+      from: '0xb386485e58f74429338844e690d041cda85fad29',
+      to: '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db',
+      value: '1000000000000000000',
+      gas: '21000',
+      gasPrice: '1500000012',
+      isError: '0',
+      txreceipt_status: '1',
+      input: '0x',
+      contractAddress: '',
+      cumulativeGasUsed: '12438332',
+      gasUsed: '21000',
+      confirmations: '1152312',
+      methodId: '0x',
+      functionName: '',
+    },
+  ],
+};
+
+export const queryETHRPCForTransactionResponse = {
+  id: 1,
+  jsonrpc: '2.0',
+  result: {
+    accessList: [],
+    blockHash:
+      '0x0e5fe1cd87180c85350c464e235a5e9e70bb0a4b4b5eff033cc600b4ed76f88f',
+    blockNumber: '0x70b92e',
+    chainId: '0x5',
+    from: '0x648d0cda8d9c79fcc3d808fe35c2bf3887bcb6db',
+    gas: '0x5208',
+    gasPrice: '0x73a20d11',
+    hash: '0x5a63939f9f5f6c90d4a302395e8f9d92be4e4b85d2430ede1d52aa62442c705d',
+    input: '0x',
+    maxFeePerGas: '0x73a20d17',
+    maxPriorityFeePerGas: '0x73a20d00',
+    nonce: '0x0',
+    r: '0xb348e2bdba7eb4b833f77684709a15094d5f94307309f3fa47f6c603d5390894',
+    s: '0x5993e2aa5653427090178d9714840924ca73a775b79e916d9f8ca4ed2294ca2d',
+    to: '0xc8b2fdcf829e3d56f9917cd6356a1bb206101152',
+    transactionIndex: '0x71',
+    type: '0x2',
+    v: '0x1',
+    value: '0x5a0369b1f2b48',
+  },
+  error: {
+    code: 0,
+    message: '',
+  },
+};

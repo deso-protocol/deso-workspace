@@ -31,7 +31,16 @@ const wrappedFetch = (url: string, options: any) => {
         throw new APIError(json.error, res.status);
       });
     }
-    return res.json();
+
+    return res.text().then((rawBodyText) => {
+      if (rawBodyText.length === 0) {
+        // In the case where the response body is empty, it will fail to parse
+        // as JSON so we just handle it as a special case.
+        return null;
+      } else {
+        return JSON.parse(rawBodyText);
+      }
+    });
   });
 };
 
