@@ -52,7 +52,7 @@ export class Transactions {
   }
 
   public async getTransactionSpendingLimitHexString(
-    request: string
+    request: TransactionSpendingLimitResponse
   ): Promise<GetTransactionSpendingLimitHexStringResponse> {
     return (
       await axios.post(

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Identity } from '../identity/Identity';
-import { BASE_URI } from '../state/BaseUri';
 import { Node } from '../Node/Node';
 import {
   GetAppStateRequest,
@@ -17,13 +16,14 @@ export class MetaData {
   public async getAppState(
     request: GetAppStateRequest
   ): Promise<GetAppStateResponse> {
-    return (await axios.post(`${BASE_URI}/get-app-state`, request)).data;
+    return (await axios.post(`${this.node.getUri()}/get-app-state`, request))
+      .data;
   }
 
   public async getExchangeRate(): Promise<GetExchangeRateResponse> {
-    return (await axios.get(`${BASE_URI}/get-exchange-rate`)).data;
+    return (await axios.get(`${this.node.getUri()}/get-exchange-rate`)).data;
   }
   public async healthCheck(): Promise<number> {
-    return (await axios.get(`${BASE_URI}/health-check`)).data;
+    return (await axios.get(`${this.node.getUri()}/health-check`)).data;
   }
 }
