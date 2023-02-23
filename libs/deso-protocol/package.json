@@ -1,9 +1,9 @@
 {
   "name": "deso-protocol",
-  "version": "0.7.37-beta.11",
+  "version": "0.7.37-beta.12",
   "type": "commonjs",
   "dependencies": {
-    "@deso-core/identity": "^0.0.17-beta.4",
+    "@deso-core/identity": "^0.0.18",
     "@deso-core/data": "^0.0.8",
     "deso-protocol-types": "0.5.7"
   }
