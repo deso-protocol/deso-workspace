@@ -617,9 +617,9 @@ export class Identity {
     switch (message.ChatType) {
       case ChatType.DM:
         if (message.MessageInfo?.ExtraData?.['unencrypted']) {
-          const bytes = ecUtils.hexToBytes(message.MessageInfo.EncryptedText);
-          const textDecoder = new TextDecoder();
-          DecryptedMessage = textDecoder.decode(bytes);
+          DecryptedMessage = unencryptedHexToPlainText(
+            message.MessageInfo.EncryptedText
+          );
         } else {
           try {
             DecryptedMessage = await this.#decryptDM(
@@ -1586,8 +1586,7 @@ export class Identity {
       message?.MessageInfo?.ExtraData &&
       message.MessageInfo.ExtraData['unencrypted']
     ) {
-      // TODO: we should be doing text encode/decode here.
-      return message.MessageInfo.EncryptedText;
+      return unencryptedHexToPlainText(message.MessageInfo.EncryptedText);
     } else {
       const isRecipient =
         message.RecipientInfo.OwnerPublicKeyBase58Check ===
@@ -1618,3 +1617,9 @@ class DeSoCoreError extends Error {
     this.name = 'DeSoCoreError';
   }
 }
+
+const unencryptedHexToPlainText = (hex: string) => {
+  const bytes = ecUtils.hexToBytes(hex);
+  const textDecoder = new TextDecoder();
+  return textDecoder.decode(bytes);
+};
