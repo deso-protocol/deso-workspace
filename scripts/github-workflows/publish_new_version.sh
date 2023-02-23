@@ -7,6 +7,7 @@ set -e
 LAST_TAG=$(git describe --tags --abbrev=0)
 PACKAGE=$(echo $LAST_TAG | cut -d/ -f1)
 NEW_VERSION=$(echo $LAST_TAG | cut -d/ -f2)
+NPM_PRERELEASE_TAG=$(echo $NEW_VERSION | cut -d '-' -f 2 | cut -d '.' -f 1)
 
 echo "Preparing to release $PACKAGE@$NEW_VERSION"
 npm ci
@@ -15,7 +16,14 @@ npm version $NEW_VERSION
 cd -
 npx nx run $PACKAGE:build
 cd dist/libs/$PACKAGE
-npm publish --access public
+
+# If the version is a pre-release (beta), publish with the --tag flag.
+if [ $NPM_PRERELEASE_TAG ]; then
+  npm publish --tag $NPM_PRERELEASE_TAG --access public
+else
+  npm publish --access public
+fi
+
 RELEASE_VERSION=$(grep version package.json | awk -F \" '{print $4}')
 echo "::notice::New version successfully released: $RELEASE_VERSION"
 cd -
