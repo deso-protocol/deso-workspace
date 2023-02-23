@@ -7,7 +7,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2019",
+    "target": "es6",
     "module": "esnext",
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
@@ -16,6 +16,7 @@
     "inlineSources": true,
     "inlineSourceMap": true,
     "paths": {
+      "@deso-core/data": ["libs/data/src/index.ts"],
       "@deso-core/identity": ["libs/identity/src/index.ts"],
       "deso-protocol": ["libs/deso-protocol/src/index.ts"],
       "deso-protocol-types": ["libs/deso-protocol-types/src/index.ts"]

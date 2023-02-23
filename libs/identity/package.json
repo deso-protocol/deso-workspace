@@ -1,6 +1,6 @@
 {
   "name": "@deso-core/identity",
-  "version": "0.0.17",
+  "version": "0.0.17-beta.4",
   "type": "commonjs",
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
     "@noble/secp256k1": "^1.7.1",
     "@noble/hashes": "^1.2.0",
     "bs58": "^5.0.0",
-    "deso-protocol-types": "0.5.7"
+    "deso-protocol-types": "0.5.7",
+    "ethers": "^5.6.6"
   }
 }

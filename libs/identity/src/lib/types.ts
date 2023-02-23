@@ -188,6 +188,35 @@ export interface SubscriberNotification {
   alternateUsers: Record<string, StoredUser> | null;
 }
 
+export interface EtherscanTransactionsByAddressResponse {
+  status: string;
+  message: string;
+  result: EtherscanTransaction[];
+}
+
+export interface EtherscanTransaction {
+  blockNumber: string;
+  timestamp: string;
+  hash: string;
+  nonce: string;
+  blockHash: string;
+  transactionIndex: string;
+  from: string;
+  to: string;
+  value: string;
+  gas: string;
+  gasPrice: string;
+  isError: string;
+  txreceipt_status: string;
+  input: string;
+  contractAddress: string;
+  cumulativeGasUsed: string;
+  gasUsed: string;
+  confirmations: string;
+  methodId: string;
+  functionName: string;
+}
+
 export interface AccessGroupPrivateInfo {
   AccessGroupPublicKeyBase58Check: string;
   AccessGroupPrivateKeyHex: string;

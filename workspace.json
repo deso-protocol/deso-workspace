@@ -1,14 +1,14 @@
 {
   "version": 2,
   "projects": {
-    "api-playground": "apps/api-playground",
+    "data": "libs/data",
     "deso-protocol": "libs/deso-protocol",
     "deso-protocol-types": "libs/deso-protocol-types",
     "developer-hub": "apps/developer-hub",
     "developer-hub-e2e": "apps/developer-hub-e2e",
-    "identity": "libs/identity",
     "react-playground": "apps/react-playground",
-    "react-playground-e2e": "apps/react-playground-e2e"
+    "react-playground-e2e": "apps/react-playground-e2e",
+    "identity": "libs/identity"
   },
   "options": {}
 }
