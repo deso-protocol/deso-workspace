@@ -13,6 +13,7 @@ import {
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 import { ethers } from 'ethers';
+import { api } from './api';
 import {
   DEFAULT_IDENTITY_URI,
   DEFAULT_NODE_URI,
@@ -1623,3 +1624,5 @@ const unencryptedHexToPlainText = (hex: string) => {
   const textDecoder = new TextDecoder();
   return textDecoder.decode(bytes);
 };
+
+export const identity = new Identity(window, api);
