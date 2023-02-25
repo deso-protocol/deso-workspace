@@ -17,7 +17,7 @@ import { configure } from 'deso-protocol';
 
 // configure takes all of the same options that the identity
 // library's configure method takes: https://github.com/deso-protocol/deso-workspace/tree/main/libs/identity#configuration
-// with the addition of a the MinFeeRateNanosPerKB value that will be used for all transactions.
+// with the addition of the MinFeeRateNanosPerKB value that will be used for all transactions.
 configure({
   spendingLimitOptions: {
     GlobalDESOLimit: 1000000000,
@@ -30,7 +30,7 @@ configure({
 })
 ```
 
-See [The identity configuration options](https://github.com/deso-protocol/deso-workspace/tree/main/libs/identity#configuration) for reference.
+See [the identity configuration options](https://github.com/deso-protocol/deso-workspace/tree/main/libs/identity#configuration) for reference.
 
 ## Usage
 
@@ -43,7 +43,7 @@ identity.login();
 identity.logout();
 ```
 
-See [The identity usage docs](https://github.com/deso-protocol/deso-workspace/tree/main/libs/identity#usage) for reference.
+See [the identity usage docs](https://github.com/deso-protocol/deso-workspace/tree/main/libs/identity#usage) for reference.
 
 ### Data: fetching data from a node
 
@@ -60,10 +60,11 @@ const posts = await getPostsStateless({ NumToFetch: 20 });
 See the [backend api documentation](https://docs.deso.org/deso-backend/api) for reference.
 See an exhaustive list of the available data fetching functions [here](https://github.com/deso-protocol/deso-workspace/blob/main/libs/data/src/lib/data.ts#L73).
 
-### Transactions: writing data to the blockchain
+### Transactions: Writing data to the blockchain
 
-The deso-protocol library will handling constructing and signing transactions for you. All you need to
-do is construct them by providing the raw data.
+The deso-protocol library will handle signing and submitting transactions for
+confirmation for you. All you need to do is construct them by providing the raw
+data.
 
 ```ts
 import { submitPost } from 'deso-protocol';
