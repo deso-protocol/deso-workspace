@@ -4,6 +4,10 @@ set -e
 # Tags should be formatted in the following way:
 # <package-name>/<version-number>
 # example: deso-protocol/0.0.1
+#
+# For a pre-release, use the following format:
+# <package-name>/<version-number>-beta.<pre-release-version>
+# example: deso-protocol/0.0.1-beta.0
 LAST_TAG=$(git describe --tags --abbrev=0)
 PACKAGE=$(echo $LAST_TAG | cut -d/ -f1)
 NEW_VERSION=$(echo $LAST_TAG | cut -d/ -f2)
@@ -18,7 +22,7 @@ npx nx run $PACKAGE:build
 cd dist/libs/$PACKAGE
 
 # If the version is a pre-release (beta), publish with the --tag flag.
-if [ $NPM_PRERELEASE_TAG != 0 ]; then
+if [ $NPM_PRERELEASE_TAG == beta ]; then
   npm publish --tag $NPM_PRERELEASE_TAG --access public
 else
   npm publish --access public
