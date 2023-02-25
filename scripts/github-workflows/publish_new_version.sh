@@ -23,10 +23,11 @@ cd dist/libs/$PACKAGE
 
 # If the version is a pre-release (beta), publish with the --tag flag.
 if [[ $NPM_PRERELEASE_TAG == beta ]]; then
-  echo "Publishing pre-release version $NEW_VERSION with tag $NPM_PRERELEASE_TAG"
+  echo "Publishing pre-release version $NEW_VERSION"
   npm publish --tag $NPM_PRERELEASE_TAG --access public
 elif [[ $NPM_PRERELEASE_TAG =~ ^[0-9]+$ ]]; then
-  npm publish --access public
+  echo "Publishing latest stable version $NEW_VERSION"
+  npm publish --tag latest --access public
 else
   echo "Invalid version format for $NEW_VERSION. Please use the following format: <package-name>/<version-number> or <package-name>/<version-number>-beta.<pre-release-version>"
   exit 1
