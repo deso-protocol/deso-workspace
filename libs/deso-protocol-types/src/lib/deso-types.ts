@@ -4175,7 +4175,8 @@ export interface User {
   UsersWhoHODLYouCount: number;
   HasPhoneNumber: boolean;
   CanCreateProfile: boolean;
-  BlockedPubKeys: { [key: string]: string };
+  // https://github.com/deso-protocol/backend/blob/983c803c2f3f441fb49e13c73cc27a26ecf52375/routes/global_state.go#L333
+  BlockedPubKeys: { [key: string]: {} };
   HasEmail: boolean;
   EmailVerified: boolean;
   JumioStartTime: number;

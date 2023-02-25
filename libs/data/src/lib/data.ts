@@ -12,6 +12,7 @@ import {
   GetBulkAccessGroupEntriesResponse,
   GetDiamondsForPostRequest,
   GetDiamondsForPostResponse,
+  GetExchangeRateResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
   GetPaginatedAccessGroupMembersRequest,
@@ -531,4 +532,11 @@ export const waitForTransactionFound = async (
       }
     }, 150);
   });
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Exchange Rate Endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+export const getExchangeRates = (): Promise<GetExchangeRateResponse> => {
+  return api.get('api/v0/get-exchange-rate');
 };
