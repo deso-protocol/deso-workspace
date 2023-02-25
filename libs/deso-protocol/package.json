@@ -1,7 +1,15 @@
 {
   "name": "deso-protocol",
-  "version": "0.7.37-beta.13",
+  "version": "0.7.37-beta.15",
   "type": "commonjs",
+  "keywords": [
+    "blockchain",
+    "crypto",
+    "decentralized",
+    "deso",
+    "social",
+    "web3"
+  ],
   "dependencies": {
     "@deso-core/identity": "^0.0.18",
     "@deso-core/data": "^0.0.9",
