@@ -6,10 +6,10 @@ import {
   DeleteAssociationRequest,
 } from 'deso-protocol-types';
 import {
-  ConstructedAndSubmittedTx,
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
+import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#create-user-association
@@ -20,9 +20,14 @@ export const createUserAssociation = (
       CreateUserAssociationRequest,
       'TransactorPublicKeyBase58Check' | 'AssociationType' | 'AssociationValue'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit('api/v0/user-associations/create', params);
+  return handleSignAndSubmit(
+    'api/v0/user-associations/create',
+    params,
+    options
+  );
 };
 
 /**
@@ -34,9 +39,14 @@ export const deleteUserAssociation = (
       DeleteAssociationRequest,
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit('api/v0/user-associations/delete', params);
+  return handleSignAndSubmit(
+    'api/v0/user-associations/delete',
+    params,
+    options
+  );
 };
 
 /**
@@ -48,9 +58,14 @@ export const createPostAssociation = (
       CreatePostAssociationRequest,
       'PostHashHex' | 'AssociationType' | 'AssociationValue'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit('api/v0/post-associations/create', params);
+  return handleSignAndSubmit(
+    'api/v0/post-associations/create',
+    params,
+    options
+  );
 };
 
 /**
@@ -62,7 +77,12 @@ export const deletePostAssociation = (
       DeleteAssociationRequest,
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit('api/v0/post-associations/delete', params);
+  return handleSignAndSubmit(
+    'api/v0/post-associations/delete',
+    params,
+    options
+  );
 };

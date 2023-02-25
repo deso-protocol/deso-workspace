@@ -9,10 +9,10 @@ import {
   TransferDAOCoinResponse,
 } from 'deso-protocol-types';
 import {
-  ConstructedAndSubmittedTx,
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
+import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/dao-transactions-api#create-deso-token-dao-coin
@@ -25,12 +25,17 @@ export const burnDeSoToken = (
       | 'ProfilePublicKeyBase58CheckOrUsername'
       | 'CoinsToBurnNanos'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/dao-coin', {
-    ...params,
-    OperationType: 'burn',
-  });
+  return handleSignAndSubmit(
+    'api/v0/dao-coin',
+    {
+      ...params,
+      OperationType: 'burn',
+    },
+    options
+  );
 };
 
 /**
@@ -44,12 +49,17 @@ export const mintDeSoToken = (
       | 'ProfilePublicKeyBase58CheckOrUsername'
       | 'CoinsToMintNanos'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/dao-coin', {
-    ...params,
-    OperationType: 'mint',
-  });
+  return handleSignAndSubmit(
+    'api/v0/dao-coin',
+    {
+      ...params,
+      OperationType: 'mint',
+    },
+    options
+  );
 };
 
 /**
@@ -67,21 +77,27 @@ export const updateDeSoTokenTransferRestrictionStatus = (
         | 'dao_members_only'
         | 'permanently_unrestricted';
     }
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/dao-coin', {
-    ...params,
-    OperationType: 'update_transfer_restriction_status',
-  });
+  return handleSignAndSubmit(
+    'api/v0/dao-coin',
+    {
+      ...params,
+      OperationType: 'update_transfer_restriction_status',
+    },
+    options
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/dao-transactions-api#transfer-deso-token-dao-coin
  */
 export const transferDeSoToken = (
-  params: TxRequestWithOptionalFeesAndExtraData<TransferDAOCoinRequest>
+  params: TxRequestWithOptionalFeesAndExtraData<TransferDAOCoinRequest>,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<TransferDAOCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/transfer-dao-coin', params);
+  return handleSignAndSubmit('api/v0/transfer-dao-coin', params, options);
 };
 
 /**
@@ -99,13 +115,18 @@ export const buyDeSoTokenLimitOrder = (
       | 'ExchangeRateCoinsToSellPerCoinToBuy'
       | 'QuantityToFill'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinLimitOrderResponse>> => {
-  return handleSignAndSubmit('api/v0/create-dao-coin-limit-order', {
-    ...params,
-    SellingDAOCoinCreatorPublicKeyBase58Check: '',
-    OperationType: 'BID',
-  });
+  return handleSignAndSubmit(
+    'api/v0/create-dao-coin-limit-order',
+    {
+      ...params,
+      SellingDAOCoinCreatorPublicKeyBase58Check: '',
+      OperationType: 'BID',
+    },
+    options
+  );
 };
 
 /**
@@ -123,20 +144,30 @@ export const sellDeSoTokenLimitOrder = (
       | 'ExchangeRateCoinsToSellPerCoinToBuy'
       | 'QuantityToFill'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinLimitOrderResponse>> => {
-  return handleSignAndSubmit('api/v0/create-dao-coin-limit-order', {
-    ...params,
-    SellingDAOCoinCreatorPublicKeyBase58Check: '',
-    OperationType: 'ASK',
-  });
+  return handleSignAndSubmit(
+    'api/v0/create-dao-coin-limit-order',
+    {
+      ...params,
+      SellingDAOCoinCreatorPublicKeyBase58Check: '',
+      OperationType: 'ASK',
+    },
+    options
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/dao-transactions-api#cancel-deso-token-dao-coin-limit-order
  */
 export const cancelDeSoTokenLimitOrder = (
-  params: TxRequestWithOptionalFeesAndExtraData<DAOCoinLimitOrderWithCancelOrderIDRequest>
+  params: TxRequestWithOptionalFeesAndExtraData<DAOCoinLimitOrderWithCancelOrderIDRequest>,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<DAOCoinLimitOrderResponse>> => {
-  return handleSignAndSubmit('api/v0/cancel-dao-coin-limit-order', params);
+  return handleSignAndSubmit(
+    'api/v0/cancel-dao-coin-limit-order',
+    params,
+    options
+  );
 };

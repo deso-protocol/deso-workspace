@@ -14,15 +14,20 @@ import {
   UpdateProfileResponse,
 } from 'deso-protocol-types';
 import { handleSignAndSubmit } from '../internal';
-import { SubmitResponse, TypeWithOptionalFeesAndExtraData } from '../types';
+import {
+  ConstructedAndSubmittedTx,
+  TransactionOptions,
+  TypeWithOptionalFeesAndExtraData,
+} from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
  */
 export const updateProfile = async (
-  params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>
-): Promise<SubmitResponse<UpdateProfileResponse>> => {
-  return handleSignAndSubmit('api/v0/update-profile', params);
+  params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<UpdateProfileResponse>> => {
+  return handleSignAndSubmit('api/v0/update-profile', params, options);
 };
 
 /**
@@ -34,9 +39,10 @@ export const submitPost = (
       SubmitPostRequest,
       'UpdaterPublicKeyBase58Check' | 'BodyObj'
     >
-  >
-): Promise<SubmitResponse<SubmitPostResponse>> => {
-  return handleSignAndSubmit('api/v0/submit-post', params);
+  >,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SubmitPostResponse>> => {
+  return handleSignAndSubmit('api/v0/submit-post', params, options);
 };
 
 /**
@@ -48,18 +54,24 @@ export const updateFollowingStatus = (
       CreateFollowTxnStatelessRequest,
       'FollowedPublicKeyBase58Check' | 'FollowerPublicKeyBase58Check'
     >
-  >
-): Promise<SubmitResponse<CreateFollowTxnStatelessResponse>> => {
-  return handleSignAndSubmit('api/v0/create-follow-txn-stateless', params);
+  >,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<CreateFollowTxnStatelessResponse>> => {
+  return handleSignAndSubmit(
+    'api/v0/create-follow-txn-stateless',
+    params,
+    options
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#send-diamonds
  */
 export const sendDiamonds = async (
-  params: TypeWithOptionalFeesAndExtraData<SendDiamondsRequest>
-): Promise<SubmitResponse<SendDiamondsResponse>> => {
-  return handleSignAndSubmit('api/v0/send-diamonds', params);
+  params: TypeWithOptionalFeesAndExtraData<SendDiamondsRequest>,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SendDiamondsResponse>> => {
+  return handleSignAndSubmit('api/v0/send-diamonds', params, options);
 };
 
 /**
@@ -68,9 +80,10 @@ export const sendDiamonds = async (
 export const updateLikeStatus = async (
   params: TypeWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<CreateLikeStatelessRequest, 'LikedPostHashHex'>
-  >
-): Promise<SubmitResponse<CreateLikeStatelessResponse>> => {
-  return handleSignAndSubmit('api/v0/create-like-stateless', params);
+  >,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<CreateLikeStatelessResponse>> => {
+  return handleSignAndSubmit('api/v0/create-like-stateless', params, options);
 };
 
 /**
@@ -81,32 +94,42 @@ type SendNewMessageParams = TypeWithOptionalFeesAndExtraData<
   Omit<SendNewMessageRequest, 'TimestampNanosString'>
 >;
 export const sendDMMessage = async (
-  params: SendNewMessageParams
-): Promise<SubmitResponse<SendNewMessageResponse>> => {
-  return handleSignAndSubmit('api/v0/send-dm-message', params);
+  params: SendNewMessageParams,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+  return handleSignAndSubmit('api/v0/send-dm-message', params, options);
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#send-direct-message
  */
 export const updateDMMessage = async (
-  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
-): Promise<SubmitResponse<SendNewMessageResponse>> => {
-  return handleSignAndSubmit('api/v0/update-dm-message', params);
+  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+  return handleSignAndSubmit('api/v0/update-dm-message', params, options);
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#send-group-chat-message
  */
-export const sendGroupChatMessage = async (params: SendNewMessageParams) => {
-  return handleSignAndSubmit('api/v0/send-group-chat-message', params);
+export const sendGroupChatMessage = async (
+  params: SendNewMessageParams,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+  return handleSignAndSubmit('api/v0/send-group-chat-message', params, options);
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#send-group-chat-message
  */
 export const updateGroupChatMessage = async (
-  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
-) => {
-  return handleSignAndSubmit('api/v0/update-group-chat-message', params);
+  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
+  options?: TransactionOptions
+): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+  return handleSignAndSubmit(
+    'api/v0/update-group-chat-message',
+    params,
+    options
+  );
 };

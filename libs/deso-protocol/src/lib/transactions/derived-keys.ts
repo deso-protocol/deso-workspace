@@ -4,10 +4,10 @@ import {
   AuthorizeDerivedKeyResponse,
 } from 'deso-protocol-types';
 import {
-  ConstructedAndSubmittedTx,
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
+import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/derived-keys-transaction-api#authorize-derived-key
@@ -21,7 +21,8 @@ export const authorizeDerivedKey = (
       | 'TransactionSpendingLimitHex'
       | 'Memo'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<AuthorizeDerivedKeyResponse>> => {
-  return handleSignAndSubmit('api/v0/authorize-derived-key', params);
+  return handleSignAndSubmit('api/v0/authorize-derived-key', params, options);
 };

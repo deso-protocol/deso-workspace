@@ -8,18 +8,19 @@ import {
   TransferCreatorCoinResponse,
 } from 'deso-protocol-types';
 import {
-  ConstructedAndSubmittedTx,
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
+import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/financial-transactions-api#send-deso
  */
 export const sendDeso = (
-  params: TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>
+  params: TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<SendDeSoResponse>> => {
-  return handleSignAndSubmit('api/v0/send-deso', params);
+  return handleSignAndSubmit('api/v0/send-deso', params, options);
 };
 
 /**
@@ -36,12 +37,17 @@ export const buyCreatorCoin = (
       | 'CreatorPublicKeyBase58Check'
       | 'DeSoToSellNanos'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/buy-or-sell-creator-coin', {
-    ...params,
-    OperationType: 'buy',
-  });
+  return handleSignAndSubmit(
+    'api/v0/buy-or-sell-creator-coin',
+    {
+      ...params,
+      OperationType: 'buy',
+    },
+    options
+  );
 };
 
 /**
@@ -55,12 +61,17 @@ export const sellCreatorCoin = (
       | 'CreatorPublicKeyBase58Check'
       | 'CreatorCoinToSellNanos'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/buy-or-sell-creator-coin', {
-    ...params,
-    OperationType: 'sell',
-  });
+  return handleSignAndSubmit(
+    'api/v0/buy-or-sell-creator-coin',
+    {
+      ...params,
+      OperationType: 'sell',
+    },
+    options
+  );
 };
 
 /**
@@ -75,7 +86,8 @@ export const transferCreatorCoin = (
       | 'ReceiverUsernameOrPublicKeyBase58Check'
       | 'CreatorCoinToTransferNanos'
     >
-  >
+  >,
+  options?: TransactionOptions
 ): Promise<ConstructedAndSubmittedTx<TransferCreatorCoinResponse>> => {
-  return handleSignAndSubmit('api/v0/transfer-creator-coin', params);
+  return handleSignAndSubmit('api/v0/transfer-creator-coin', params, options);
 };

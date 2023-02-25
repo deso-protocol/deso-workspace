@@ -1,6 +1,7 @@
 import { api } from '@deso-core/data';
 import { identity } from '@deso-core/identity';
-import { SubmitTransactionResponse, TransactionFee } from 'deso-protocol-types';
+import { TransactionFee } from 'deso-protocol-types';
+import { TransactionOptions } from './types';
 
 ////////////////////////////////////////////////////////////////////////////////
 // This is all the stuff we don't export to consumers of the library. If
@@ -13,11 +14,6 @@ import { SubmitTransactionResponse, TransactionFee } from 'deso-protocol-types';
 export const globalConfigOptions = {
   MinFeeRateNanosPerKB: 1500,
 };
-
-export interface ConstructedAndSubmittedTx<T> {
-  constructedTransactionResponse: T;
-  submittedTransactionResponse: SubmitTransactionResponse;
-}
 
 export interface OptionalFeesAndExtraData {
   MinFeeRateNanosPerKB?: number;
@@ -40,16 +36,18 @@ export type TxRequestWithOptionalFeesAndExtraData<T> = Omit<
  */
 export const handleSignAndSubmit = async (
   endpoint: string,
-  params: OptionalFeesAndExtraData & any
+  params: OptionalFeesAndExtraData & any,
+  // we always broadcast by default, but consumers can optionally disable it.
+  options: TransactionOptions = { broadcast: true }
 ) => {
   const constructedTransactionResponse = await api.post(endpoint, {
     ...params,
     MinFeeRateNanosPerKB:
       params.MinFeeRateNanosPerKB ?? globalConfigOptions.MinFeeRateNanosPerKB,
   });
-  const submittedTransactionResponse = await identity.signAndSubmit(
-    constructedTransactionResponse
-  );
+  const submittedTransactionResponse = options.broadcast
+    ? await identity.signAndSubmit(constructedTransactionResponse)
+    : null;
 
   return {
     constructedTransactionResponse,
