@@ -1,7 +1,8 @@
 {
   "name": "@deso-core/identity",
-  "version": "0.0.18-beta.0",
-  "type": "commonjs",
+  "version": "0.0.19",
+  "sideEffects": false,
+  "main": "./src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/deso-protocol/deso-workspace.git",

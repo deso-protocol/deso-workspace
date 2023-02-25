@@ -1,5 +1,6 @@
 {
   "name": "@deso-core/data",
-  "version": "0.0.8-beta.0",
-  "type": "commonjs"
+  "version": "0.0.10",
+  "main": "./src/index.js",
+  "sideEffects": false
 }
