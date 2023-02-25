@@ -22,10 +22,13 @@ npx nx run $PACKAGE:build
 cd dist/libs/$PACKAGE
 
 # If the version is a pre-release (beta), publish with the --tag flag.
-if [ $NPM_PRERELEASE_TAG == beta ]; then
+if [[ $NPM_PRERELEASE_TAG = beta ]]; then
   npm publish --tag $NPM_PRERELEASE_TAG --access public
-else
+elif [[ $NPM_PRERELEASE_TAG =~ ^[0-9]+$ ]]; then
   npm publish --access public
+else
+  echo "Invalid version format for $NEW_VERSION. Please use the following format: <package-name>/<version-number> or <package-name>/<version-number>-beta.<pre-release-version>"
+  exit 1
 fi
 
 RELEASE_VERSION=$(grep version package.json | awk -F \" '{print $4}')
