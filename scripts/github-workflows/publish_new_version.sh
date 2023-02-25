@@ -22,7 +22,8 @@ npx nx run $PACKAGE:build
 cd dist/libs/$PACKAGE
 
 # If the version is a pre-release (beta), publish with the --tag flag.
-if [[ $NPM_PRERELEASE_TAG = beta ]]; then
+if [[ $NPM_PRERELEASE_TAG == beta ]]; then
+  echo "Publishing pre-release version $NEW_VERSION with tag $NPM_PRERELEASE_TAG"
   npm publish --tag $NPM_PRERELEASE_TAG --access public
 elif [[ $NPM_PRERELEASE_TAG =~ ^[0-9]+$ ]]; then
   npm publish --access public
