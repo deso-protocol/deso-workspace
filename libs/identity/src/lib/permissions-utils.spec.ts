@@ -10,6 +10,7 @@ describe('permissions-utils', () => {
           BASIC_TRANSFER: 1,
           SUBMIT_POST: 'UNLIMITED',
           AUTHORIZE_DERIVED_KEY: 'UNLIMITED',
+          CREATE_POST_ASSOCIATION: 'UNLIMITED',
         },
         CreatorCoinOperationLimitMap: {
           BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
@@ -62,6 +63,17 @@ describe('permissions-utils', () => {
             OpCount: 1,
           },
         ],
+        AssociationLimitMap: [
+          {
+            AssociationClass: 'Post',
+            AssociationType: 'REACTION',
+            AppScopeType: 'Any',
+            AppPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            AssociationOperation: 'Create',
+            OpCount: 'UNLIMITED',
+          },
+        ],
       };
 
       expect(
@@ -72,6 +84,7 @@ describe('permissions-utils', () => {
           BASIC_TRANSFER: 1,
           SUBMIT_POST: 1e9,
           AUTHORIZE_DERIVED_KEY: 1e9,
+          CREATE_POST_ASSOCIATION: 1e9,
         },
         CreatorCoinOperationLimitMap: {
           BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s: {
@@ -122,6 +135,17 @@ describe('permissions-utils', () => {
             AccessGroupKeyName: 'default-key',
             OperationType: 'Any',
             OpCount: 1,
+          },
+        ],
+        AssociationLimitMap: [
+          {
+            AssociationClass: 'Post',
+            AssociationType: 'REACTION',
+            AppScopeType: 'Any',
+            AppPublicKeyBase58Check:
+              'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
+            AssociationOperation: 'Create',
+            OpCount: 1e9,
           },
         ],
       });
