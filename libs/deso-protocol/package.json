@@ -13,6 +13,6 @@
   "dependencies": {
     "@deso-core/identity": "^0.0.20",
     "@deso-core/data": "^0.0.10",
-    "deso-protocol-types": "0.5.7"
+    "deso-protocol-types": "^0.5.8"
   }
 }
