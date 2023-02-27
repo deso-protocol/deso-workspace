@@ -65,6 +65,25 @@ export function buildTransactionSpendingLimitResponse(
   }
   if (result.AssociationLimitMap) {
     result.AssociationLimitMap = Object.values(result.AssociationLimitMap);
+    // Validate each association limit object
+    result.AssociationLimitMap.forEach((associationLimitItem) => {
+      if (
+        associationLimitItem.AppPublicKeyBase58Check &&
+        associationLimitItem.AppScopeType === 'Any'
+      ) {
+        throw new Error(
+          `AppPublicKeyBase58Check must be set to undefined or an empty string if AppScopeType is Any. You provided ${associationLimitItem.AppPublicKeyBase58Check}`
+        );
+      }
+      if (
+        !/^(?:BC1|tBC).+/.test(associationLimitItem.AppPublicKeyBase58Check) &&
+        associationLimitItem.AppScopeType === 'Scoped'
+      ) {
+        throw new Error(
+          `AppPublicKeyBase58Check must be set to a valid public key if AppScopeType is Scoped. You provided: ${associationLimitItem.AppPublicKeyBase58Check}`
+        );
+      }
+    });
   }
 
   if (
