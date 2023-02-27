@@ -67,7 +67,7 @@ describe('permissions-utils', () => {
           {
             AssociationClass: 'Post',
             AssociationType: 'REACTION',
-            AppScopeType: 'Any',
+            AppScopeType: 'Scoped',
             AppPublicKeyBase58Check:
               'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
             AssociationOperation: 'Create',
@@ -141,7 +141,7 @@ describe('permissions-utils', () => {
           {
             AssociationClass: 'Post',
             AssociationType: 'REACTION',
-            AppScopeType: 'Any',
+            AppScopeType: 'Scoped',
             AppPublicKeyBase58Check:
               'BC1YLhtBTFXAsKZgoaoYNW8mWAJWdfQjycheAeYjaX46azVrnZfJ94s',
             AssociationOperation: 'Create',
