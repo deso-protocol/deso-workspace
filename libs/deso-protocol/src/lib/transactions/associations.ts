@@ -18,7 +18,10 @@ export const createUserAssociation = (
   params: TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       CreateUserAssociationRequest,
-      'TransactorPublicKeyBase58Check' | 'AssociationType' | 'AssociationValue'
+      | 'TargetUserPublicKeyBase58Check'
+      | 'TransactorPublicKeyBase58Check'
+      | 'AssociationType'
+      | 'AssociationValue'
     >
   >,
   options?: TransactionOptions
@@ -56,7 +59,10 @@ export const createPostAssociation = (
   params: TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       CreatePostAssociationRequest,
-      'PostHashHex' | 'AssociationType' | 'AssociationValue'
+      | 'PostHashHex'
+      | 'TransactorPublicKeyBase58Check'
+      | 'AssociationType'
+      | 'AssociationValue'
     >
   >,
   options?: TransactionOptions
