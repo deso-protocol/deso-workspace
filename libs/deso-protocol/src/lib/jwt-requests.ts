@@ -4,8 +4,23 @@ import {
   BlockPublicKeyRequest,
   BlockPublicKeyResponse,
   DeletePIIRequest,
+  GetUserGlobalMetadataRequest,
+  GetUserGlobalMetadataResponse,
   UpdateUserGlobalMetadataRequest,
 } from 'deso-protocol-types';
+
+/**
+ * https://docs.deso.org/deso-backend/api/user-endpoints#get-user-global-metadata-email-and-phone-number
+ */
+export const getUserGlobalMetadata = async (
+  params: PartialWithRequiredFields<
+    GetUserGlobalMetadataRequest,
+    'UserPublicKeyBase58Check'
+  >
+): Promise<GetUserGlobalMetadataResponse> => {
+  const JWT = params.JWT ?? (await identity.jwt());
+  return api.post('/api/v0/get-user-global-metadata', { ...params, JWT });
+};
 
 /**
  * https://docs.deso.org/deso-backend/api/user-endpoints#update-user-global-metadata-email-and-state-of-messages-read
