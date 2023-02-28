@@ -1,6 +1,6 @@
 {
   "name": "@deso-core/data",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "./src/index.js",
   "sideEffects": false
 }

@@ -3374,13 +3374,6 @@ export interface CFVideoDetailsResponse {
   messages: any;
 }
 
-// struct2ts:types/generated/types.GetVideoStatusResponse
-export interface GetVideoStatusResponse {
-  ReadyToStream: boolean;
-  Duration: number;
-  Dimensions: { [key: string]: any };
-}
-
 export interface GetVideoDimensionsResponse {
   Height: number;
   Width: number;
@@ -5436,4 +5429,49 @@ export interface AssociationsCountResponse {
 export interface AssociationCountsResponse {
   Counts: { [k: string]: number };
   Total: number;
+}
+
+export interface LinkPreviewResponse {
+  title: string;
+  description: string;
+  image: string;
+  canonical: string;
+  url: string;
+}
+
+export interface GetVideoStatusResponse {
+  id: string;
+  hash: {
+    hash: string;
+    algorithm: string;
+  };
+  name: string;
+  size: number;
+  source: {
+    url: string;
+    type: string;
+  };
+  status: {
+    phase: string;
+    updatedAt: number;
+  };
+  userID: string;
+  createdAt: number;
+  videoSpec: {
+    format: string;
+    tracks: {
+      fps: number;
+      type: string;
+      codec: string;
+      width: number;
+      height: number;
+      bitrate: number;
+      duration: number;
+      pixelFormat: string;
+    }[];
+    duration: number;
+  };
+  playbackID: string;
+  playbackURL: string;
+  downloadURL: string;
 }
