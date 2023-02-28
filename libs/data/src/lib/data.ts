@@ -8,13 +8,37 @@ import {
   GetAccessGroupsRequest,
   GetAccessGroupsResponse,
   GetAllMessagingGroupKeysRequest,
+  GetAppStateRequest,
+  GetAppStateResponse,
+  GetBlockTemplateRequest,
+  GetBlockTemplateResponse,
   GetBulkAccessGroupEntriesRequest,
   GetBulkAccessGroupEntriesResponse,
   GetDiamondsForPostRequest,
   GetDiamondsForPostResponse,
+  GetDiamondsForPublicKeyRequest,
+  GetDiamondsForPublicKeyResponse,
   GetExchangeRateResponse,
+  GetFollowsResponse,
+  GetFollowsStatelessRequest,
+  GetHodlersForPublicKeyRequest,
+  GetHodlersForPublicKeyResponse,
   GetLikesForPostRequest,
   GetLikesForPostResponse,
+  GetNextNFTShowcaseResponse,
+  GetNFTBidsForUserRequest,
+  GetNFTBidsForUserResponse,
+  GetNFTCollectionSummaryRequest,
+  GetNFTCollectionSummaryResponse,
+  GetNFTEntriesForPostHashRequest,
+  GetNFTEntriesForPostHashResponse,
+  GetNFTsForUserRequest,
+  GetNFTsForUserResponse,
+  GetNFTShowcaseRequest,
+  GetNFTShowcaseResponse,
+  GetNotificationsCountRequest,
+  GetNotificationsRequest,
+  GetNotificationsResponse,
   GetPaginatedAccessGroupMembersRequest,
   GetPaginatedAccessGroupMembersResponse,
   GetPaginatedMessagesForDmThreadRequest,
@@ -38,6 +62,8 @@ import {
   GetSinglePostResponse,
   GetSingleProfileRequest,
   GetSingleProfileResponse,
+  GetTransactionSpendingLimitHexStringRequest,
+  GetTransactionSpendingLimitHexStringResponse,
   GetTxnRequest,
   GetTxnResponse,
   GetUserDerivedKeysRequest,
@@ -50,8 +76,15 @@ import {
   GetUsersStatelessRequest,
   HotFeedPageRequest,
   HotFeedPageResponse,
+  IsFolllowingPublicKeyResponse,
+  IsFollowingPublicKeyRequest,
+  IsHodlingPublicKeyRequest,
+  IsHodlingPublicKeyResponse,
   RegisterMessagingGroupKeyRequest,
   RegisterMessagingGroupKeyResponse,
+  SubmitBlockRequest,
+  SubmitBlockResponse,
+  TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
 import { api } from './api';
 
@@ -524,8 +557,234 @@ export const waitForTransactionFound = async (
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// Exchange Rate Endpoints
+// Metadata Endpoints
 ////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/backend-api#health-check
+ */
+export const healthCheck = (): Promise<void> => {
+  return api.get('api/v0/health-check');
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/backend-api#get-exchange-rate
+ */
 export const getExchangeRates = (): Promise<GetExchangeRateResponse> => {
   return api.get('api/v0/get-exchange-rate');
 };
+
+/**
+ * https://docs.deso.org/deso-backend/api/backend-api#get-app-state
+ */
+export const getAppState = (
+  params: Partial<GetAppStateRequest> = {}
+): Promise<GetAppStateResponse> => {
+  return api.post('api/v0/get-app-state', params);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Tx Spending Limit endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/transaction-spending-limits-endpoints#get-transaction-spending-limit-response-from-hex
+ */
+export const getTransactionSpendingLimitFromHex = (
+  hex: string
+): Promise<TransactionSpendingLimitResponse> => {
+  return api.get(
+    `api/v0/get-transaction-spending-limit-response-from-hex/${hex}`
+  );
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/transaction-spending-limits-endpoints#get-transaction-spending-limit-hex-string
+ */
+export const getTransactionSpendingLimitHex = (
+  params: GetTransactionSpendingLimitHexStringRequest
+): Promise<GetTransactionSpendingLimitHexStringResponse> => {
+  return api.post('api/v0/get-transaction-spending-limit-hex-string', params);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Notification endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/notification-endpoints#get-notifications
+ */
+export const getNotifications = (
+  params: PartialWithRequiredFields<
+    GetNotificationsRequest,
+    'PublicKeyBase58Check' | 'NumToFetch'
+  >
+): Promise<GetNotificationsResponse> => {
+  return api.post('api/v0/get-notifications', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/notification-endpoints#get-unread-notification-count
+ */
+export const getUnreadNotificationsCount = (
+  params: GetNotificationsCountRequest
+): Promise<GetNotificationsCountRequest> => {
+  return api.post('api/v0/get-unread-notifications-count', params);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Miner endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/miner-endpoints#get-block-template
+ */
+export const getBlockTemplate = (
+  params: GetBlockTemplateRequest
+): Promise<GetBlockTemplateResponse> => {
+  return api.post('api/v0/get-block-template', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/miner-endpoints#submit-block
+ */
+export const submitBlock = (
+  params: SubmitBlockRequest
+): Promise<SubmitBlockResponse> => {
+  return api.post('api/v0/submit-block', params);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// NFT Endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nfts-for-user
+ */
+export const getNFTsForUser = (
+  params: PartialWithRequiredFields<
+    GetNFTsForUserRequest,
+    'UserPublicKeyBase58Check'
+  >
+): Promise<GetNFTsForUserResponse> => {
+  return api.post('api/v0/get-nfts-for-user', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-bids-for-user
+ */
+export const getNFTBidsForUser = (
+  params: PartialWithRequiredFields<
+    GetNFTBidsForUserRequest,
+    'UserPublicKeyBase58Check'
+  >
+): Promise<GetNFTBidsForUserResponse> => {
+  return api.post('api/v0/get-nft-bids-for-user', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-showcase
+ */
+export const getNFTShowcase = (
+  params: Partial<GetNFTShowcaseRequest> = {}
+): Promise<GetNFTShowcaseResponse> => {
+  return api.post('api/v0/get-nft-showcase', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-next-nft-showcase
+ */
+export const getNextNFTShowcase = (): Promise<GetNextNFTShowcaseResponse> => {
+  return api.post('api/v0/get-next-nft-showcase', {});
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-collection-summary
+ */
+export const getNFTCollectionSummary = (
+  params: PartialWithRequiredFields<
+    GetNFTCollectionSummaryRequest,
+    'PostHashHex'
+  >
+): Promise<GetNFTCollectionSummaryResponse> => {
+  return api.post('api/v0/get-nft-collection-summary', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-entries-for-post-hash
+ */
+export const getNFTEntriesForPost = (
+  params: PartialWithRequiredFields<
+    GetNFTEntriesForPostHashRequest,
+    'PostHashHex'
+  >
+): Promise<GetNFTEntriesForPostHashResponse> => {
+  return api.post('api/v0/get-nft-entries-for-post-hash', params);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Social endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/social-endpoints#get-hodlers-for-public-key
+ */
+export const getHodlersForUser = (
+  params:
+    | PartialWithRequiredFields<
+        GetHodlersForPublicKeyRequest,
+        'PublicKeyBase58Check'
+      >
+    | PartialWithRequiredFields<GetHodlersForPublicKeyRequest, 'Username'>
+): Promise<GetHodlersForPublicKeyResponse> => {
+  return api.post('api/v0/get-hodlers-for-public-key', params);
+};
+
+// Alias for getHodlers
+export const getHolders = getHodlersForUser;
+
+/**
+ * https://docs.deso.org/deso-backend/api/social-endpoints#get-diamonds-for-public-key
+ */
+export const getDiamondsForUser = (
+  params: PartialWithRequiredFields<
+    GetDiamondsForPublicKeyRequest,
+    'PublicKeyBase58Check'
+  >
+): Promise<GetDiamondsForPublicKeyResponse> => {
+  return api.post('api/v0/get-diamonds-for-public-key', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/social-endpoints#get-follows-stateless
+ */
+export const getFollowersForUser = (
+  params:
+    | PartialWithRequiredFields<
+        GetFollowsStatelessRequest,
+        'PublicKeyBase58Check'
+      >
+    | PartialWithRequiredFields<GetFollowsStatelessRequest, 'Username'>
+): Promise<GetFollowsResponse> => {
+  return api.post('api/v0/get-follows-stateless', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/social-endpoints#is-following-public-key
+ */
+export const getIsFollowing = (
+  params: IsFollowingPublicKeyRequest
+): Promise<IsFolllowingPublicKeyResponse> => {
+  return api.post('api/v0/is-following-public-key', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/social-endpoints#is-hodling-public-key
+ */
+export const getIsHodling = (
+  params: PartialWithRequiredFields<
+    IsHodlingPublicKeyRequest,
+    'PublicKeyBase58Check' | 'IsHodlingPublicKeyBase58Check'
+  >
+): Promise<IsHodlingPublicKeyResponse> => {
+  return api.post('api/v0/is-hodling-public-key', params);
+};
+
+// Alias for getIsHodling
+export const getIsHolding = getIsHodling;
+
+// TODO: media endpoints
