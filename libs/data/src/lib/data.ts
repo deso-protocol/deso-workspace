@@ -21,6 +21,8 @@ import {
   GetExchangeRateResponse,
   GetFollowsResponse,
   GetFollowsStatelessRequest,
+  GetFullTikTokURLRequest,
+  GetFullTikTokURLResponse,
   GetHodlersForPublicKeyRequest,
   GetHodlersForPublicKeyResponse,
   GetLikesForPostRequest,
@@ -74,19 +76,22 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
+  GetVideoStatusRequest,
+  GetVideoStatusResponse,
   HotFeedPageRequest,
   HotFeedPageResponse,
   IsFolllowingPublicKeyResponse,
   IsFollowingPublicKeyRequest,
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
+  LinkPreviewResponse,
   RegisterMessagingGroupKeyRequest,
   RegisterMessagingGroupKeyResponse,
   SubmitBlockRequest,
   SubmitBlockResponse,
   TransactionSpendingLimitResponse,
 } from 'deso-protocol-types';
-import { api } from './api';
+import { api, media } from './api';
 
 /**
  * Returns a type that requires the given keys to be present in the partial.
@@ -787,4 +792,33 @@ export const getIsHodling = (
 // Alias for getIsHodling
 export const getIsHolding = getIsHodling;
 
-// TODO: media endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Media endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/media-endpoints#get-full-tiktok-url
+ */
+export const getFullTikTokURL = (
+  params: GetFullTikTokURLRequest
+): Promise<GetFullTikTokURLResponse> => {
+  return api.post('api/v0/get-full-tiktok-url', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/media-endpoints#get-video-status
+ */
+export const getVideoStatus = (
+  params: GetVideoStatusRequest
+): Promise<GetVideoStatusResponse> => {
+  return media.get(`api/v0/get-video-status/${params.videoId}`);
+};
+
+export const getLinkPreview = (url: string): Promise<LinkPreviewResponse> => {
+  return media.get(`api/v0/link-preview?url=${encodeURIComponent(url)}`);
+};
+
+export const buildProxyImageURL = (imageURL: string): string => {
+  return `${media.mediaURI}/api/v0/proxy-image?url=${encodeURIComponent(
+    imageURL
+  )}`;
+};

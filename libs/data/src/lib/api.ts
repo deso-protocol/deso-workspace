@@ -31,19 +31,16 @@ const wrappedFetch = (url: string, options: any) => {
   });
 };
 
-export interface APIConfiguration {
+export interface DesoNodeClientConfig {
   nodeURI?: string;
 }
 
-class DeSoAPIClient {
-  #nodeURI = 'https://node.deso.org';
+export interface DesoMediaClientConfig {
+  mediaURI?: string;
+}
 
-  /**
-   * @readonly
-   */
-  get nodeURI() {
-    return this.#nodeURI;
-  }
+class APIClient {
+  #host = '';
 
   post(endpoint: string, data: Record<string, any>): Promise<any> {
     return wrappedFetch(this.#url(endpoint), {
@@ -59,23 +56,49 @@ class DeSoAPIClient {
     return wrappedFetch(this.#url(endpoint), { method: 'GET' });
   }
 
-  configure(options: APIConfiguration) {
-    if (typeof options.nodeURI === 'string') {
-      this.#nodeURI = options.nodeURI;
-    }
-  }
-
   /**
    * Returns a URL for the given node URI and endpoint after normalizing any
    * trailing or leading slashes.
    * @private
    */
   #url(endpoint: string) {
-    return `${this.#nodeURI.replace(/\/+$/, '')}/${endpoint.replace(
-      /^\/+/,
-      ''
-    )}`;
+    return `${this.#host.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
   }
 }
 
-export const api = new DeSoAPIClient();
+class DeSoNodeClient extends APIClient {
+  #host = 'https://node.deso.org';
+
+  /**
+   * @readonly
+   */
+  get nodeURI() {
+    return this.#host;
+  }
+
+  configure(options: DesoNodeClientConfig) {
+    if (typeof options.nodeURI === 'string') {
+      this.#host = options.nodeURI;
+    }
+  }
+}
+
+class DeSoMediaClient extends APIClient {
+  #host = 'https://media.deso.org';
+
+  /**
+   * @readonly
+   */
+  get mediaURI() {
+    return this.#host;
+  }
+
+  configure(options: DesoMediaClientConfig) {
+    if (typeof options.mediaURI === 'string') {
+      this.#host = options.mediaURI;
+    }
+  }
+}
+
+export const media = new DeSoMediaClient();
+export const api = new DeSoNodeClient();
