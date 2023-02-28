@@ -40,7 +40,7 @@ export interface DesoMediaClientConfig {
 }
 
 class APIClient {
-  #host = '';
+  hostname = '';
 
   post(endpoint: string, data: Record<string, any>): Promise<any> {
     return wrappedFetch(this.#url(endpoint), {
@@ -62,40 +62,43 @@ class APIClient {
    * @private
    */
   #url(endpoint: string) {
-    return `${this.#host.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+    return `${this.hostname.replace(/\/+$/, '')}/${endpoint.replace(
+      /^\/+/,
+      ''
+    )}`;
   }
 }
 
 class DeSoNodeClient extends APIClient {
-  #host = 'https://node.deso.org';
+  override hostname = 'https://node.deso.org';
 
   /**
    * @readonly
    */
   get nodeURI() {
-    return this.#host;
+    return this.hostname;
   }
 
   configure(options: DesoNodeClientConfig) {
     if (typeof options.nodeURI === 'string') {
-      this.#host = options.nodeURI;
+      this.hostname = options.nodeURI;
     }
   }
 }
 
 class DeSoMediaClient extends APIClient {
-  #host = 'https://media.deso.org';
+  override hostname = 'https://media.deso.org';
 
   /**
    * @readonly
    */
   get mediaURI() {
-    return this.#host;
+    return this.hostname;
   }
 
   configure(options: DesoMediaClientConfig) {
     if (typeof options.mediaURI === 'string') {
-      this.#host = options.mediaURI;
+      this.hostname = options.mediaURI;
     }
   }
 }
