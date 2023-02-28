@@ -42,8 +42,6 @@ import {
   GetTxnResponse,
   GetUserDerivedKeysRequest,
   GetUserDerivedKeysResponse,
-  GetUserGlobalMetadataRequest,
-  GetUserGlobalMetadataResponse,
   GetUserMessageThreadsRequest,
   GetUserMessageThreadsResponse,
   GetUserMetadataRequest,
@@ -264,15 +262,6 @@ export const getUserMetadata = (
   params: GetUserMetadataRequest
 ): Promise<GetUserMetadataResponse> => {
   return api.get(`api/v0/get-user-metadata/${params.PublicKeyBase58Check}`);
-};
-
-/**
- * https://docs.deso.org/deso-backend/api/user-endpoints#get-user-global-metadata-email-and-phone-number
- */
-export const getUserGlobalMetadata = (
-  params: GetUserGlobalMetadataRequest
-): Promise<GetUserGlobalMetadataResponse> => {
-  return api.post('/api/v0/get-user-global-metadata', params);
 };
 
 /**
