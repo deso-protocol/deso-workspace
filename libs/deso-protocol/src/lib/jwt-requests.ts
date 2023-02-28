@@ -6,8 +6,13 @@ import {
   DeletePIIRequest,
   GetUserGlobalMetadataRequest,
   GetUserGlobalMetadataResponse,
+  SetNotificationMetadataRequest,
   UpdateUserGlobalMetadataRequest,
 } from 'deso-protocol-types';
+
+const jwtPost = async (path: string, params: any) => {
+  return api.post(path, { ...params, JWT: await identity.jwt() });
+};
 
 /**
  * https://docs.deso.org/deso-backend/api/user-endpoints#get-user-global-metadata-email-and-phone-number
@@ -18,8 +23,7 @@ export const getUserGlobalMetadata = async (
     'UserPublicKeyBase58Check'
   >
 ): Promise<GetUserGlobalMetadataResponse> => {
-  const JWT = params.JWT ?? (await identity.jwt());
-  return api.post('/api/v0/get-user-global-metadata', { ...params, JWT });
+  return jwtPost('api/v0/get-user-global-metadata', params);
 };
 
 /**
@@ -32,8 +36,7 @@ export type UpdateUserGlobalMetadataParams = PartialWithRequiredFields<
 export const updateUserGlobalMetadata = async (
   params: UpdateUserGlobalMetadataParams
 ) => {
-  const JWT = params.JWT ?? (await identity.jwt());
-  return api.post('api/v0/update-user-global-metadata', { ...params, JWT });
+  return jwtPost('api/v0/update-user-global-metadata', params);
 };
 
 /**
@@ -42,8 +45,7 @@ export const updateUserGlobalMetadata = async (
 export const deletePII = async (
   params: PartialWithRequiredFields<DeletePIIRequest, 'PublicKeyBase58Check'>
 ): Promise<undefined> => {
-  const JWT = params.JWT ?? (await identity.jwt());
-  return api.post('api/v0/delete-pii', { ...params, JWT });
+  return jwtPost('api/v0/delete-pii', params);
 };
 
 /**
@@ -56,6 +58,18 @@ export type BlockPublicKeyParams = PartialWithRequiredFields<
 export const blockPublicKey = async (
   params: BlockPublicKeyParams
 ): Promise<BlockPublicKeyResponse> => {
-  const JWT = params.JWT ?? (await identity.jwt());
-  return api.post('api/v0/block-public-key', { ...params, JWT });
+  return jwtPost('api/v0/block-public-key', params);
 };
+
+/**
+ * https://docs.deso.org/deso-backend/api/notification-endpoints#set-notification-metadata
+ */
+export const setNotificationMetadata = async (
+  params: SetNotificationMetadataRequest
+) => {
+  return jwtPost('api/v0/set-notification-metadata', params);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Admin endpoints
+///////////////////////////////////////////////////////////////////////////////
