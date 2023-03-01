@@ -1,6 +1,9 @@
 import {
   AccessGroupEntryResponse,
   AccessGroupMemberEntryResponse,
+  AssociationCountsResponse,
+  AssociationResponse,
+  AssociationsCountResponse,
   CheckPartyAccessGroupsRequest,
   CheckPartyAccessGroupsResponse,
   GetAccessGroupInfoRequest,
@@ -87,11 +90,15 @@ import {
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
   LinkPreviewResponse,
+  PostAssociationQuery,
+  PostAssociationsResponse,
   RegisterMessagingGroupKeyRequest,
   RegisterMessagingGroupKeyResponse,
   SubmitBlockRequest,
   SubmitBlockResponse,
   TransactionSpendingLimitResponse,
+  UserAssociationQuery,
+  UserAssociationsResponse,
 } from 'deso-protocol-types';
 import { api, media } from './api';
 
@@ -832,4 +839,91 @@ export const buildProxyImageURL = (imageURL: string): string => {
   return `${media.mediaURI}/api/v0/proxy-image?url=${encodeURIComponent(
     imageURL
   )}`;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Associations endpoints
+////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#get-user-association-by-id
+ */
+export const getUserAssociation = (
+  associationId: string
+): Promise<AssociationResponse> => {
+  return api.get(`api/v0/user-associations/${associationId}`);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#count-user-associations
+ */
+export const countUserAssociation = (
+  params: PartialWithRequiredFields<
+    Omit<UserAssociationQuery, 'AssociationValues'>,
+    'AssociationType' | 'AssociationValue'
+  >
+): Promise<AssociationsCountResponse> => {
+  return api.post('api/v0/user-associations/count', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#count-user-associations-by-multiple-values
+ */
+export const countUserAssociations = (
+  params: PartialWithRequiredFields<
+    Omit<UserAssociationQuery, 'AssociationValue'>,
+    'AssociationType' | 'AssociationValues'
+  >
+): Promise<AssociationCountsResponse> => {
+  return api.post('api/v0/user-associations/count', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#query-for-user-associations
+ */
+export const getUserAssociations = (
+  params: Partial<UserAssociationQuery> = {}
+): Promise<UserAssociationsResponse> => {
+  return api.post('api/v0/user-associations/query', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#get-post-association-by-id
+ */
+export const getPostAssociation = (
+  associationId: string
+): Promise<AssociationResponse> => {
+  return api.get(`api/v0/post-associations/${associationId}`);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#count-post-associations
+ */
+export const countPostAssociation = (
+  params: PartialWithRequiredFields<
+    Omit<PostAssociationQuery, 'AssociationValues'>,
+    'AssociationType' | 'AssociationValue'
+  >
+): Promise<AssociationsCountResponse> => {
+  return api.post('api/v0/post-associations/count', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#count-post-associations-by-multiple-values
+ */
+export const countPostAssociations = (
+  params: PartialWithRequiredFields<
+    Omit<PostAssociationQuery, 'AssociationValue'>,
+    'AssociationType' | 'AssociationValues'
+  >
+): Promise<AssociationCountsResponse> => {
+  return api.post('api/v0/post-associations/count', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/associations-endpoints#query-for-user-associations
+ */
+export const getPostAssociations = (
+  params: Partial<PostAssociationQuery> = {}
+): Promise<PostAssociationsResponse> => {
+  return api.post('api/v0/post-associations/query', params);
 };
