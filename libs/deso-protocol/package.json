@@ -1,6 +1,6 @@
 {
   "name": "deso-protocol",
-  "version": "0.7.37-beta.27",
+  "version": "0.7.37-beta.28",
   "main": "./src/index.js",
   "keywords": [
     "blockchain",
@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "@deso-core/identity": "^0.0.20",
-    "@deso-core/data": "^0.0.14",
+    "@deso-core/data": "^0.0.15",
     "deso-protocol-types": "^0.6.0"
   }
 }
