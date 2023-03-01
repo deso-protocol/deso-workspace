@@ -28,6 +28,8 @@ import {
   GetLikesForPostRequest,
   GetLikesForPostResponse,
   GetNextNFTShowcaseResponse,
+  GetNFTBidsForNFTPostRequest,
+  GetNFTBidsForNFTPostResponse,
   GetNFTBidsForUserRequest,
   GetNFTBidsForUserResponse,
   GetNFTCollectionSummaryRequest,
@@ -668,6 +670,15 @@ export const getNFTsForUser = (
   >
 ): Promise<GetNFTsForUserResponse> => {
   return api.post('api/v0/get-nfts-for-user', params);
+};
+
+/**
+ * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-bids-for-nft-post
+ */
+export const getAllBidsForNFT = (
+  params: GetNFTBidsForNFTPostRequest
+): Promise<GetNFTBidsForNFTPostResponse> => {
+  return api.post('api/v0/get-nft-bids-for-nft-post', params);
 };
 
 /**

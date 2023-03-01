@@ -148,6 +148,7 @@ export const getSignedJWT = async (
   alg: jwtAlgorithm,
   {
     derivedPublicKeyBase58Check,
+    // TODO: actually support this... or remove it.
     expiration,
   }: {
     derivedPublicKeyBase58Check?: string;
