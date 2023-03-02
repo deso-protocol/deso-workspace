@@ -26,6 +26,7 @@ import {
   GetFollowsStatelessRequest,
   GetFullTikTokURLRequest,
   GetFullTikTokURLResponse,
+  GetGlobalParamsResponse,
   GetHodlersForPublicKeyRequest,
   GetHodlersForPublicKeyResponse,
   GetLikesForPostRequest,
@@ -766,6 +767,16 @@ export const getAppState = (
   return api.post(
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
+  );
+};
+
+export const getGlobalParams = (
+  options?: RequestOptions
+): Promise<GetGlobalParamsResponse> => {
+  const endpoint = 'api/v0/get-global-params';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    {}
   );
 };
 
