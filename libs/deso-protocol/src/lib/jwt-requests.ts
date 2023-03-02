@@ -231,7 +231,7 @@ export const adminGetUserGlobalMetadata = (
   return jwtPost('api/v0/admin/get-user-global-metadata', params, options);
 };
 
-export const adminUpdateUserGlobalMetadataRequest = (
+export const adminUpdateUserGlobalMetadata = (
   params: Omit<AdminUpdateUserGlobalMetadataRequest, 'AdminPublicKey'>,
   options?: RequestOptions
 ): Promise<void> => {
@@ -245,7 +245,7 @@ export const adminGetAllUserGlobalMetadata = (
   return jwtPost('api/v0/admin/get-all-user-global-metadata', params, options);
 };
 
-export const adminPinToPost = (
+export const adminPinPost = (
   params: AdminPinPostRequest,
   options?: RequestOptions
 ): Promise<void> => {
