@@ -2,5 +2,8 @@
   "name": "@deso-core/data",
   "version": "0.0.17",
   "main": "./src/index.js",
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "deso-protocol-types": "^0.6.1"
+  }
 }
