@@ -1,8 +1,5 @@
 import { ec } from 'elliptic';
 import {
-  CoinEntry,
-  MessageEntryResponse,
-  ProfileEntryResponse,
   SubmitTransactionResponse,
   TransactionFee,
   TransactionSpendingLimitResponse,
@@ -347,7 +344,21 @@ export interface MetaMaskInitResponse {
 }
 
 export interface RequestOptions {
+  /**
+   * This is only relevant for write operations that require a signed
+   * transaction (submit-post, update-profile, etc). It determines whether to
+   * broadcast the transaction to the network. Defaults to true. If set to
+   * false, the transaction will be constructed but not signed or submitted
+   * which is useful for constructing transactions to preview them without
+   * broadcasting as a sort of "dry-run".
+   */
   broadcast?: boolean;
+
+  /**
+   * The node to send the request to. If not provided, either the default node
+   * or the configured node will be used.
+   */
+  nodeURI?: string;
 }
 
 export type MessagingGroupPayload = {
