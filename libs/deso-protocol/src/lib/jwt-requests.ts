@@ -43,6 +43,7 @@ import {
   NodeControlRequest,
   NodeControlResponse,
   RequestOptions,
+  ResendVerifyEmailRequest,
   SetBuyDeSoFeeBasisPointsRequest,
   SetBuyDeSoFeeBasisPointsResponse,
   SetNotificationMetadataRequest,
@@ -53,6 +54,7 @@ import {
   UpdateGlobalParamsRequest,
   UpdateGlobalParamsResponse,
   UpdateUserGlobalMetadataRequest,
+  VerifyEmailRequest,
   WalletOrderQuotationRequest,
   WalletOrderReservationRequest,
   WyreWalletOrderQuotationPayload,
@@ -453,5 +455,23 @@ export const adminGetWyreWalletOrderReservation = (
     'api/v0/admin/get-wyre-wallet-order-reservation',
     params,
     options
+  );
+};
+
+export const resendVerifyEmail = (
+  params: PartialWithRequiredFields<ResendVerifyEmailRequest, 'PublicKey'>,
+  options?: RequestOptions
+): Promise<void> => {
+  return jwtPost('api/v0/resend-verify-email', params, options);
+};
+
+export const verifyEmail = (
+  params: VerifyEmailRequest,
+  options?: RequestOptions
+): Promise<void> => {
+  const endpoint = 'api/v0/verify-email';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
   );
 };
