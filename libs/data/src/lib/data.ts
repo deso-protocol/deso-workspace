@@ -1166,7 +1166,7 @@ export const countUserAssociations = (
   >,
   options?: RequestOptions
 ): Promise<AssociationCountsResponse> => {
-  const endpoint = 'api/v0/user-associations/count';
+  const endpoint = 'api/v0/user-associations/counts';
   return api.post(
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
@@ -1227,7 +1227,7 @@ export const countPostAssociations = (
   >,
   options?: RequestOptions
 ): Promise<AssociationCountsResponse> => {
-  const endpoint = 'api/v0/post-associations/count';
+  const endpoint = 'api/v0/post-associations/counts';
   return api.post(
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
