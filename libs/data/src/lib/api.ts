@@ -40,6 +40,10 @@ export interface DesoMediaClientConfig {
   mediaURI?: string;
 }
 
+export const cleanURL = (origin: string, endpoint: string) => {
+  return `${origin.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+};
+
 class APIClient {
   protected uri = '';
 
@@ -63,7 +67,14 @@ class APIClient {
    * @private
    */
   #url(endpoint: string) {
-    return `${this.uri.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      // If the endpoint is a full URL, just use it directly.
+      // This is an optional case that allows us to override the node URI.
+      return endpoint;
+    }
+    // Otherwise use the node URI and endpoint to construct a URL.
+    // This will be the typical case.
+    return cleanURL(this.uri, endpoint);
   }
 }
 

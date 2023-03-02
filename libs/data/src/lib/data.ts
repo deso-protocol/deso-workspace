@@ -94,13 +94,14 @@ import {
   PostAssociationsResponse,
   RegisterMessagingGroupKeyRequest,
   RegisterMessagingGroupKeyResponse,
+  RequestOptions,
   SubmitBlockRequest,
   SubmitBlockResponse,
   TransactionSpendingLimitResponse,
   UserAssociationQuery,
   UserAssociationsResponse,
 } from 'deso-protocol-types';
-import { api, media } from './api';
+import { api, cleanURL, media } from './api';
 
 /**
  * Returns a type that requires the given keys to be present in the partial.
@@ -123,9 +124,14 @@ export type PartialWithRequiredFields<T, K extends keyof T> = Partial<T> &
  */
 export type GetPostsStatelessParams = Partial<GetPostsStatelessRequest>;
 export const getPostsStateless = (
-  params: GetPostsStatelessParams
+  params: GetPostsStatelessParams,
+  options?: RequestOptions
 ): Promise<GetPostsStatelessResponse> => {
-  return api.post('api/v0/get-posts-stateless', params);
+  const endpoint = 'api/v0/get-posts-stateless';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -136,9 +142,14 @@ export type GetSinglePostParams = PartialWithRequiredFields<
   'PostHashHex'
 >;
 export const getSinglePost = (
-  params: GetSinglePostParams
+  params: GetSinglePostParams,
+  options?: RequestOptions
 ): Promise<GetSinglePostResponse> => {
-  return api.post('api/v0/get-single-post', params);
+  const endpoint = 'api/v0/get-single-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -154,9 +165,14 @@ export type GetPostsForUserParams =
       'Username' | 'NumToFetch'
     >;
 export const getPostsForUser = (
-  params: GetPostsForUserParams
+  params: GetPostsForUserParams,
+  options?: RequestOptions
 ): Promise<GetPostsForPublicKeyResponse> => {
-  return api.post('api/v0/get-posts-for-public-key', params);
+  const endpoint = 'api/v0/get-posts-for-public-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -164,9 +180,14 @@ export const getPostsForUser = (
  */
 export type GetHotFeedParams = Partial<HotFeedPageRequest>;
 export const getHotFeed = (
-  params: GetHotFeedParams
+  params: GetHotFeedParams,
+  options?: RequestOptions
 ): Promise<HotFeedPageResponse> => {
-  return api.post('api/v0/get-hot-feed', params);
+  const endpoint = 'api/v0/get-hot-feed';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -183,8 +204,15 @@ export type GetDiamondedPostsParams =
       GetPostsDiamondedBySenderForReceiverRequest,
       'SenderUsername' | 'ReceiverUsername' | 'NumToFetch'
     >;
-export const getDiamondedPosts = (params: GetDiamondedPostsParams) => {
-  return api.post('api/v0/get-diamonded-posts', params);
+export const getDiamondedPosts = (
+  params: GetDiamondedPostsParams,
+  options?: RequestOptions
+) => {
+  const endpoint = 'api/v0/get-diamonded-posts';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -195,9 +223,14 @@ export type GetLikesForPostParams = PartialWithRequiredFields<
   'PostHashHex' | 'Limit' | 'Offset'
 >;
 export const getLikesForPost = (
-  params: GetLikesForPostParams
+  params: GetLikesForPostParams,
+  options?: RequestOptions
 ): Promise<GetLikesForPostResponse> => {
-  return api.post('api/v0/get-likes-for-post', params);
+  const endpoint = 'api/v0/get-likes-for-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -208,9 +241,14 @@ export type GetDiamondsForPostParams = PartialWithRequiredFields<
   'PostHashHex' | 'Limit' | 'Offset'
 >;
 export const getDiamondsForPost = (
-  params: GetDiamondsForPostParams
+  params: GetDiamondsForPostParams,
+  options?: RequestOptions
 ): Promise<GetDiamondsForPostResponse> => {
-  return api.post('api/v0/get-diamonds-for-post', params);
+  const endpoint = 'api/v0/get-diamonds-for-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -221,9 +259,14 @@ export type GetRepostsForPostParams = PartialWithRequiredFields<
   'PostHashHex' | 'Limit' | 'Offset'
 >;
 export const getRepostsForPost = (
-  params: GetRepostsForPostParams
+  params: GetRepostsForPostParams,
+  options?: RequestOptions
 ): Promise<GetRepostsForPostResponse> => {
-  return api.post('/api/v0/get-reposts-for-post', params);
+  const endpoint = 'api/v0/get-reposts-for-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -234,9 +277,14 @@ type GetQuoteRepostsForPostParams = PartialWithRequiredFields<
   'PostHashHex' | 'Limit' | 'Offset'
 >;
 export const getQuoteRepostsForPost = (
-  params: GetQuoteRepostsForPostParams
+  params: GetQuoteRepostsForPostParams,
+  options?: RequestOptions
 ): Promise<GetQuoteRepostsForPostResponse> => {
-  return api.post('api/v0/get-reposts-for-post', params);
+  const endpoint = 'api/v0/get-quote-reposts-for-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 type GetPostsHashHexListParams = PartialWithRequiredFields<
@@ -244,9 +292,14 @@ type GetPostsHashHexListParams = PartialWithRequiredFields<
   'PostsHashHexList'
 >;
 export const getPostsHashHexList = (
-  params: GetPostsHashHexListParams
+  params: GetPostsHashHexListParams,
+  options?: RequestOptions
 ): Promise<GetPostsHashHexListResponse> => {
-  return api.post('api/v0/get-posts-hashhexlist', params);
+  const endpoint = 'api/v0/get-posts-hashhexlist';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,9 +313,14 @@ export type GetUsersStatelessParams = PartialWithRequiredFields<
   'PublicKeysBase58Check'
 >;
 export const getUsersStateless = (
-  params: GetUsersStatelessParams
+  params: GetUsersStatelessParams,
+  options?: RequestOptions
 ): Promise<GetUsersResponse> => {
-  return api.post('api/v0/get-users-stateless', params);
+  const endpoint = 'api/v0/get-users-stateless';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -270,14 +328,15 @@ export const getUsersStateless = (
  */
 export const buildProfilePictureUrl = (
   PublicKeyBase58Check: string,
-  options: { fallbackImageUrl?: string }
+  options: { fallbackImageUrl?: string } & RequestOptions
 ) => {
-  return `${api.nodeURI.replace(
-    /\/+$/,
-    ''
-  )}/api/v0/get-single-profile-picture/${PublicKeyBase58Check}${
-    options.fallbackImageUrl ? `?fallback=${options.fallbackImageUrl}` : ''
-  }`;
+  const nodeURI = options.nodeURI ?? api.nodeURI;
+  return cleanURL(
+    nodeURI,
+    `/api/v0/get-single-profile-picture/${PublicKeyBase58Check}${
+      options.fallbackImageUrl ? `?fallback=${options.fallbackImageUrl}` : ''
+    }`
+  );
 };
 
 /**
@@ -287,9 +346,14 @@ export type GetSingleProfileParams =
   | PartialWithRequiredFields<GetSingleProfileRequest, 'PublicKeyBase58Check'>
   | PartialWithRequiredFields<GetSingleProfileRequest, 'PublicKeyBase58Check'>;
 export const getSingleProfile = (
-  params: GetSingleProfileParams
+  params: GetSingleProfileParams,
+  options?: RequestOptions
 ): Promise<GetSingleProfileResponse> => {
-  return api.post('api/v0/get-single-profile', params);
+  const endpoint = 'api/v0/get-single-profile';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -297,33 +361,52 @@ export const getSingleProfile = (
  */
 export type GetProfilesParams = Partial<GetProfilesRequest>;
 export const getProfiles = (
-  params: GetProfilesRequest
+  params: GetProfilesRequest,
+  options?: RequestOptions
 ): Promise<GetProfilesResponse> => {
-  return api.post('api/v0/get-profiles', params);
+  const endpoint = 'api/v0/get-profiles';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/user-endpoints#get-user-metadata
  */
 export const getUserMetadata = (
-  params: GetUserMetadataRequest
+  params: GetUserMetadataRequest,
+  options?: RequestOptions
 ): Promise<GetUserMetadataResponse> => {
-  return api.get(`api/v0/get-user-metadata/${params.PublicKeyBase58Check}`);
+  const endpoint = `api/v0/get-user-metadata/${params.PublicKeyBase58Check}`;
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/user-endpoints#get-user-derived-keys
  */
 export const getUserDerivedKeys = (
-  params: GetUserDerivedKeysRequest
+  params: GetUserDerivedKeysRequest,
+  options?: RequestOptions
 ): Promise<GetUserDerivedKeysResponse> => {
-  return api.post('api/v0/get-user-derived-keys', params);
+  const endpoint = 'api/v0/get-user-derived-keys';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 export const getAllMessagingGroupKeys = (
-  params: GetAllMessagingGroupKeysRequest
+  params: GetAllMessagingGroupKeysRequest,
+  options?: RequestOptions
 ): Promise<RegisterMessagingGroupKeyResponse> => {
-  return api.post('api/v0/get-all-messaging-group-keys', params);
+  const endpoint = 'api/v0/get-all-messaging-group-keys';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 export type RegisterMessagingGroupKeyParams = PartialWithRequiredFields<
@@ -335,9 +418,14 @@ export type RegisterMessagingGroupKeyParams = PartialWithRequiredFields<
   | 'MinFeeRateNanosPerKB'
 >;
 export const registerMessagingGroupKey = (
-  params: RegisterMessagingGroupKeyParams
+  params: RegisterMessagingGroupKeyParams,
+  options?: RequestOptions
 ): Promise<RegisterMessagingGroupKeyResponse> => {
-  return api.post('api/v0/register-messaging-group-key', params);
+  const endpoint = 'api/v0/register-messaging-group-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,9 +435,14 @@ export const registerMessagingGroupKey = (
  * https://docs.deso.org/deso-backend/api/messages-endpoints#get-all-user-message-threads
  */
 export const getAllMessageThreads = (
-  params: GetUserMessageThreadsRequest
+  params: GetUserMessageThreadsRequest,
+  options?: RequestOptions
 ): Promise<GetUserMessageThreadsResponse> => {
-  return api.post('api/v0/get-all-user-message-threads', params);
+  const endpoint = 'api/v0/get-all-user-message-threads';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -371,7 +464,8 @@ export type GetPaginatedMessagesForGroupThreadParams =
       | 'StartTimeStampString'
     >;
 export const getPaginatedGroupChatThread = (
-  params: GetPaginatedMessagesForGroupThreadParams
+  params: GetPaginatedMessagesForGroupThreadParams,
+  options?: RequestOptions
 ): Promise<GetPaginatedMessagesForGroupChatThreadResponse> => {
   const actualParams = {
     ...params,
@@ -382,8 +476,9 @@ export const getPaginatedGroupChatThread = (
   ) {
     actualParams.StartTimeStampString = actualParams.StartTimeStamp.toString();
   }
+  const endpoint = 'api/v0/get-paginated-messages-for-group-chat-thread';
   return api.post(
-    'api/v0/get-paginated-messages-for-group-chat-thread',
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     actualParams
   );
 };
@@ -411,7 +506,8 @@ export type GetPaginatedMessagesForDMThreadParams =
       | 'StartTimeStampString'
     >;
 export const getPaginatedDMThread = (
-  params: GetPaginatedMessagesForDMThreadParams
+  params: GetPaginatedMessagesForDMThreadParams,
+  options?: RequestOptions
 ): Promise<GetPaginatedMessagesForDmThreadResponse> => {
   const actualParams = {
     ...params,
@@ -422,17 +518,23 @@ export const getPaginatedDMThread = (
   ) {
     actualParams.StartTimeStampString = actualParams.StartTimeStamp.toString();
   }
-  return api.post('api/v0/get-paginated-messages-for-dm-thread', actualParams);
+  const endpoint = 'api/v0/get-paginated-messages-for-dm-thread';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    actualParams
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/messages-endpoints#get-user-group-chat-threads-ordered-by-timestamp
  */
 export const getGroupChatThreads = (
-  params: GetUserMessageThreadsRequest
+  params: GetUserMessageThreadsRequest,
+  options?: RequestOptions
 ): Promise<GetUserMessageThreadsResponse> => {
+  const endpoint = 'api/v0/get-user-group-chat-threads-ordered-by-timestamp';
   return api.post(
-    'api/v0/get-user-group-chat-threads-ordered-by-timestamp',
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
   );
 };
@@ -441,9 +543,14 @@ export const getGroupChatThreads = (
  * https://docs.deso.org/deso-backend/api/messages-endpoints#get-user-direct-message-threads-ordered-by-timestamp
  */
 export const getDMThreads = (
-  params: GetUserMessageThreadsRequest
+  params: GetUserMessageThreadsRequest,
+  options?: RequestOptions
 ): Promise<GetUserMessageThreadsResponse> => {
-  return api.post('api/v0/get-user-dm-threads-ordered-by-timestamp', params);
+  const endpoint = 'api/v0/get-user-dm-threads-ordered-by-timestamp';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -453,54 +560,84 @@ export const getDMThreads = (
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-all-user-access-groups
  */
 export const getAllAccessGroups = (
-  params: GetAccessGroupsRequest
+  params: GetAccessGroupsRequest,
+  options?: RequestOptions
 ): Promise<GetAccessGroupsResponse> => {
-  return api.post('api/v0/get-all-user-access-groups', params);
+  const endpoint = 'api/v0/get-all-user-access-groups';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-all-access-groups-owned
  */
 export const getAllAccessGroupsOwned = (
-  params: GetAccessGroupsRequest
+  params: GetAccessGroupsRequest,
+  options?: RequestOptions
 ): Promise<GetAccessGroupsResponse> => {
-  return api.post('api/v0/get-all-user-access-groups-owned', params);
+  const endpoint = 'api/v0/get-all-user-access-groups-owned';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-all-access-groups-owned
  */
 export const getAllAccessGroupsMemberOnly = (
-  params: GetAccessGroupsRequest
+  params: GetAccessGroupsRequest,
+  options?: RequestOptions
 ): Promise<GetAccessGroupsResponse> => {
-  return api.post('api/v0/get-all-user-access-groups-member-only', params);
+  const endpoint = 'api/v0/get-all-user-access-groups-member-only';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#check-party-access-groups
  */
 export const checkPartyAccessGroups = (
-  params: CheckPartyAccessGroupsRequest
+  params: CheckPartyAccessGroupsRequest,
+  options?: RequestOptions
 ): Promise<CheckPartyAccessGroupsResponse> => {
-  return api.post('api/v0/check-party-access-groups', params);
+  const endpoint = 'api/v0/check-party-access-groups';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-access-group-information
  */
 export const getAccessGroupInfo = (
-  params: GetAccessGroupInfoRequest
+  params: GetAccessGroupInfoRequest,
+  options?: RequestOptions
 ): Promise<AccessGroupEntryResponse> => {
-  return api.post('api/v0/get-access-group-info', params);
+  const endpoint = 'api/v0/get-access-group-info';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-access-group-member-information
  */
 export const getAccessGroupMemberInfo = (
-  params: GetAccessGroupMemberRequest
+  params: GetAccessGroupMemberRequest,
+  options?: RequestOptions
 ): Promise<AccessGroupMemberEntryResponse> => {
-  return api.post('api/v0/get-access-group-member-info', params);
+  const endpoint = 'api/v0/get-access-group-member-info';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -512,31 +649,58 @@ export const getPaginatedAccessGroupMembers = (
     | 'AccessGroupKeyName'
     | 'MaxMembersToFetch'
     | 'AccessGroupOwnerPublicKeyBase58Check'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetPaginatedAccessGroupMembersResponse> => {
-  return api.post('api/v0/get-paginated-access-group-members', params);
+  const endpoint = 'api/v0/get-paginated-access-group-members';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/access-group-endpoints#get-bulk-access-group-entries
  */
 export const getBulkAccessGroups = (
-  params: GetBulkAccessGroupEntriesRequest
+  params: GetBulkAccessGroupEntriesRequest,
+  options?: RequestOptions
 ): Promise<GetBulkAccessGroupEntriesResponse> => {
-  return api.post('api/v0/get-bulk-access-group-entries', params);
+  const endpoint = 'api/v0/get-bulk-access-group-entries';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Transaction Endpoints
 ////////////////////////////////////////////////////////////////////////////////////////////////
 export const getTransaction = (
-  params: GetTxnRequest
+  params: GetTxnRequest,
+  options?: RequestOptions
 ): Promise<GetTxnResponse> => {
-  return api.post('api/v0/get-txn', params);
+  const endpoint = 'api/v0/get-txn';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
+/**
+ * Waits for a transaction to be found in the mempool. If it is found before the
+ * timeout, it resolves immediately. If it is not found before the timeout, it
+ * rejects. Useful for sequencing transactions that depend on other
+ * transactions.
+ *
+ * @param TxnHashHex - hex encoded transaction we are looking for in the mempool
+ * @param options - options object
+ * @param options.timeout - timeout in milliseconds, we'll wait 1 minute before
+ * throwing an error by default.
+ */
 export const waitForTransactionFound = async (
-  TxnHashHex: string
+  TxnHashHex: string,
+  { timeout = 60000 }: { timeout?: number } = {}
 ): Promise<void> => {
   // In the best case scenario we'll find the tx immediately
   const { TxnFound } = await getTransaction({ TxnHashHex });
@@ -545,10 +709,6 @@ export const waitForTransactionFound = async (
     return;
   }
 
-  // Otherwise we'll poll for it with a 150ms interval and a 5 min timeout We
-  // can adjust this timeout up or down depending, I've just chosen 5 minutes
-  // somewhat arbitrarily...
-  const timeout = 300000;
   const start = Date.now();
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
@@ -576,24 +736,37 @@ export const waitForTransactionFound = async (
 /**
  * https://docs.deso.org/deso-backend/api/backend-api#health-check
  */
-export const healthCheck = (): Promise<void> => {
-  return api.get('api/v0/health-check');
+export const healthCheck = (options?: RequestOptions): Promise<void> => {
+  const endpoint = 'api/v0/health-check';
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/backend-api#get-exchange-rate
  */
-export const getExchangeRates = (): Promise<GetExchangeRateResponse> => {
-  return api.get('api/v0/get-exchange-rate');
+export const getExchangeRates = (
+  options?: RequestOptions
+): Promise<GetExchangeRateResponse> => {
+  const endpoint = 'api/v0/get-exchange-rate';
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/backend-api#get-app-state
  */
 export const getAppState = (
-  params: Partial<GetAppStateRequest> = {}
+  params: Partial<GetAppStateRequest> = {},
+  options?: RequestOptions
 ): Promise<GetAppStateResponse> => {
-  return api.post('api/v0/get-app-state', params);
+  const endpoint = 'api/v0/get-app-state';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,10 +776,12 @@ export const getAppState = (
  * https://docs.deso.org/deso-backend/api/transaction-spending-limits-endpoints#get-transaction-spending-limit-response-from-hex
  */
 export const getTransactionSpendingLimitFromHex = (
-  hex: string
+  hex: string,
+  options?: RequestOptions
 ): Promise<TransactionSpendingLimitResponse> => {
+  const endpoint = `api/v0/get-transaction-spending-limit-response-from-hex/${hex}`;
   return api.get(
-    `api/v0/get-transaction-spending-limit-response-from-hex/${hex}`
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
   );
 };
 
@@ -614,9 +789,14 @@ export const getTransactionSpendingLimitFromHex = (
  * https://docs.deso.org/deso-backend/api/transaction-spending-limits-endpoints#get-transaction-spending-limit-hex-string
  */
 export const getTransactionSpendingLimitHex = (
-  params: GetTransactionSpendingLimitHexStringRequest
+  params: GetTransactionSpendingLimitHexStringRequest,
+  options?: RequestOptions
 ): Promise<GetTransactionSpendingLimitHexStringResponse> => {
-  return api.post('api/v0/get-transaction-spending-limit-hex-string', params);
+  const endpoint = 'api/v0/get-transaction-spending-limit-hex-string';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -629,18 +809,28 @@ export const getNotifications = (
   params: PartialWithRequiredFields<
     GetNotificationsRequest,
     'PublicKeyBase58Check' | 'NumToFetch'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetNotificationsResponse> => {
-  return api.post('api/v0/get-notifications', params);
+  const endpoint = 'api/v0/get-notifications';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/notification-endpoints#get-unread-notification-count
  */
 export const getUnreadNotificationsCount = (
-  params: GetNotificationsCountRequest
+  params: GetNotificationsCountRequest,
+  options?: RequestOptions
 ): Promise<GetNotificationsCountRequest> => {
-  return api.post('api/v0/get-unread-notifications-count', params);
+  const endpoint = 'api/v0/get-unread-notifications-count';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -650,18 +840,28 @@ export const getUnreadNotificationsCount = (
  * https://docs.deso.org/deso-backend/api/miner-endpoints#get-block-template
  */
 export const getBlockTemplate = (
-  params: GetBlockTemplateRequest
+  params: GetBlockTemplateRequest,
+  options?: RequestOptions
 ): Promise<GetBlockTemplateResponse> => {
-  return api.post('api/v0/get-block-template', params);
+  const endpoint = 'api/v0/get-block-template';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/miner-endpoints#submit-block
  */
 export const submitBlock = (
-  params: SubmitBlockRequest
+  params: SubmitBlockRequest,
+  options?: RequestOptions
 ): Promise<SubmitBlockResponse> => {
-  return api.post('api/v0/submit-block', params);
+  const endpoint = 'api/v0/submit-block';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -674,18 +874,28 @@ export const getNFTsForUser = (
   params: PartialWithRequiredFields<
     GetNFTsForUserRequest,
     'UserPublicKeyBase58Check'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetNFTsForUserResponse> => {
-  return api.post('api/v0/get-nfts-for-user', params);
+  const endpoint = 'api/v0/get-nfts-for-user';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-bids-for-nft-post
  */
 export const getAllBidsForNFT = (
-  params: GetNFTBidsForNFTPostRequest
+  params: GetNFTBidsForNFTPostRequest,
+  options?: RequestOptions
 ): Promise<GetNFTBidsForNFTPostResponse> => {
-  return api.post('api/v0/get-nft-bids-for-nft-post', params);
+  const endpoint = 'api/v0/get-nft-bids-for-nft-post';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -695,25 +905,41 @@ export const getNFTBidsForUser = (
   params: PartialWithRequiredFields<
     GetNFTBidsForUserRequest,
     'UserPublicKeyBase58Check'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetNFTBidsForUserResponse> => {
-  return api.post('api/v0/get-nft-bids-for-user', params);
+  const endpoint = 'api/v0/get-nft-bids-for-user';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/nft-endpoints#get-nft-showcase
  */
 export const getNFTShowcase = (
-  params: Partial<GetNFTShowcaseRequest> = {}
+  params: Partial<GetNFTShowcaseRequest> = {},
+  options?: RequestOptions
 ): Promise<GetNFTShowcaseResponse> => {
-  return api.post('api/v0/get-nft-showcase', params);
+  const endpoint = 'api/v0/get-nft-showcase';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/nft-endpoints#get-next-nft-showcase
  */
-export const getNextNFTShowcase = (): Promise<GetNextNFTShowcaseResponse> => {
-  return api.post('api/v0/get-next-nft-showcase', {});
+export const getNextNFTShowcase = (
+  options?: RequestOptions
+): Promise<GetNextNFTShowcaseResponse> => {
+  const endpoint = 'api/v0/get-next-nft-showcase';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    {}
+  );
 };
 
 /**
@@ -723,9 +949,14 @@ export const getNFTCollectionSummary = (
   params: PartialWithRequiredFields<
     GetNFTCollectionSummaryRequest,
     'PostHashHex'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetNFTCollectionSummaryResponse> => {
-  return api.post('api/v0/get-nft-collection-summary', params);
+  const endpoint = 'api/v0/get-nft-collection-summary';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -735,9 +966,14 @@ export const getNFTEntriesForPost = (
   params: PartialWithRequiredFields<
     GetNFTEntriesForPostHashRequest,
     'PostHashHex'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetNFTEntriesForPostHashResponse> => {
-  return api.post('api/v0/get-nft-entries-for-post-hash', params);
+  const endpoint = 'api/v0/get-nft-entries-for-post-hash';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -752,9 +988,14 @@ export const getHodlersForUser = (
         GetHodlersForPublicKeyRequest,
         'PublicKeyBase58Check'
       >
-    | PartialWithRequiredFields<GetHodlersForPublicKeyRequest, 'Username'>
+    | PartialWithRequiredFields<GetHodlersForPublicKeyRequest, 'Username'>,
+  options?: RequestOptions
 ): Promise<GetHodlersForPublicKeyResponse> => {
-  return api.post('api/v0/get-hodlers-for-public-key', params);
+  const endpoint = 'api/v0/get-hodlers-for-public-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 // Alias for getHodlers
@@ -767,9 +1008,14 @@ export const getDiamondsForUser = (
   params: PartialWithRequiredFields<
     GetDiamondsForPublicKeyRequest,
     'PublicKeyBase58Check'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<GetDiamondsForPublicKeyResponse> => {
-  return api.post('api/v0/get-diamonds-for-public-key', params);
+  const endpoint = 'api/v0/get-diamonds-for-public-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -781,18 +1027,28 @@ export const getFollowersForUser = (
         GetFollowsStatelessRequest,
         'PublicKeyBase58Check'
       >
-    | PartialWithRequiredFields<GetFollowsStatelessRequest, 'Username'>
+    | PartialWithRequiredFields<GetFollowsStatelessRequest, 'Username'>,
+  options?: RequestOptions
 ): Promise<GetFollowsResponse> => {
-  return api.post('api/v0/get-follows-stateless', params);
+  const endpoint = 'api/v0/get-follows-stateless';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/social-endpoints#is-following-public-key
  */
 export const getIsFollowing = (
-  params: IsFollowingPublicKeyRequest
+  params: IsFollowingPublicKeyRequest,
+  options?: RequestOptions
 ): Promise<IsFolllowingPublicKeyResponse> => {
-  return api.post('api/v0/is-following-public-key', params);
+  const endpoint = 'api/v0/is-following-public-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -802,9 +1058,14 @@ export const getIsHodling = (
   params: PartialWithRequiredFields<
     IsHodlingPublicKeyRequest,
     'PublicKeyBase58Check' | 'IsHodlingPublicKeyBase58Check'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<IsHodlingPublicKeyResponse> => {
-  return api.post('api/v0/is-hodling-public-key', params);
+  const endpoint = 'api/v0/is-hodling-public-key';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 // Alias for getIsHodling
@@ -817,28 +1078,49 @@ export const getIsHolding = getIsHodling;
  * https://docs.deso.org/deso-backend/api/media-endpoints#get-full-tiktok-url
  */
 export const getFullTikTokURL = (
-  params: GetFullTikTokURLRequest
+  params: GetFullTikTokURLRequest,
+  options?: RequestOptions
 ): Promise<GetFullTikTokURLResponse> => {
-  return api.post('api/v0/get-full-tiktok-url', params);
+  const endpoint = 'api/v0/get-full-tiktok-url';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/media-endpoints#get-video-status
  */
 export const getVideoStatus = (
-  params: GetVideoStatusRequest
+  params: GetVideoStatusRequest,
+  options?: RequestOptions
 ): Promise<GetVideoStatusResponse> => {
-  return media.get(`api/v0/get-video-status/${params.videoId}`);
+  const endpoint = 'api/v0/get-video-status';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
-export const getLinkPreview = (url: string): Promise<LinkPreviewResponse> => {
-  return media.get(`api/v0/link-preview?url=${encodeURIComponent(url)}`);
+export const getLinkPreview = (
+  url: string,
+  options?: RequestOptions
+): Promise<LinkPreviewResponse> => {
+  const endpoint = `api/v0/link-preview?url=${encodeURIComponent(url)}`;
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
-export const buildProxyImageURL = (imageURL: string): string => {
-  return `${media.mediaURI}/api/v0/proxy-image?url=${encodeURIComponent(
-    imageURL
-  )}`;
+export const buildProxyImageURL = (
+  imageURL: string,
+  options?: RequestOptions
+): string => {
+  const nodeURI = options?.nodeURI ?? media.mediaURI;
+  return cleanURL(
+    nodeURI,
+    `api/v0/proxy-image?url=${encodeURIComponent(imageURL)}`
+  );
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -848,9 +1130,13 @@ export const buildProxyImageURL = (imageURL: string): string => {
  * https://docs.deso.org/deso-backend/api/associations-endpoints#get-user-association-by-id
  */
 export const getUserAssociation = (
-  associationId: string
+  associationId: string,
+  options?: RequestOptions
 ): Promise<AssociationResponse> => {
-  return api.get(`api/v0/user-associations/${associationId}`);
+  const endpoint = `api/v0/user-associations/${associationId}`;
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
 /**
@@ -860,9 +1146,14 @@ export const countUserAssociation = (
   params: PartialWithRequiredFields<
     Omit<UserAssociationQuery, 'AssociationValues'>,
     'AssociationType' | 'AssociationValue'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<AssociationsCountResponse> => {
-  return api.post('api/v0/user-associations/count', params);
+  const endpoint = 'api/v0/user-associations/count';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -872,27 +1163,41 @@ export const countUserAssociations = (
   params: PartialWithRequiredFields<
     Omit<UserAssociationQuery, 'AssociationValue'>,
     'AssociationType' | 'AssociationValues'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<AssociationCountsResponse> => {
-  return api.post('api/v0/user-associations/count', params);
+  const endpoint = 'api/v0/user-associations/count';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/associations-endpoints#query-for-user-associations
  */
 export const getUserAssociations = (
-  params: Partial<UserAssociationQuery> = {}
+  params: Partial<UserAssociationQuery> = {},
+  options?: RequestOptions
 ): Promise<UserAssociationsResponse> => {
-  return api.post('api/v0/user-associations/query', params);
+  const endpoint = 'api/v0/user-associations/query';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/associations-endpoints#get-post-association-by-id
  */
 export const getPostAssociation = (
-  associationId: string
+  associationId: string,
+  options?: RequestOptions
 ): Promise<AssociationResponse> => {
-  return api.get(`api/v0/post-associations/${associationId}`);
+  const endpoint = `api/v0/post-associations/${associationId}`;
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
 /**
@@ -902,9 +1207,14 @@ export const countPostAssociation = (
   params: PartialWithRequiredFields<
     Omit<PostAssociationQuery, 'AssociationValues'>,
     'AssociationType' | 'AssociationValue'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<AssociationsCountResponse> => {
-  return api.post('api/v0/post-associations/count', params);
+  const endpoint = 'api/v0/post-associations/count';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
@@ -914,16 +1224,26 @@ export const countPostAssociations = (
   params: PartialWithRequiredFields<
     Omit<PostAssociationQuery, 'AssociationValue'>,
     'AssociationType' | 'AssociationValues'
-  >
+  >,
+  options?: RequestOptions
 ): Promise<AssociationCountsResponse> => {
-  return api.post('api/v0/post-associations/count', params);
+  const endpoint = 'api/v0/post-associations/count';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/associations-endpoints#query-for-user-associations
  */
 export const getPostAssociations = (
-  params: Partial<PostAssociationQuery> = {}
+  params: Partial<PostAssociationQuery> = {},
+  options?: RequestOptions
 ): Promise<PostAssociationsResponse> => {
-  return api.post('api/v0/post-associations/query', params);
+  const endpoint = 'api/v0/post-associations/query';
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    params
+  );
 };
