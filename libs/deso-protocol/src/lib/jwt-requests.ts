@@ -1,4 +1,4 @@
-import { api, PartialWithRequiredFields } from '@deso-core/data';
+import { api, cleanURL, PartialWithRequiredFields } from '@deso-core/data';
 import { identity } from '@deso-core/identity';
 import {
   AdminGetAllUserGlobalMetadataRequest,
@@ -42,6 +42,7 @@ import {
   HotFeedPageResponse,
   NodeControlRequest,
   NodeControlResponse,
+  RequestOptions,
   SetBuyDeSoFeeBasisPointsRequest,
   SetBuyDeSoFeeBasisPointsResponse,
   SetNotificationMetadataRequest,
@@ -57,11 +58,18 @@ import {
   WyreWalletOrderQuotationPayload,
   WyreWalletOrderReservationPayload,
 } from 'deso-protocol-types';
-import { TxRequestWithOptionalFeesAndExtraData } from './internal';
+import {
+  handleSignAndSubmit,
+  TxRequestWithOptionalFeesAndExtraData,
+} from './internal';
 import { ConstructedAndSubmittedTx } from './types';
 
-const jwtPost = async (path: string, params: any) => {
-  const isAdminRequest = path.replace(/^\/+/, '').startsWith('api/v0/admin');
+const jwtPost = async (
+  endpoint: string,
+  params: any = {},
+  options?: RequestOptions & { signAndSubmit?: boolean }
+) => {
+  const isAdminRequest = endpoint.includes('api/v0/admin');
   let AdminPublicKey = '';
 
   if (isAdminRequest) {
@@ -74,11 +82,20 @@ const jwtPost = async (path: string, params: any) => {
     AdminPublicKey = currentUser.publicKey;
   }
 
-  return api.post(path, {
+  const postParams = {
     ...params,
     ...(isAdminRequest && { AdminPublicKey }),
     JWT: params.JWT ?? (await identity.jwt()),
-  });
+  };
+
+  if (options?.signAndSubmit) {
+    return handleSignAndSubmit(endpoint, postParams, options);
+  }
+
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    postParams
+  );
 };
 
 /**
@@ -88,9 +105,10 @@ export const getUserGlobalMetadata = async (
   params: PartialWithRequiredFields<
     GetUserGlobalMetadataRequest,
     'UserPublicKeyBase58Check'
-  >
+  >,
+  options: RequestOptions
 ): Promise<GetUserGlobalMetadataResponse> => {
-  return jwtPost('api/v0/get-user-global-metadata', params);
+  return jwtPost('api/v0/get-user-global-metadata', params, options);
 };
 
 /**
@@ -101,18 +119,20 @@ export type UpdateUserGlobalMetadataParams = PartialWithRequiredFields<
   'UserPublicKeyBase58Check'
 >;
 export const updateUserGlobalMetadata = async (
-  params: UpdateUserGlobalMetadataParams
+  params: UpdateUserGlobalMetadataParams,
+  options: RequestOptions
 ) => {
-  return jwtPost('api/v0/update-user-global-metadata', params);
+  return jwtPost('api/v0/update-user-global-metadata', params, options);
 };
 
 /**
  * https://docs.deso.org/deso-backend/api/user-endpoints#delete-pii-personal-identifiable-information
  */
 export const deletePII = async (
-  params: PartialWithRequiredFields<DeletePIIRequest, 'PublicKeyBase58Check'>
+  params: PartialWithRequiredFields<DeletePIIRequest, 'PublicKeyBase58Check'>,
+  options: RequestOptions
 ): Promise<undefined> => {
-  return jwtPost('api/v0/delete-pii', params);
+  return jwtPost('api/v0/delete-pii', params, options);
 };
 
 /**
@@ -123,9 +143,10 @@ export type BlockPublicKeyParams = PartialWithRequiredFields<
   'BlockPublicKeyBase58Check' | 'PublicKeyBase58Check'
 >;
 export const blockPublicKey = async (
-  params: BlockPublicKeyParams
+  params: BlockPublicKeyParams,
+  options: RequestOptions
 ): Promise<BlockPublicKeyResponse> => {
-  return jwtPost('api/v0/block-public-key', params);
+  return jwtPost('api/v0/block-public-key', params, options);
 };
 
 /**
@@ -138,9 +159,10 @@ export const setNotificationMetadata = async (
     | 'LastSeenIndex'
     | 'LastUnreadNotificationIndex'
     | 'UnreadNotifications'
-  >
+  >,
+  options: RequestOptions
 ) => {
-  return jwtPost('api/v0/set-notification-metadata', params);
+  return jwtPost('api/v0/set-notification-metadata', params, options);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -149,134 +171,159 @@ export const setNotificationMetadata = async (
 /**
  * https://docs.deso.org/deso-backend/api/admin-endpoints#get-verified-users
  */
-export const adminGetVerifiedUsers =
-  (): Promise<AdminGetVerifiedUsersResponse> => {
-    return jwtPost('api/v0/admin/get-verified-users', {});
-  };
+export const adminGetVerifiedUsers = (
+  options?: RequestOptions
+): Promise<AdminGetVerifiedUsersResponse> => {
+  return jwtPost('api/v0/admin/get-verified-users', {}, options);
+};
 
 /**
  * https://docs.deso.org/deso-backend/api/admin-endpoints#get-username-verification-audit-logs
  */
 export const adminGetUsernameVerificationAuditLog = (
-  params: AdminGetUsernameVerificationAuditLogsRequest
+  params: AdminGetUsernameVerificationAuditLogsRequest,
+  options: RequestOptions
 ): Promise<AdminGetUsernameVerificationAuditLogsResponse> => {
-  return jwtPost('api/v0/admin/get-username-verification-audit-log', params);
+  return jwtPost(
+    'api/v0/admin/get-username-verification-audit-log',
+    params,
+    options
+  );
 };
 
 export const adminNodeControl = (
   params: PartialWithRequiredFields<
     Omit<NodeControlRequest, 'JWT' | 'AdminPublicKey'>,
     'Address' | 'OperationType'
-  >
+  >,
+  options: RequestOptions
 ): Promise<NodeControlResponse> => {
-  return jwtPost('api/v0/admin/node-control', params);
+  return jwtPost('api/v0/admin/node-control', params, options);
 };
 
 export const adminGrantVerificationBadge = (
-  params: Omit<AdminGrantVerificationBadgeRequest, 'AdminPublicKey'>
+  params: Omit<AdminGrantVerificationBadgeRequest, 'AdminPublicKey'>,
+  options: RequestOptions
 ): Promise<AdminGrantVerificationBadgeResponse> => {
-  return jwtPost('api/v0/admin/grant-verification-badge', params);
+  return jwtPost('api/v0/admin/grant-verification-badge', params, options);
 };
 
 export const adminRemoveVerificationBadge = (
-  params: Omit<AdminRemoveVerificationBadgeRequest, 'AdminPublicKey'>
+  params: Omit<AdminRemoveVerificationBadgeRequest, 'AdminPublicKey'>,
+  options: RequestOptions
 ): Promise<AdminRemoveVerificationBadgeResponse> => {
-  return jwtPost('api/v0/admin/remove-verification-badge', params);
+  return jwtPost('api/v0/admin/remove-verification-badge', params, options);
 };
 
 export const adminGetUserAdminData = (
-  params: AdminGetUserAdminDataRequest
+  params: AdminGetUserAdminDataRequest,
+  options: RequestOptions
 ): Promise<AdminGetUserAdminDataResponse> => {
-  return jwtPost('api/v0/admin/get-user-admin-data', params);
+  return jwtPost('api/v0/admin/get-user-admin-data', params, options);
 };
 
 export const adminGetUserGlobalMetadata = (
-  params: AdminGetUserGlobalMetadataRequest
+  params: AdminGetUserGlobalMetadataRequest,
+  options: RequestOptions
 ): Promise<AdminGetUserGlobalMetadataResponse> => {
-  return jwtPost('api/v0/admin/get-user-global-metadata', params);
+  return jwtPost('api/v0/admin/get-user-global-metadata', params, options);
 };
 
 export const adminUpdateUserGlobalMetadataRequest = (
-  params: Omit<AdminUpdateUserGlobalMetadataRequest, 'AdminPublicKey'>
+  params: Omit<AdminUpdateUserGlobalMetadataRequest, 'AdminPublicKey'>,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/update-user-global-metadata', params);
+  return jwtPost('api/v0/admin/update-user-global-metadata', params, options);
 };
 
 export const adminGetAllUserGlobalMetadata = (
-  params: AdminGetAllUserGlobalMetadataRequest
+  params: AdminGetAllUserGlobalMetadataRequest,
+  options: RequestOptions
 ): Promise<AdminGetUserGlobalMetadataResponse> => {
-  return jwtPost('api/v0/admin/get-all-user-global-metadata', params);
+  return jwtPost('api/v0/admin/get-all-user-global-metadata', params, options);
 };
 
-export const adminPinToPost = (params: AdminPinPostRequest): Promise<void> => {
-  return jwtPost('api/v0/admin/pin-post', params);
+export const adminPinToPost = (
+  params: AdminPinPostRequest,
+  options: RequestOptions
+): Promise<void> => {
+  return jwtPost('api/v0/admin/pin-post', params, options);
 };
 
 export const adminUpdateGlobalFeed = (
-  params: AdminUpdateGlobalFeedRequest
+  params: AdminUpdateGlobalFeedRequest,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/update-global-feed', params);
+  return jwtPost('api/v0/admin/update-global-feed', params, options);
 };
 
 export const adminRemoveNilPosts = (
-  params: AdminRemoveNilPostsRequest
+  params: AdminRemoveNilPostsRequest,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/remove-nil-posts', params);
+  return jwtPost('api/v0/admin/remove-nil-posts', params, options);
 };
 
-export const adminReprocessBitcoinBlock = (blockHashOrBlockHeight: string) => {
+export const adminReprocessBitcoinBlock = (
+  blockHashOrBlockHeight: string,
+  options: RequestOptions
+) => {
   return jwtPost(
     `api/v0/admin/reprocess-bitcoin-block/${blockHashOrBlockHeight}`,
-    {}
+    {},
+    options
   );
 };
 
-export const adminGetMempoolStats =
-  (): Promise<AdminGetMempoolStatsResponse> => {
-    return jwtPost('api/v0/admin/get-mempool-stats', {});
-  };
+export const adminGetMempoolStats = (
+  options?: RequestOptions
+): Promise<AdminGetMempoolStatsResponse> => {
+  return jwtPost('api/v0/admin/get-mempool-stats', {}, options);
+};
 
 export const adminSwapIdentity = async (
-  params: TxRequestWithOptionalFeesAndExtraData<SwapIdentityRequest>
+  params: TxRequestWithOptionalFeesAndExtraData<SwapIdentityRequest>,
+  options: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SwapIdentityResponse>> => {
-  const constructedTransactionResponse = await jwtPost(
-    'api/v0/admin/swap-identity',
-    params
-  );
-  const submittedTransactionResponse = await identity.signAndSubmit(
-    constructedTransactionResponse
-  );
-
-  return {
-    constructedTransactionResponse,
-    submittedTransactionResponse,
-  };
+  return jwtPost('api/v0/admin/swap-identity', params, options);
 };
 
 export const adminSetUSDCentsToDESOReserveExchangeRate = (
-  params: Omit<SetUSDCentsToDeSoExchangeRateRequest, 'AdminPublicKey'>
+  params: Omit<SetUSDCentsToDeSoExchangeRateRequest, 'AdminPublicKey'>,
+  options: RequestOptions
 ): Promise<SetUSDCentsToDeSoExchangeRateResponse> => {
   return jwtPost(
     'api/v0/admin/set-usd-cents-to-deso-reserve-exchange-rate',
-    params
+    params,
+    options
   );
 };
 
-export const adminGetUSDCentsToDESOReserveExchangeRate =
-  (): Promise<GetUSDCentsToDeSoExchangeRateResponse> => {
-    return api.get('api/v0/admin/get-usd-cents-to-deso-reserve-exchange-rate');
-  };
-
-export const adminSetBuyDesoFeeBasisPoints = (
-  params: SetBuyDeSoFeeBasisPointsRequest
-): Promise<SetBuyDeSoFeeBasisPointsResponse> => {
-  return jwtPost('api/v0/admin/set-buy-deso-fee-basis-points', params);
+// Not a jwt request, but it's an admin endpoint so it's here...
+export const adminGetUSDCentsToDESOReserveExchangeRate = (
+  options?: RequestOptions
+): Promise<GetUSDCentsToDeSoExchangeRateResponse> => {
+  const endpoint = 'api/v0/admin/get-usd-cents-to-deso-reserve-exchange-rate';
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
 };
 
-export const adminGetBuyDesoFeeBasisPoints =
-  (): Promise<GetBuyDeSoFeeBasisPointsResponse> => {
-    return api.get('api/v0/admin/get-buy-deso-fee-basis-points');
-  };
+export const adminSetBuyDesoFeeBasisPoints = (
+  params: SetBuyDeSoFeeBasisPointsRequest,
+  options: RequestOptions
+): Promise<SetBuyDeSoFeeBasisPointsResponse> => {
+  return jwtPost('api/v0/admin/set-buy-deso-fee-basis-points', params, options);
+};
+
+export const adminGetBuyDesoFeeBasisPoints = (
+  options?: RequestOptions
+): Promise<GetBuyDeSoFeeBasisPointsResponse> => {
+  const endpoint = 'api/v0/admin/get-buy-deso-fee-basis-points';
+  return api.get(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
+  );
+};
 
 export const adminUpdateGlobalParams = async (
   params: TxRequestWithOptionalFeesAndExtraData<
@@ -289,71 +336,83 @@ export const adminUpdateGlobalParams = async (
       | 'CreateNFTFeeNanos'
       | 'MinimumNetworkFeeNanosPerKB'
     >
-  >
+  >,
+  options: RequestOptions & RequestOptions
 ): Promise<ConstructedAndSubmittedTx<UpdateGlobalParamsResponse>> => {
-  const constructedTransactionResponse = await jwtPost(
+  return handleSignAndSubmit(
     'api/v0/admin/update-global-params',
-    params
+    params,
+    options
   );
-  const submittedTransactionResponse = await identity.signAndSubmit(
-    constructedTransactionResponse
-  );
-
-  return {
-    constructedTransactionResponse,
-    submittedTransactionResponse,
-  };
 };
 
-export const adminGetGlobalParams = (): Promise<GetGlobalParamsResponse> => {
-  return jwtPost('api/v0/admin/get-global-params', {});
+export const adminGetGlobalParams = (
+  options?: RequestOptions
+): Promise<GetGlobalParamsResponse> => {
+  return jwtPost('api/v0/admin/get-global-params', {}, options);
 };
 
 export const adminGetNFTDrop = (
-  params: AdminGetNFTDropRequest
+  params: AdminGetNFTDropRequest,
+  options: RequestOptions
 ): Promise<AdminGetNFTDropResponse> => {
-  return jwtPost('api/v0/admin/get-nft-drop', params);
+  return jwtPost('api/v0/admin/get-nft-drop', params, options);
 };
 
 export const adminUpdateNFTDrop = (
-  params: AdminUpdateNFTDropRequest
+  params: AdminUpdateNFTDropRequest,
+  options: RequestOptions
 ): Promise<AdminUpdateNFTDropResponse> => {
-  return jwtPost('api/v0/admin/update-nft-drop', params);
+  return jwtPost('/api/v0/admin/update-nft-drop', params, options);
 };
 
 export const adminGetUnfilteredHotFeed = (
-  params: Partial<HotFeedPageRequest>
+  params: Partial<HotFeedPageRequest>,
+  options: RequestOptions
 ): Promise<HotFeedPageResponse> => {
-  return jwtPost('api/v0/admin/get-unfiltered-hot-feed', params);
+  return jwtPost('api/v0/admin/get-unfiltered-hot-feed', params, options);
 };
 
-export const adminGetHotFeedAlgorithm =
-  (): Promise<AdminGetHotFeedAlgorithmResponse> => {
-    return jwtPost('api/v0/admin/get-hot-feed-algorithm', {});
-  };
+export const adminGetHotFeedAlgorithm = (
+  options?: RequestOptions
+): Promise<AdminGetHotFeedAlgorithmResponse> => {
+  return jwtPost('api/v0/admin/get-hot-feed-algorithm', {}, options);
+};
 
 export const adminUpdateHotFeedAlgorithm = (
-  params: AdminUpdateHotFeedAlgorithmRequest
+  params: AdminUpdateHotFeedAlgorithmRequest,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/update-hot-feed-algorithm', params);
+  return jwtPost('api/v0/admin/update-hot-feed-algorithm', params, options);
 };
 
 export const adminUpdateHotFeedUserMultiplier = (
-  params: AdminUpdateHotFeedUserMultiplierRequest
+  params: AdminUpdateHotFeedUserMultiplierRequest,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/update-hot-feed-user-multiplier', params);
+  return jwtPost(
+    'api/v0/admin/update-hot-feed-user-multiplier',
+    params,
+    options
+  );
 };
 
 export const adminUpdateHotFeedPostMultiplier = (
-  params: AdminUpdateHotFeedPostMultiplierRequest
+  params: AdminUpdateHotFeedPostMultiplierRequest,
+  options: RequestOptions
 ): Promise<void> => {
-  return jwtPost('api/v0/admin/update-hot-feed-post-multiplier', params);
+  return jwtPost(
+    'api/v0/admin/update-hot-feed-post-multiplier',
+    params,
+    options
+  );
 };
 
 export const adminGetHotFeedUserMultiplier = (
-  params: AdminGetHotFeedUserMultiplierRequest
+  params: AdminGetHotFeedUserMultiplierRequest,
+  options: RequestOptions
 ): Promise<AdminGetHotFeedUserMultiplierResponse> => {
-  return jwtPost('api/v0/admin/get-hot-feed-user-multiplier', params);
+  return jwtPost('api/v0/admin/get-hot-feed-user-multiplier', params, options);
 };
 
 export const adminGetWyreWalletOrdersForUser = (
@@ -365,19 +424,34 @@ export const adminGetWyreWalletOrdersForUser = (
     | PartialWithRequiredFields<
         Omit<GetWyreWalletOrderForPublicKeyRequest, 'AdminPublicKey'>,
         'Username'
-      >
+      >,
+  options: RequestOptions
 ): Promise<GetWyreWalletOrderForPublicKeyResponse> => {
-  return jwtPost('api/v0/admin/get-wyre-wallet-orders-for-public-key', params);
+  return jwtPost(
+    'api/v0/admin/get-wyre-wallet-orders-for-public-key',
+    params,
+    options
+  );
 };
 
 export const adminGetWyreWalletOrderQuotation = (
-  params: WalletOrderQuotationRequest
+  params: WalletOrderQuotationRequest,
+  options: RequestOptions
 ): Promise<WyreWalletOrderQuotationPayload> => {
-  return jwtPost('api/v0/admin/get-wyre-wallet-order-quotation', params);
+  return jwtPost(
+    'api/v0/admin/get-wyre-wallet-order-quotation',
+    params,
+    options
+  );
 };
 
 export const adminGetWyreWalletOrderReservation = (
-  params: WalletOrderReservationRequest
+  params: WalletOrderReservationRequest,
+  options: RequestOptions
 ): Promise<WyreWalletOrderReservationPayload> => {
-  return jwtPost('api/v0/admin/get-wyre-wallet-order-reservation', params);
+  return jwtPost(
+    'api/v0/admin/get-wyre-wallet-order-reservation',
+    params,
+    options
+  );
 };

@@ -2,6 +2,7 @@ import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   BuyOrSellCreatorCoinRequest,
   BuyOrSellCreatorCoinResponse,
+  RequestOptions,
   SendDeSoRequest,
   SendDeSoResponse,
   TransferCreatorCoinRequest,
@@ -11,14 +12,14 @@ import {
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
-import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
+import { ConstructedAndSubmittedTx } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/financial-transactions-api#send-deso
  */
 export const sendDeso = (
   params: TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendDeSoResponse>> => {
   return handleSignAndSubmit('api/v0/send-deso', params, options);
 };
@@ -38,7 +39,7 @@ export const buyCreatorCoin = (
       | 'DeSoToSellNanos'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
   return handleSignAndSubmit(
     'api/v0/buy-or-sell-creator-coin',
@@ -62,7 +63,7 @@ export const sellCreatorCoin = (
       | 'CreatorCoinToSellNanos'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
   return handleSignAndSubmit(
     'api/v0/buy-or-sell-creator-coin',
@@ -87,7 +88,7 @@ export const transferCreatorCoin = (
       | 'CreatorCoinToTransferNanos'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<TransferCreatorCoinResponse>> => {
   return handleSignAndSubmit('api/v0/transfer-creator-coin', params, options);
 };

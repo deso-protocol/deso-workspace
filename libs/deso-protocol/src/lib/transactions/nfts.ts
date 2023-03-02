@@ -10,6 +10,7 @@ import {
   CreateNFTBidResponse,
   CreateNFTRequest,
   CreateNFTResponse,
+  RequestOptions,
   TransferNFTRequest,
   TransferNFTResponse,
   UpdateNFTRequest,
@@ -19,7 +20,7 @@ import {
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
-import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
+import { ConstructedAndSubmittedTx } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/nft-transactions-api#create-nft
@@ -37,7 +38,7 @@ export const createNFT = async (
       | 'IsForSale'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateNFTResponse>> => {
   return handleSignAndSubmit('api/v0/create-nft', params, options);
 };
@@ -55,7 +56,7 @@ export const updateNFT = async (
       | 'MinBidAmountNanos'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<UpdateNFTResponse>> => {
   return handleSignAndSubmit('api/v0/update-nft', params, options);
 };
@@ -73,7 +74,7 @@ export const createNFTBid = (
       | 'UpdaterPublicKeyBase58Check'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateNFTBidResponse>> => {
   return handleSignAndSubmit('api/v0/create-nft-bid', params, options);
 };
@@ -92,7 +93,7 @@ export const acceptNFTBid = (
       | 'BidderPublicKeyBase58Check'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AcceptNFTBidResponse>> => {
   return handleSignAndSubmit('api/v0/create-nft-bid', params, options);
 };
@@ -110,7 +111,7 @@ export const transferNFT = (
       | 'SerialNumber'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<TransferNFTResponse>> => {
   return handleSignAndSubmit('api/v0/transfer-nft', params, options);
 };
@@ -125,7 +126,7 @@ export const acceptNFTTransfer = (
       'UpdaterPublicKeyBase58Check' | 'NFTPostHashHex' | 'SerialNumber'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AcceptNFTTransferResponse>> => {
   return handleSignAndSubmit('api/v0/accept-nft-transfer', params, options);
 };
@@ -140,7 +141,7 @@ export const burnNFT = (
       'UpdaterPublicKeyBase58Check' | 'NFTPostHashHex' | 'SerialNumber'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<BurnNFTResponse>> => {
   return handleSignAndSubmit('api/v0/burn-nft', params, options);
 };

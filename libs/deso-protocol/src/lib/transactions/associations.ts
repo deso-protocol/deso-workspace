@@ -4,12 +4,13 @@ import {
   CreatePostAssociationRequest,
   CreateUserAssociationRequest,
   DeleteAssociationRequest,
+  RequestOptions,
 } from 'deso-protocol-types';
 import {
   handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
-import { ConstructedAndSubmittedTx, TransactionOptions } from '../types';
+import { ConstructedAndSubmittedTx } from '../types';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#create-user-association
@@ -24,7 +25,7 @@ export const createUserAssociation = (
       | 'AssociationValue'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
   return handleSignAndSubmit(
     'api/v0/user-associations/create',
@@ -43,7 +44,7 @@ export const deleteUserAssociation = (
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
   return handleSignAndSubmit(
     'api/v0/user-associations/delete',
@@ -65,7 +66,7 @@ export const createPostAssociation = (
       | 'AssociationValue'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
   return handleSignAndSubmit(
     'api/v0/post-associations/create',
@@ -84,7 +85,7 @@ export const deletePostAssociation = (
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
   return handleSignAndSubmit(
     'api/v0/post-associations/delete',

@@ -4,6 +4,7 @@ import {
   CreateFollowTxnStatelessResponse,
   CreateLikeStatelessRequest,
   CreateLikeStatelessResponse,
+  RequestOptions,
   SendDiamondsRequest,
   SendDiamondsResponse,
   SendNewMessageRequest,
@@ -16,7 +17,6 @@ import {
 import { handleSignAndSubmit } from '../internal';
 import {
   ConstructedAndSubmittedTx,
-  TransactionOptions,
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
 
@@ -25,7 +25,7 @@ import {
  */
 export const updateProfile = async (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<UpdateProfileResponse>> => {
   return handleSignAndSubmit('api/v0/update-profile', params, options);
 };
@@ -40,7 +40,7 @@ export const submitPost = (
       'UpdaterPublicKeyBase58Check' | 'BodyObj'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SubmitPostResponse>> => {
   return handleSignAndSubmit('api/v0/submit-post', params, options);
 };
@@ -55,7 +55,7 @@ export const updateFollowingStatus = (
       'FollowedPublicKeyBase58Check' | 'FollowerPublicKeyBase58Check'
     >
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateFollowTxnStatelessResponse>> => {
   return handleSignAndSubmit(
     'api/v0/create-follow-txn-stateless',
@@ -69,7 +69,7 @@ export const updateFollowingStatus = (
  */
 export const sendDiamonds = async (
   params: TypeWithOptionalFeesAndExtraData<SendDiamondsRequest>,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendDiamondsResponse>> => {
   return handleSignAndSubmit('api/v0/send-diamonds', params, options);
 };
@@ -81,7 +81,7 @@ export const updateLikeStatus = async (
   params: TypeWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<CreateLikeStatelessRequest, 'LikedPostHashHex'>
   >,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateLikeStatelessResponse>> => {
   return handleSignAndSubmit('api/v0/create-like-stateless', params, options);
 };
@@ -95,7 +95,7 @@ type SendNewMessageParams = TypeWithOptionalFeesAndExtraData<
 >;
 export const sendDMMessage = async (
   params: SendNewMessageParams,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
   return handleSignAndSubmit('api/v0/send-dm-message', params, options);
 };
@@ -105,7 +105,7 @@ export const sendDMMessage = async (
  */
 export const updateDMMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
   return handleSignAndSubmit('api/v0/update-dm-message', params, options);
 };
@@ -115,7 +115,7 @@ export const updateDMMessage = async (
  */
 export const sendGroupChatMessage = async (
   params: SendNewMessageParams,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
   return handleSignAndSubmit('api/v0/send-group-chat-message', params, options);
 };
@@ -125,7 +125,7 @@ export const sendGroupChatMessage = async (
  */
 export const updateGroupChatMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
-  options?: TransactionOptions
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
   return handleSignAndSubmit(
     'api/v0/update-group-chat-message',

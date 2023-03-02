@@ -1,7 +1,6 @@
-import { api } from '@deso-core/data';
+import { api, cleanURL } from '@deso-core/data';
 import { identity } from '@deso-core/identity';
-import { TransactionFee } from 'deso-protocol-types';
-import { TransactionOptions } from './types';
+import { RequestOptions, TransactionFee } from 'deso-protocol-types';
 
 ////////////////////////////////////////////////////////////////////////////////
 // This is all the stuff we don't export to consumers of the library. If
@@ -38,13 +37,16 @@ export const handleSignAndSubmit = async (
   endpoint: string,
   params: OptionalFeesAndExtraData & any,
   // we always broadcast by default, but consumers can optionally disable it.
-  options: TransactionOptions = { broadcast: true }
+  options: RequestOptions = { broadcast: true }
 ) => {
-  const constructedTransactionResponse = await api.post(endpoint, {
-    ...params,
-    MinFeeRateNanosPerKB:
-      params.MinFeeRateNanosPerKB ?? globalConfigOptions.MinFeeRateNanosPerKB,
-  });
+  const constructedTransactionResponse = await api.post(
+    options.nodeURI ? `${cleanURL(options.nodeURI, endpoint)}` : endpoint,
+    {
+      ...params,
+      MinFeeRateNanosPerKB:
+        params.MinFeeRateNanosPerKB ?? globalConfigOptions.MinFeeRateNanosPerKB,
+    }
+  );
   const submittedTransactionResponse = options.broadcast
     ? await identity.signAndSubmit(constructedTransactionResponse)
     : null;
