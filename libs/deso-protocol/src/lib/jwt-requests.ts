@@ -310,7 +310,7 @@ export const adminGetUSDCentsToDESOReserveExchangeRate = (
 };
 
 export const adminSetBuyDesoFeeBasisPoints = (
-  params: SetBuyDeSoFeeBasisPointsRequest,
+  params: Omit<SetBuyDeSoFeeBasisPointsRequest, 'AdminPublicKey'>,
   options?: RequestOptions
 ): Promise<SetBuyDeSoFeeBasisPointsResponse> => {
   return jwtPost('api/v0/admin/set-buy-deso-fee-basis-points', params, options);
