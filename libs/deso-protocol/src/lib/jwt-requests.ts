@@ -77,7 +77,7 @@ const jwtPost = async (path: string, params: any) => {
   return api.post(path, {
     ...params,
     ...(isAdminRequest && { AdminPublicKey }),
-    JWT: await identity.jwt(),
+    JWT: params.JWT ?? (await identity.jwt()),
   });
 };
 
@@ -132,7 +132,13 @@ export const blockPublicKey = async (
  * https://docs.deso.org/deso-backend/api/notification-endpoints#set-notification-metadata
  */
 export const setNotificationMetadata = async (
-  params: SetNotificationMetadataRequest
+  params: PartialWithRequiredFields<
+    SetNotificationMetadataRequest,
+    | 'PublicKeyBase58Check'
+    | 'LastSeenIndex'
+    | 'LastUnreadNotificationIndex'
+    | 'UnreadNotifications'
+  >
 ) => {
   return jwtPost('api/v0/set-notification-metadata', params);
 };
