@@ -7,7 +7,7 @@
 ## Installation
 
 ```sh
-npm i deso-protocol@beta
+npm i deso-protocol
 ```
 
 ## Configuration
