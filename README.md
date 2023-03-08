@@ -11,13 +11,13 @@ NOTE: The library is in beta and under development so not all functionality is a
 Install using your preferred package manager:
 
 ```sh
-npm i deso-protocol
+npm i deso-protocol@deprecated
 ```
 
 or
 
 ```sh
-yarn add deso-protocol
+yarn add deso-protocol@deprecated
 ```
 
 ## Usage
