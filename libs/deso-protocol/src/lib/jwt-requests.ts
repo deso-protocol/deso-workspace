@@ -1,4 +1,9 @@
-import { api, cleanURL, PartialWithRequiredFields } from '@deso-core/data';
+import {
+  api,
+  cleanURL,
+  media,
+  PartialWithRequiredFields,
+} from '@deso-core/data';
 import { identity } from '@deso-core/identity';
 import {
   AdminGetAllUserGlobalMetadataRequest,
@@ -54,6 +59,10 @@ import {
   UpdateGlobalParamsRequest,
   UpdateGlobalParamsResponse,
   UpdateUserGlobalMetadataRequest,
+  UploadImageRequest,
+  UploadImageResponse,
+  UploadVideoRequest,
+  UploadVideoV2Response,
   VerifyEmailRequest,
   WalletOrderQuotationRequest,
   WalletOrderReservationRequest,
@@ -69,7 +78,7 @@ import { ConstructedAndSubmittedTx } from './types';
 const jwtPost = async (
   endpoint: string,
   params: any = {},
-  options?: RequestOptions & { signAndSubmit?: boolean }
+  options?: RequestOptions
 ) => {
   const isAdminRequest = endpoint.includes('api/v0/admin');
   let AdminPublicKey = '';
@@ -90,7 +99,7 @@ const jwtPost = async (
     JWT: params.JWT ?? (await identity.jwt()),
   };
 
-  if (options?.signAndSubmit) {
+  if (options?.broadcast) {
     return handleSignAndSubmit(endpoint, postParams, options);
   }
 
@@ -473,5 +482,34 @@ export const verifyEmail = (
   return api.post(
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
+  );
+};
+
+export const uploadImage = async (
+  params: PartialWithRequiredFields<
+    UploadImageRequest,
+    'file' | 'UserPublicKeyBase58Check'
+  >,
+  options?: RequestOptions
+): Promise<UploadImageResponse> => {
+  const JWT = await identity.jwt();
+  const endpoint = 'api/v0/upload-image';
+
+  return api.post(
+    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
+    { JWT, ...params },
+    { contentType: 'multipart/form-data' }
+  );
+};
+
+export const uploadVideo = async (
+  params: UploadVideoRequest
+): Promise<UploadVideoV2Response> => {
+  const JWT = await identity.jwt();
+  const endpoint = 'api/v0/upload-video';
+  return media.post(
+    endpoint,
+    { JWT, ...params },
+    { contentType: 'multipart/form-data' }
   );
 };

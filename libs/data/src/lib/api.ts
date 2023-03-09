@@ -47,13 +47,41 @@ export const cleanURL = (origin: string, endpoint: string) => {
 class APIClient {
   protected uri = '';
 
-  post(endpoint: string, data: Record<string, any>): Promise<any> {
+  post(
+    endpoint: string,
+    data: Record<string, any>,
+    options: { contentType?: 'multipart/form-data' } = {}
+  ): Promise<any> {
+    const contentType = options.contentType ?? 'application/json';
+    let body: FormData | string;
+
+    switch (contentType) {
+      case 'multipart/form-data':
+        body = new FormData();
+        for (const key in data) {
+          body.append(key, data[key]);
+        }
+        break;
+      case 'application/json':
+        body = JSON.stringify(data);
+        break;
+      default:
+        throw new Error(`Unsupported content type: ${contentType}`);
+    }
+
     return wrappedFetch(this.#url(endpoint), {
       method: 'POST',
-      body: JSON.stringify(data),
+      body,
       headers: {
-        'Content-Type': 'application/json',
+        // NOTE: We only set the content type header if it's not
+        // multipart/form-data.  This is because we need the browser to
+        // automatically set the boundary for us when we use FormData:
+        // https://stackoverflow.com/a/39281156
+        ...(contentType !== 'multipart/form-data' && {
+          'Content-Type': contentType,
+        }),
       },
+      ...options,
     });
   }
 

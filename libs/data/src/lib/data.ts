@@ -1134,6 +1134,55 @@ export const buildProxyImageURL = (
   );
 };
 
+/**
+ * @param videoId this corresponds to the assetId returned from the uploadVideo endpoint
+ * @param options.duration optional duration in milliseconds to poll for video ready status
+ * @param options.timeout optional timeout in milliseconds before we stop polling for video ready status
+ */
+export const pollForVideoReady = async (
+  videoId: string,
+  {
+    duration = 300,
+    timeout = 3e5, // 5 minutes
+  } = {}
+): Promise<void> => {
+  const { status } = await getVideoStatus({ videoId });
+
+  if (status.phase === 'ready') {
+    return;
+  }
+
+  if (status.phase === 'failed') {
+    throw new Error('There was an error processing the video upload.');
+  }
+
+  const startTime = Date.now();
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      getVideoStatus({ videoId }).then(({ status }) => {
+        switch (status.phase) {
+          case 'ready':
+            clearTimeout(timeoutId);
+            resolve();
+            return;
+          case 'failed':
+            clearTimeout(timeoutId);
+            reject(
+              new Error('there was an error processing the video upload.')
+            );
+            return;
+        }
+
+        if (Date.now() - startTime > timeout) {
+          clearTimeout(timeoutId);
+          reject(new Error('timed out waiting for video to be ready'));
+          return;
+        }
+      });
+    }, duration);
+  });
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Associations endpoints
 ////////////////////////////////////////////////////////////////////////////////////////////////

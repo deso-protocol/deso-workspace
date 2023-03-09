@@ -381,3 +381,12 @@ export interface DAOCoinEntry {
   MintingDisabled: boolean;
   TransferRestrictionStatus: string;
 }
+
+export interface UploadVideoV2Response {
+  asset: {
+    id: string;
+    playbackId: string;
+  };
+  tusEndpoint: string;
+  url: string;
+}
