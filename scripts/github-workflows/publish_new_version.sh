@@ -44,4 +44,5 @@ echo "::notice::New version successfully released: $RELEASE_VERSION"
 cd -
 git add libs/$PACKAGE/package.json
 git commit -m "ci: automated release version $PACKAGE@$RELEASE_VERSION"
+git pull --rebase origin main
 git push origin HEAD:main
