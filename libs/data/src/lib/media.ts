@@ -1,9 +1,9 @@
-import { cleanURL, media } from '@deso-core/data';
 import {
   GetVideoStatusRequest,
   GetVideoStatusResponse,
   LinkPreviewResponse,
 } from 'deso-protocol-types';
+import { cleanURL, media } from './api';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Media: All of these endpoints are hitting a separate server dedicated to
