@@ -82,15 +82,12 @@ import {
   GetUserMetadataResponse,
   GetUsersResponse,
   GetUsersStatelessRequest,
-  GetVideoStatusRequest,
-  GetVideoStatusResponse,
   HotFeedPageRequest,
   HotFeedPageResponse,
   IsFolllowingPublicKeyResponse,
   IsFollowingPublicKeyRequest,
   IsHodlingPublicKeyRequest,
   IsHodlingPublicKeyResponse,
-  LinkPreviewResponse,
   PostAssociationQuery,
   PostAssociationsResponse,
   RegisterMessagingGroupKeyRequest,
@@ -102,7 +99,7 @@ import {
   UserAssociationQuery,
   UserAssociationsResponse,
 } from 'deso-protocol-types';
-import { api, cleanURL, media } from './api';
+import { api, cleanURL } from './api';
 
 /**
  * Returns a type that requires the given keys to be present in the partial.
@@ -1097,90 +1094,6 @@ export const getFullTikTokURL = (
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params
   );
-};
-
-/**
- * https://docs.deso.org/deso-backend/api/media-endpoints#get-video-status
- */
-export const getVideoStatus = (
-  params: GetVideoStatusRequest,
-  options?: RequestOptions
-): Promise<GetVideoStatusResponse> => {
-  const endpoint = 'api/v0/get-video-status';
-  return api.post(
-    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
-    params
-  );
-};
-
-export const getLinkPreview = (
-  url: string,
-  options?: RequestOptions
-): Promise<LinkPreviewResponse> => {
-  const endpoint = `api/v0/link-preview?url=${encodeURIComponent(url)}`;
-  return api.get(
-    options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint
-  );
-};
-
-export const buildProxyImageURL = (
-  imageURL: string,
-  options?: RequestOptions
-): string => {
-  const nodeURI = options?.nodeURI ?? media.mediaURI;
-  return cleanURL(
-    nodeURI,
-    `api/v0/proxy-image?url=${encodeURIComponent(imageURL)}`
-  );
-};
-
-/**
- * @param videoId this corresponds to the assetId returned from the uploadVideo endpoint
- * @param options.duration optional duration in milliseconds to poll for video ready status
- * @param options.timeout optional timeout in milliseconds before we stop polling for video ready status
- */
-export const pollForVideoReady = async (
-  videoId: string,
-  {
-    duration = 300,
-    timeout = 3e5, // 5 minutes
-  } = {}
-): Promise<void> => {
-  const { status } = await getVideoStatus({ videoId });
-
-  if (status.phase === 'ready') {
-    return;
-  }
-
-  if (status.phase === 'failed') {
-    throw new Error('There was an error processing the video upload.');
-  }
-
-  const startTime = Date.now();
-  return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      getVideoStatus({ videoId }).then(({ status }) => {
-        switch (status.phase) {
-          case 'ready':
-            clearTimeout(timeoutId);
-            resolve();
-            return;
-          case 'failed':
-            clearTimeout(timeoutId);
-            reject(
-              new Error('there was an error processing the video upload.')
-            );
-            return;
-        }
-
-        if (Date.now() - startTime > timeout) {
-          clearTimeout(timeoutId);
-          reject(new Error('timed out waiting for video to be ready'));
-          return;
-        }
-      });
-    }, duration);
-  });
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
