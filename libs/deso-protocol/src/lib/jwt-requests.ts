@@ -492,7 +492,7 @@ export const uploadImage = async (
   >,
   options?: RequestOptions
 ): Promise<UploadImageResponse> => {
-  const JWT = await identity.jwt();
+  const JWT = params.JWT ?? (await identity.jwt());
   const endpoint = 'api/v0/upload-image';
 
   return api.post(
@@ -503,9 +503,12 @@ export const uploadImage = async (
 };
 
 export const uploadVideo = async (
-  params: UploadVideoRequest
+  params: PartialWithRequiredFields<
+    UploadVideoRequest,
+    'UserPublicKeyBase58Check' | 'file'
+  >
 ): Promise<UploadVideoV2Response> => {
-  const JWT = await identity.jwt();
+  const JWT = params.JWT ?? (await identity.jwt());
   const endpoint = 'api/v0/upload-video';
   return media.post(
     endpoint,

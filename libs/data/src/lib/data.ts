@@ -977,7 +977,7 @@ export const getNFTEntriesForPost = (
   >,
   options?: RequestOptions
 ): Promise<GetNFTEntriesForPostHashResponse> => {
-  const endpoint = 'api/v0/get-nft-entries-for-post-hash';
+  const endpoint = 'api/v0/get-nft-entries-for-nft-post';
   return api.post(
     options?.nodeURI ? cleanURL(options.nodeURI, endpoint) : endpoint,
     params

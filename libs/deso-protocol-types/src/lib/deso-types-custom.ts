@@ -42,8 +42,8 @@ export interface UploadImageRequest {
 }
 
 export interface UploadVideoRequest {
-  uploadLength: any;
-  uploadMetaData: any;
+  UserPublicKeyBase58Check: string;
+  JWT: string;
   file: File;
 }
 
