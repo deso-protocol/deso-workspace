@@ -56,16 +56,16 @@ export const pollForVideoReady = async (
 
   const startTime = Date.now();
   return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
+    const intervalId = setInterval(() => {
       getVideoStatus({ videoId })
         .then(({ status }) => {
           switch (status.phase) {
             case 'ready':
-              clearTimeout(timeoutId);
+              clearTimeout(intervalId);
               resolve();
               return;
             case 'failed':
-              clearTimeout(timeoutId);
+              clearTimeout(intervalId);
               reject(
                 new Error('there was an error processing the video upload.')
               );
@@ -73,7 +73,7 @@ export const pollForVideoReady = async (
           }
 
           if (Date.now() - startTime > timeout) {
-            clearTimeout(timeoutId);
+            clearTimeout(intervalId);
             reject(new Error('timed out waiting for video to be ready'));
             return;
           }
