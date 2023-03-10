@@ -18,7 +18,7 @@ import { cleanURL, media } from './api';
 export const getVideoStatus = (
   params: GetVideoStatusRequest
 ): Promise<GetVideoStatusResponse> => {
-  return media.post('api/v0/get-video-status', params);
+  return media.get(`api/v0/get-video-status/${params.videoId}`);
 };
 
 export const getLinkPreview = (url: string): Promise<LinkPreviewResponse> => {
