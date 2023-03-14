@@ -1,4 +1,9 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
+import {
+  checkPartyAccessGroups,
+  PartialWithRequiredFields,
+} from '@deso-core/data';
+import { identity } from '@deso-core/identity';
+import { utils as ecUtils } from '@noble/secp256k1';
 import {
   CreateFollowTxnStatelessRequest,
   CreateFollowTxnStatelessResponse,
@@ -121,6 +126,63 @@ export const sendGroupChatMessage = async (
 };
 
 /**
+ * Convenience function to send a message to a group chat or DM that handles
+ * encryption and access group party check. AccessGroup is optional, and if not
+ * provided we make the assumption that this is a direct message and use the
+ * user's default messaging group. You may also pass an optional
+ * sendMessageUnencrypted flag to force the message to be sent unencrypted.
+ */
+interface SendMessageParams {
+  SenderPublicKeyBase58Check: string;
+  RecipientPublicKeyBase58Check: string;
+  Message: string;
+  AccessGroup?: string;
+}
+export const sendMessage = async (
+  params: SendMessageParams,
+  options?: RequestOptions & { sendMessageUnencrypted?: boolean }
+) => {
+  if (!params.AccessGroup) {
+    params.AccessGroup = 'default-key';
+  }
+
+  const {
+    SenderAccessGroupPublicKeyBase58Check,
+    SenderAccessGroupKeyName,
+    RecipientAccessGroupPublicKeyBase58Check,
+    RecipientAccessGroupKeyName,
+  } = await checkPartyAccessGroups({
+    SenderPublicKeyBase58Check: params.SenderPublicKeyBase58Check,
+    SenderAccessGroupKeyName: params.AccessGroup,
+    RecipientPublicKeyBase58Check: params.RecipientPublicKeyBase58Check,
+    RecipientAccessGroupKeyName: params.AccessGroup,
+  });
+
+  const EncryptedMessageText = options?.sendMessageUnencrypted
+    ? hexEncodePlainText(params.Message)
+    : await identity.encryptMessage(
+        RecipientAccessGroupPublicKeyBase58Check,
+        params.Message
+      );
+
+  const sendMessageRequestParams = {
+    SenderAccessGroupOwnerPublicKeyBase58Check:
+      params.SenderPublicKeyBase58Check,
+    SenderAccessGroupPublicKeyBase58Check,
+    SenderAccessGroupKeyName,
+    RecipientAccessGroupOwnerPublicKeyBase58Check:
+      params.RecipientPublicKeyBase58Check,
+    RecipientAccessGroupPublicKeyBase58Check,
+    RecipientAccessGroupKeyName,
+    EncryptedMessageText,
+  };
+
+  return params.AccessGroup === 'default-key'
+    ? sendDMMessage(sendMessageRequestParams, options)
+    : sendGroupChatMessage(sendMessageRequestParams, options);
+};
+
+/**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#send-group-chat-message
  */
 export const updateGroupChatMessage = async (
@@ -133,3 +195,15 @@ export const updateGroupChatMessage = async (
     options
   );
 };
+
+/**
+ * @private
+ * internal helper function to convert a string to hex
+ * @param plainText
+ * @returns hex encoded string
+ */
+function hexEncodePlainText(plainText: string) {
+  const textEncoder = new TextEncoder();
+  const bytes = textEncoder.encode(plainText);
+  return ecUtils.bytesToHex(new Uint8Array(bytes));
+}
