@@ -137,6 +137,8 @@ interface SendMessageParams {
   RecipientPublicKeyBase58Check: string;
   Message: string;
   AccessGroup?: string;
+  ExtraData?: { [key: string]: string };
+  MinFeeRateNanosPerKB?: number;
 }
 export const sendMessage = async (
   params: SendMessageParams,
@@ -153,10 +155,14 @@ export const sendMessage = async (
     RecipientAccessGroupKeyName,
   } = await checkPartyAccessGroups({
     SenderPublicKeyBase58Check: params.SenderPublicKeyBase58Check,
-    SenderAccessGroupKeyName: params.AccessGroup,
+    SenderAccessGroupKeyName: 'default-key',
     RecipientPublicKeyBase58Check: params.RecipientPublicKeyBase58Check,
     RecipientAccessGroupKeyName: params.AccessGroup,
   });
+
+  if (!SenderAccessGroupKeyName) {
+    throw new Error('Sender does not have default messaging group');
+  }
 
   const EncryptedMessageText = options?.sendMessageUnencrypted
     ? hexEncodePlainText(params.Message)
@@ -164,6 +170,10 @@ export const sendMessage = async (
         RecipientAccessGroupPublicKeyBase58Check,
         params.Message
       );
+
+  if (!EncryptedMessageText) {
+    throw new Error('Failed to encrypt message');
+  }
 
   const sendMessageRequestParams = {
     SenderAccessGroupOwnerPublicKeyBase58Check:
@@ -175,6 +185,8 @@ export const sendMessage = async (
     RecipientAccessGroupPublicKeyBase58Check,
     RecipientAccessGroupKeyName,
     EncryptedMessageText,
+    ExtraData: params.ExtraData,
+    MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
   };
 
   return params.AccessGroup === 'default-key'
