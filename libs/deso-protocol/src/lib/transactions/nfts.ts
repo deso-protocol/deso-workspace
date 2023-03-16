@@ -95,7 +95,7 @@ export const acceptNFTBid = (
   >,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AcceptNFTBidResponse>> => {
-  return handleSignAndSubmit('api/v0/create-nft-bid', params, options);
+  return handleSignAndSubmit('api/v0/accept-nft-bid', params, options);
 };
 
 /**
