@@ -5206,6 +5206,10 @@ export interface PublicKeyToProfileEntryResponseMap {
   [k: string]: ProfileEntryResponse | null;
 }
 
+export interface PostHashHexToPostEntryResponseMap {
+  [k: string]: PostEntryResponse | null;
+}
+
 export interface GetPaginatedAccessGroupMembersResponse {
   AccessGroupMembersBase58Check: string[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
@@ -5404,11 +5408,13 @@ export interface PostAssociationResponse extends AssociationResponse {
 export interface UserAssociationsResponse {
   Associations: UserAssociationResponse[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+  PostHashHexToPostEntryResponse: PostHashHexToPostEntryResponseMap;
 }
 
 export interface PostAssociationsResponse {
   Associations: PostAssociationResponse[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+  PostHashHexToPostEntryResponse: PostHashHexToPostEntryResponseMap;
 }
 
 export interface DeleteAssociationRequest {
