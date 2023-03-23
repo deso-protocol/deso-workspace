@@ -4677,6 +4677,12 @@ export interface GetSingleProfileResponse {
 }
 
 // struct2ts:types/generated/types.GetHodlersForPublicKeyRequest
+export enum HodlersSortType {
+  coin_balance = 'coin_balance', // default
+  wealth = 'wealth',
+}
+
+// struct2ts:types/generated/types.GetHodlersForPublicKeyRequest
 export interface GetHodlersForPublicKeyRequest {
   PublicKeyBase58Check: string;
   Username: string;
@@ -4685,6 +4691,7 @@ export interface GetHodlersForPublicKeyRequest {
   IsDAOCoin: boolean;
   FetchHodlings: boolean;
   FetchAll: boolean;
+  SortType: HodlersSortType;
 }
 
 // struct2ts:types/generated/types.GetHodlersForPublicKeyResponse
