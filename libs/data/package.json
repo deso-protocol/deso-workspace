@@ -4,6 +4,6 @@
   "main": "./src/index.js",
   "sideEffects": false,
   "dependencies": {
-    "deso-protocol-types": "^0.6.1"
+    "deso-protocol-types": "^0.7.1"
   }
 }
