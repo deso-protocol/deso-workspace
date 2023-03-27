@@ -11,8 +11,8 @@
     "web3"
   ],
   "dependencies": {
-    "@deso-core/identity": "^0.0.21",
-    "@deso-core/data": "^0.0.23",
+    "@deso-core/identity": "^0.0.22",
+    "@deso-core/data": "^0.0.24",
     "deso-protocol-types": "^0.7.1"
   }
 }
