@@ -4677,6 +4677,12 @@ export interface GetSingleProfileResponse {
 }
 
 // struct2ts:types/generated/types.GetHodlersForPublicKeyRequest
+export enum HodlersSortType {
+  coin_balance = 'coin_balance', // default
+  wealth = 'wealth',
+}
+
+// struct2ts:types/generated/types.GetHodlersForPublicKeyRequest
 export interface GetHodlersForPublicKeyRequest {
   PublicKeyBase58Check: string;
   Username: string;
@@ -4685,6 +4691,7 @@ export interface GetHodlersForPublicKeyRequest {
   IsDAOCoin: boolean;
   FetchHodlings: boolean;
   FetchAll: boolean;
+  SortType: HodlersSortType;
 }
 
 // struct2ts:types/generated/types.GetHodlersForPublicKeyResponse
@@ -5199,6 +5206,10 @@ export interface PublicKeyToProfileEntryResponseMap {
   [k: string]: ProfileEntryResponse | null;
 }
 
+export interface PostHashHexToPostEntryResponseMap {
+  [k: string]: PostEntryResponse | null;
+}
+
 export interface GetPaginatedAccessGroupMembersResponse {
   AccessGroupMembersBase58Check: string[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
@@ -5397,11 +5408,13 @@ export interface PostAssociationResponse extends AssociationResponse {
 export interface UserAssociationsResponse {
   Associations: UserAssociationResponse[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+  PostHashHexToPostEntryResponse: PostHashHexToPostEntryResponseMap;
 }
 
 export interface PostAssociationsResponse {
   Associations: PostAssociationResponse[];
   PublicKeyToProfileEntryResponse: PublicKeyToProfileEntryResponseMap;
+  PostHashHexToPostEntryResponse: PostHashHexToPostEntryResponseMap;
 }
 
 export interface DeleteAssociationRequest {
