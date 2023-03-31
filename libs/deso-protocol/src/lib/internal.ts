@@ -48,18 +48,18 @@ export const handleSignAndSubmit = async (
   // TODO: How to properly parameterize options.
   options: RequestOptions<any, any> = { broadcast: true }
 ) => {
-  const constructedTransactionResponse =
-    options.localConstruction && options.constructionFunction
-      ? options.constructionFunction(params)
-      : await api.post(
-          options.nodeURI ? `${cleanURL(options.nodeURI, endpoint)}` : endpoint,
-          {
-            ...params,
-            MinFeeRateNanosPerKB:
-              params.MinFeeRateNanosPerKB ??
-              globalConfigOptions.MinFeeRateNanosPerKB,
-          }
-        );
+  const constructedTransactionResponse = await (options.localConstruction &&
+  options.constructionFunction
+    ? options.constructionFunction(params)
+    : api.post(
+        options.nodeURI ? `${cleanURL(options.nodeURI, endpoint)}` : endpoint,
+        {
+          ...params,
+          MinFeeRateNanosPerKB:
+            params.MinFeeRateNanosPerKB ??
+            globalConfigOptions.MinFeeRateNanosPerKB,
+        }
+      ));
   const submittedTransactionResponse = options.broadcast
     ? await identity.signAndSubmit(constructedTransactionResponse)
     : null;
@@ -107,12 +107,12 @@ export const convertExtraData = (
   return realExtraData;
 };
 
-export const constructBalanceModelTx = (
+export const constructBalanceModelTx = async (
   pubKey: string,
   metadata: TransactionMetadata,
   txFields?: BalanceModelTransactionFields
   // TODO: how do I make the input to ConstructedAndSubmittedTx generic?
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   // TODO: cache block height somewhere.
   const { BlockHeight } = await getAppState();
   const nonce = new TransactionNonce();

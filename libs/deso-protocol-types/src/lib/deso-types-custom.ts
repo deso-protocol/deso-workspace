@@ -362,7 +362,7 @@ export interface RequestOptions<T = any, V = any> {
 
   localConstruction?: boolean;
   // TODO: I actually think we want T to be TxRequestWithOptionalFeesAndExtraData
-  constructionFunction?: (params: T) => V;
+  constructionFunction?: (params: T) => Promise<V>;
 }
 
 export type MessagingGroupPayload = {
