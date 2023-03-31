@@ -50,7 +50,7 @@ export const createUserAssociation = (
 
 export const constructCreateUserAssociationTransaction = (
   params: CreateUserAssociationRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataCreateUserAssociation();
   // TODO: make sure empty string ends up as the zero public key.
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
@@ -99,7 +99,7 @@ export const deleteUserAssociation = (
 
 export const constructDeleteUserAssociationTransaction = (
   params: DeleteUserAssociationRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataDeleteUserAssociation();
   metadata.associationID = Buffer.from(params.AssociationID);
   return constructBalanceModelTx(
@@ -142,7 +142,7 @@ export const createPostAssociation = (
 
 export const constructCreatePostAssociationTransaction = (
   params: CreatePostAssociationRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataCreatePostAssociation();
   // TODO: make sure empty string ends up as the zero public key.
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
@@ -188,7 +188,7 @@ export const deletePostAssociation = (
 
 export const constructDeletePostAssociationTransaction = (
   params: DeletePostAssociationRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataDeletePostAssociation();
   metadata.associationID = Buffer.from(params.AssociationID);
   return constructBalanceModelTx(

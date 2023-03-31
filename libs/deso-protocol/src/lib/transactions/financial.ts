@@ -39,7 +39,7 @@ export const sendDeso = (
   });
 };
 
-export const constructSendDeSoTransaction = async (
+export const constructSendDeSoTransaction = (
   params: TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const transactionOutput = new TransactionOutput();
@@ -151,7 +151,7 @@ export const transferCreatorCoin = (
   });
 };
 
-export const constructTransferCreatorCoinTransaction = async (
+export const constructTransferCreatorCoinTransaction = (
   params: TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       TransferCreatorCoinRequest,

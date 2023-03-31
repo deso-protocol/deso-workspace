@@ -29,6 +29,7 @@ import {
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
 import {
+  TransactionExtraData,
   TransactionExtraDataKV,
   TransactionMetadataBasicTransfer,
   TransactionMetadataFollow,
@@ -37,6 +38,8 @@ import {
   TransactionMetadataSubmitPost,
   TransactionMetadataUpdateProfile,
 } from '../transcoder/transaction-transcoders';
+import { Transaction } from 'ethers';
+import { uvarint64ToBuf } from '../transcoder/util';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
@@ -54,7 +57,7 @@ export const updateProfile = async (
 
 export const constructUpdateProfileTransaction = (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataUpdateProfile();
   metadata.profilePublicKey =
     params.UpdaterPublicKeyBase58Check !== params.ProfilePublicKeyBase58Check
@@ -95,7 +98,7 @@ export const submitPost = (
 
 export const constructSubmitPost = (
   params: SubmitPostRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataSubmitPost();
   const BodyObj = Object(params.BodyObj) as { [k: string]: string };
   Object.keys(BodyObj).forEach(
@@ -159,7 +162,7 @@ export const updateFollowingStatus = (
 
 export const constructFollowTransaction = (
   params: CreateFollowTxnRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataFollow();
   metadata.followedPublicKey = bs58PublicKeyToCompressedBytes(
     params.FollowedPublicKeyBase58Check
@@ -190,7 +193,14 @@ export const sendDiamonds = async (
 export const constructDiamondTransaction = (
   params: TypeWithOptionalFeesAndExtraData<SendDiamondsRequest>
 ): Promise<ConstructedTransactionResponse> => {
-  const metadata = new TransactionMetadataBasicTransfer();
+  const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
+  const diamondLevelKV = new TransactionExtraDataKV();
+  diamondLevelKV.key = Buffer.from('DiamondLevel');
+  diamondLevelKV.value = uvarint64ToBuf(params.DiamondLevel);
+  consensusExtraDataKVs.push(diamondLevelKV);
+  const diamondPostHashKV = new TransactionExtraDataKV();
+  diamondPostHashKV.key = Buffer.from('DiamondPostHash');
+  diamondPostHashKV.value = Buffer.from(params.DiamondPostHashHex, 'hex');
   return Promise.reject('Local construction for diamonds not supported yet.');
 };
 
@@ -216,7 +226,7 @@ export const updateLikeStatus = async (
 
 export const constructLikeTransaction = (
   params: CreateLikeTransactionParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataLike();
   metadata.likedPostHash = Buffer.from(params.LikedPostHashHex, 'hex');
   metadata.isUnlike = !!params.IsUnlike;
@@ -246,7 +256,7 @@ export const sendDMMessage = async (
 
 export const constructSendDMTransaction = (
   params: SendNewMessageParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
   metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
   metadata.newMessageOperation = 0;
@@ -298,7 +308,7 @@ export const updateDMMessage = async (
 
 export const constructUpdateDMTransaction = (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
   metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
   metadata.newMessageOperation = 1;
@@ -348,7 +358,7 @@ export const sendGroupChatMessage = async (
 
 export const constructSendGroupChatMessageTransaction = (
   params: SendNewMessageParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
   metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
   metadata.newMessageOperation = 0;
@@ -469,7 +479,7 @@ export const updateGroupChatMessage = async (
 
 export const constructUpdateGroupChatMessageTransaction = (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
   metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
   metadata.newMessageOperation = 1;

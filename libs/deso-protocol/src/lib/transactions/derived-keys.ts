@@ -35,12 +35,15 @@ export const authorizeDerivedKey = (
   params: AuthorizeDerivedKeyRequestParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AuthorizeDerivedKeyResponse>> => {
-  return handleSignAndSubmit('api/v0/authorize-derived-key', params, options);
+  return handleSignAndSubmit('api/v0/authorize-derived-key', params, {
+    ...options,
+    constructionFunction: constructAuthorizeDerivedKey,
+  });
 };
 
 export const constructAuthorizeDerivedKey = (
   params: AuthorizeDerivedKeyRequestParams
-): ConstructedTransactionResponse => {
+): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAuthorizeDerivedKey();
   metadata.accessSignature = Buffer.from(params.AccessSignature || '', 'hex');
   metadata.derivedPublicKey = bs58PublicKeyToCompressedBytes(

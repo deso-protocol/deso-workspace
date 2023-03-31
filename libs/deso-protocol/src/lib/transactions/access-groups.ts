@@ -47,7 +47,7 @@ export const createAccessGroup = (
   });
 };
 
-export const constructCreateAccessGroupTransaction = async (
+export const constructCreateAccessGroupTransaction = (
   params: CreateAccessGroupRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAccessGroup();
@@ -96,7 +96,7 @@ export const updateAccessGroup = (
   });
 };
 
-export const constructUpdateAccessGroupTransaction = async (
+export const constructUpdateAccessGroupTransaction = (
   params: UpdateAccessGroupRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAccessGroup();
@@ -137,7 +137,7 @@ export const addAccessGroupMembers = (
   });
 };
 
-export const constructAddAccessGroupMembersTransaction = async (
+export const constructAddAccessGroupMembersTransaction = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAccessGroupMembers();
@@ -189,7 +189,7 @@ export const removeAccessGroupMembers = (
   });
 };
 
-export const constructRemoveAccessGroupMembersTransaction = async (
+export const constructRemoveAccessGroupMembersTransaction = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAccessGroupMembers();
@@ -241,7 +241,7 @@ export const updateAccessGroupMembers = (
   );
 };
 
-export const constructUpdateAccessGroupMembersTransaction = async (
+export const constructUpdateAccessGroupMembersTransaction = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAccessGroupMembers();
