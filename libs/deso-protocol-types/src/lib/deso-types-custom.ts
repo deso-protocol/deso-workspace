@@ -343,7 +343,7 @@ export interface MetaMaskInitResponse {
   ethereumAddress: string;
 }
 
-export interface RequestOptions {
+export interface RequestOptions<T = any, V = any> {
   /**
    * This is only relevant for write operations that require a signed
    * transaction (submit-post, update-profile, etc). It determines whether to
@@ -359,6 +359,10 @@ export interface RequestOptions {
    * or the configured node will be used.
    */
   nodeURI?: string;
+
+  localConstruction?: boolean;
+  // TODO: I actually think we want T to be TxRequestWithOptionalFeesAndExtraData
+  constructionFunction?: (params: T) => V;
 }
 
 export type MessagingGroupPayload = {

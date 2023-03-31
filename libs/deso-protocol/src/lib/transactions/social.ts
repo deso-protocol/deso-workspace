@@ -2,7 +2,7 @@ import {
   checkPartyAccessGroups,
   PartialWithRequiredFields,
 } from '@deso-core/data';
-import { identity } from '@deso-core/identity';
+import { bs58PublicKeyToCompressedBytes, identity } from '@deso-core/identity';
 import { utils as ecUtils } from '@noble/secp256k1';
 import {
   CreateFollowTxnStatelessRequest,
@@ -19,53 +19,160 @@ import {
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
-import { handleSignAndSubmit } from '../internal';
+import {
+  constructBalanceModelTx,
+  ConstructedTransactionResponse,
+  handleSignAndSubmit,
+} from '../internal';
 import {
   ConstructedAndSubmittedTx,
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
+import {
+  TransactionExtraDataKV,
+  TransactionMetadataBasicTransfer,
+  TransactionMetadataFollow,
+  TransactionMetadataLike,
+  TransactionMetadataNewMessage,
+  TransactionMetadataSubmitPost,
+  TransactionMetadataUpdateProfile,
+} from '../transcoder/transaction-transcoders';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
  */
+// TODO: this one feels risky to update with local construction given all the handling of "New" Prefixed fields
 export const updateProfile = async (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
-  options?: RequestOptions
+  options?: RequestOptions<
+    TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
+    UpdateProfileResponse
+  >
 ): Promise<ConstructedAndSubmittedTx<UpdateProfileResponse>> => {
   return handleSignAndSubmit('api/v0/update-profile', params, options);
+};
+
+export const constructUpdateProfileTransaction = (
+  params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataUpdateProfile();
+  metadata.profilePublicKey =
+    params.UpdaterPublicKeyBase58Check !== params.ProfilePublicKeyBase58Check
+      ? bs58PublicKeyToCompressedBytes(params.ProfilePublicKeyBase58Check)
+      : Buffer.alloc(0);
+  metadata.newUsername = Buffer.from(params.NewUsername);
+  metadata.newDescription = Buffer.from(params.NewDescription);
+  // TODO: we probably need something to handle the profile pic compression here.
+  metadata.newProfilePic = Buffer.from(params.NewProfilePic);
+  metadata.newCreatorBasisPoints = params.NewCreatorBasisPoints;
+  metadata.newStakeMultipleBasisPoints = params.NewStakeMultipleBasisPoints;
+  metadata.isHidden = params.IsHidden;
+  return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
+    ExtraData: params.ExtraData,
+    MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+    TransactionFees: params.TransactionFees,
+  });
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#submit-post
  */
+export type SubmitPostRequestParams = TypeWithOptionalFeesAndExtraData<
+  PartialWithRequiredFields<
+    SubmitPostRequest,
+    'UpdaterPublicKeyBase58Check' | 'BodyObj'
+  >
+>;
 export const submitPost = (
-  params: TypeWithOptionalFeesAndExtraData<
-    PartialWithRequiredFields<
-      SubmitPostRequest,
-      'UpdaterPublicKeyBase58Check' | 'BodyObj'
-    >
-  >,
-  options?: RequestOptions
+  params: SubmitPostRequestParams,
+  options?: RequestOptions<SubmitPostRequestParams, SubmitPostResponse>
 ): Promise<ConstructedAndSubmittedTx<SubmitPostResponse>> => {
-  return handleSignAndSubmit('api/v0/submit-post', params, options);
+  return handleSignAndSubmit('api/v0/submit-post', params, {
+    ...options,
+    constructionFunction: constructSubmitPost,
+  });
+};
+
+export const constructSubmitPost = (
+  params: SubmitPostRequestParams
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataSubmitPost();
+  const BodyObj = Object(params.BodyObj) as { [k: string]: string };
+  Object.keys(BodyObj).forEach(
+    (key) => (!BodyObj[key] || !BodyObj[key].length) && delete BodyObj[key]
+  );
+  metadata.body = Buffer.from(JSON.stringify(BodyObj));
+  metadata.creatorBasisPoints = 1000;
+  metadata.stakeMultipleBasisPoints = 12500;
+  metadata.timestampNanos = Math.ceil(
+    1e6 * (window.performance.timeOrigin + window.performance.now())
+  );
+  metadata.isHidden = !!params.IsHidden;
+  metadata.parentStakeId = Buffer.from(params.ParentStakeID || '', 'hex');
+  metadata.postHashToModify = Buffer.from(
+    params.PostHashHexToModify || '',
+    'hex'
+  );
+  const extraDataKVs: TransactionExtraDataKV[] = [];
+  if (params.RepostedPostHashHex) {
+    const repostKv = new TransactionExtraDataKV();
+    repostKv.key = Buffer.from('RecloutedPostHash');
+    repostKv.value = Buffer.from(params.RepostedPostHashHex, 'hex');
+    extraDataKVs.push(repostKv);
+    const quotedRecloutKv = new TransactionExtraDataKV();
+    quotedRecloutKv.key = Buffer.from('IsQuotedReclout');
+    quotedRecloutKv.value =
+      !params.BodyObj.Body &&
+      !params.BodyObj.ImageURLs?.length &&
+      !params.BodyObj.VideoURLs?.length
+        ? Buffer.from([1])
+        : Buffer.from([0]);
+    extraDataKVs.push(quotedRecloutKv);
+  }
+  return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
+    ExtraData: params.ExtraData,
+    ConsensusExtraDataKVs: extraDataKVs,
+    MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+    TransactionFees: params.TransactionFees,
+  });
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#follow
  */
+export type CreateFollowTxnRequestParams = TypeWithOptionalFeesAndExtraData<
+  PartialWithRequiredFields<
+    CreateFollowTxnStatelessRequest,
+    'FollowedPublicKeyBase58Check' | 'FollowerPublicKeyBase58Check'
+  >
+>;
+
 export const updateFollowingStatus = (
-  params: TypeWithOptionalFeesAndExtraData<
-    PartialWithRequiredFields<
-      CreateFollowTxnStatelessRequest,
-      'FollowedPublicKeyBase58Check' | 'FollowerPublicKeyBase58Check'
-    >
-  >,
+  params: CreateFollowTxnRequestParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateFollowTxnStatelessResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/create-follow-txn-stateless',
-    params,
-    options
+  return handleSignAndSubmit('api/v0/create-follow-txn-stateless', params, {
+    ...options,
+    constructionFunction: constructFollowTransaction,
+  });
+};
+
+export const constructFollowTransaction = (
+  params: CreateFollowTxnRequestParams
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataFollow();
+  metadata.followedPublicKey = bs58PublicKeyToCompressedBytes(
+    params.FollowedPublicKeyBase58Check
+  );
+  metadata.isUnfollow = !!params.IsUnfollow;
+  return constructBalanceModelTx(
+    params.FollowerPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };
 
@@ -79,16 +186,45 @@ export const sendDiamonds = async (
   return handleSignAndSubmit('api/v0/send-diamonds', params, options);
 };
 
+// This one is a bit annoying since we should really look up how many diamonds you've already given on this post and only send the diff.
+export const constructDiamondTransaction = (
+  params: TypeWithOptionalFeesAndExtraData<SendDiamondsRequest>
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataBasicTransfer();
+  return Promise.reject('Local construction for diamonds not supported yet.');
+};
+
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#like
  */
+
+export type CreateLikeTransactionParams = TypeWithOptionalFeesAndExtraData<
+  PartialWithRequiredFields<
+    CreateLikeStatelessRequest,
+    'LikedPostHashHex' | 'ReaderPublicKeyBase58Check'
+  >
+>;
 export const updateLikeStatus = async (
-  params: TypeWithOptionalFeesAndExtraData<
-    PartialWithRequiredFields<CreateLikeStatelessRequest, 'LikedPostHashHex'>
-  >,
+  params: CreateLikeTransactionParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateLikeStatelessResponse>> => {
-  return handleSignAndSubmit('api/v0/create-like-stateless', params, options);
+  return handleSignAndSubmit('api/v0/create-like-stateless', params, {
+    ...options,
+    constructionFunction: constructLikeTransaction,
+  });
+};
+
+export const constructLikeTransaction = (
+  params: CreateLikeTransactionParams
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataLike();
+  metadata.likedPostHash = Buffer.from(params.LikedPostHashHex, 'hex');
+  metadata.isUnlike = !!params.IsUnlike;
+  return constructBalanceModelTx(params.ReaderPublicKeyBase58Check, metadata, {
+    ExtraData: params.ExtraData,
+    MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+    TransactionFees: params.TransactionFees,
+  });
 };
 
 /**
@@ -102,7 +238,49 @@ export const sendDMMessage = async (
   params: SendNewMessageParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
-  return handleSignAndSubmit('api/v0/send-dm-message', params, options);
+  return handleSignAndSubmit('api/v0/send-dm-message', params, {
+    ...options,
+    constructionFunction: constructSendDMTransaction,
+  });
+};
+
+export const constructSendDMTransaction = (
+  params: SendNewMessageParams
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataNewMessage();
+  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.newMessageOperation = 0;
+  metadata.newMessageType = 0;
+  metadata.recipientAccessGroupKeyname = Buffer.from(
+    params.RecipientAccessGroupKeyName
+  );
+  metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupKeyName = Buffer.from(
+    params.SenderAccessGroupKeyName
+  );
+  metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupPublicKeyBase58Check
+  );
+  metadata.timestampNanos = Math.ceil(
+    1e6 * (window.performance.timeOrigin + window.performance.now())
+  );
+  return constructBalanceModelTx(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
+  );
 };
 
 /**
@@ -112,7 +290,47 @@ export const updateDMMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
-  return handleSignAndSubmit('api/v0/update-dm-message', params, options);
+  return handleSignAndSubmit('api/v0/update-dm-message', params, {
+    ...options,
+    constructionFunction: constructUpdateDMTransaction,
+  });
+};
+
+export const constructUpdateDMTransaction = (
+  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataNewMessage();
+  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.newMessageOperation = 1;
+  metadata.newMessageType = 0;
+  metadata.recipientAccessGroupKeyname = Buffer.from(
+    params.RecipientAccessGroupKeyName
+  );
+  metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupKeyName = Buffer.from(
+    params.SenderAccessGroupKeyName
+  );
+  metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupPublicKeyBase58Check
+  );
+  metadata.timestampNanos = parseInt(params.TimestampNanosString);
+  return constructBalanceModelTx(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
+  );
 };
 
 /**
@@ -122,7 +340,49 @@ export const sendGroupChatMessage = async (
   params: SendNewMessageParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
-  return handleSignAndSubmit('api/v0/send-group-chat-message', params, options);
+  return handleSignAndSubmit('api/v0/send-group-chat-message', params, {
+    ...options,
+    constructionFunction: constructSendGroupChatMessageTransaction,
+  });
+};
+
+export const constructSendGroupChatMessageTransaction = (
+  params: SendNewMessageParams
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataNewMessage();
+  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.newMessageOperation = 0;
+  metadata.newMessageType = 1;
+  metadata.recipientAccessGroupKeyname = Buffer.from(
+    params.RecipientAccessGroupKeyName
+  );
+  metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupKeyName = Buffer.from(
+    params.SenderAccessGroupKeyName
+  );
+  metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupPublicKeyBase58Check
+  );
+  metadata.timestampNanos = Math.ceil(
+    1e6 * (window.performance.timeOrigin + window.performance.now())
+  );
+  return constructBalanceModelTx(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
+  );
 };
 
 /**
@@ -201,10 +461,46 @@ export const updateGroupChatMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/update-group-chat-message',
-    params,
-    options
+  return handleSignAndSubmit('api/v0/update-group-chat-message', params, {
+    ...options,
+    constructionFunction: constructUpdateGroupChatMessageTransaction,
+  });
+};
+
+export const constructUpdateGroupChatMessageTransaction = (
+  params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
+): ConstructedTransactionResponse => {
+  const metadata = new TransactionMetadataNewMessage();
+  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.newMessageOperation = 1;
+  metadata.newMessageType = 1;
+  metadata.recipientAccessGroupKeyname = Buffer.from(
+    params.RecipientAccessGroupKeyName
+  );
+  metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.RecipientAccessGroupPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupKeyName = Buffer.from(
+    params.SenderAccessGroupKeyName
+  );
+  metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check
+  );
+  metadata.senderAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
+    params.SenderAccessGroupPublicKeyBase58Check
+  );
+  metadata.timestampNanos = parseInt(params.TimestampNanosString);
+  return constructBalanceModelTx(
+    params.SenderAccessGroupOwnerPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };
 

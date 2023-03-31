@@ -22,6 +22,7 @@ import {
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 
+// TODO: Balance Model tx construction
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/nft-transactions-api#create-nft
  */

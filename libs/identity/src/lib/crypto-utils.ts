@@ -251,6 +251,13 @@ export const encrypt = async (
   );
 };
 
+export const bs58PublicKeyToCompressedBytes = (str: string) => {
+  const pubKeyUncompressed = bs58PublicKeyToBytes(str);
+  return Buffer.from(
+    Point.fromHex(ecUtils.bytesToHex(pubKeyUncompressed)).toRawBytes(true)
+  );
+};
+
 export const bs58PublicKeyToBytes = (str: string) => {
   const bytes = bs58.decode(str);
   const payload = bytes.slice(0, -4);
