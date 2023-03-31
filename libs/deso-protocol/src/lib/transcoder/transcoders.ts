@@ -1,6 +1,6 @@
 import { bufToUvarint64, uvarint64ToBuf } from './util';
 import { TransactionNonce } from './transaction-transcoders';
-
+import 'reflect-metadata';
 export class BinaryRecord {
   static fromBytes(bytes: Buffer): [BinaryRecord, Buffer] {
     const result = new this();
