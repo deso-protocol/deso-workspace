@@ -62,7 +62,7 @@ export class Identity {
   /**
    * @private
    */
-  #window: Window;
+  #window: typeof globalThis;
 
   /**
    * @private
@@ -197,7 +197,7 @@ export class Identity {
     return this.#nodeURI;
   }
 
-  constructor(windowProvider: Window, apiProvider: APIProvider) {
+  constructor(windowProvider: typeof globalThis, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
 
@@ -1494,8 +1494,8 @@ export class Identity {
 
     const h = 1000;
     const w = 800;
-    const y = window.outerHeight / 2 + window.screenY - h / 2;
-    const x = window.outerWidth / 2 + window.screenX - w / 2;
+    const y = this.#window.outerHeight / 2 + this.#window.screenY - h / 2;
+    const x = this.#window.outerWidth / 2 + this.#window.screenX - w / 2;
 
     this.#identityPopupWindow = this.#window.open(
       url,
@@ -1625,4 +1625,4 @@ const unencryptedHexToPlainText = (hex: string) => {
   return textDecoder.decode(bytes);
 };
 
-export const identity = new Identity(window, api);
+export const identity = new Identity(globalThis, api);

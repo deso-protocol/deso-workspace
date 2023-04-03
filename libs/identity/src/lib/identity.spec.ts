@@ -21,7 +21,7 @@ function getPemEncodePublicKey(privateKey: Uint8Array): string {
 
 describe('identity', () => {
   let identity: Identity;
-  let windowFake: Window;
+  let windowFake: typeof globalThis;
   let apiFake: APIProvider;
   let postMessageListener: (args: any) => any;
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('identity', () => {
       addEventListener: (message: any, listener: (args: any) => void): void => {
         postMessageListener = listener;
       },
-    });
+    }) as unknown as typeof globalThis;
     apiFake = getAPIFake({
       get: jest
         .fn()

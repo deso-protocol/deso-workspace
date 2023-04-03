@@ -220,14 +220,14 @@ export const encrypt = async (
   const iv = ecUtils.randomBytes(16);
   const macKey = sha256(privKey.slice(16));
   const bytes = new TextEncoder().encode(plaintext);
-  const cryptoKey = await window.crypto.subtle.importKey(
+  const cryptoKey = await globalThis.crypto.subtle.importKey(
     'raw',
     encryptionKey,
     'AES-CTR',
     true,
     ['encrypt']
   );
-  const cipherBytes = await window.crypto.subtle.encrypt(
+  const cipherBytes = await globalThis.crypto.subtle.encrypt(
     {
       name: 'AES-CTR',
       counter: iv,
