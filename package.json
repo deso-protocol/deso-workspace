@@ -12,7 +12,7 @@
     "pre-commit": "lint-staged && nx run-many --all --target=test --parallel",
     "commit": "commit",
     "identity:link": "nx run identity:build && cd dist/libs/identity && npm i && npm link && cd -",
-    "identity:docs": "cd libs/identity ../../node_modules/.bin/typedoc --readme none ./src/index.ts && cd - && open libs/identity/docs/index.html",
+    "deso-protocol:docs": "cd libs/deso-protocol && ../../node_modules/.bin/typedoc --readme none ./src/index.ts && cd - && open libs/deso-protocol/docs/index.html",
     "deso-protocol:link": "nx run deso-protocol:build && cd dist/libs/deso-protocol && npm i && npm link && cd -",
     "deso-protocol:beta": "cd libs/deso-protocol && npm version prerelease --preid=beta && cd - && nx run deso-protocol:build && cd dist/libs/deso-protocol && npm publish --tag beta && cd -"
   },
