@@ -201,24 +201,9 @@ export class Identity {
     this.#window = windowProvider;
     this.#api = apiProvider;
 
-    // Check if the URL contains identity query params at startup
-    const queryParams = new URLSearchParams(this.#window.location.search);
-
-    if (queryParams.get('service') === IDENTITY_SERVICE_VALUE) {
-      const initialResponse = parseQueryParams(queryParams);
-      // Strip the identity query params from the URL. replaceState removes it from browser history
-      this.#window.history.replaceState({}, '', this.#window.location.pathname);
-
-      this.#handleIdentityResponse(initialResponse);
+    if (typeof window !== undefined) {
+      this.#browserEnvInit();
     }
-
-    // TODO: figure out a better way to handle this. Maybe we have a separate .create method that
-    // returns a new instance of Identity?
-    setTimeout(() => {
-      if (!this.#didConfigure) {
-        this.refreshDerivedKeyPermissions();
-      }
-    }, 50);
   }
 
   /**
@@ -1055,6 +1040,25 @@ export class Identity {
 
     const compressedEthKey = Point.fromHex(ethereumPublicKey).toRawBytes(true);
     return publicKeyToBase58Check(compressedEthKey, { network: this.#network });
+  }
+
+  #browserEnvInit() {
+    // Check if the URL contains identity query params at startup
+    const queryParams = new URLSearchParams(this.#window.location.search);
+
+    if (queryParams.get('service') === IDENTITY_SERVICE_VALUE) {
+      const initialResponse = parseQueryParams(queryParams);
+      // Strip the identity query params from the URL. replaceState removes it from browser history
+      this.#window.history.replaceState({}, '', this.#window.location.pathname);
+
+      this.#handleIdentityResponse(initialResponse);
+    }
+
+    setTimeout(() => {
+      if (!this.#didConfigure) {
+        this.refreshDerivedKeyPermissions();
+      }
+    }, 50);
   }
 
   #queryETHRPC(params: QueryETHRPCRequest): Promise<InfuraResponse> {
