@@ -67,6 +67,7 @@ export const constructCreateAccessGroupTransaction = (
     {
       ExtraData: params.ExtraData,
       MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
     }
   );
 };

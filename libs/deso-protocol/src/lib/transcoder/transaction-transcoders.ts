@@ -209,6 +209,9 @@ export class TransactionMetadataCreateNFT extends TransactionMetadata {
   isForSale = false;
 
   @Transcode(Uvarint64)
+  minBidAmountNanos = 0;
+
+  @Transcode(Uvarint64)
   nftRoyaltyToCreatorBasisPoints = 0;
 
   @Transcode(Uvarint64)
@@ -343,7 +346,7 @@ export class TransactionMetadataDAOCoin extends TransactionMetadata {
   coinsToBurnNanos: Buffer = Buffer.alloc(0);
 
   @Transcode(Uint8)
-  transferRestrictionStatus: Buffer = Buffer.alloc(0);
+  transferRestrictionStatus = 0;
 }
 
 export class TransactionMetadataTransferDAOCoin extends TransactionMetadata {
@@ -458,10 +461,10 @@ export class TransactionMetadataDAOCoinLimitOrder extends BinaryRecord {
   quantityToFillInBaseUnits: Buffer = Buffer.alloc(0);
 
   @Transcode(Uvarint64)
-  operationType: Buffer = Buffer.alloc(0);
+  operationType = 0;
 
   @Transcode(Uvarint64)
-  fillType: Buffer = Buffer.alloc(0);
+  fillType = 0;
 
   @Transcode(VarBuffer)
   cancelOrderID: Buffer = Buffer.alloc(0);
