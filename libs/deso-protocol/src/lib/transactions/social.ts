@@ -108,7 +108,7 @@ export const constructSubmitPost = (
   metadata.creatorBasisPoints = 1000;
   metadata.stakeMultipleBasisPoints = 12500;
   metadata.timestampNanos = Math.ceil(
-    1e6 * (window.performance.timeOrigin + window.performance.now())
+    1e6 * (globalThis.performance.timeOrigin + globalThis.performance.now())
   );
   metadata.isHidden = !!params.IsHidden;
   metadata.parentStakeId = Buffer.from(params.ParentStakeID || '', 'hex');
@@ -280,7 +280,7 @@ export const constructSendDMTransaction = (
     params.SenderAccessGroupPublicKeyBase58Check
   );
   metadata.timestampNanos = Math.ceil(
-    1e6 * (window.performance.timeOrigin + window.performance.now())
+    1e6 * (globalThis.performance.timeOrigin + globalThis.performance.now())
   );
   return constructBalanceModelTx(
     params.SenderAccessGroupOwnerPublicKeyBase58Check,
@@ -382,7 +382,7 @@ export const constructSendGroupChatMessageTransaction = (
     params.SenderAccessGroupPublicKeyBase58Check
   );
   metadata.timestampNanos = Math.ceil(
-    1e6 * (window.performance.timeOrigin + window.performance.now())
+    1e6 * (globalThis.performance.timeOrigin + globalThis.performance.now())
   );
   return constructBalanceModelTx(
     params.SenderAccessGroupOwnerPublicKeyBase58Check,
