@@ -252,6 +252,9 @@ export const encrypt = async (
 };
 
 export const bs58PublicKeyToCompressedBytes = (str: string) => {
+  if (!str) {
+    return Buffer.alloc(33);
+  }
   const pubKeyUncompressed = bs58PublicKeyToBytes(str);
   return Buffer.from(
     Point.fromHex(ecUtils.bytesToHex(pubKeyUncompressed)).toRawBytes(true)
