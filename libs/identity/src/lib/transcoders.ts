@@ -14,7 +14,6 @@ export class BinaryRecord {
       Reflect.getMetadata('transcoders', result) || [];
 
     transcoders.forEach(({ name, transcoder }) => {
-      console.log(name);
       let value;
       [value, buffer] = transcoder.read.call(result, buffer);
       (result as any)[name] = value;

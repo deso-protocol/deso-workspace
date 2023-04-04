@@ -3,6 +3,8 @@ import {
   bs58PublicKeyToCompressedBytes,
   encodeUTF8ToBytes,
   identity,
+  publicKeyToBase58Check,
+  sha256X2,
   Transaction,
   TransactionExtraData,
   TransactionExtraDataKV,
@@ -85,9 +87,11 @@ export type ConstructedTransactionResponse = {
   Transaction: Transaction;
   FeeNanos: number;
   TransactionHex: string;
-  TxnHashHex?: string;
-  TotalInputNanos?: number;
-  ChangeAmountNanos?: number;
+  TxnHashHex: string;
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  SpendAmountNanos: number;
+  TransactionIDBase58Check: string;
 };
 
 export const convertExtraData = (
@@ -148,14 +152,25 @@ export const constructBalanceModelTx = async (
     transaction,
     txFields?.MinFeeRateNanosPerKB || globalConfigOptions.MinFeeRateNanosPerKB
   );
-  const TransactionHex = bytesToHex(txnWithFee.toBytes());
+  const txnBytes = txnWithFee.toBytes();
+  const TransactionHex = bytesToHex(txnBytes);
 
   // TODO: maintain backward compatibility with everything returned in the constructed transaction
   // response object for each type. this will be a headache no doubt.
+  const fees = txnWithFee.feeNanos;
+  const outputSum = txnWithFee.outputs.reduce((a, b) => a + b.amountNanos, 0);
+  // TODO: sum extra spend for creator coins, dao coin limit orders (ugh), create NFTs, create profile
+  // NFT buys. Probably not necessarily, but would be best to ahve this.
+  const txnHash = sha256X2(txnBytes);
   return {
     Transaction: txnWithFee,
-    FeeNanos: txnWithFee.feeNanos,
+    FeeNanos: fees,
     TransactionHex,
+    ChangeAmountNanos: 0,
+    TotalInputNanos: fees + outputSum,
+    SpendAmountNanos: fees + outputSum,
+    TransactionIDBase58Check: publicKeyToBase58Check(txnHash),
+    TxnHashHex: bytesToHex(txnHash),
   };
 };
 
