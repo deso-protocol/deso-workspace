@@ -6,10 +6,11 @@ import {
   Transaction,
   TransactionExtraData,
   TransactionExtraDataKV,
-  TransactionMetadata,
+  TransactionMetadataRecord,
   TransactionNonce,
   TransactionOutput,
 } from '@deso-core/identity';
+import { bytesToHex } from '@noble/hashes/utils';
 import { RequestOptions, TransactionFee } from 'deso-protocol-types';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +112,7 @@ export const convertExtraData = (
 
 export const constructBalanceModelTx = async (
   pubKey: string,
-  metadata: TransactionMetadata,
+  metadata: TransactionMetadataRecord,
   txFields?: BalanceModelTransactionFields
   // TODO: how do I make the input to ConstructedAndSubmittedTx generic?
 ): Promise<ConstructedTransactionResponse> => {
@@ -147,7 +148,7 @@ export const constructBalanceModelTx = async (
     transaction,
     txFields?.MinFeeRateNanosPerKB || globalConfigOptions.MinFeeRateNanosPerKB
   );
-  const TransactionHex = txnWithFee.toBytes().toString('hex');
+  const TransactionHex = bytesToHex(txnWithFee.toBytes());
 
   // TODO: maintain backward compatibility with everything returned in the constructed transaction
   // response object for each type. this will be a headache no doubt.

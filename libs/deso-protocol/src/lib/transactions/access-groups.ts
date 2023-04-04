@@ -15,7 +15,7 @@ import {
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
-  AccessGroupMember,
+  AccessGroupMemberRecord,
   TransactionExtraData,
   TransactionMetadataAccessGroup,
   TransactionMetadataAccessGroupMembers,
@@ -150,7 +150,7 @@ export const constructAddAccessGroupMembersTransaction = (
   metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
-      const newAccessGroupMember = new AccessGroupMember();
+      const newAccessGroupMember = new AccessGroupMemberRecord();
       newAccessGroupMember.accessGroupMemberPublicKey =
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check
@@ -204,7 +204,7 @@ export const constructRemoveAccessGroupMembersTransaction = (
   metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
-      const newAccessGroupMember = new AccessGroupMember();
+      const newAccessGroupMember = new AccessGroupMemberRecord();
       newAccessGroupMember.accessGroupMemberPublicKey =
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check
@@ -256,7 +256,7 @@ export const constructUpdateAccessGroupMembersTransaction = (
   metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
-      const newAccessGroupMember = new AccessGroupMember();
+      const newAccessGroupMember = new AccessGroupMemberRecord();
       newAccessGroupMember.accessGroupMemberPublicKey =
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check

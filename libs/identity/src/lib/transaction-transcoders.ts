@@ -50,16 +50,16 @@ export class TransactionExtraData extends BinaryRecord {
   @Transcode(ArrayOf(TransactionExtraDataKV))
   kvs: TransactionExtraDataKV[] = [];
 }
-export abstract class TransactionMetadata extends BinaryRecord {}
+export abstract class TransactionMetadataRecord extends BinaryRecord {}
 
-export class TransactionMetadataBlockReward extends TransactionMetadata {
+export class TransactionMetadataBlockReward extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   extraData: Uint8Array = new Uint8Array(0);
 }
 
-export class TransactionMetadataBasicTransfer extends TransactionMetadata {}
+export class TransactionMetadataBasicTransfer extends TransactionMetadataRecord {}
 
-export class TransactionMetadataBitcoinExchange extends TransactionMetadata {
+export class TransactionMetadataBitcoinExchange extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   transaction: Uint8Array = new Uint8Array(0);
 
@@ -73,7 +73,7 @@ export class TransactionMetadataBitcoinExchange extends TransactionMetadata {
   merkleProof: Uint8Array[] = [];
 }
 
-export class TransactionMetadataPrivateMessage extends TransactionMetadata {
+export class TransactionMetadataPrivateMessage extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(33))
   recipientPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -84,7 +84,7 @@ export class TransactionMetadataPrivateMessage extends TransactionMetadata {
   timestampNanos = 0;
 }
 
-export class TransactionMetadataSubmitPost extends TransactionMetadata {
+export class TransactionMetadataSubmitPost extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   postHashToModify: Uint8Array = new Uint8Array(0);
 
@@ -107,7 +107,7 @@ export class TransactionMetadataSubmitPost extends TransactionMetadata {
   isHidden = false;
 }
 
-export class TransactionMetadataUpdateProfile extends TransactionMetadata {
+export class TransactionMetadataUpdateProfile extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   profilePublicKey: Uint8Array = new Uint8Array(0);
 
@@ -130,12 +130,12 @@ export class TransactionMetadataUpdateProfile extends TransactionMetadata {
   isHidden = false;
 }
 
-export class TransactionMetadataUpdateBitcoinUSDExchangeRate extends TransactionMetadata {
+export class TransactionMetadataUpdateBitcoinUSDExchangeRate extends TransactionMetadataRecord {
   @Transcode(Uvarint64)
   usdCentsPerBitcoin = 0;
 }
 
-export class TransactionMetadataFollow extends TransactionMetadata {
+export class TransactionMetadataFollow extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(33))
   followedPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -143,7 +143,7 @@ export class TransactionMetadataFollow extends TransactionMetadata {
   isUnfollow = false;
 }
 
-export class TransactionMetadataLike extends TransactionMetadata {
+export class TransactionMetadataLike extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   likedPostHash: Uint8Array = new Uint8Array(0);
 
@@ -151,7 +151,7 @@ export class TransactionMetadataLike extends TransactionMetadata {
   isUnlike = false;
 }
 
-export class TransactionMetadataCreatorCoin extends TransactionMetadata {
+export class TransactionMetadataCreatorCoin extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   profilePublicKey: Uint8Array = new Uint8Array(0);
 
@@ -174,7 +174,7 @@ export class TransactionMetadataCreatorCoin extends TransactionMetadata {
   minCreatorCoinExpectedNanos = 0;
 }
 
-export class TransactionMetadataSwapIdentity extends TransactionMetadata {
+export class TransactionMetadataSwapIdentity extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   fromPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -182,9 +182,9 @@ export class TransactionMetadataSwapIdentity extends TransactionMetadata {
   toPublicKey: Uint8Array = new Uint8Array(0);
 }
 
-export class TransactionMetadataUpdateGlobalParams extends TransactionMetadata {}
+export class TransactionMetadataUpdateGlobalParams extends TransactionMetadataRecord {}
 
-export class TransactionMetadataCreatorCoinTransfer extends TransactionMetadata {
+export class TransactionMetadataCreatorCoinTransfer extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   profilePublicKey: Uint8Array = new Uint8Array(0);
 
@@ -195,7 +195,7 @@ export class TransactionMetadataCreatorCoinTransfer extends TransactionMetadata 
   receiverPublicKey: Uint8Array = new Uint8Array(0);
 }
 
-export class TransactionMetadataCreateNFT extends TransactionMetadata {
+export class TransactionMetadataCreateNFT extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -218,7 +218,7 @@ export class TransactionMetadataCreateNFT extends TransactionMetadata {
   nftRoyaltyToCoinBasisPoints = 0;
 }
 
-export class TransactionMetadataUpdateNFT extends TransactionMetadata {
+export class TransactionMetadataUpdateNFT extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -232,7 +232,7 @@ export class TransactionMetadataUpdateNFT extends TransactionMetadata {
   minBidAmountNanos = 0;
 }
 
-export class TransactionMetadataAcceptNFTBid extends TransactionMetadata {
+export class TransactionMetadataAcceptNFTBid extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -252,7 +252,7 @@ export class TransactionMetadataAcceptNFTBid extends TransactionMetadata {
   bidderInputs: TransactionInput[] = [];
 }
 
-export class TransactionMetadataNFTBid extends TransactionMetadata {
+export class TransactionMetadataNFTBid extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -263,7 +263,7 @@ export class TransactionMetadataNFTBid extends TransactionMetadata {
   bidAmountNanos = 0;
 }
 
-export class TransactionMetadataNFTTransfer extends TransactionMetadata {
+export class TransactionMetadataNFTTransfer extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -277,7 +277,7 @@ export class TransactionMetadataNFTTransfer extends TransactionMetadata {
   encryptedUnlockableText: Uint8Array = new Uint8Array(0);
 }
 
-export class TransactionMetadataAcceptNFTTransfer extends TransactionMetadata {
+export class TransactionMetadataAcceptNFTTransfer extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -285,7 +285,7 @@ export class TransactionMetadataAcceptNFTTransfer extends TransactionMetadata {
   serialNumber = 0;
 }
 
-export class TransactionMetadataBurnNFT extends TransactionMetadata {
+export class TransactionMetadataBurnNFT extends TransactionMetadataRecord {
   @Transcode(FixedBuffer(32))
   nftPostHash: Uint8Array = new Uint8Array(0);
 
@@ -293,7 +293,7 @@ export class TransactionMetadataBurnNFT extends TransactionMetadata {
   serialNumber = 0;
 }
 
-export class TransactionMetadataAuthorizeDerivedKey extends TransactionMetadata {
+export class TransactionMetadataAuthorizeDerivedKey extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   derivedPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -307,7 +307,7 @@ export class TransactionMetadataAuthorizeDerivedKey extends TransactionMetadata 
   accessSignature: Uint8Array = new Uint8Array(0);
 }
 
-export class MessagingGroupMember extends BinaryRecord {
+export class MessagingGroupMemberRecord extends BinaryRecord {
   @Transcode(VarBuffer)
   groupMemberPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -328,11 +328,11 @@ export class TransactionMetadataMessagingGroup extends BinaryRecord {
   @Transcode(VarBuffer)
   groupOwnerSignature: Uint8Array = new Uint8Array(0);
 
-  @Transcode(ArrayOf(MessagingGroupMember))
-  messagingGroupMembers: MessagingGroupMember[] = [];
+  @Transcode(ArrayOf(MessagingGroupMemberRecord))
+  MessagingGroupMemberRecords: MessagingGroupMemberRecord[] = [];
 }
 
-export class TransactionMetadataDAOCoin extends TransactionMetadata {
+export class TransactionMetadataDAOCoin extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   profilePublicKey: Uint8Array = new Uint8Array(0);
 
@@ -349,7 +349,7 @@ export class TransactionMetadataDAOCoin extends TransactionMetadata {
   transferRestrictionStatus = 0;
 }
 
-export class TransactionMetadataTransferDAOCoin extends TransactionMetadata {
+export class TransactionMetadataTransferDAOCoin extends TransactionMetadataRecord {
   @Transcode(VarBuffer)
   profilePublicKey: Uint8Array = new Uint8Array(0);
 
@@ -419,7 +419,7 @@ export class TransactionDAOCoinLimitOrderLimitMapItem extends BinaryRecord {
   value = 0;
 }
 
-export class TransactionSpendingLimit extends BinaryRecord {
+export class TransactionSpendingLimitRecord extends BinaryRecord {
   @Transcode(Uvarint64)
   globalDESOLimit = 0;
 
@@ -439,7 +439,7 @@ export class TransactionSpendingLimit extends BinaryRecord {
   daoCoinLimitOrderLimitMap: TransactionDAOCoinLimitOrderLimitMapItem[] = [];
 }
 
-export class DeSoInputsByTransactor extends BinaryRecord {
+export class DeSoInputsByTransactorRecord extends BinaryRecord {
   @Transcode(FixedBuffer(33))
   transactorPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -469,8 +469,8 @@ export class TransactionMetadataDAOCoinLimitOrder extends BinaryRecord {
   @Transcode(VarBuffer)
   cancelOrderID: Uint8Array = new Uint8Array(0);
 
-  @Transcode(ArrayOf(DeSoInputsByTransactor))
-  bidderInputs: DeSoInputsByTransactor[] = [];
+  @Transcode(ArrayOf(DeSoInputsByTransactorRecord))
+  bidderInputs: DeSoInputsByTransactorRecord[] = [];
 }
 
 export class TransactionMetadataCreateUserAssociation extends BinaryRecord {
@@ -525,7 +525,7 @@ export class TransactionMetadataAccessGroup extends BinaryRecord {
   accessGroupOperationType = 0;
 }
 
-export class AccessGroupMember extends BinaryRecord {
+export class AccessGroupMemberRecord extends BinaryRecord {
   @Transcode(VarBuffer)
   accessGroupMemberPublicKey: Uint8Array = new Uint8Array(0);
 
@@ -546,8 +546,8 @@ export class TransactionMetadataAccessGroupMembers extends BinaryRecord {
   @Transcode(VarBuffer)
   accessGroupKeyName: Uint8Array = new Uint8Array(0);
 
-  @Transcode(ArrayOf(AccessGroupMember))
-  accessGroupMembersList: AccessGroupMember[] = [];
+  @Transcode(ArrayOf(AccessGroupMemberRecord))
+  accessGroupMembersList: AccessGroupMemberRecord[] = [];
 
   @Transcode(Uint8)
   accessGroupMemberOperationType = 0;
@@ -628,7 +628,7 @@ export class Transaction extends BinaryRecord {
   outputs: TransactionOutput[] = [];
 
   @Transcode(Enum(TransactionTypeMetadataMap))
-  metadata: TransactionMetadata | null = null;
+  metadata: TransactionMetadataRecord | null = null;
 
   @Transcode(VarBuffer)
   publicKey: Uint8Array = new Uint8Array(0);
@@ -664,7 +664,7 @@ export class TransactionV0 extends BinaryRecord {
   outputs: TransactionOutput[] = [];
 
   @Transcode(Enum(TransactionTypeMetadataMap))
-  metadata: TransactionMetadata | null = null;
+  metadata: TransactionMetadataRecord | null = null;
 
   @Transcode(VarBuffer)
   publicKey: Uint8Array = new Uint8Array(0);
