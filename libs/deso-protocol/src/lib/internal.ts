@@ -11,9 +11,16 @@ import {
   TransactionMetadataRecord,
   TransactionNonce,
   TransactionOutput,
+  TransactionToMsgDeSoTxn,
 } from '@deso-core/identity';
 import { bytesToHex } from '@noble/hashes/utils';
-import { RequestOptions, TransactionFee } from 'deso-protocol-types';
+import {
+  DAOCoinLimitOrderSimulatedExecutionResult,
+  MsgDeSoTxn,
+  RequestOptions,
+  SubmitTransactionResponse,
+  TransactionFee,
+} from 'deso-protocol-types';
 
 ////////////////////////////////////////////////////////////////////////////////
 // This is all the stuff we don't export to consumers of the library. If
@@ -52,7 +59,10 @@ export const handleSignAndSubmit = async (
   // we always broadcast by default, but consumers can optionally disable it.
   // TODO: How to properly parameterize options.
   options: RequestOptions<any, any> = { broadcast: true }
-) => {
+): Promise<{
+  constructedTransactionResponse: ConstructedTransactionResponse;
+  submittedTransactionResponse: SubmitTransactionResponse | null;
+}> => {
   const constructedTransactionResponse = await (options.localConstruction &&
   options.constructionFunction
     ? options.constructionFunction(params)
@@ -84,14 +94,36 @@ export type BalanceModelTransactionFields = {
 };
 
 export type ConstructedTransactionResponse = {
-  Transaction: Transaction;
+  Transaction: MsgDeSoTxn;
   FeeNanos: number;
   TransactionHex: string;
   TxnHashHex: string;
   TotalInputNanos: number;
   ChangeAmountNanos: number;
   SpendAmountNanos: number;
-  TransactionIDBase58Check: string;
+  TransactionIDBase58Check?: string;
+  // TODO: Optional Fields
+  // Buy or sell creator coins (server side only)
+  ExpectedDeSoReturnedNanos?: number;
+  ExpectedCreatorCoinReturnedNanos?: number;
+  FounderRewardGeneratedNanos?: number;
+  // SubmitPost (server side only)
+  TstampNanos?: number;
+  PostHashHex?: number;
+  // UpdateProfile (server side only)
+  CompProfileCreationTxnHashHex?: string;
+  // DAO Coin Limit Order (server side only)
+  SimulatedExecutionResult?: DAOCoinLimitOrderSimulatedExecutionResult;
+  // Create/Update NFT, NFT Bid, Accept NFT Bid (server side only)
+  NFTPostHashHex?: string;
+  // Update NFT, NFT Bid, Accept NFT Bid (server side only)
+  SerialNumber?: number;
+  // NFT Bid (server side only)
+  UpdaterPublicKeyBase58Check?: string;
+  // NFT Bid, Accept NFT Bid (server side only)
+  BidAmountNanos?: number;
+  // Accept NFT Bid (server side only)
+  BidderPublicKeyBase58Check?: string;
 };
 
 export const convertExtraData = (
@@ -163,7 +195,7 @@ export const constructBalanceModelTx = async (
   // NFT buys. Probably not necessarily, but would be best to ahve this.
   const txnHash = sha256X2(txnBytes);
   return {
-    Transaction: txnWithFee,
+    Transaction: TransactionToMsgDeSoTxn(txnWithFee),
     FeeNanos: fees,
     TransactionHex,
     ChangeAmountNanos: 0,

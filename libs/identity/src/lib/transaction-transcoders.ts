@@ -1,3 +1,5 @@
+import { bufToUvarint64, publicKeyToBase58Check } from './crypto-utils';
+import { decodeBytesToUTF8, encodeUTF8ToBytes } from './transcoder-utils';
 import {
   ArrayOf,
   BinaryRecord,
@@ -13,6 +15,8 @@ import {
   Uvarint64,
   VarBuffer,
 } from './transcoders';
+
+import { DeSoInput, DeSoOutput, MsgDeSoTxn } from 'deso-protocol-types';
 
 export class TransactionInput extends BinaryRecord {
   @Transcode(FixedBuffer(32))
@@ -655,6 +659,35 @@ export class Transaction extends BinaryRecord {
     Object.assign(this, attributes);
   }
 }
+
+export const TransactionToMsgDeSoTxn = (txn: Transaction) => {
+  const TxInputs = txn.inputs.map((input) => ({
+    TxID: Array.from(input.id),
+    Index: bufToUvarint64(input.id)[0],
+  })) as DeSoInput[];
+  const TxOutputs = txn.outputs.map((output) => ({
+    PublicKey: publicKeyToBase58Check(output.publicKey),
+    AmountNanos: output.amountNanos,
+  })) as DeSoOutput[];
+  txn.signature;
+  return {
+    TxInputs,
+    TxOutputs,
+    // TODO: need to make all the metadata match EXACTLY what
+    // is coming from backend.
+    TxnMeta: txn.metadata,
+    PublicKey: publicKeyToBase58Check(txn.publicKey),
+    ExtraData: (txn.extraData?.kvs || []).reduce((extraDataMap, kv) => {
+      // TODO: special case extradata encoding
+      extraDataMap[decodeBytesToUTF8(kv.key)] = decodeBytesToUTF8(kv.value);
+      return extraDataMap;
+    }, {} as { [k: string]: any }),
+    // TODO: implement parsing of signature.
+    Signature: null,
+    // TODO: implement reverse engineering of TxnTypeJSON. low priority.
+    TxnTypeJSON: 0,
+  } as MsgDeSoTxn;
+};
 
 export class TransactionV0 extends BinaryRecord {
   @Transcode(ArrayOf(TransactionInput))

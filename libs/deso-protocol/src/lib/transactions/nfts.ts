@@ -57,7 +57,9 @@ export type CreateNFTRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const createNFT = async (
   params: CreateNFTRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<CreateNFTResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<CreateNFTResponse | ConstructedTransactionResponse>
+> => {
   return handleSignAndSubmit('api/v0/create-nft', params, {
     ...options,
     constructionFunction: constructCreateNFTTransaction,
@@ -147,7 +149,9 @@ export type UpdateNFTRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const updateNFT = async (
   params: UpdateNFTRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<UpdateNFTResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<UpdateNFTResponse | ConstructedTransactionResponse>
+> => {
   return handleSignAndSubmit('api/v0/update-nft', params, {
     ...options,
     constructionFunction: constructUpdateNFTTransaction,
@@ -191,7 +195,11 @@ export type CreateNFTBidRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const createNFTBid = (
   params: CreateNFTBidRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<CreateNFTBidResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    CreateNFTBidResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/create-nft-bid', params, {
     ...options,
     constructionFunction: constructNFTBidTransaction,
@@ -228,7 +236,11 @@ export type AcceptNFTBidRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const acceptNFTBid = (
   params: AcceptNFTBidRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AcceptNFTBidResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    AcceptNFTBidResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/accept-nft-bid', params, {
     ...options,
     constructionFunction: constructAcceptNFTBidTransaction,
@@ -272,7 +284,11 @@ export type TransferNFTRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const transferNFT = (
   params: TransferNFTRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<TransferNFTResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    TransferNFTResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/transfer-nft', params, {
     ...options,
     constructionFunction: constructTransferNFT,
@@ -281,7 +297,7 @@ export const transferNFT = (
 
 export const constructTransferNFT = (
   params: TransferNFTRequestParams
-): Promise<ConstructedTransactionResponse> => {
+): Promise<ConstructedTransactionResponse | ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNFTTransfer();
   metadata.encryptedUnlockableText = hexToBytes(
     params.EncryptedUnlockableText || ''
@@ -311,7 +327,11 @@ export type AcceptNFTTransferRequestParams =
 export const acceptNFTTransfer = (
   params: AcceptNFTTransferRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AcceptNFTTransferResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    AcceptNFTTransferResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/accept-nft-transfer', params, {
     ...options,
     constructionFunction: constructAcceptNFTTransfer,
@@ -343,8 +363,13 @@ export type BurnNFTRequestParams = TxRequestWithOptionalFeesAndExtraData<
 export const burnNFT = (
   params: BurnNFTRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<BurnNFTResponse>> => {
-  return handleSignAndSubmit('api/v0/burn-nft', params, options);
+): Promise<
+  ConstructedAndSubmittedTx<BurnNFTResponse | ConstructedTransactionResponse>
+> => {
+  return handleSignAndSubmit('api/v0/burn-nft', params, {
+    ...options,
+    constructionFunction: constructBurnNFTTransation,
+  });
 };
 
 export const constructBurnNFTTransation = (

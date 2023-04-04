@@ -51,7 +51,11 @@ export const updateProfile = async (
     TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
     UpdateProfileResponse
   >
-): Promise<ConstructedAndSubmittedTx<UpdateProfileResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    UpdateProfileResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/update-profile', params, options);
 };
 
@@ -89,7 +93,9 @@ export type SubmitPostRequestParams = TypeWithOptionalFeesAndExtraData<
 export const submitPost = (
   params: SubmitPostRequestParams,
   options?: RequestOptions<SubmitPostRequestParams, SubmitPostResponse>
-): Promise<ConstructedAndSubmittedTx<SubmitPostResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<SubmitPostResponse | ConstructedTransactionResponse>
+> => {
   return handleSignAndSubmit('api/v0/submit-post', params, {
     ...options,
     constructionFunction: constructSubmitPost,
@@ -245,7 +251,11 @@ type SendNewMessageParams = TypeWithOptionalFeesAndExtraData<
 export const sendDMMessage = async (
   params: SendNewMessageParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    SendNewMessageResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/send-dm-message', params, {
     ...options,
     constructionFunction: constructSendDMTransaction,
@@ -297,7 +307,11 @@ export const constructSendDMTransaction = (
 export const updateDMMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    SendNewMessageResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/update-dm-message', params, {
     ...options,
     constructionFunction: constructUpdateDMTransaction,
@@ -347,7 +361,11 @@ export const constructUpdateDMTransaction = (
 export const sendGroupChatMessage = async (
   params: SendNewMessageParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    SendNewMessageResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/send-group-chat-message', params, {
     ...options,
     constructionFunction: constructSendGroupChatMessageTransaction,
@@ -468,7 +486,11 @@ export const sendMessage = async (
 export const updateGroupChatMessage = async (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<SendNewMessageResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    SendNewMessageResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit('api/v0/update-group-chat-message', params, {
     ...options,
     constructionFunction: constructUpdateGroupChatMessageTransaction,

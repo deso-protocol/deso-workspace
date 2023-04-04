@@ -32,7 +32,9 @@ export const sendDeso = (
     TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>,
     SendDeSoResponse
   >
-): Promise<ConstructedAndSubmittedTx<SendDeSoResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<SendDeSoResponse | ConstructedTransactionResponse>
+> => {
   return handleSignAndSubmit('api/v0/send-deso', params, {
     ...options,
     constructionFunction: constructSendDeSoTransaction,
@@ -81,7 +83,11 @@ export const buyCreatorCoin = (
     BuyCreatorCoinRequestParams,
     BuyOrSellCreatorCoinResponse
   >
-): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    BuyOrSellCreatorCoinResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit(
     'api/v0/buy-or-sell-creator-coin',
     {
@@ -114,7 +120,11 @@ export const sellCreatorCoin = (
     SellCreatorCoinRequestParams,
     BuyOrSellCreatorCoinResponse
   >
-): Promise<ConstructedAndSubmittedTx<BuyOrSellCreatorCoinResponse>> => {
+): Promise<
+  ConstructedAndSubmittedTx<
+    BuyOrSellCreatorCoinResponse | ConstructedTransactionResponse
+  >
+> => {
   return handleSignAndSubmit(
     'api/v0/buy-or-sell-creator-coin',
     {

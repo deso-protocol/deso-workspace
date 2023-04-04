@@ -1,6 +1,6 @@
 import { PartialWithRequiredFields } from '@deso-core/data';
 import {
-  AssociationResponse,
+  AssociationTxnResponse,
   CreatePostAssociationRequest,
   CreateUserAssociationRequest,
   DeleteAssociationRequest,
@@ -41,9 +41,9 @@ export const createUserAssociation = (
   params: CreateUserAssociationRequestParams,
   options?: RequestOptions<
     CreateUserAssociationRequestParams,
-    AssociationResponse
+    AssociationTxnResponse
   >
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/user-associations/create', params, {
     ...options,
     constructionFunction: constructCreateUserAssociationTransaction,
@@ -90,9 +90,9 @@ export const deleteUserAssociation = (
   params: DeleteUserAssociationRequestParams,
   options?: RequestOptions<
     DeleteUserAssociationRequestParams,
-    AssociationResponse
+    AssociationTxnResponse
   >
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/user-associations/delete', params, {
     ...options,
     constructionFunction: constructDeleteUserAssociationTransaction,
@@ -132,9 +132,9 @@ export const createPostAssociation = (
   params: CreatePostAssociationRequestParams,
   options?: RequestOptions<
     CreatePostAssociationRequestParams,
-    AssociationResponse
+    AssociationTxnResponse
   >
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit(
     'api/v0/post-associations/create',
     params,
@@ -179,9 +179,9 @@ export const deletePostAssociation = (
   params: DeletePostAssociationRequestParams,
   options?: RequestOptions<
     DeletePostAssociationRequestParams,
-    AssociationResponse
+    AssociationTxnResponse
   >
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/post-associations/delete', params, {
     ...options,
     constructionFunction: constructDeletePostAssociationTransaction,
