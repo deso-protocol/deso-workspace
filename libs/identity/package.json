@@ -1,6 +1,6 @@
 {
   "name": "@deso-core/identity",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "sideEffects": false,
   "module": "./src/index.js",
   "repository": {
