@@ -238,11 +238,10 @@ export const updateAccessGroupMembers = (
     AddAccessGroupMembersResponse
   >
 ): Promise<ConstructedAndSubmittedTx<AddAccessGroupMembersResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/update-access-group-members',
-    params,
-    options
-  );
+  return handleSignAndSubmit('api/v0/update-access-group-members', params, {
+    ...options,
+    constructionFunction: constructUpdateAccessGroupMembersTransaction,
+  });
 };
 
 export const constructUpdateAccessGroupMembersTransaction = (

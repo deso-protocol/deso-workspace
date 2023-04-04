@@ -15,6 +15,11 @@ export type DesoProtocolConfiguration = IdentityConfiguration & {
    * etc.). If not provided, we use the default https://media.deso.org server.
    */
   mediaURI?: string;
+
+  /**
+   * Optionally, use local transaction construction where applicable
+   */
+  localConstruction?: boolean;
 };
 
 /**
@@ -25,6 +30,10 @@ export type DesoProtocolConfiguration = IdentityConfiguration & {
 export const configure = (options: DesoProtocolConfiguration) => {
   if (typeof options.MinFeeRateNanosPerKB === 'number') {
     globalConfigOptions.MinFeeRateNanosPerKB = options.MinFeeRateNanosPerKB;
+  }
+
+  if (typeof options.localConstruction === 'boolean') {
+    globalConfigOptions.LocalConstruction = options.localConstruction;
   }
 
   identity.configure(options);

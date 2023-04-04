@@ -56,30 +56,34 @@ export const constructAuthorizeDerivedKey = (
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   // TODO: this is a poorly named param, should probably fix this.
   if (params.DerivedKeySignature) {
-    const derivedKeyKV = new TransactionExtraDataKV();
-    derivedKeyKV.key = encodeUTF8ToBytes('DerivedPublicKey');
-    derivedKeyKV.value = bs58PublicKeyToCompressedBytes(
-      params.DerivedPublicKeyBase58Check
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('DerivedPublicKey'),
+        bs58PublicKeyToCompressedBytes(params.DerivedPublicKeyBase58Check)
+      )
     );
-    consensusExtraDataKVs.push(derivedKeyKV);
   }
   if (params.TransactionSpendingLimitHex) {
     const transactionSpendingLimitBuf = hexToBytes(
       params.TransactionSpendingLimitHex
     );
     if (transactionSpendingLimitBuf.length) {
-      const spendingLimitKV = new TransactionExtraDataKV();
-      spendingLimitKV.key = encodeUTF8ToBytes('TransactionSpendingLimit');
-      spendingLimitKV.value = transactionSpendingLimitBuf;
-      consensusExtraDataKVs.push(spendingLimitKV);
+      consensusExtraDataKVs.push(
+        new TransactionExtraDataKV(
+          encodeUTF8ToBytes('TransactionSpendingLimit'),
+          transactionSpendingLimitBuf
+        )
+      );
     }
   }
   if (params.Memo || params.AppName) {
     const memo = params.Memo || (params.AppName as string);
-    const memoKV = new TransactionExtraDataKV();
-    memoKV.key = encodeUTF8ToBytes('DerivedKeyMemo');
-    // TODO: I think this is wrong, but need to double check
-    memoKV.value = encodeUTF8ToBytes(bytesToHex(encodeUTF8ToBytes(memo)));
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('DerivedKeyMemo'),
+        encodeUTF8ToBytes(bytesToHex(encodeUTF8ToBytes(memo)))
+      )
+    );
   }
   return constructBalanceModelTx(params.OwnerPublicKeyBase58Check, metadata, {
     ConsensusExtraDataKVs: consensusExtraDataKVs,

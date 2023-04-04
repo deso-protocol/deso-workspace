@@ -56,13 +56,17 @@ export const updateProfile = async (
     UpdateProfileResponse | ConstructedTransactionResponse
   >
 > => {
-  return handleSignAndSubmit('api/v0/update-profile', params, options);
+  return handleSignAndSubmit('api/v0/update-profile', params, {
+    ...options,
+    constructionFunction: constructUpdateProfileTransaction,
+  });
 };
 
 export const constructUpdateProfileTransaction = (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataUpdateProfile();
+  // TODO: this is broken.
   metadata.profilePublicKey =
     params.UpdaterPublicKeyBase58Check !== params.ProfilePublicKeyBase58Check
       ? bs58PublicKeyToCompressedBytes(params.ProfilePublicKeyBase58Check)
@@ -121,20 +125,24 @@ export const constructSubmitPost = (
   metadata.postHashToModify = hexToBytes(params.PostHashHexToModify || '');
   const extraDataKVs: TransactionExtraDataKV[] = [];
   if (params.RepostedPostHashHex) {
-    const repostKv = new TransactionExtraDataKV();
-    repostKv.key = encodeUTF8ToBytes('RecloutedPostHash');
-    repostKv.value = hexToBytes(params.RepostedPostHashHex);
-    extraDataKVs.push(repostKv);
-    const quotedRecloutKv = new TransactionExtraDataKV();
-    quotedRecloutKv.key = encodeUTF8ToBytes('IsQuotedReclout');
-    quotedRecloutKv.value = Uint8Array.from([
-      !params.BodyObj.Body &&
-      !params.BodyObj.ImageURLs?.length &&
-      !params.BodyObj.VideoURLs?.length
-        ? 1
-        : 0,
-    ]);
-    extraDataKVs.push(quotedRecloutKv);
+    extraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('RecloutedPostHash'),
+        hexToBytes(params.RepostedPostHashHex)
+      )
+    );
+    extraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('IsQuotedReclout'),
+        Uint8Array.from([
+          !params.BodyObj.Body &&
+          !params.BodyObj.ImageURLs?.length &&
+          !params.BodyObj.VideoURLs?.length
+            ? 0
+            : 1,
+        ])
+      )
+    );
   }
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,

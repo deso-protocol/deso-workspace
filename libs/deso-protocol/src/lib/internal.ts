@@ -32,6 +32,7 @@ import {
 // be reflected in the library.
 export const globalConfigOptions = {
   MinFeeRateNanosPerKB: 1500,
+  LocalConstruction: false,
 };
 
 export interface OptionalFeesAndExtraData {
@@ -63,7 +64,8 @@ export const handleSignAndSubmit = async (
   constructedTransactionResponse: ConstructedTransactionResponse;
   submittedTransactionResponse: SubmitTransactionResponse | null;
 }> => {
-  const constructedTransactionResponse = await (options.localConstruction &&
+  const constructedTransactionResponse = await ((options.localConstruction ||
+    globalConfigOptions.LocalConstruction) &&
   options.constructionFunction
     ? options.constructionFunction(params)
     : api.post(
@@ -75,6 +77,7 @@ export const handleSignAndSubmit = async (
             globalConfigOptions.MinFeeRateNanosPerKB,
         }
       ));
+  console.log(constructedTransactionResponse);
   const submittedTransactionResponse =
     options.broadcast !== false
       ? await identity.signAndSubmit(constructedTransactionResponse)
@@ -134,12 +137,10 @@ export const convertExtraData = (
   // TODO: encoding special consensus fields.
   const sortedExtraData = (consensusExtraDataKVs || [])
     .concat(
-      Object.entries(extraData || {}).map(([k, v]) => {
-        const newKV = new TransactionExtraDataKV();
-        newKV.key = encodeUTF8ToBytes(k);
-        newKV.value = encodeUTF8ToBytes(v);
-        return newKV;
-      })
+      Object.entries(extraData || {}).map(
+        ([k, v]) =>
+          new TransactionExtraDataKV(encodeUTF8ToBytes(k), encodeUTF8ToBytes(v))
+      )
     )
     .sort((a, b) => a.key.toString().localeCompare(b.key.toString()));
   const realExtraData = new TransactionExtraData();
@@ -176,7 +177,10 @@ export const constructBalanceModelTx = async (
     metadata,
     outputs: transactionFeeOutputs.concat(txFields?.Outputs || []),
     inputs: [],
-    extraData: convertExtraData(txFields?.ExtraData),
+    extraData: convertExtraData(
+      txFields?.ExtraData,
+      txFields?.ConsensusExtraDataKVs
+    ),
     publicKey: bs58PublicKeyToCompressedBytes(pubKey),
     signature: new Uint8Array(0),
   });

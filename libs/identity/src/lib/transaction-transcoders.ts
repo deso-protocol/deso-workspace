@@ -48,6 +48,12 @@ export class TransactionExtraDataKV extends BinaryRecord {
 
   @Transcode(VarBuffer)
   value: Uint8Array = new Uint8Array(0);
+
+  constructor(key?: Uint8Array, value?: Uint8Array) {
+    super();
+    this.key = key || new Uint8Array(0);
+    this.value = value || new Uint8Array(0);
+  }
 }
 
 export class TransactionExtraData extends BinaryRecord {

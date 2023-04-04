@@ -135,11 +135,10 @@ export const createPostAssociation = (
     AssociationTxnResponse
   >
 ): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/post-associations/create',
-    params,
-    options
-  );
+  return handleSignAndSubmit('api/v0/post-associations/create', params, {
+    ...options,
+    constructionFunction: constructCreatePostAssociationTransaction,
+  });
 };
 
 export const constructCreatePostAssociationTransaction = (

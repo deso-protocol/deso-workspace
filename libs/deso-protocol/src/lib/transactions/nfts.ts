@@ -26,6 +26,7 @@ import { ConstructedAndSubmittedTx } from '../types';
 import {
   bs58PublicKeyToCompressedBytes,
   concatUint8Arrays,
+  encodeUTF8ToBytes,
   TransactionExtraDataKV,
   TransactionMetadataAcceptNFTBid,
   TransactionMetadataAcceptNFTTransfer,
@@ -81,10 +82,12 @@ export const constructCreateNFTTransaction = (
 
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   if (params.IsBuyNow && params.BuyNowPriceNanos !== undefined) {
-    const buyNowKV = new TransactionExtraDataKV();
-    buyNowKV.key = hexToBytes('BuyNowPriceNanos');
-    buyNowKV.value = uvarint64ToBuf(params.BuyNowPriceNanos);
-    consensusExtraDataKVs.push(buyNowKV);
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('BuyNowPriceNanos'),
+        uvarint64ToBuf(params.BuyNowPriceNanos)
+      )
+    );
   }
   if (
     params.AdditionalDESORoyaltiesMap &&
@@ -101,10 +104,9 @@ export const constructCreateNFTTransaction = (
           uvarint64ToBuf(royaltyMap[publicKey]),
         ]);
       });
-    const additionalDESORoyaltyMapKV = new TransactionExtraDataKV();
-    additionalDESORoyaltyMapKV.key = hexToBytes('DESORoyaltiesMap');
-    additionalDESORoyaltyMapKV.value = buf;
-    consensusExtraDataKVs.push(additionalDESORoyaltyMapKV);
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(encodeUTF8ToBytes('DESORoyaltiesMap'), buf)
+    );
   }
   if (
     params.AdditionalCoinRoyaltiesMap &&
@@ -121,10 +123,9 @@ export const constructCreateNFTTransaction = (
           uvarint64ToBuf(royaltyMap[publicKey]),
         ]);
       });
-    const additionalCoinRoyaltyMapKV = new TransactionExtraDataKV();
-    additionalCoinRoyaltyMapKV.key = hexToBytes('CoinRoyaltiesMap');
-    additionalCoinRoyaltyMapKV.value = buf;
-    consensusExtraDataKVs.push(additionalCoinRoyaltyMapKV);
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(encodeUTF8ToBytes('CoinRoyaltiesMap'), buf)
+    );
   }
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,
@@ -168,10 +169,12 @@ export const constructUpdateNFTTransaction = (
   metadata.serialNumber = params.SerialNumber;
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   if (params.IsBuyNow && params.BuyNowPriceNanos !== undefined) {
-    const buyNowKV = new TransactionExtraDataKV();
-    buyNowKV.key = hexToBytes('BuyNowPriceNanos');
-    buyNowKV.value = uvarint64ToBuf(params.BuyNowPriceNanos);
-    consensusExtraDataKVs.push(buyNowKV);
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('BuyNowPriceNanos'),
+        uvarint64ToBuf(params.BuyNowPriceNanos)
+      )
+    );
   }
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,
