@@ -1,14 +1,16 @@
 import { api, cleanURL, getAppState } from '@deso-core/data';
-import { bs58PublicKeyToCompressedBytes, identity } from '@deso-core/identity';
-import { RequestOptions, TransactionFee } from 'deso-protocol-types';
 import {
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+  identity,
   Transaction,
   TransactionExtraData,
   TransactionExtraDataKV,
   TransactionMetadata,
   TransactionNonce,
   TransactionOutput,
-} from './transcoder/transaction-transcoders';
+} from '@deso-core/identity';
+import { RequestOptions, TransactionFee } from 'deso-protocol-types';
 
 ////////////////////////////////////////////////////////////////////////////////
 // This is all the stuff we don't export to consumers of the library. If
@@ -96,8 +98,8 @@ export const convertExtraData = (
     .concat(
       Object.entries(extraData || {}).map(([k, v]) => {
         const newKV = new TransactionExtraDataKV();
-        newKV.key = Buffer.from(k);
-        newKV.value = Buffer.from(v);
+        newKV.key = encodeUTF8ToBytes(k);
+        newKV.value = encodeUTF8ToBytes(v);
         return newKV;
       })
     )
@@ -138,7 +140,7 @@ export const constructBalanceModelTx = async (
     inputs: [],
     extraData: convertExtraData(txFields?.ExtraData),
     publicKey: bs58PublicKeyToCompressedBytes(pubKey),
-    signature: Buffer.alloc(0),
+    signature: new Uint8Array(0),
   });
 
   const txnWithFee = computeFee(

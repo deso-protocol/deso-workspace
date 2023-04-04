@@ -17,11 +17,11 @@ import {
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
+  bs58PublicKeyToCompressedBytes,
   TransactionMetadataBasicTransfer,
   TransactionMetadataCreatorCoinTransfer,
   TransactionOutput,
-} from '../transcoder/transaction-transcoders';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+} from '@deso-core/identity';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/financial-transactions-api#send-deso

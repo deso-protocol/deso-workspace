@@ -19,8 +19,9 @@ import {
   TransactionExtraData,
   TransactionMetadataAccessGroup,
   TransactionMetadataAccessGroupMembers,
-} from '../transcoder/transaction-transcoders';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+} from '@deso-core/identity';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/access-groups-api#create-access-group
@@ -60,7 +61,7 @@ export const constructCreateAccessGroupTransaction = (
   // TODO: do we want to make an enum for all these operation types somewhere?
   metadata.accessGroupOperationType = 2;
   // TODO: how to properly parse this?
-  metadata.accessGroupKeyName = Buffer.from(params.AccessGroupKeyName);
+  metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   return constructBalanceModelTx(
     params.AccessGroupOwnerPublicKeyBase58Check,
     metadata,
@@ -110,7 +111,7 @@ export const constructUpdateAccessGroupTransaction = (
   // TODO: do we want to make an enum for all these operation types somewhere?
   metadata.accessGroupOperationType = 3;
   // TODO: how to properly parse this?
-  metadata.accessGroupKeyName = Buffer.from(params.AccessGroupKeyName);
+  metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   return constructBalanceModelTx(
     params.AccessGroupOwnerPublicKeyBase58Check,
     metadata,
@@ -146,7 +147,7 @@ export const constructAddAccessGroupMembersTransaction = (
     params.AccessGroupOwnerPublicKeyBase58Check
   );
   metadata.accessGroupMemberOperationType = 2;
-  metadata.accessGroupKeyName = Buffer.from(params.AccessGroupKeyName);
+  metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
       const newAccessGroupMember = new AccessGroupMember();
@@ -154,11 +155,13 @@ export const constructAddAccessGroupMembersTransaction = (
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check
         );
-      newAccessGroupMember.accessGroupMemberKeyName = Buffer.from(
+      newAccessGroupMember.accessGroupMemberKeyName = encodeUTF8ToBytes(
         member.AccessGroupMemberKeyName
       );
       // TODO: make sure we're probably reading this?
-      newAccessGroupMember.encryptedKey = Buffer.from(member.EncryptedKey);
+      newAccessGroupMember.encryptedKey = encodeUTF8ToBytes(
+        member.EncryptedKey
+      );
       newAccessGroupMember.extraData = convertExtraData(member.ExtraData);
       return newAccessGroupMember;
     }
@@ -198,7 +201,7 @@ export const constructRemoveAccessGroupMembersTransaction = (
     params.AccessGroupOwnerPublicKeyBase58Check
   );
   metadata.accessGroupMemberOperationType = 3;
-  metadata.accessGroupKeyName = Buffer.from(params.AccessGroupKeyName);
+  metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
       const newAccessGroupMember = new AccessGroupMember();
@@ -206,10 +209,10 @@ export const constructRemoveAccessGroupMembersTransaction = (
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check
         );
-      newAccessGroupMember.accessGroupMemberKeyName = Buffer.from(
+      newAccessGroupMember.accessGroupMemberKeyName = encodeUTF8ToBytes(
         params.AccessGroupKeyName
       );
-      newAccessGroupMember.encryptedKey = Buffer.alloc(0);
+      newAccessGroupMember.encryptedKey = new Uint8Array(0);
       newAccessGroupMember.extraData = new TransactionExtraData();
       return newAccessGroupMember;
     }
@@ -250,7 +253,7 @@ export const constructUpdateAccessGroupMembersTransaction = (
     params.AccessGroupOwnerPublicKeyBase58Check
   );
   metadata.accessGroupMemberOperationType = 4;
-  metadata.accessGroupKeyName = Buffer.from(params.AccessGroupKeyName);
+  metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   metadata.accessGroupMembersList = params.AccessGroupMemberList.map(
     (member) => {
       const newAccessGroupMember = new AccessGroupMember();
@@ -258,11 +261,13 @@ export const constructUpdateAccessGroupMembersTransaction = (
         bs58PublicKeyToCompressedBytes(
           member.AccessGroupMemberPublicKeyBase58Check
         );
-      newAccessGroupMember.accessGroupMemberKeyName = Buffer.from(
+      newAccessGroupMember.accessGroupMemberKeyName = encodeUTF8ToBytes(
         member.AccessGroupMemberKeyName
       );
       // TODO: make sure we're probably reading this?
-      newAccessGroupMember.encryptedKey = Buffer.from(member.EncryptedKey);
+      newAccessGroupMember.encryptedKey = encodeUTF8ToBytes(
+        member.EncryptedKey
+      );
       newAccessGroupMember.extraData = convertExtraData(member.ExtraData);
       return newAccessGroupMember;
     }

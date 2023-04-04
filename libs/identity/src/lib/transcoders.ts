@@ -1,8 +1,12 @@
-import { bufToUvarint64, uvarint64ToBuf } from './util';
+import {
+  bufToUvarint64,
+  concatUint8Arrays,
+  uvarint64ToBuf,
+} from './crypto-utils';
 import { TransactionNonce } from './transaction-transcoders';
 import 'reflect-metadata';
 export class BinaryRecord {
-  static fromBytes(bytes: Buffer): [BinaryRecord, Buffer] {
+  static fromBytes(bytes: Uint8Array): [BinaryRecord, Uint8Array] {
     const result = new this();
     let buffer = bytes;
 
@@ -10,6 +14,7 @@ export class BinaryRecord {
       Reflect.getMetadata('transcoders', result) || [];
 
     transcoders.forEach(({ name, transcoder }) => {
+      console.log(name);
       let value;
       [value, buffer] = transcoder.read.call(result, buffer);
       (result as any)[name] = value;
@@ -18,13 +23,13 @@ export class BinaryRecord {
     return [result, buffer];
   }
 
-  toBytes(): Buffer {
+  toBytes(): Uint8Array {
     const transcoders: TranscoderMetadata[] =
       Reflect.getMetadata('transcoders', this) || [];
 
-    let buffer = Buffer.alloc(0);
+    let buffer = new Uint8Array(0);
     transcoders.forEach(({ name, transcoder }) => {
-      buffer = Buffer.concat([
+      buffer = concatUint8Arrays([
         buffer,
         transcoder.write.call(this, (this as any)[name]),
       ]);
@@ -48,16 +53,16 @@ export function Transcode<T>(transcoder: Transcoder<T>) {
 }
 
 export interface Transcoder<T> {
-  read: (bytes: Buffer) => [T, Buffer];
-  write: (object: T) => Buffer;
+  read: (bytes: Uint8Array) => [T, Uint8Array];
+  write: (object: T) => Uint8Array;
 }
 
 export interface Serializable {
-  toBytes: () => Buffer;
+  toBytes: () => Uint8Array;
 }
 
 export interface Deserializable<T> {
-  fromBytes: (bytes: Buffer) => [T, Buffer];
+  fromBytes: (bytes: Uint8Array) => [T, Uint8Array];
 }
 
 export const Uvarint64: Transcoder<number> = {
@@ -66,57 +71,53 @@ export const Uvarint64: Transcoder<number> = {
 };
 
 export const Boolean: Transcoder<boolean> = {
-  read: (bytes) => [bytes.readUInt8(0) != 0, bytes.slice(1)],
+  read: (bytes) => [bytes.at(0) != 0, bytes.slice(1)],
   write: (bool) => {
-    const result = Buffer.alloc(1);
-    result.writeUInt8(bool ? 1 : 0, 0);
-    return result;
+    return Uint8Array.from([bool ? 1 : 0]);
   },
 };
 
 export const Uint8: Transcoder<number> = {
-  read: (bytes) => [bytes.readUInt8(0), bytes.slice(1)],
+  read: (bytes) => [bytes.at(0) as number, bytes.slice(1)],
   write: (uint) => {
-    const result = Buffer.alloc(1);
-    result.writeUInt8(uint, 0);
-    return result;
+    return Uint8Array.from([uint]);
   },
 };
 
-export const FixedBuffer = (size: number): Transcoder<Buffer> => ({
+export const FixedBuffer = (size: number): Transcoder<Uint8Array> => ({
   read: (bytes) => [bytes.slice(0, size), bytes.slice(size)],
   write: (bytes) => bytes,
 });
 
-export const VarBuffer: Transcoder<Buffer> = {
+export const VarBuffer: Transcoder<Uint8Array> = {
   read: (bytes) => {
     const [size, buffer] = bufToUvarint64(bytes);
     return [buffer.slice(0, size), buffer.slice(size)];
   },
-  write: (bytes) => Buffer.concat([uvarint64ToBuf(bytes.length), bytes]),
+  write: (bytes) => concatUint8Arrays([uvarint64ToBuf(bytes.length), bytes]),
 };
 export const TransactionNonceTranscoder: Transcoder<TransactionNonce | null> = {
   read: (bytes) => {
-    return TransactionNonce.fromBytes(bytes) as [TransactionNonce, Buffer];
+    return TransactionNonce.fromBytes(bytes) as [TransactionNonce, Uint8Array];
   },
   write: (nonce) => {
     if (nonce) {
-      return Buffer.concat([nonce.toBytes()]);
+      return concatUint8Arrays([nonce.toBytes()]);
     }
-    return Buffer.alloc(0);
+    return new Uint8Array(0);
   },
 };
 
 export function Optional<T>(transcoder: Transcoder<T>): Transcoder<T | null> {
   return {
-    read: (bytes: Buffer) =>
+    read: (bytes: Uint8Array) =>
       !bytes.length ? [null, bytes] : transcoder.read(bytes),
     write: (value: T | null) =>
-      value === null ? Buffer.alloc(0) : transcoder.write(value),
+      value === null ? new Uint8Array(0) : transcoder.write(value),
   };
 }
 
-export const ChunkBuffer = (width: number): Transcoder<Buffer[]> => ({
+export const ChunkBuffer = (width: number): Transcoder<Uint8Array[]> => ({
   read: (bytes) => {
     const countAndBuffer = bufToUvarint64(bytes);
     const count = countAndBuffer[0];
@@ -129,7 +130,8 @@ export const ChunkBuffer = (width: number): Transcoder<Buffer[]> => ({
 
     return [result, buffer];
   },
-  write: (chunks) => Buffer.concat([uvarint64ToBuf(chunks.length), ...chunks]),
+  write: (chunks) =>
+    concatUint8Arrays([uvarint64ToBuf(chunks.length), ...chunks]),
 });
 
 export const ArrayOf = <
@@ -154,7 +156,10 @@ export const ArrayOf = <
   },
   write: (objects) => {
     const count = uvarint64ToBuf(objects.length);
-    return Buffer.concat([count, ...objects.map((object) => object.toBytes())]);
+    return concatUint8Arrays([
+      count,
+      ...objects.map((object) => object.toBytes()),
+    ]);
   },
 });
 
@@ -202,7 +207,7 @@ export const Enum = <
       const bytes = object.toBytes();
       const size = uvarint64ToBuf(bytes.length);
 
-      return Buffer.concat([type, size, bytes]);
+      return concatUint8Arrays([type, size, bytes]);
     },
   };
 };

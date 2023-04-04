@@ -18,8 +18,10 @@ import {
   TransactionMetadataCreateUserAssociation,
   TransactionMetadataDeletePostAssociation,
   TransactionMetadataDeleteUserAssociation,
-} from '../transcoder/transaction-transcoders';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+} from '@deso-core/identity';
+import { hexToBytes } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#create-user-association
@@ -56,8 +58,8 @@ export const constructCreateUserAssociationTransaction = (
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
     params.AppPublicKeyBase58Check || ''
   );
-  metadata.associationType = Buffer.from(params.AssociationType);
-  metadata.associationValue = Buffer.from(params.AssociationValue);
+  metadata.associationType = encodeUTF8ToBytes(params.AssociationType);
+  metadata.associationValue = encodeUTF8ToBytes(params.AssociationValue);
   metadata.targetUserPublicKey = bs58PublicKeyToCompressedBytes(
     params.TargetUserPublicKeyBase58Check
   );
@@ -101,7 +103,7 @@ export const constructDeleteUserAssociationTransaction = (
   params: DeleteUserAssociationRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataDeleteUserAssociation();
-  metadata.associationID = Buffer.from(params.AssociationID);
+  metadata.associationID = encodeUTF8ToBytes(params.AssociationID);
   return constructBalanceModelTx(
     params.TransactorPublicKeyBase58Check,
     metadata,
@@ -148,9 +150,9 @@ export const constructCreatePostAssociationTransaction = (
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
     params.AppPublicKeyBase58Check || ''
   );
-  metadata.associationType = Buffer.from(params.AssociationType);
-  metadata.associationValue = Buffer.from(params.AssociationValue);
-  metadata.postHash = Buffer.from(params.PostHashHex, 'hex');
+  metadata.associationType = encodeUTF8ToBytes(params.AssociationType);
+  metadata.associationValue = encodeUTF8ToBytes(params.AssociationValue);
+  metadata.postHash = hexToBytes(params.PostHashHex);
   return constructBalanceModelTx(
     params.TransactorPublicKeyBase58Check,
     metadata,
@@ -190,7 +192,7 @@ export const constructDeletePostAssociationTransaction = (
   params: DeletePostAssociationRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataDeletePostAssociation();
-  metadata.associationID = Buffer.from(params.AssociationID);
+  metadata.associationID = encodeUTF8ToBytes(params.AssociationID);
   return constructBalanceModelTx(
     params.TransactorPublicKeyBase58Check,
     metadata,

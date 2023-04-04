@@ -9,9 +9,10 @@ import {
 import * as bs58 from 'bs58';
 import { PUBLIC_KEY_PREFIXES } from './constants';
 import { jwtAlgorithm, KeyPair, Network } from './types';
+import { TransactionV0 } from './transaction-transcoders';
 
 // Browser friendly version of node's Buffer.concat.
-function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
+export function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
   if (length === undefined) {
     length = arrays.reduce((acc, array) => acc + array.length, 0);
   }
@@ -28,7 +29,7 @@ function concatUint8Arrays(arrays: Uint8Array[], length?: number) {
   return result;
 }
 
-const uvarint64ToBuf = (uint: number): Uint8Array => {
+export const uvarint64ToBuf = (uint: number): Uint8Array => {
   const result: number[] = [];
   while (uint >= 0x80) {
     result.push(Number((BigInt(uint) & BigInt(0xff)) | BigInt(0x80)));
@@ -37,6 +38,31 @@ const uvarint64ToBuf = (uint: number): Uint8Array => {
   result.push(uint | 0);
 
   return new Uint8Array(result);
+};
+
+export const bufToUvarint64 = (buffer: Uint8Array): [number, Uint8Array] => {
+  let x = BigInt(0);
+  let s = BigInt(0);
+
+  // TODO: fix linting error
+  // eslint-disable-next-line no-constant-condition
+  for (let i = 0; true; i++) {
+    const byte = buffer[i];
+
+    if (i > 9 || (i == 9 && byte > 1)) {
+      throw new Error('uint64 overflow');
+    }
+
+    if (byte < 0x80) {
+      return [
+        Number(BigInt(x) | (BigInt(byte) << BigInt(s))),
+        buffer.slice(i + 1),
+      ];
+    }
+
+    x |= BigInt(byte & 0x7f) << BigInt(s);
+    s += BigInt(7);
+  }
 };
 
 interface Base58CheckOptions {
@@ -120,6 +146,9 @@ export const signTx = async (
   options?: SignOptions
 ): Promise<string> => {
   const transactionBytes = ecUtils.hexToBytes(txHex);
+  const [_, v1FieldsBuffer] = TransactionV0.fromBytes(transactionBytes);
+  const signatureIndex = transactionBytes.length - v1FieldsBuffer.length - 1;
+  const v0FieldsWithoutSignature = transactionBytes.slice(0, signatureIndex);
   const hashedTxBytes = sha256X2(transactionBytes);
   const transactionHashHex = ecUtils.bytesToHex(hashedTxBytes);
   const privateKey = ecUtils.hexToBytes(seedHex);
@@ -135,9 +164,10 @@ export const signTx = async (
   }
 
   const signedTransactionBytes = ecUtils.concatBytes(
-    transactionBytes.slice(0, -1),
+    v0FieldsWithoutSignature,
     signatureLength,
-    signatureBytes
+    signatureBytes,
+    v1FieldsBuffer
   );
 
   return ecUtils.bytesToHex(signedTransactionBytes);
@@ -253,10 +283,10 @@ export const encrypt = async (
 
 export const bs58PublicKeyToCompressedBytes = (str: string) => {
   if (!str) {
-    return Buffer.alloc(33);
+    return new Uint8Array(33);
   }
   const pubKeyUncompressed = bs58PublicKeyToBytes(str);
-  return Buffer.from(
+  return Uint8Array.from(
     Point.fromHex(ecUtils.bytesToHex(pubKeyUncompressed)).toRawBytes(true)
   );
 };

@@ -2,7 +2,18 @@ import {
   checkPartyAccessGroups,
   PartialWithRequiredFields,
 } from '@deso-core/data';
-import { bs58PublicKeyToCompressedBytes, identity } from '@deso-core/identity';
+import {
+  bs58PublicKeyToCompressedBytes,
+  identity,
+  encodeUTF8ToBytes,
+  TransactionExtraDataKV,
+  TransactionMetadataFollow,
+  TransactionMetadataLike,
+  TransactionMetadataNewMessage,
+  TransactionMetadataSubmitPost,
+  TransactionMetadataUpdateProfile,
+  uvarint64ToBuf,
+} from '@deso-core/identity';
 import { utils as ecUtils } from '@noble/secp256k1';
 import {
   CreateFollowTxnStatelessRequest,
@@ -28,18 +39,7 @@ import {
   ConstructedAndSubmittedTx,
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
-import {
-  TransactionExtraData,
-  TransactionExtraDataKV,
-  TransactionMetadataBasicTransfer,
-  TransactionMetadataFollow,
-  TransactionMetadataLike,
-  TransactionMetadataNewMessage,
-  TransactionMetadataSubmitPost,
-  TransactionMetadataUpdateProfile,
-} from '../transcoder/transaction-transcoders';
-import { Transaction } from 'ethers';
-import { uvarint64ToBuf } from '../transcoder/util';
+import { hexToBytes } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
@@ -62,11 +62,11 @@ export const constructUpdateProfileTransaction = (
   metadata.profilePublicKey =
     params.UpdaterPublicKeyBase58Check !== params.ProfilePublicKeyBase58Check
       ? bs58PublicKeyToCompressedBytes(params.ProfilePublicKeyBase58Check)
-      : Buffer.alloc(0);
-  metadata.newUsername = Buffer.from(params.NewUsername);
-  metadata.newDescription = Buffer.from(params.NewDescription);
+      : new Uint8Array(0);
+  metadata.newUsername = encodeUTF8ToBytes(params.NewUsername);
+  metadata.newDescription = encodeUTF8ToBytes(params.NewDescription);
   // TODO: we probably need something to handle the profile pic compression here.
-  metadata.newProfilePic = Buffer.from(params.NewProfilePic);
+  metadata.newProfilePic = encodeUTF8ToBytes(params.NewProfilePic);
   metadata.newCreatorBasisPoints = params.NewCreatorBasisPoints;
   metadata.newStakeMultipleBasisPoints = params.NewStakeMultipleBasisPoints;
   metadata.isHidden = params.IsHidden;
@@ -104,32 +104,30 @@ export const constructSubmitPost = (
   Object.keys(BodyObj).forEach(
     (key) => (!BodyObj[key] || !BodyObj[key].length) && delete BodyObj[key]
   );
-  metadata.body = Buffer.from(JSON.stringify(BodyObj));
+  metadata.body = encodeUTF8ToBytes(JSON.stringify(BodyObj));
   metadata.creatorBasisPoints = 1000;
   metadata.stakeMultipleBasisPoints = 12500;
   metadata.timestampNanos = Math.ceil(
     1e6 * (globalThis.performance.timeOrigin + globalThis.performance.now())
   );
   metadata.isHidden = !!params.IsHidden;
-  metadata.parentStakeId = Buffer.from(params.ParentStakeID || '', 'hex');
-  metadata.postHashToModify = Buffer.from(
-    params.PostHashHexToModify || '',
-    'hex'
-  );
+  metadata.parentStakeId = hexToBytes(params.ParentStakeID || '');
+  metadata.postHashToModify = hexToBytes(params.PostHashHexToModify || '');
   const extraDataKVs: TransactionExtraDataKV[] = [];
   if (params.RepostedPostHashHex) {
     const repostKv = new TransactionExtraDataKV();
-    repostKv.key = Buffer.from('RecloutedPostHash');
-    repostKv.value = Buffer.from(params.RepostedPostHashHex, 'hex');
+    repostKv.key = encodeUTF8ToBytes('RecloutedPostHash');
+    repostKv.value = hexToBytes(params.RepostedPostHashHex);
     extraDataKVs.push(repostKv);
     const quotedRecloutKv = new TransactionExtraDataKV();
-    quotedRecloutKv.key = Buffer.from('IsQuotedReclout');
-    quotedRecloutKv.value =
+    quotedRecloutKv.key = encodeUTF8ToBytes('IsQuotedReclout');
+    quotedRecloutKv.value = Uint8Array.from([
       !params.BodyObj.Body &&
       !params.BodyObj.ImageURLs?.length &&
       !params.BodyObj.VideoURLs?.length
-        ? Buffer.from([1])
-        : Buffer.from([0]);
+        ? 1
+        : 0,
+    ]);
     extraDataKVs.push(quotedRecloutKv);
   }
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
@@ -195,12 +193,12 @@ export const constructDiamondTransaction = (
 ): Promise<ConstructedTransactionResponse> => {
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   const diamondLevelKV = new TransactionExtraDataKV();
-  diamondLevelKV.key = Buffer.from('DiamondLevel');
+  diamondLevelKV.key = encodeUTF8ToBytes('DiamondLevel');
   diamondLevelKV.value = uvarint64ToBuf(params.DiamondLevel);
   consensusExtraDataKVs.push(diamondLevelKV);
   const diamondPostHashKV = new TransactionExtraDataKV();
-  diamondPostHashKV.key = Buffer.from('DiamondPostHash');
-  diamondPostHashKV.value = Buffer.from(params.DiamondPostHashHex, 'hex');
+  diamondPostHashKV.key = encodeUTF8ToBytes('DiamondPostHash');
+  diamondPostHashKV.value = hexToBytes(params.DiamondPostHashHex);
   return Promise.reject('Local construction for diamonds not supported yet.');
 };
 
@@ -228,7 +226,7 @@ export const constructLikeTransaction = (
   params: CreateLikeTransactionParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataLike();
-  metadata.likedPostHash = Buffer.from(params.LikedPostHashHex, 'hex');
+  metadata.likedPostHash = hexToBytes(params.LikedPostHashHex);
   metadata.isUnlike = !!params.IsUnlike;
   return constructBalanceModelTx(params.ReaderPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,
@@ -258,10 +256,10 @@ export const constructSendDMTransaction = (
   params: SendNewMessageParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
-  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.encryptedText = encodeUTF8ToBytes(params.EncryptedMessageText);
   metadata.newMessageOperation = 0;
   metadata.newMessageType = 0;
-  metadata.recipientAccessGroupKeyname = Buffer.from(
+  metadata.recipientAccessGroupKeyname = encodeUTF8ToBytes(
     params.RecipientAccessGroupKeyName
   );
   metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -270,7 +268,7 @@ export const constructSendDMTransaction = (
   metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
     params.RecipientAccessGroupPublicKeyBase58Check
   );
-  metadata.senderAccessGroupKeyName = Buffer.from(
+  metadata.senderAccessGroupKeyName = encodeUTF8ToBytes(
     params.SenderAccessGroupKeyName
   );
   metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -310,10 +308,10 @@ export const constructUpdateDMTransaction = (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
-  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.encryptedText = encodeUTF8ToBytes(params.EncryptedMessageText);
   metadata.newMessageOperation = 1;
   metadata.newMessageType = 0;
-  metadata.recipientAccessGroupKeyname = Buffer.from(
+  metadata.recipientAccessGroupKeyname = encodeUTF8ToBytes(
     params.RecipientAccessGroupKeyName
   );
   metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -322,7 +320,7 @@ export const constructUpdateDMTransaction = (
   metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
     params.RecipientAccessGroupPublicKeyBase58Check
   );
-  metadata.senderAccessGroupKeyName = Buffer.from(
+  metadata.senderAccessGroupKeyName = encodeUTF8ToBytes(
     params.SenderAccessGroupKeyName
   );
   metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -360,10 +358,10 @@ export const constructSendGroupChatMessageTransaction = (
   params: SendNewMessageParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
-  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.encryptedText = encodeUTF8ToBytes(params.EncryptedMessageText);
   metadata.newMessageOperation = 0;
   metadata.newMessageType = 1;
-  metadata.recipientAccessGroupKeyname = Buffer.from(
+  metadata.recipientAccessGroupKeyname = encodeUTF8ToBytes(
     params.RecipientAccessGroupKeyName
   );
   metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -372,7 +370,7 @@ export const constructSendGroupChatMessageTransaction = (
   metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
     params.RecipientAccessGroupPublicKeyBase58Check
   );
-  metadata.senderAccessGroupKeyName = Buffer.from(
+  metadata.senderAccessGroupKeyName = encodeUTF8ToBytes(
     params.SenderAccessGroupKeyName
   );
   metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -481,10 +479,10 @@ export const constructUpdateGroupChatMessageTransaction = (
   params: TypeWithOptionalFeesAndExtraData<SendNewMessageRequest>
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNewMessage();
-  metadata.encryptedText = Buffer.from(params.EncryptedMessageText);
+  metadata.encryptedText = encodeUTF8ToBytes(params.EncryptedMessageText);
   metadata.newMessageOperation = 1;
   metadata.newMessageType = 1;
-  metadata.recipientAccessGroupKeyname = Buffer.from(
+  metadata.recipientAccessGroupKeyname = encodeUTF8ToBytes(
     params.RecipientAccessGroupKeyName
   );
   metadata.recipientAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
@@ -493,7 +491,7 @@ export const constructUpdateGroupChatMessageTransaction = (
   metadata.recipientAccessGroupPublicKey = bs58PublicKeyToCompressedBytes(
     params.RecipientAccessGroupPublicKeyBase58Check
   );
-  metadata.senderAccessGroupKeyName = Buffer.from(
+  metadata.senderAccessGroupKeyName = encodeUTF8ToBytes(
     params.SenderAccessGroupKeyName
   );
   metadata.senderAccessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(

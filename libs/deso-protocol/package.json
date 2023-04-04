@@ -14,7 +14,6 @@
     "@deso-core/data": "^0.0.24",
     "@deso-core/identity": "^0.0.22",
     "@types/reflect-metadata": "^0.1.0",
-    "deso-protocol-types": "^0.7.1",
-    "reflect-metadata": "^0.1.13"
+    "deso-protocol-types": "^0.7.1"
   }
 }

@@ -24,6 +24,8 @@ import {
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
+  bs58PublicKeyToCompressedBytes,
+  concatUint8Arrays,
   TransactionExtraDataKV,
   TransactionMetadataAcceptNFTBid,
   TransactionMetadataAcceptNFTTransfer,
@@ -32,9 +34,9 @@ import {
   TransactionMetadataNFTBid,
   TransactionMetadataNFTTransfer,
   TransactionMetadataUpdateNFT,
-} from '../transcoder/transaction-transcoders';
-import { uvarint64ToBuf } from '../transcoder/util';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+  uvarint64ToBuf,
+} from '@deso-core/identity';
+import { hexToBytes } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/nft-transactions-api#create-nft
@@ -69,7 +71,7 @@ export const constructCreateNFTTransaction = (
   metadata.hasUnlockable = params.HasUnlockable;
   metadata.isForSale = params.IsForSale;
   metadata.minBidAmountNanos = params.MinBidAmountNanos || 0;
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.nftRoyaltyToCoinBasisPoints = params.NFTRoyaltyToCoinBasisPoints;
   metadata.nftRoyaltyToCreatorBasisPoints =
     params.NFTRoyaltyToCreatorBasisPoints;
@@ -78,7 +80,7 @@ export const constructCreateNFTTransaction = (
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   if (params.IsBuyNow && params.BuyNowPriceNanos !== undefined) {
     const buyNowKV = new TransactionExtraDataKV();
-    buyNowKV.key = Buffer.from('BuyNowPriceNanos');
+    buyNowKV.key = hexToBytes('BuyNowPriceNanos');
     buyNowKV.value = uvarint64ToBuf(params.BuyNowPriceNanos);
     consensusExtraDataKVs.push(buyNowKV);
   }
@@ -87,18 +89,18 @@ export const constructCreateNFTTransaction = (
     Object.keys(params.AdditionalDESORoyaltiesMap).length
   ) {
     const royaltyMap = params.AdditionalDESORoyaltiesMap;
-    let buf = Buffer.from(uvarint64ToBuf(Object.keys(royaltyMap).length));
+    let buf = uvarint64ToBuf(Object.keys(royaltyMap).length);
     Object.keys(royaltyMap)
       .sort((a, b) => a.localeCompare(b))
       .forEach((publicKey) => {
-        buf = Buffer.concat([
+        buf = concatUint8Arrays([
           buf,
           bs58PublicKeyToCompressedBytes(publicKey),
           uvarint64ToBuf(royaltyMap[publicKey]),
         ]);
       });
     const additionalDESORoyaltyMapKV = new TransactionExtraDataKV();
-    additionalDESORoyaltyMapKV.key = Buffer.from('DESORoyaltiesMap');
+    additionalDESORoyaltyMapKV.key = hexToBytes('DESORoyaltiesMap');
     additionalDESORoyaltyMapKV.value = buf;
     consensusExtraDataKVs.push(additionalDESORoyaltyMapKV);
   }
@@ -107,18 +109,18 @@ export const constructCreateNFTTransaction = (
     Object.keys(params.AdditionalCoinRoyaltiesMap).length
   ) {
     const royaltyMap = params.AdditionalCoinRoyaltiesMap;
-    let buf = Buffer.from(uvarint64ToBuf(Object.keys(royaltyMap).length));
+    let buf = uvarint64ToBuf(Object.keys(royaltyMap).length);
     Object.keys(royaltyMap)
       .sort((a, b) => a.localeCompare(b))
       .forEach((publicKey) => {
-        buf = Buffer.concat([
+        buf = concatUint8Arrays([
           buf,
           bs58PublicKeyToCompressedBytes(publicKey),
           uvarint64ToBuf(royaltyMap[publicKey]),
         ]);
       });
     const additionalCoinRoyaltyMapKV = new TransactionExtraDataKV();
-    additionalCoinRoyaltyMapKV.key = Buffer.from('CoinRoyaltiesMap');
+    additionalCoinRoyaltyMapKV.key = hexToBytes('CoinRoyaltiesMap');
     additionalCoinRoyaltyMapKV.value = buf;
     consensusExtraDataKVs.push(additionalCoinRoyaltyMapKV);
   }
@@ -158,12 +160,12 @@ export const constructUpdateNFTTransaction = (
   const metadata = new TransactionMetadataUpdateNFT();
   metadata.isForSale = !!params.IsForSale;
   metadata.minBidAmountNanos = params.MinBidAmountNanos;
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.serialNumber = params.SerialNumber;
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
   if (params.IsBuyNow && params.BuyNowPriceNanos !== undefined) {
     const buyNowKV = new TransactionExtraDataKV();
-    buyNowKV.key = Buffer.from('BuyNowPriceNanos');
+    buyNowKV.key = hexToBytes('BuyNowPriceNanos');
     buyNowKV.value = uvarint64ToBuf(params.BuyNowPriceNanos);
     consensusExtraDataKVs.push(buyNowKV);
   }
@@ -201,7 +203,7 @@ export const constructNFTBidTransaction = (
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNFTBid();
   metadata.bidAmountNanos = params.BidAmountNanos;
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.serialNumber = params.SerialNumber;
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
@@ -243,10 +245,10 @@ export const constructAcceptNFTBidTransaction = (
   metadata.bidderPKID = bs58PublicKeyToCompressedBytes(
     params.BidderPublicKeyBase58Check
   );
-  metadata.encryptedUnlockableText = Buffer.from(
+  metadata.encryptedUnlockableText = hexToBytes(
     params.EncryptedUnlockableText || ''
   );
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.serialNumber = params.SerialNumber;
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
@@ -281,10 +283,10 @@ export const constructTransferNFT = (
   params: TransferNFTRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataNFTTransfer();
-  metadata.encryptedUnlockableText = Buffer.from(
+  metadata.encryptedUnlockableText = hexToBytes(
     params.EncryptedUnlockableText || ''
   );
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.receiverPublicKey = bs58PublicKeyToCompressedBytes(
     params.ReceiverPublicKeyBase58Check
   );
@@ -320,7 +322,7 @@ export const constructAcceptNFTTransfer = (
   params: AcceptNFTTransferRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAcceptNFTTransfer();
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.serialNumber = params.SerialNumber;
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,
@@ -349,7 +351,7 @@ export const constructBurnNFTTransation = (
   params: BurnNFTRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataBurnNFT();
-  metadata.nftPostHash = Buffer.from(params.NFTPostHashHex, 'hex');
+  metadata.nftPostHash = hexToBytes(params.NFTPostHashHex);
   metadata.serialNumber = params.SerialNumber;
   return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
     ExtraData: params.ExtraData,

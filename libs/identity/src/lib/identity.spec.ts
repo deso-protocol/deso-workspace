@@ -4,11 +4,21 @@ import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
 import { APIError } from './api';
 import { DEFAULT_IDENTITY_URI, LOCAL_STORAGE_KEYS } from './constants';
-import { keygen, publicKeyToBase58Check } from './crypto-utils';
+import {
+  bs58PublicKeyToCompressedBytes,
+  keygen,
+  publicKeyToBase58Check,
+} from './crypto-utils';
 import { ERROR_TYPES } from './error-types';
 import { Identity } from './identity';
 import { getAPIFake, getWindowFake } from './test-utils';
 import { APIProvider } from './types';
+import {
+  Transaction,
+  TransactionExtraData,
+  TransactionMetadataBasicTransfer,
+  TransactionNonce,
+} from './transaction-transcoders';
 
 function getPemEncodePublicKey(privateKey: Uint8Array): string {
   const publicKey = getPublicKey(privateKey, true);
@@ -65,8 +75,27 @@ describe('identity', () => {
         .fn()
         .mockImplementation((url: string) => {
           if (url.endsWith('authorize-derived-key')) {
+            const nonce = new TransactionNonce();
+            nonce.expirationBlockHeight = 10000;
+            nonce.partialId = 10988297;
+            const extraData = new TransactionExtraData();
+            extraData.kvs = [];
+            const exampleTransaction = new Transaction({
+              inputs: [],
+              outputs: [],
+              version: 1,
+              feeNanos: 100,
+              nonce,
+              publicKey: bs58PublicKeyToCompressedBytes(
+                'BC1YLiot3hqKeKhK82soKAeK3BFdTnMjpd2w4HPfesaFzYHUpUzJ2ay'
+              ),
+              metadata: new TransactionMetadataBasicTransfer(),
+              signature: new Uint8Array(0),
+              extraData,
+            });
+            const txBytes = exampleTransaction.toBytes();
             return Promise.resolve({
-              TransactionHex: ecUtils.bytesToHex(ecUtils.randomBytes(32)),
+              TransactionHex: ecUtils.bytesToHex(txBytes),
             });
           }
           return Promise.resolve(null);

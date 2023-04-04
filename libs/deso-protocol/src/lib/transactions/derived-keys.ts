@@ -12,10 +12,12 @@ import {
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
   TransactionExtraDataKV,
   TransactionMetadataAuthorizeDerivedKey,
-} from '../transcoder/transaction-transcoders';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+} from '@deso-core/identity';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/derived-keys-transaction-api#authorize-derived-key
@@ -45,7 +47,7 @@ export const constructAuthorizeDerivedKey = (
   params: AuthorizeDerivedKeyRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataAuthorizeDerivedKey();
-  metadata.accessSignature = Buffer.from(params.AccessSignature || '', 'hex');
+  metadata.accessSignature = hexToBytes(params.AccessSignature || '');
   metadata.derivedPublicKey = bs58PublicKeyToCompressedBytes(
     params.DerivedPublicKeyBase58Check
   );
@@ -55,20 +57,19 @@ export const constructAuthorizeDerivedKey = (
   // TODO: this is a poorly named param, should probably fix this.
   if (params.DerivedKeySignature) {
     const derivedKeyKV = new TransactionExtraDataKV();
-    derivedKeyKV.key = Buffer.from('DerivedPublicKey');
+    derivedKeyKV.key = encodeUTF8ToBytes('DerivedPublicKey');
     derivedKeyKV.value = bs58PublicKeyToCompressedBytes(
       params.DerivedPublicKeyBase58Check
     );
     consensusExtraDataKVs.push(derivedKeyKV);
   }
   if (params.TransactionSpendingLimitHex) {
-    const transactionSpendingLimitBuf = Buffer.from(
-      params.TransactionSpendingLimitHex,
-      'hex'
+    const transactionSpendingLimitBuf = hexToBytes(
+      params.TransactionSpendingLimitHex
     );
     if (transactionSpendingLimitBuf.length) {
       const spendingLimitKV = new TransactionExtraDataKV();
-      spendingLimitKV.key = Buffer.from('TransactionSpendingLimit');
+      spendingLimitKV.key = encodeUTF8ToBytes('TransactionSpendingLimit');
       spendingLimitKV.value = transactionSpendingLimitBuf;
       consensusExtraDataKVs.push(spendingLimitKV);
     }
@@ -76,9 +77,9 @@ export const constructAuthorizeDerivedKey = (
   if (params.Memo || params.AppName) {
     const memo = params.Memo || (params.AppName as string);
     const memoKV = new TransactionExtraDataKV();
-    memoKV.key = Buffer.from('DerivedKeyMemo');
+    memoKV.key = encodeUTF8ToBytes('DerivedKeyMemo');
     // TODO: I think this is wrong, but need to double check
-    memoKV.value = Buffer.from(Buffer.from(memo).toString('hex'));
+    memoKV.value = encodeUTF8ToBytes(bytesToHex(encodeUTF8ToBytes(memo)));
   }
   return constructBalanceModelTx(params.OwnerPublicKeyBase58Check, metadata, {
     ConsensusExtraDataKVs: consensusExtraDataKVs,

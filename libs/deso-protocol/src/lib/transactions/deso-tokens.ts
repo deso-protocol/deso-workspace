@@ -19,10 +19,10 @@ import {
 import { ConstructedAndSubmittedTx } from '../types';
 import {
   TransactionMetadataDAOCoin,
-  TransactionMetadataDAOCoinLimitOrder,
   TransactionMetadataTransferDAOCoin,
-} from '../transcoder/transaction-transcoders';
-import { bs58PublicKeyToCompressedBytes } from '@deso-core/identity';
+  bs58PublicKeyToCompressedBytes,
+} from '@deso-core/identity';
+import { hexToBytes } from '@noble/hashes/utils';
 
 // TODO: Balance Model tx construction
 /**
@@ -62,9 +62,8 @@ export const constructBurnDeSoTokenTransaction = (
       'must provide profile public key, not username for local transaction construction'
     );
   }
-  metadata.coinsToBurnNanos = Buffer.from(
-    params.CoinsToBurnNanos.replace('0x', 'x'),
-    'hex'
+  metadata.coinsToBurnNanos = hexToBytes(
+    params.CoinsToBurnNanos.replace('0x', 'x')
   );
   metadata.profilePublicKey = bs58PublicKeyToCompressedBytes(
     params.ProfilePublicKeyBase58CheckOrUsername
@@ -113,9 +112,8 @@ export const constructMintDeSoTokenTransaction = (
       'must provide profile public key, not username for local transaction construction'
     );
   }
-  metadata.coinsToMintNanos = Buffer.from(
-    params.CoinsToMintNanos.replace('0x', 'x'),
-    'hex'
+  metadata.coinsToMintNanos = hexToBytes(
+    params.CoinsToMintNanos.replace('0x', 'x')
   );
   metadata.profilePublicKey = bs58PublicKeyToCompressedBytes(
     params.ProfilePublicKeyBase58CheckOrUsername
@@ -267,9 +265,8 @@ export const constructTransferDeSoToken = (
     );
   }
   const metadata = new TransactionMetadataTransferDAOCoin();
-  metadata.daoCoinToTransferNanos = Buffer.from(
-    params.DAOCoinToTransferNanos.replace('0x', 'x'),
-    'hex'
+  metadata.daoCoinToTransferNanos = hexToBytes(
+    params.DAOCoinToTransferNanos.replace('0x', 'x')
   );
   metadata.profilePublicKey = bs58PublicKeyToCompressedBytes(
     params.ProfilePublicKeyBase58CheckOrUsername
