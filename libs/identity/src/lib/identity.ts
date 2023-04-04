@@ -131,6 +131,11 @@ export class Identity {
   #didConfigure = false;
 
   /**
+   * @private
+   */
+  #isBrowser: boolean;
+
+  /**
    * The current internal state of identity. This is a combination of the
    * current user and all other users stored in local storage.
    * @private
@@ -160,6 +165,8 @@ export class Identity {
    * @private
    */
   get #activePublicKey(): string | null {
+    if (!this.#isBrowser) return null;
+
     return this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.activePublicKey
     );
@@ -169,7 +176,9 @@ export class Identity {
    * @private
    */
   get #users(): Record<string, StoredUser> | null {
-    const storedUsers = this.#window.localStorage.getItem(
+    if (!this.#isBrowser) return null;
+
+    const storedUsers = this.#window.localStorage?.getItem(
       LOCAL_STORAGE_KEYS.identityUsers
     );
     return storedUsers && JSON.parse(storedUsers);
@@ -200,8 +209,9 @@ export class Identity {
   constructor(windowProvider: typeof globalThis, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
+    this.#isBrowser = typeof windowProvider.location !== 'undefined';
 
-    if (typeof window !== undefined) {
+    if (this.#isBrowser) {
       this.#browserEnvInit();
     }
   }
@@ -254,7 +264,7 @@ export class Identity {
     this.#jwtAlgorithm = jwtAlgorithm;
     this.#appName = appName;
 
-    if (!this.#didConfigure) {
+    if (!this.#didConfigure && this.#isBrowser) {
       this.#defaultTransactionSpendingLimit =
         buildTransactionSpendingLimitResponse(spendingLimitOptions);
 
@@ -345,7 +355,7 @@ export class Identity {
     });
 
     let derivedPublicKey: string;
-    const loginKeyPair = this.#window.localStorage.getItem(
+    const loginKeyPair = this.#window.localStorage?.getItem(
       LOCAL_STORAGE_KEYS.loginKeyPair
     );
 
@@ -356,7 +366,7 @@ export class Identity {
       derivedPublicKey = publicKeyToBase58Check(keys.public, {
         network: this.#network,
       });
-      this.#window.localStorage.setItem(
+      this.#window.localStorage?.setItem(
         LOCAL_STORAGE_KEYS.loginKeyPair,
         JSON.stringify({
           publicKey: derivedPublicKey,
