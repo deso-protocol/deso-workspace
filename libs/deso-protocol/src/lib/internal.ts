@@ -75,9 +75,10 @@ export const handleSignAndSubmit = async (
             globalConfigOptions.MinFeeRateNanosPerKB,
         }
       ));
-  const submittedTransactionResponse = options.broadcast
-    ? await identity.signAndSubmit(constructedTransactionResponse)
-    : null;
+  const submittedTransactionResponse =
+    options.broadcast !== false
+      ? await identity.signAndSubmit(constructedTransactionResponse)
+      : null;
 
   return {
     constructedTransactionResponse,
