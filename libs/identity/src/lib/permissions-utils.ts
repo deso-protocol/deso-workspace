@@ -86,15 +86,18 @@ export function buildTransactionSpendingLimitResponse(
     });
   }
 
-  if (
-    !result.TransactionCountLimitMap ||
-    typeof result.TransactionCountLimitMap?.['AUTHORIZE_DERIVED_KEY'] ===
+  if (result.TransactionCountLimitMap) {
+    if (
+      typeof result.TransactionCountLimitMap['AUTHORIZE_DERIVED_KEY'] ===
       'undefined'
-  ) {
-    result.TransactionCountLimitMap = {
-      ...result.TransactionCountLimitMap,
-      AUTHORIZE_DERIVED_KEY: 1,
-    };
+    ) {
+      result.TransactionCountLimitMap = {
+        ...result.TransactionCountLimitMap,
+        AUTHORIZE_DERIVED_KEY: 1,
+      };
+    } else if (result.TransactionCountLimitMap['AUTHORIZE_DERIVED_KEY'] < 0) {
+      delete result.TransactionCountLimitMap['AUTHORIZE_DERIVED_KEY'];
+    }
   }
   return result;
 }
