@@ -948,7 +948,12 @@ export class Identity {
    */
   derive(
     transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponseOptions>,
-    options?: { ownerPublicKey?: string; derivedPublicKey?: string }
+    options?: {
+      derivedPublicKey?: string;
+      expirationDays?: number;
+      deleteKey?: boolean;
+      ownerPublicKey?: string;
+    }
   ) {
     const event = NOTIFICATION_EVENTS.REQUEST_PERMISSIONS_START;
     this.#subscriber?.({ event, ...this.#state });
@@ -960,6 +965,12 @@ export class Identity {
         derive: true,
         ...(!!options?.derivedPublicKey && {
           derivedPublicKey: options.derivedPublicKey,
+        }),
+        ...(!!options?.expirationDays && {
+          expirationDays: options.expirationDays,
+        }),
+        ...(!!options?.deleteKey && {
+          deleteKey: options.deleteKey,
         }),
         ...(!!options?.ownerPublicKey && { publicKey: options.ownerPublicKey }),
         transactionSpendingLimitResponse: buildTransactionSpendingLimitResponse(
