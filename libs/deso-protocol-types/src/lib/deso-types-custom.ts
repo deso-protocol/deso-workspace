@@ -381,10 +381,18 @@ export interface RequestOptions {
    */
   nodeURI?: string;
 
+  /**
+   * Experimental param. When localConstruction is true, transactions will
+   * be constructed locally. This only applies after the balance model fork.
+   */
   localConstruction?: boolean;
-  // TODO: I actually think we want any to be TxRequestWithOptionalFeesAndExtraData
+  /**
+   * Function to be used to construct the transaction locally.
+   * @param params
+   * @returns Promise with the ConstructedTransactionResponse
+   */
   constructionFunction?: (
-    params: any
+    params: unknown // TODO: I actually think we want unknown to be TxRequestWithOptionalFeesAndExtraData
   ) => Promise<ConstructedTransactionResponse>;
 
   jwtRequired?: boolean;
