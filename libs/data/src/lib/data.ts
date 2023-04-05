@@ -342,7 +342,7 @@ export const buildProfilePictureUrl = (
  */
 export type GetSingleProfileParams =
   | PartialWithRequiredFields<GetSingleProfileRequest, 'PublicKeyBase58Check'>
-  | PartialWithRequiredFields<GetSingleProfileRequest, 'PublicKeyBase58Check'>;
+  | PartialWithRequiredFields<GetSingleProfileRequest, 'Username'>;
 export const getSingleProfile = (
   params: GetSingleProfileParams,
   options?: RequestOptions

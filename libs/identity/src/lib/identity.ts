@@ -62,7 +62,7 @@ export class Identity {
   /**
    * @private
    */
-  #window: Window;
+  #window: typeof globalThis;
 
   /**
    * @private
@@ -131,6 +131,11 @@ export class Identity {
   #didConfigure = false;
 
   /**
+   * @private
+   */
+  #isBrowser: boolean;
+
+  /**
    * The current internal state of identity. This is a combination of the
    * current user and all other users stored in local storage.
    * @private
@@ -160,6 +165,8 @@ export class Identity {
    * @private
    */
   get #activePublicKey(): string | null {
+    if (!this.#isBrowser) return null;
+
     return this.#window.localStorage.getItem(
       LOCAL_STORAGE_KEYS.activePublicKey
     );
@@ -169,7 +176,9 @@ export class Identity {
    * @private
    */
   get #users(): Record<string, StoredUser> | null {
-    const storedUsers = this.#window.localStorage.getItem(
+    if (!this.#isBrowser) return null;
+
+    const storedUsers = this.#window.localStorage?.getItem(
       LOCAL_STORAGE_KEYS.identityUsers
     );
     return storedUsers && JSON.parse(storedUsers);
@@ -197,28 +206,14 @@ export class Identity {
     return this.#nodeURI;
   }
 
-  constructor(windowProvider: Window, apiProvider: APIProvider) {
+  constructor(windowProvider: typeof globalThis, apiProvider: APIProvider) {
     this.#window = windowProvider;
     this.#api = apiProvider;
+    this.#isBrowser = typeof windowProvider.location !== 'undefined';
 
-    // Check if the URL contains identity query params at startup
-    const queryParams = new URLSearchParams(this.#window.location.search);
-
-    if (queryParams.get('service') === IDENTITY_SERVICE_VALUE) {
-      const initialResponse = parseQueryParams(queryParams);
-      // Strip the identity query params from the URL. replaceState removes it from browser history
-      this.#window.history.replaceState({}, '', this.#window.location.pathname);
-
-      this.#handleIdentityResponse(initialResponse);
+    if (this.#isBrowser) {
+      this.#browserEnvInit();
     }
-
-    // TODO: figure out a better way to handle this. Maybe we have a separate .create method that
-    // returns a new instance of Identity?
-    setTimeout(() => {
-      if (!this.#didConfigure) {
-        this.refreshDerivedKeyPermissions();
-      }
-    }, 50);
   }
 
   /**
@@ -269,7 +264,7 @@ export class Identity {
     this.#jwtAlgorithm = jwtAlgorithm;
     this.#appName = appName;
 
-    if (!this.#didConfigure) {
+    if (!this.#didConfigure && this.#isBrowser) {
       this.#defaultTransactionSpendingLimit =
         buildTransactionSpendingLimitResponse(spendingLimitOptions);
 
@@ -360,7 +355,7 @@ export class Identity {
     });
 
     let derivedPublicKey: string;
-    const loginKeyPair = this.#window.localStorage.getItem(
+    const loginKeyPair = this.#window.localStorage?.getItem(
       LOCAL_STORAGE_KEYS.loginKeyPair
     );
 
@@ -371,7 +366,7 @@ export class Identity {
       derivedPublicKey = publicKeyToBase58Check(keys.public, {
         network: this.#network,
       });
-      this.#window.localStorage.setItem(
+      this.#window.localStorage?.setItem(
         LOCAL_STORAGE_KEYS.loginKeyPair,
         JSON.stringify({
           publicKey: derivedPublicKey,
@@ -921,18 +916,63 @@ export class Identity {
       throw new Error('Cannot request permissions without a logged in user');
     }
 
+    const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
+      primaryDerivedKey;
+
+    return this.derive(transactionSpendingLimitResponse, {
+      ownerPublicKey: publicKeyBase58Check,
+      derivedPublicKey: derivedPublicKeyBase58Check,
+    });
+  }
+
+  /**
+   * This method will issue a derive request to identity which can be used to
+   * either create a new derived key or to update an existing derived key.  It
+   * will open an identity window and prompt the user to approve the action for
+   * the derived key. It optionally take an existing derived key and/or an owner
+   * public key. If the owner key is not provided, the user will first be asked
+   * to login or create an account. Otherwise the user will be prompted with the
+   * derived key approval window immediately. If a derived key is not provided,
+   * a new one will be created.
+   *
+   * @example
+   *
+   * ```typescript
+   * await identity.derive({
+   *   TransactionCountLimitMap: {
+   *     SUBMIT_POST: 'UNLIMITED',
+   *    },
+   * }, {
+   * });
+   * ```
+   */
+  derive(
+    transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponseOptions>,
+    options?: {
+      derivedPublicKey?: string;
+      expirationDays?: number;
+      deleteKey?: boolean;
+      ownerPublicKey?: string;
+    }
+  ) {
     const event = NOTIFICATION_EVENTS.REQUEST_PERMISSIONS_START;
     this.#subscriber?.({ event, ...this.#state });
 
-    const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
-      primaryDerivedKey;
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject, event };
 
       const params = {
         derive: true,
-        derivedPublicKey: derivedPublicKeyBase58Check,
-        publicKey: publicKeyBase58Check,
+        ...(!!options?.derivedPublicKey && {
+          derivedPublicKey: options.derivedPublicKey,
+        }),
+        ...(!!options?.expirationDays && {
+          expirationDays: options.expirationDays,
+        }),
+        ...(!!options?.deleteKey && {
+          deleteKey: options.deleteKey,
+        }),
+        ...(!!options?.ownerPublicKey && { publicKey: options.ownerPublicKey }),
         transactionSpendingLimitResponse: buildTransactionSpendingLimitResponse(
           transactionSpendingLimitResponse
         ),
@@ -1055,6 +1095,25 @@ export class Identity {
 
     const compressedEthKey = Point.fromHex(ethereumPublicKey).toRawBytes(true);
     return publicKeyToBase58Check(compressedEthKey, { network: this.#network });
+  }
+
+  #browserEnvInit() {
+    // Check if the URL contains identity query params at startup
+    const queryParams = new URLSearchParams(this.#window.location.search);
+
+    if (queryParams.get('service') === IDENTITY_SERVICE_VALUE) {
+      const initialResponse = parseQueryParams(queryParams);
+      // Strip the identity query params from the URL. replaceState removes it from browser history
+      this.#window.history.replaceState({}, '', this.#window.location.pathname);
+
+      this.#handleIdentityResponse(initialResponse);
+    }
+
+    setTimeout(() => {
+      if (!this.#didConfigure) {
+        this.refreshDerivedKeyPermissions();
+      }
+    }, 50);
   }
 
   #queryETHRPC(params: QueryETHRPCRequest): Promise<InfuraResponse> {
@@ -1392,7 +1451,10 @@ export class Identity {
 
     // This means we're just switching to a user we already have in localStorage, we use the stored user bc they
     // may already have an authorized derived key that we can use.
-    if (this.#users?.[payload.publicKeyBase58Check]) {
+    if (
+      this.#users?.[payload.publicKeyBase58Check] &&
+      payload.publicKeyBase58Check !== this.#activePublicKey
+    ) {
       this.#setActiveUser(payload.publicKeyBase58Check);
       // if the logged in user changes, we try to refresh the derived key permissions in the background
       // and just return the payload immediately.
@@ -1414,13 +1476,8 @@ export class Identity {
       }));
     }
 
-    // NOTE: We should never get here since the previous conditions *should* be
-    // exhaustive for current use cases. If we add use cases for alternate
-    // derived keys besides the primary derived key, we'll need to add more
-    // logic here.
-    throw new Error(
-      `unhandled derive flow with payload ${JSON.stringify(payload)}`
-    );
+    // For all other derive flows, we just return the payload directly.
+    return payload;
   }
 
   /**
@@ -1494,8 +1551,8 @@ export class Identity {
 
     const h = 1000;
     const w = 800;
-    const y = window.outerHeight / 2 + window.screenY - h / 2;
-    const x = window.outerWidth / 2 + window.screenX - w / 2;
+    const y = this.#window.outerHeight / 2 + this.#window.screenY - h / 2;
+    const x = this.#window.outerWidth / 2 + this.#window.screenX - w / 2;
 
     this.#identityPopupWindow = this.#window.open(
       url,
@@ -1625,4 +1682,4 @@ const unencryptedHexToPlainText = (hex: string) => {
   return textDecoder.decode(bytes);
 };
 
-export const identity = new Identity(window, api);
+export const identity = new Identity(globalThis, api);

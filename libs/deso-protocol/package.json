@@ -1,7 +1,7 @@
 {
   "name": "deso-protocol",
-  "version": "1.1.5",
-  "main": "./src/index.js",
+  "version": "1.1.12",
+  "module": "./src/index.js",
   "keywords": [
     "blockchain",
     "crypto",
@@ -11,8 +11,8 @@
     "web3"
   ],
   "dependencies": {
-    "@deso-core/data": "^0.0.24",
-    "@deso-core/identity": "^0.0.22",
+    "@deso-core/identity": "^0.1.5",
+    "@deso-core/data": "^0.1.0",
     "deso-protocol-types": "^0.7.1"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@deso-core/data",
-  "version": "0.0.24",
-  "main": "./src/index.js",
+  "version": "0.1.0",
+  "module": "./src/index.js",
   "sideEffects": false,
   "dependencies": {
     "deso-protocol-types": "^0.7.1"
