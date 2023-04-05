@@ -2,18 +2,18 @@ import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   BuyOrSellCreatorCoinRequest,
   BuyOrSellCreatorCoinResponse,
+  ConstructedTransactionResponse,
   RequestOptions,
   SendDeSoRequest,
   SendDeSoResponse,
   TransferCreatorCoinRequest,
   TransferCreatorCoinResponse,
+  TxRequestWithOptionalFeesAndExtraData,
 } from 'deso-protocol-types';
 import {
   constructBalanceModelTx,
-  ConstructedTransactionResponse,
   handleSignAndSubmit,
   isMaybeDeSoPublicKey,
-  TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
@@ -28,10 +28,7 @@ import {
  */
 export const sendDeso = (
   params: TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>,
-  options?: RequestOptions<
-    TxRequestWithOptionalFeesAndExtraData<SendDeSoRequest>,
-    SendDeSoResponse
-  >
+  options?: RequestOptions
 ): Promise<
   ConstructedAndSubmittedTx<SendDeSoResponse | ConstructedTransactionResponse>
 > => {
@@ -79,10 +76,7 @@ export type BuyCreatorCoinRequestParams = TxRequestWithOptionalFeesAndExtraData<
 >;
 export const buyCreatorCoin = (
   params: BuyCreatorCoinRequestParams,
-  options?: RequestOptions<
-    BuyCreatorCoinRequestParams,
-    BuyOrSellCreatorCoinResponse
-  >
+  options?: RequestOptions
 ): Promise<
   ConstructedAndSubmittedTx<
     BuyOrSellCreatorCoinResponse | ConstructedTransactionResponse
@@ -116,10 +110,7 @@ export type SellCreatorCoinRequestParams =
 
 export const sellCreatorCoin = (
   params: SellCreatorCoinRequestParams,
-  options?: RequestOptions<
-    SellCreatorCoinRequestParams,
-    BuyOrSellCreatorCoinResponse
-  >
+  options?: RequestOptions
 ): Promise<
   ConstructedAndSubmittedTx<
     BuyOrSellCreatorCoinResponse | ConstructedTransactionResponse
@@ -150,10 +141,7 @@ export type TransferCreatorCoinRequestParams =
   >;
 export const transferCreatorCoin = (
   params: TransferCreatorCoinRequestParams,
-  options?: RequestOptions<
-    TransferCreatorCoinRequestParams,
-    TransferCreatorCoinResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<TransferCreatorCoinResponse>> => {
   return handleSignAndSubmit('api/v0/transfer-creator-coin', params, {
     ...options,

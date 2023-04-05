@@ -16,6 +16,7 @@ import {
 } from '@deso-core/identity';
 import { utils as ecUtils } from '@noble/secp256k1';
 import {
+  ConstructedTransactionResponse,
   CreateFollowTxnStatelessRequest,
   CreateFollowTxnStatelessResponse,
   CreateLikeStatelessRequest,
@@ -30,11 +31,7 @@ import {
   UpdateProfileRequest,
   UpdateProfileResponse,
 } from 'deso-protocol-types';
-import {
-  constructBalanceModelTx,
-  ConstructedTransactionResponse,
-  handleSignAndSubmit,
-} from '../internal';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import {
   ConstructedAndSubmittedTx,
   TypeWithOptionalFeesAndExtraData,
@@ -47,19 +44,13 @@ import { hexToBytes } from '@noble/hashes/utils';
 // TODO: this one feels risky to update with local construction given all the handling of "New" Prefixed fields
 export const updateProfile = async (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
-  options?: RequestOptions<
-    TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
-    UpdateProfileResponse
-  >
+  options?: RequestOptions
 ): Promise<
   ConstructedAndSubmittedTx<
     UpdateProfileResponse | ConstructedTransactionResponse
   >
 > => {
-  return handleSignAndSubmit('api/v0/update-profile', params, {
-    ...options,
-    constructionFunction: constructUpdateProfileTransaction,
-  });
+  return handleSignAndSubmit('api/v0/update-profile', params, options);
 };
 
 export const constructUpdateProfileTransaction = (
@@ -96,7 +87,7 @@ export type SubmitPostRequestParams = TypeWithOptionalFeesAndExtraData<
 >;
 export const submitPost = (
   params: SubmitPostRequestParams,
-  options?: RequestOptions<SubmitPostRequestParams, SubmitPostResponse>
+  options?: RequestOptions
 ): Promise<
   ConstructedAndSubmittedTx<SubmitPostResponse | ConstructedTransactionResponse>
 > => {

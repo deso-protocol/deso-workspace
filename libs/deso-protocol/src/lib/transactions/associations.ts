@@ -1,17 +1,14 @@
 import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   AssociationTxnResponse,
+  ConstructedTransactionResponse,
   CreatePostAssociationRequest,
   CreateUserAssociationRequest,
   DeleteAssociationRequest,
   RequestOptions,
-} from 'deso-protocol-types';
-import {
-  constructBalanceModelTx,
-  ConstructedTransactionResponse,
-  handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
-} from '../internal';
+} from 'deso-protocol-types';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
   TransactionMetadataCreatePostAssociation,
@@ -39,10 +36,7 @@ export type CreateUserAssociationRequestParams =
   >;
 export const createUserAssociation = (
   params: CreateUserAssociationRequestParams,
-  options?: RequestOptions<
-    CreateUserAssociationRequestParams,
-    AssociationTxnResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/user-associations/create', params, {
     ...options,
@@ -54,7 +48,6 @@ export const constructCreateUserAssociationTransaction = (
   params: CreateUserAssociationRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataCreateUserAssociation();
-  // TODO: make sure empty string ends up as the zero public key.
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
     params.AppPublicKeyBase58Check || ''
   );
@@ -88,10 +81,7 @@ export type DeleteUserAssociationRequestParams =
 
 export const deleteUserAssociation = (
   params: DeleteUserAssociationRequestParams,
-  options?: RequestOptions<
-    DeleteUserAssociationRequestParams,
-    AssociationTxnResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/user-associations/delete', params, {
     ...options,
@@ -130,10 +120,7 @@ export type CreatePostAssociationRequestParams =
   >;
 export const createPostAssociation = (
   params: CreatePostAssociationRequestParams,
-  options?: RequestOptions<
-    CreatePostAssociationRequestParams,
-    AssociationTxnResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/post-associations/create', params, {
     ...options,
@@ -176,10 +163,7 @@ export type DeletePostAssociationRequestParams =
 
 export const deletePostAssociation = (
   params: DeletePostAssociationRequestParams,
-  options?: RequestOptions<
-    DeletePostAssociationRequestParams,
-    AssociationTxnResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
   return handleSignAndSubmit('api/v0/post-associations/delete', params, {
     ...options,

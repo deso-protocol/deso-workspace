@@ -2,16 +2,16 @@ import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   AddAccessGroupMembersRequest,
   AddAccessGroupMembersResponse,
+  ConstructedTransactionResponse,
   CreateAccessGroupRequest,
   CreateAccessGroupResponse,
   RequestOptions,
+  TxRequestWithOptionalFeesAndExtraData,
 } from 'deso-protocol-types';
 import {
   constructBalanceModelTx,
-  ConstructedTransactionResponse,
   convertExtraData,
   handleSignAndSubmit,
-  TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
@@ -37,10 +37,7 @@ export type CreateAccessGroupRequestParams =
   >;
 export const createAccessGroup = (
   params: CreateAccessGroupRequestParams,
-  options?: RequestOptions<
-    CreateAccessGroupRequestParams,
-    CreateAccessGroupResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateAccessGroupResponse>> => {
   return handleSignAndSubmit('api/v0/create-access-group', params, {
     ...options,
@@ -87,10 +84,7 @@ export type UpdateAccessGroupRequestParams =
   >;
 export const updateAccessGroup = (
   params: UpdateAccessGroupRequestParams,
-  options?: RequestOptions<
-    UpdateAccessGroupRequestParams,
-    CreateAccessGroupResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<CreateAccessGroupResponse>> => {
   return handleSignAndSubmit('api/v0/update-access-group', params, {
     ...options,
@@ -128,10 +122,7 @@ export const constructUpdateAccessGroupTransaction = (
  */
 export const addAccessGroupMembers = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-  options?: RequestOptions<
-    TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-    AddAccessGroupMembersResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AddAccessGroupMembersResponse>> => {
   return handleSignAndSubmit('api/v0/add-access-group-members', params, {
     ...options,
@@ -182,10 +173,7 @@ export const constructAddAccessGroupMembersTransaction = (
  */
 export const removeAccessGroupMembers = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-  options?: RequestOptions<
-    TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-    AddAccessGroupMembersResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AddAccessGroupMembersResponse>> => {
   return handleSignAndSubmit('api/v0/remove-access-group-members', params, {
     ...options,
@@ -233,10 +221,7 @@ export const constructRemoveAccessGroupMembersTransaction = (
  */
 export const updateAccessGroupMembers = (
   params: TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-  options?: RequestOptions<
-    TxRequestWithOptionalFeesAndExtraData<AddAccessGroupMembersRequest>,
-    AddAccessGroupMembersResponse
-  >
+  options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<AddAccessGroupMembersResponse>> => {
   return handleSignAndSubmit('api/v0/update-access-group-members', params, {
     ...options,

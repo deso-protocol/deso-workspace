@@ -2,14 +2,11 @@ import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
-  RequestOptions,
-} from 'deso-protocol-types';
-import {
-  constructBalanceModelTx,
   ConstructedTransactionResponse,
-  handleSignAndSubmit,
+  RequestOptions,
   TxRequestWithOptionalFeesAndExtraData,
-} from '../internal';
+} from 'deso-protocol-types';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
   bs58PublicKeyToCompressedBytes,

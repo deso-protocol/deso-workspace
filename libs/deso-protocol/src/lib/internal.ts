@@ -8,18 +8,24 @@ import {
   Transaction,
   TransactionExtraData,
   TransactionExtraDataKV,
+  TransactionMetadataAcceptNFTBid,
+  TransactionMetadataCreateNFT,
+  TransactionMetadataNFTBid,
   TransactionMetadataRecord,
+  TransactionMetadataSubmitPost,
+  TransactionMetadataUpdateNFT,
   TransactionNonce,
   TransactionOutput,
   TransactionToMsgDeSoTxn,
 } from '@deso-core/identity';
 import { bytesToHex } from '@noble/hashes/utils';
 import {
-  DAOCoinLimitOrderSimulatedExecutionResult,
-  MsgDeSoTxn,
+  ConstructedTransactionResponse,
+  OptionalFeesAndExtraData,
   RequestOptions,
   SubmitTransactionResponse,
   TransactionFee,
+  TransactionType,
 } from 'deso-protocol-types';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,18 +41,6 @@ export const globalConfigOptions = {
   LocalConstruction: false,
 };
 
-export interface OptionalFeesAndExtraData {
-  MinFeeRateNanosPerKB?: number;
-  TransactionFees?: TransactionFee[] | null;
-  ExtraData?: { [key: string]: string };
-}
-
-export type TxRequestWithOptionalFeesAndExtraData<T> = Omit<
-  T,
-  'MinFeeRateNanosPerKB' | 'TransactionFees' | 'ExtraData' | 'InTutorial'
-> &
-  OptionalFeesAndExtraData;
-
 /**
  * Wraps signing and submit to include the configurable fee, and add defaults
  * for optional params.
@@ -59,7 +53,7 @@ export const handleSignAndSubmit = async (
   params: OptionalFeesAndExtraData & any,
   // we always broadcast by default, but consumers can optionally disable it.
   // TODO: How to properly parameterize options.
-  options: RequestOptions<any, any> = { broadcast: true }
+  options: RequestOptions = { broadcast: true }
 ): Promise<{
   constructedTransactionResponse: ConstructedTransactionResponse;
   submittedTransactionResponse: SubmitTransactionResponse | null;
@@ -95,39 +89,6 @@ export type BalanceModelTransactionFields = {
   ConsensusExtraDataKVs?: TransactionExtraDataKV[];
   MinFeeRateNanosPerKB?: number;
   TransactionFees?: TransactionFee[] | null;
-};
-
-export type ConstructedTransactionResponse = {
-  Transaction: MsgDeSoTxn;
-  FeeNanos: number;
-  TransactionHex: string;
-  TxnHashHex: string;
-  TotalInputNanos: number;
-  ChangeAmountNanos: number;
-  SpendAmountNanos: number;
-  TransactionIDBase58Check?: string;
-  // TODO: Optional Fields
-  // Buy or sell creator coins (server side only)
-  ExpectedDeSoReturnedNanos?: number;
-  ExpectedCreatorCoinReturnedNanos?: number;
-  FounderRewardGeneratedNanos?: number;
-  // SubmitPost (server side only)
-  TstampNanos?: number;
-  PostHashHex?: number;
-  // UpdateProfile (server side only)
-  CompProfileCreationTxnHashHex?: string;
-  // DAO Coin Limit Order (server side only)
-  SimulatedExecutionResult?: DAOCoinLimitOrderSimulatedExecutionResult;
-  // Create/Update NFT, NFT Bid, Accept NFT Bid (server side only)
-  NFTPostHashHex?: string;
-  // Update NFT, NFT Bid, Accept NFT Bid (server side only)
-  SerialNumber?: number;
-  // NFT Bid (server side only)
-  UpdaterPublicKeyBase58Check?: string;
-  // NFT Bid, Accept NFT Bid (server side only)
-  BidAmountNanos?: number;
-  // Accept NFT Bid (server side only)
-  BidderPublicKeyBase58Check?: string;
 };
 
 export const convertExtraData = (
@@ -199,6 +160,7 @@ export const constructBalanceModelTx = async (
   // TODO: sum extra spend for creator coins, dao coin limit orders (ugh), create NFTs, create profile
   // NFT buys. Probably not necessarily, but would be best to ahve this.
   const txnHash = sha256X2(txnBytes);
+  const txnType = txnWithFee.getTxnTypeString();
   return {
     Transaction: TransactionToMsgDeSoTxn(txnWithFee),
     FeeNanos: fees,
@@ -208,6 +170,55 @@ export const constructBalanceModelTx = async (
     SpendAmountNanos: fees + outputSum,
     TransactionIDBase58Check: publicKeyToBase58Check(txnHash),
     TxnHashHex: bytesToHex(txnHash),
+    PostHashHex:
+      txnType === TransactionType.SubmitPost ? bytesToHex(txnHash) : undefined,
+    TstampNanos:
+      txnType === TransactionType.SubmitPost
+        ? (metadata as TransactionMetadataSubmitPost).timestampNanos
+        : undefined,
+    NFTPostHashHex:
+      txnType === TransactionType.CreateNFT ||
+      txnType === TransactionType.UpdateNFT ||
+      txnType === TransactionType.NFTBid ||
+      txnType === TransactionType.AcceptNFTBid
+        ? bytesToHex(
+            (
+              metadata as
+                | TransactionMetadataCreateNFT
+                | TransactionMetadataUpdateNFT
+                | TransactionMetadataNFTBid
+                | TransactionMetadataAcceptNFTBid
+            ).nftPostHash
+          )
+        : undefined,
+    SerialNumber:
+      txnType === TransactionType.UpdateNFT ||
+      txnType === TransactionType.NFTBid ||
+      txnType === TransactionType.AcceptNFTBid
+        ? (
+            metadata as
+              | TransactionMetadataUpdateNFT
+              | TransactionMetadataNFTBid
+              | TransactionMetadataAcceptNFTBid
+          ).serialNumber
+        : undefined,
+    UpdaterPublicKeyBase58Check:
+      txnType === TransactionType.NFTBid ? pubKey : undefined,
+    BidAmountNanos:
+      txnType === TransactionType.NFTBid ||
+      txnType === TransactionType.AcceptNFTBid
+        ? (
+            metadata as
+              | TransactionMetadataAcceptNFTBid
+              | TransactionMetadataNFTBid
+          ).bidAmountNanos
+        : undefined,
+    BidderPublicKeyBase58Check:
+      txnType === TransactionType.AcceptNFTBid
+        ? publicKeyToBase58Check(
+            (metadata as TransactionMetadataAcceptNFTBid).bidderPKID
+          )
+        : undefined,
   };
 };
 

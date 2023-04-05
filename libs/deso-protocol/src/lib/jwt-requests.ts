@@ -41,6 +41,7 @@ import {
   AdminUpdateUserGlobalMetadataRequest,
   BlockPublicKeyRequest,
   BlockPublicKeyResponse,
+  ConstructedTransactionResponse,
   DeletePIIRequest,
   GetBuyDeSoFeeBasisPointsResponse,
   GetGlobalParamsResponse,
@@ -62,6 +63,7 @@ import {
   SetUSDCentsToDeSoExchangeRateResponse,
   SwapIdentityRequest,
   SwapIdentityResponse,
+  TxRequestWithOptionalFeesAndExtraData,
   UpdateGlobalParamsRequest,
   UpdateGlobalParamsResponse,
   UpdateUserGlobalMetadataRequest,
@@ -75,12 +77,7 @@ import {
   WyreWalletOrderQuotationPayload,
   WyreWalletOrderReservationPayload,
 } from 'deso-protocol-types';
-import {
-  constructBalanceModelTx,
-  ConstructedTransactionResponse,
-  handleSignAndSubmit,
-  TxRequestWithOptionalFeesAndExtraData,
-} from './internal';
+import { constructBalanceModelTx, handleSignAndSubmit } from './internal';
 import { ConstructedAndSubmittedTx } from './types';
 
 const jwtPost = async (

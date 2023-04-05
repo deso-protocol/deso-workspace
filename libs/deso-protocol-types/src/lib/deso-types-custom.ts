@@ -1,5 +1,7 @@
 import { ec } from 'elliptic';
 import {
+  DAOCoinLimitOrderSimulatedExecutionResult,
+  MsgDeSoTxn,
   SubmitTransactionResponse,
   TransactionFee,
   TransactionSpendingLimitResponse,
@@ -236,6 +238,13 @@ export enum TransactionType {
   DAOCoin = 'DAO_COIN',
   DAOCoinTransfer = 'DAO_COIN_TRANSFER',
   DAOCoinLimitOrder = 'DAO_COIN_LIMIT_ORDER',
+  CreateUserAssociation = 'CREATE_USER_ASSOCIATION',
+  DeleteUserAssociation = 'DELETE_USER_ASSOCIATION',
+  CreatePostAssociation = 'CREATE_POST_ASSOCIATION',
+  DeletePostAssociation = 'DELETE_POST_ASSOCIATION',
+  AccessGroup = 'ACCESS_GROUP',
+  AccessGroupMembers = 'ACCESS_GROUP_MEMBERS',
+  NewMessage = 'NEW_MESSAGE',
 }
 
 export interface IdentityDeriveParams {
@@ -343,7 +352,19 @@ export interface MetaMaskInitResponse {
   ethereumAddress: string;
 }
 
-export interface RequestOptions<T = any, V = any> {
+export interface OptionalFeesAndExtraData {
+  MinFeeRateNanosPerKB?: number;
+  TransactionFees?: TransactionFee[] | null;
+  ExtraData?: { [key: string]: string };
+}
+
+export type TxRequestWithOptionalFeesAndExtraData<T> = Omit<
+  T,
+  'MinFeeRateNanosPerKB' | 'TransactionFees' | 'ExtraData' | 'InTutorial'
+> &
+  OptionalFeesAndExtraData;
+
+export interface RequestOptions {
   /**
    * This is only relevant for write operations that require a signed
    * transaction (submit-post, update-profile, etc). It determines whether to
@@ -361,11 +382,46 @@ export interface RequestOptions<T = any, V = any> {
   nodeURI?: string;
 
   localConstruction?: boolean;
-  // TODO: I actually think we want T to be TxRequestWithOptionalFeesAndExtraData
-  constructionFunction?: (params: T) => Promise<V>;
+  // TODO: I actually think we want any to be TxRequestWithOptionalFeesAndExtraData
+  constructionFunction?: (
+    params: any
+  ) => Promise<ConstructedTransactionResponse>;
 
   jwtRequired?: boolean;
 }
+
+export type ConstructedTransactionResponse = {
+  Transaction: MsgDeSoTxn;
+  FeeNanos: number;
+  TransactionHex: string;
+  TxnHashHex: string;
+  TotalInputNanos: number;
+  ChangeAmountNanos: number;
+  SpendAmountNanos: number;
+  TransactionIDBase58Check?: string;
+  // TODO: Optional Fields
+  // Buy or sell creator coins (server side only)
+  ExpectedDeSoReturnedNanos?: number;
+  ExpectedCreatorCoinReturnedNanos?: number;
+  FounderRewardGeneratedNanos?: number;
+  // SubmitPost (server side only)
+  TstampNanos?: number;
+  PostHashHex?: string;
+  // UpdateProfile (server side only)
+  CompProfileCreationTxnHashHex?: string;
+  // DAO Coin Limit Order (server side only)
+  SimulatedExecutionResult?: DAOCoinLimitOrderSimulatedExecutionResult;
+  // Create/Update NFT, NFT Bid, Accept NFT Bid (server side only)
+  NFTPostHashHex?: string;
+  // Update NFT, NFT Bid, Accept NFT Bid (server side only)
+  SerialNumber?: number;
+  // NFT Bid (server side only)
+  UpdaterPublicKeyBase58Check?: string;
+  // NFT Bid, Accept NFT Bid (server side only)
+  BidAmountNanos?: number;
+  // Accept NFT Bid (server side only)
+  BidderPublicKeyBase58Check?: string;
+};
 
 export type MessagingGroupPayload = {
   messagingKeySignature: string;

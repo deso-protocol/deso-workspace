@@ -6,6 +6,7 @@ import {
   AcceptNFTTransferResponse,
   BurnNFTRequest,
   BurnNFTResponse,
+  ConstructedTransactionResponse,
   CreateNFTBidRequest,
   CreateNFTBidResponse,
   CreateNFTRequest,
@@ -13,15 +14,11 @@ import {
   RequestOptions,
   TransferNFTRequest,
   TransferNFTResponse,
+  TxRequestWithOptionalFeesAndExtraData,
   UpdateNFTRequest,
   UpdateNFTResponse,
 } from 'deso-protocol-types';
-import {
-  constructBalanceModelTx,
-  ConstructedTransactionResponse,
-  handleSignAndSubmit,
-  TxRequestWithOptionalFeesAndExtraData,
-} from '../internal';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {
   bs58PublicKeyToCompressedBytes,

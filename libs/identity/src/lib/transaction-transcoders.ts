@@ -14,9 +14,15 @@ import {
   Uint8,
   Uvarint64,
   VarBuffer,
+  instanceToType,
 } from './transcoders';
 
-import { DeSoInput, DeSoOutput, MsgDeSoTxn } from 'deso-protocol-types';
+import {
+  DeSoInput,
+  DeSoOutput,
+  MsgDeSoTxn,
+  TransactionType,
+} from 'deso-protocol-types';
 
 export class TransactionInput extends BinaryRecord {
   @Transcode(FixedBuffer(32))
@@ -630,6 +636,42 @@ export const TransactionTypeMetadataMap = {
   33: TransactionMetadataNewMessage,
 };
 
+export const TransactionTypeToStringMap: { [k: number]: string } = {
+  0: 'UNDEFINED',
+  1: 'BLOCK_REWARD',
+  2: TransactionType.BasicTransfer,
+  3: TransactionType.BitcoinExchange,
+  4: TransactionType.PrivateMessage,
+  5: TransactionType.SubmitPost,
+  6: TransactionType.UpdateProfile,
+  8: TransactionType.UpdateBitcoinUSDExchangeRate,
+  9: TransactionType.Follow,
+  10: TransactionType.Like,
+  11: TransactionType.CreatorCoin,
+  12: TransactionType.SwapIdentity,
+  13: TransactionType.UpdateGlobalParams,
+  14: TransactionType.CreatorCoinTransfer,
+  15: TransactionType.CreateNFT,
+  16: TransactionType.UpdateNFT,
+  17: TransactionType.AcceptNFTBid,
+  18: TransactionType.NFTBid,
+  19: TransactionType.NFTTransfer,
+  20: TransactionType.AcceptNFTTransfer,
+  21: TransactionType.BurnNFT,
+  22: TransactionType.AuthorizeDerivedKey,
+  23: TransactionType.MessagingGroup,
+  24: TransactionType.DAOCoin,
+  25: TransactionType.DAOCoinTransfer,
+  26: TransactionType.DAOCoinLimitOrder,
+  27: TransactionType.CreateUserAssociation,
+  28: TransactionType.DeleteUserAssociation,
+  29: TransactionType.CreatePostAssociation,
+  30: TransactionType.DeletePostAssociation,
+  31: TransactionType.AccessGroup,
+  32: TransactionType.AccessGroupMembers,
+  33: TransactionType.NewMessage,
+};
+
 export class Transaction extends BinaryRecord {
   @Transcode(ArrayOf(TransactionInput))
   inputs: TransactionInput[] = [];
@@ -664,6 +706,16 @@ export class Transaction extends BinaryRecord {
     super();
     Object.assign(this, attributes);
   }
+
+  getTxnType(): number {
+    return this.metadata !== null
+      ? instanceToType(this.metadata, TransactionTypeMetadataMap)
+      : 0;
+  }
+
+  getTxnTypeString(): string {
+    return TransactionTypeToStringMap[this.getTxnType()];
+  }
 }
 
 export const TransactionToMsgDeSoTxn = (txn: Transaction) => {
@@ -691,7 +743,7 @@ export const TransactionToMsgDeSoTxn = (txn: Transaction) => {
     // TODO: implement parsing of signature.
     Signature: null,
     // TODO: implement reverse engineering of TxnTypeJSON. low priority.
-    TxnTypeJSON: 0,
+    TxnTypeJSON: txn.getTxnType(),
   } as MsgDeSoTxn;
 };
 

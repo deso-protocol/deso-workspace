@@ -1,5 +1,6 @@
 import { PartialWithRequiredFields } from '@deso-core/data';
 import {
+  ConstructedTransactionResponse,
   DAOCoinLimitOrderResponse,
   DAOCoinLimitOrderWithCancelOrderIDRequest,
   DAOCoinLimitOrderWithExchangeRateAndQuantityRequest,
@@ -8,13 +9,12 @@ import {
   RequestOptions,
   TransferDAOCoinRequest,
   TransferDAOCoinResponse,
+  TxRequestWithOptionalFeesAndExtraData,
 } from 'deso-protocol-types';
 import {
   constructBalanceModelTx,
-  ConstructedTransactionResponse,
   handleSignAndSubmit,
   isMaybeDeSoPublicKey,
-  TxRequestWithOptionalFeesAndExtraData,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
 import {

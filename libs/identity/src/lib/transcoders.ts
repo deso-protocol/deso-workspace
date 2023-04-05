@@ -172,19 +172,25 @@ export const Record = <
   write: (object) => object.toBytes(),
 });
 
+export const instanceToType = <
+  T extends Serializable,
+  C extends Deserializable<T> & { new (): T }
+>(
+  object: T,
+  klassMap: { [index: string]: C }
+): number => {
+  for (const [key, value] of Object.entries(klassMap)) {
+    if (object instanceof value) return parseInt(key);
+  }
+  return -1;
+};
+
 export const Enum = <
   T extends Serializable,
   C extends Deserializable<T> & { new (): T }
 >(klassMap: {
   [index: string]: C;
 }): Transcoder<T> => {
-  const instanceToType = <T>(object: T): number => {
-    for (const [key, value] of Object.entries(klassMap)) {
-      if (object instanceof value) return parseInt(key);
-    }
-    return -1;
-  };
-
   return {
     read: (bytes) => {
       let buffer = bytes;
@@ -202,7 +208,7 @@ export const Enum = <
       ];
     },
     write: (object) => {
-      const type = uvarint64ToBuf(instanceToType(object));
+      const type = uvarint64ToBuf(instanceToType(object, klassMap));
       const bytes = object.toBytes();
       const size = uvarint64ToBuf(bytes.length);
 
