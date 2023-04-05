@@ -916,18 +916,52 @@ export class Identity {
       throw new Error('Cannot request permissions without a logged in user');
     }
 
+    const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
+      primaryDerivedKey;
+
+    return this.derive(transactionSpendingLimitResponse, {
+      ownerPublicKey: publicKeyBase58Check,
+      derivedPublicKey: derivedPublicKeyBase58Check,
+    });
+  }
+
+  /**
+   * This method will issue a derive request to identity which can be used to
+   * either create a new derived key or to update an existing derived key.  It
+   * will open an identity window and prompt the user to approve the action for
+   * the derived key. It optionally take an existing derived key and/or an owner
+   * public key. If the owner key is not provided, the user will first be asked
+   * to login or create an account. Otherwise the user will be prompted with the
+   * derived key approval window immediately. If a derived key is not provided,
+   * a new one will be created.
+   *
+   * @example
+   *
+   * ```typescript
+   * await identity.derive({
+   *   TransactionCountLimitMap: {
+   *     SUBMIT_POST: 'UNLIMITED',
+   *    },
+   * }, {
+   * });
+   * ```
+   */
+  derive(
+    transactionSpendingLimitResponse: Partial<TransactionSpendingLimitResponseOptions>,
+    options?: { ownerPublicKey?: string; derivedPublicKey?: string }
+  ) {
     const event = NOTIFICATION_EVENTS.REQUEST_PERMISSIONS_START;
     this.#subscriber?.({ event, ...this.#state });
 
-    const { publicKeyBase58Check, derivedPublicKeyBase58Check } =
-      primaryDerivedKey;
     return new Promise((resolve, reject) => {
       this.#pendingWindowRequest = { resolve, reject, event };
 
       const params = {
         derive: true,
-        derivedPublicKey: derivedPublicKeyBase58Check,
-        publicKey: publicKeyBase58Check,
+        ...(!!options?.derivedPublicKey && {
+          derivedPublicKey: options.derivedPublicKey,
+        }),
+        ...(!!options?.ownerPublicKey && { publicKey: options.ownerPublicKey }),
         transactionSpendingLimitResponse: buildTransactionSpendingLimitResponse(
           transactionSpendingLimitResponse
         ),
@@ -1406,7 +1440,10 @@ export class Identity {
 
     // This means we're just switching to a user we already have in localStorage, we use the stored user bc they
     // may already have an authorized derived key that we can use.
-    if (this.#users?.[payload.publicKeyBase58Check]) {
+    if (
+      this.#users?.[payload.publicKeyBase58Check] &&
+      payload.publicKeyBase58Check !== this.#activePublicKey
+    ) {
       this.#setActiveUser(payload.publicKeyBase58Check);
       // if the logged in user changes, we try to refresh the derived key permissions in the background
       // and just return the payload immediately.
@@ -1428,13 +1465,8 @@ export class Identity {
       }));
     }
 
-    // NOTE: We should never get here since the previous conditions *should* be
-    // exhaustive for current use cases. If we add use cases for alternate
-    // derived keys besides the primary derived key, we'll need to add more
-    // logic here.
-    throw new Error(
-      `unhandled derive flow with payload ${JSON.stringify(payload)}`
-    );
+    // For all other derive flows, we just return the payload directly.
+    return payload;
   }
 
   /**
