@@ -55,9 +55,7 @@ export const constructCreateAccessGroupTransaction = (
   metadata.accessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
     params.AccessGroupOwnerPublicKeyBase58Check
   );
-  // TODO: do we want to make an enum for all these operation types somewhere?
   metadata.accessGroupOperationType = 2;
-  // TODO: how to properly parse this?
   metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   return constructBalanceModelTx(
     params.AccessGroupOwnerPublicKeyBase58Check,
@@ -102,9 +100,7 @@ export const constructUpdateAccessGroupTransaction = (
   metadata.accessGroupOwnerPublicKey = bs58PublicKeyToCompressedBytes(
     params.AccessGroupOwnerPublicKeyBase58Check
   );
-  // TODO: do we want to make an enum for all these operation types somewhere?
   metadata.accessGroupOperationType = 3;
-  // TODO: how to properly parse this?
   metadata.accessGroupKeyName = encodeUTF8ToBytes(params.AccessGroupKeyName);
   return constructBalanceModelTx(
     params.AccessGroupOwnerPublicKeyBase58Check,
@@ -149,7 +145,6 @@ export const constructAddAccessGroupMembersTransaction = (
       newAccessGroupMember.accessGroupMemberKeyName = encodeUTF8ToBytes(
         member.AccessGroupMemberKeyName
       );
-      // TODO: make sure we're probably reading this?
       newAccessGroupMember.encryptedKey = encodeUTF8ToBytes(
         member.EncryptedKey
       );
@@ -248,7 +243,6 @@ export const constructUpdateAccessGroupMembersTransaction = (
       newAccessGroupMember.accessGroupMemberKeyName = encodeUTF8ToBytes(
         member.AccessGroupMemberKeyName
       );
-      // TODO: make sure we're probably reading this?
       newAccessGroupMember.encryptedKey = encodeUTF8ToBytes(
         member.EncryptedKey
       );

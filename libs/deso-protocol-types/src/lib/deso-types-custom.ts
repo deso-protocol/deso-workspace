@@ -392,7 +392,7 @@ export interface RequestOptions {
    * @returns Promise with the ConstructedTransactionResponse
    */
   constructionFunction?: (
-    params: unknown // TODO: I actually think we want unknown to be TxRequestWithOptionalFeesAndExtraData
+    params: any // TODO: I actually think we want any to be TxRequestWithOptionalFeesAndExtraData
   ) => Promise<ConstructedTransactionResponse>;
 
   jwtRequired?: boolean;
@@ -407,7 +407,6 @@ export type ConstructedTransactionResponse = {
   ChangeAmountNanos: number;
   SpendAmountNanos: number;
   TransactionIDBase58Check?: string;
-  // TODO: Optional Fields
   // Buy or sell creator coins (server side only)
   ExpectedDeSoReturnedNanos?: number;
   ExpectedCreatorCoinReturnedNanos?: number;

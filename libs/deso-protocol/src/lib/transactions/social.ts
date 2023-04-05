@@ -41,7 +41,6 @@ import { hexToBytes } from '@noble/hashes/utils';
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
  */
-// TODO: this one feels risky to update with local construction given all the handling of "New" Prefixed fields
 export const updateProfile = async (
   params: TypeWithOptionalFeesAndExtraData<UpdateProfileRequest>,
   options?: RequestOptions

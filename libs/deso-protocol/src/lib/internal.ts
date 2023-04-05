@@ -52,7 +52,6 @@ export const handleSignAndSubmit = async (
   endpoint: string,
   params: OptionalFeesAndExtraData & any,
   // we always broadcast by default, but consumers can optionally disable it.
-  // TODO: How to properly parameterize options.
   options: RequestOptions = { broadcast: true }
 ): Promise<{
   constructedTransactionResponse: ConstructedTransactionResponse;
@@ -95,7 +94,6 @@ export const convertExtraData = (
   extraData?: { [k: string]: string },
   consensusExtraDataKVs?: TransactionExtraDataKV[]
 ): TransactionExtraData => {
-  // TODO: encoding special consensus fields.
   const sortedExtraData = (consensusExtraDataKVs || [])
     .concat(
       Object.entries(extraData || {}).map(
@@ -113,13 +111,12 @@ export const constructBalanceModelTx = async (
   pubKey: string,
   metadata: TransactionMetadataRecord,
   txFields?: BalanceModelTransactionFields
-  // TODO: how do I make the input to ConstructedAndSubmittedTx generic?
 ): Promise<ConstructedTransactionResponse> => {
   // TODO: cache block height somewhere.
   const { BlockHeight } = await getAppState();
   const nonce = new TransactionNonce();
   // TODO: put in real block height buffer.
-  nonce.expirationBlockHeight = BlockHeight + 1000;
+  nonce.expirationBlockHeight = BlockHeight + 275;
   // TODO: cache used partial IDs? Replace with better logic
   // for generating random uint64
   nonce.partialId = Math.floor(Math.random() * 1e18);
@@ -158,7 +155,7 @@ export const constructBalanceModelTx = async (
   const fees = txnWithFee.feeNanos;
   const outputSum = txnWithFee.outputs.reduce((a, b) => a + b.amountNanos, 0);
   // TODO: sum extra spend for creator coins, dao coin limit orders (ugh), create NFTs, create profile
-  // NFT buys. Probably not necessarily, but would be best to ahve this.
+  // NFT buys. Probably not necessarily, but would be best to have this.
   const txnHash = sha256X2(txnBytes);
   const txnType = txnWithFee.getTxnTypeString();
   return {

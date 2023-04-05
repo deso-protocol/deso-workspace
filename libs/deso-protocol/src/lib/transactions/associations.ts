@@ -132,7 +132,6 @@ export const constructCreatePostAssociationTransaction = (
   params: CreatePostAssociationRequestParams
 ): Promise<ConstructedTransactionResponse> => {
   const metadata = new TransactionMetadataCreatePostAssociation();
-  // TODO: make sure empty string ends up as the zero public key.
   metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
     params.AppPublicKeyBase58Check || ''
   );

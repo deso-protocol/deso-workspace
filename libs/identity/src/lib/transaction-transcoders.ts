@@ -742,7 +742,6 @@ export const TransactionToMsgDeSoTxn = (txn: Transaction) => {
     }, {} as { [k: string]: any }),
     // TODO: implement parsing of signature.
     Signature: null,
-    // TODO: implement reverse engineering of TxnTypeJSON. low priority.
     TxnTypeJSON: txn.getTxnType(),
   } as MsgDeSoTxn;
 };

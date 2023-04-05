@@ -51,7 +51,6 @@ export const constructAuthorizeDerivedKey = (
   metadata.expirationBlock = params.ExpirationBlock;
   metadata.operationType = params.DeleteKey ? 0 : 1;
   const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
-  // TODO: this is a poorly named param, should probably fix this.
   if (params.DerivedKeySignature) {
     consensusExtraDataKVs.push(
       new TransactionExtraDataKV(

@@ -24,7 +24,6 @@ import {
 } from '@deso-core/identity';
 import { hexToBytes } from '@noble/hashes/utils';
 
-// TODO: Balance Model tx construction
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/dao-transactions-api#create-deso-token-dao-coin
  */
