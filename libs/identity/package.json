@@ -20,7 +20,7 @@
     "@noble/secp256k1": "^1.7.1",
     "@noble/hashes": "^1.2.0",
     "bs58": "^5.0.0",
-    "deso-protocol-types": "0.7.1",
+    "deso-protocol-types": "0.7.2",
     "ethers": "^5.6.6",
     "reflect-metadata": "^0.1.13"
   }
