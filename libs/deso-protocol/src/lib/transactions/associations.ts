@@ -1,22 +1,31 @@
 import { PartialWithRequiredFields } from '@deso-core/data';
 import {
-  AssociationResponse,
+  AssociationTxnResponse,
+  ConstructedTransactionResponse,
   CreatePostAssociationRequest,
   CreateUserAssociationRequest,
   DeleteAssociationRequest,
   RequestOptions,
-} from 'deso-protocol-types';
-import {
-  handleSignAndSubmit,
   TxRequestWithOptionalFeesAndExtraData,
-} from '../internal';
+} from 'deso-protocol-types';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
+import {
+  TransactionMetadataCreatePostAssociation,
+  TransactionMetadataCreateUserAssociation,
+  TransactionMetadataDeletePostAssociation,
+  TransactionMetadataDeleteUserAssociation,
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+} from '@deso-core/identity';
+import { hexToBytes } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#create-user-association
  */
-export const createUserAssociation = (
-  params: TxRequestWithOptionalFeesAndExtraData<
+
+export type CreateUserAssociationRequestParams =
+  TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       CreateUserAssociationRequest,
       | 'TargetUserPublicKeyBase58Check'
@@ -24,40 +33,83 @@ export const createUserAssociation = (
       | 'AssociationType'
       | 'AssociationValue'
     >
-  >,
+  >;
+export const createUserAssociation = (
+  params: CreateUserAssociationRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/user-associations/create',
-    params,
-    options
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
+  return handleSignAndSubmit('api/v0/user-associations/create', params, {
+    ...options,
+    constructionFunction: constructCreateUserAssociationTransaction,
+  });
+};
+
+export const constructCreateUserAssociationTransaction = (
+  params: CreateUserAssociationRequestParams
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataCreateUserAssociation();
+  metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
+    params.AppPublicKeyBase58Check || ''
+  );
+  metadata.associationType = encodeUTF8ToBytes(params.AssociationType);
+  metadata.associationValue = encodeUTF8ToBytes(params.AssociationValue);
+  metadata.targetUserPublicKey = bs58PublicKeyToCompressedBytes(
+    params.TargetUserPublicKeyBase58Check
+  );
+  return constructBalanceModelTx(
+    params.TransactorPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#delete-user-association
  */
-export const deleteUserAssociation = (
-  params: TxRequestWithOptionalFeesAndExtraData<
+
+export type DeleteUserAssociationRequestParams =
+  TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       DeleteAssociationRequest,
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
-  >,
+  >;
+
+export const deleteUserAssociation = (
+  params: DeleteUserAssociationRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/user-associations/delete',
-    params,
-    options
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
+  return handleSignAndSubmit('api/v0/user-associations/delete', params, {
+    ...options,
+    constructionFunction: constructDeleteUserAssociationTransaction,
+  });
+};
+
+export const constructDeleteUserAssociationTransaction = (
+  params: DeleteUserAssociationRequestParams
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataDeleteUserAssociation();
+  metadata.associationID = encodeUTF8ToBytes(params.AssociationID);
+  return constructBalanceModelTx(
+    params.TransactorPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#create-post-association
  */
-export const createPostAssociation = (
-  params: TxRequestWithOptionalFeesAndExtraData<
+export type CreatePostAssociationRequestParams =
+  TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       CreatePostAssociationRequest,
       | 'PostHashHex'
@@ -65,31 +117,71 @@ export const createPostAssociation = (
       | 'AssociationType'
       | 'AssociationValue'
     >
-  >,
+  >;
+export const createPostAssociation = (
+  params: CreatePostAssociationRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/post-associations/create',
-    params,
-    options
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
+  return handleSignAndSubmit('api/v0/post-associations/create', params, {
+    ...options,
+    constructionFunction: constructCreatePostAssociationTransaction,
+  });
+};
+
+export const constructCreatePostAssociationTransaction = (
+  params: CreatePostAssociationRequestParams
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataCreatePostAssociation();
+  metadata.appPublicKey = bs58PublicKeyToCompressedBytes(
+    params.AppPublicKeyBase58Check || ''
+  );
+  metadata.associationType = encodeUTF8ToBytes(params.AssociationType);
+  metadata.associationValue = encodeUTF8ToBytes(params.AssociationValue);
+  metadata.postHash = hexToBytes(params.PostHashHex);
+  return constructBalanceModelTx(
+    params.TransactorPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/associations-transactions-api#delete-post-association
  */
-export const deletePostAssociation = (
-  params: TxRequestWithOptionalFeesAndExtraData<
+export type DeletePostAssociationRequestParams =
+  TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       DeleteAssociationRequest,
       'TransactorPublicKeyBase58Check' | 'AssociationID'
     >
-  >,
+  >;
+
+export const deletePostAssociation = (
+  params: DeletePostAssociationRequestParams,
   options?: RequestOptions
-): Promise<ConstructedAndSubmittedTx<AssociationResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/post-associations/delete',
-    params,
-    options
+): Promise<ConstructedAndSubmittedTx<AssociationTxnResponse>> => {
+  return handleSignAndSubmit('api/v0/post-associations/delete', params, {
+    ...options,
+    constructionFunction: constructDeletePostAssociationTransaction,
+  });
+};
+
+export const constructDeletePostAssociationTransaction = (
+  params: DeletePostAssociationRequestParams
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataDeletePostAssociation();
+  metadata.associationID = encodeUTF8ToBytes(params.AssociationID);
+  return constructBalanceModelTx(
+    params.TransactorPublicKeyBase58Check,
+    metadata,
+    {
+      ExtraData: params.ExtraData,
+      MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+      TransactionFees: params.TransactionFees,
+    }
   );
 };

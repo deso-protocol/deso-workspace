@@ -4,7 +4,13 @@ import {
   media,
   PartialWithRequiredFields,
 } from '@deso-core/data';
-import { identity } from '@deso-core/identity';
+import {
+  encodeUTF8ToBytes,
+  identity,
+  TransactionExtraDataKV,
+  TransactionMetadataUpdateGlobalParams,
+  uvarint64ToBuf,
+} from '@deso-core/identity';
 import {
   AdminGetAllUserGlobalMetadataRequest,
   AdminGetHotFeedAlgorithmResponse,
@@ -35,6 +41,7 @@ import {
   AdminUpdateUserGlobalMetadataRequest,
   BlockPublicKeyRequest,
   BlockPublicKeyResponse,
+  ConstructedTransactionResponse,
   DeletePIIRequest,
   GetBuyDeSoFeeBasisPointsResponse,
   GetGlobalParamsResponse,
@@ -56,6 +63,7 @@ import {
   SetUSDCentsToDeSoExchangeRateResponse,
   SwapIdentityRequest,
   SwapIdentityResponse,
+  TxRequestWithOptionalFeesAndExtraData,
   UpdateGlobalParamsRequest,
   UpdateGlobalParamsResponse,
   UpdateUserGlobalMetadataRequest,
@@ -69,10 +77,7 @@ import {
   WyreWalletOrderQuotationPayload,
   WyreWalletOrderReservationPayload,
 } from 'deso-protocol-types';
-import {
-  handleSignAndSubmit,
-  TxRequestWithOptionalFeesAndExtraData,
-} from './internal';
+import { constructBalanceModelTx, handleSignAndSubmit } from './internal';
 import { ConstructedAndSubmittedTx } from './types';
 
 const jwtPost = async (
@@ -336,8 +341,8 @@ export const adminGetBuyDesoFeeBasisPoints = (
   );
 };
 
-export const adminUpdateGlobalParams = async (
-  params: TxRequestWithOptionalFeesAndExtraData<
+export type AdminUpdateGlobalParamsRequestParams =
+  TxRequestWithOptionalFeesAndExtraData<
     PartialWithRequiredFields<
       UpdateGlobalParamsRequest,
       | 'UpdaterPublicKeyBase58Check'
@@ -347,14 +352,69 @@ export const adminUpdateGlobalParams = async (
       | 'CreateNFTFeeNanos'
       | 'MinimumNetworkFeeNanosPerKB'
     >
-  >,
+  >;
+
+export const adminUpdateGlobalParams = async (
+  params: AdminUpdateGlobalParamsRequestParams,
   options?: RequestOptions
 ): Promise<ConstructedAndSubmittedTx<UpdateGlobalParamsResponse>> => {
-  return handleSignAndSubmit(
-    'api/v0/admin/update-global-params',
-    params,
-    options
-  );
+  return handleSignAndSubmit('api/v0/admin/update-global-params', params, {
+    ...options,
+    constructionFunction: constructAdminUpdateGlobalParamsTransaction,
+  });
+};
+
+export const constructAdminUpdateGlobalParamsTransaction = async (
+  params: AdminUpdateGlobalParamsRequestParams
+): Promise<ConstructedTransactionResponse> => {
+  const metadata = new TransactionMetadataUpdateGlobalParams();
+  const consensusExtraDataKVs: TransactionExtraDataKV[] = [];
+  if (params.USDCentsPerBitcoin >= 0) {
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('USDCentsPerBitcoin'),
+        uvarint64ToBuf(params.USDCentsPerBitcoin)
+      )
+    );
+  }
+  if (params.MinimumNetworkFeeNanosPerKB >= 0) {
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('MinNetworkFeeNanosPerKB'),
+        uvarint64ToBuf(params.MinimumNetworkFeeNanosPerKB)
+      )
+    );
+  }
+  if (params.CreateProfileFeeNanos >= 0) {
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('CreateProfileFeeNanos'),
+        uvarint64ToBuf(params.CreateProfileFeeNanos)
+      )
+    );
+  }
+  if (params.CreateNFTFeeNanos >= 0) {
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('CreateNFTFeeNanos'),
+        uvarint64ToBuf(params.CreateNFTFeeNanos)
+      )
+    );
+  }
+  if (params.MaxCopiesPerNFT >= 0) {
+    consensusExtraDataKVs.push(
+      new TransactionExtraDataKV(
+        encodeUTF8ToBytes('MaxCopiesPerNFT'),
+        uvarint64ToBuf(params.MaxCopiesPerNFT)
+      )
+    );
+  }
+  return constructBalanceModelTx(params.UpdaterPublicKeyBase58Check, metadata, {
+    ExtraData: params.ExtraData,
+    MinFeeRateNanosPerKB: params.MinFeeRateNanosPerKB,
+    TransactionFees: params.TransactionFees,
+    ConsensusExtraDataKVs: consensusExtraDataKVs,
+  });
 };
 
 export const adminGetGlobalParams = (

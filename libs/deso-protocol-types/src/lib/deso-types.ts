@@ -520,14 +520,18 @@ export interface DeSoInput {
 
 // struct2ts:types/generated/types.DeSoOutput
 export interface DeSoOutput {
-  PublicKey: number[] | null;
+  PublicKey: string | null;
   AmountNanos: number;
 }
 
 // struct2ts:github.com/btcsuite/btcd/btcec.Signature
 export interface Signature {
-  R: Int | null;
-  S: Int | null;
+  Sign: {
+    R: Int | null;
+    S: Int | null;
+  } | null;
+  RecoveryId: number;
+  IsRecoverable: boolean;
 }
 
 // struct2ts:types/generated/types.MsgDeSoTxn
@@ -535,8 +539,8 @@ export interface MsgDeSoTxn {
   TxInputs: DeSoInput[] | null;
   TxOutputs: DeSoOutput[] | null;
   TxnMeta: any;
-  PublicKey: number[] | null;
-  ExtraData: { [key: string]: number };
+  PublicKey: string | null;
+  ExtraData: { [key: string]: string };
   Signature: Signature | null;
   TxnTypeJSON: number;
 }
@@ -4494,6 +4498,11 @@ export interface DAOCoinLimitOrderWithCancelOrderIDRequest {
   TransactionFees: TransactionFee[] | null;
 }
 
+export interface DAOCoinLimitOrderSimulatedExecutionResult {
+  BuyingCoinQuantityFilled: string;
+  SellingCoinQuantityFilled: string;
+}
+
 export interface AssociationLimitMapItem {
   AssociationClass: 'Post' | 'User' | 'Undefined';
   AssociationType: string;
@@ -5429,7 +5438,7 @@ export interface AssociationTxnResponse {
   SpendAmountNanos: number;
   TotalInputNanos: number;
   ChangeAmountNanos: number;
-  FeeNames: number;
+  FeeNanos: number;
   Transaction: MsgDeSoTxn;
   TransactionHex: string;
   TxnHashHex: string;
