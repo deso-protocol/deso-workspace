@@ -70,7 +70,12 @@ export const handleSignAndSubmit = async (
             globalConfigOptions.MinFeeRateNanosPerKB,
         }
       ));
-  console.log(constructedTransactionResponse);
+  if (
+    (options.localConstruction || globalConfigOptions.LocalConstruction) &&
+    options.constructionFunction
+  ) {
+    console.log(constructedTransactionResponse);
+  }
   const submittedTransactionResponse =
     options.broadcast !== false
       ? await identity.signAndSubmit(constructedTransactionResponse)

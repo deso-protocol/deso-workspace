@@ -394,8 +394,6 @@ export interface RequestOptions {
   constructionFunction?: (
     params: any // TODO: I actually think we want any to be TxRequestWithOptionalFeesAndExtraData
   ) => Promise<ConstructedTransactionResponse>;
-
-  jwtRequired?: boolean;
 }
 
 export type ConstructedTransactionResponse = {

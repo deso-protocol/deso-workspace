@@ -540,7 +540,7 @@ export interface MsgDeSoTxn {
   TxOutputs: DeSoOutput[] | null;
   TxnMeta: any;
   PublicKey: string | null;
-  ExtraData: { [key: string]: string | any };
+  ExtraData: { [key: string]: any };
   Signature: Signature | null;
   TxnTypeJSON: number;
 }
