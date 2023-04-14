@@ -2220,6 +2220,7 @@ export interface PostEntryResponse {
   RecloutCount: number;
   QuoteRecloutCount: number;
   RecloutedPostEntryResponse: PostEntryResponse | null;
+  IsFrozen: boolean;
 }
 
 // struct2ts:types/generated/types.CoinEntryResponse
@@ -4315,6 +4316,7 @@ export interface SubmitPostRequest {
   MinFeeRateNanosPerKB: number;
   TransactionFees: TransactionFee[] | null;
   InTutorial: boolean;
+  IsFrozen: boolean;
 }
 
 // struct2ts:types/generated/types.SubmitPostResponse
