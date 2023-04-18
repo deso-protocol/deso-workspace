@@ -1,5 +1,11 @@
+import {
+  DeSoInput,
+  DeSoOutput,
+  MsgDeSoTxn,
+  TransactionType,
+} from '../backend-types';
 import { bufToUvarint64, publicKeyToBase58Check } from './crypto-utils';
-import { decodeBytesToUTF8, encodeUTF8ToBytes } from './transcoder-utils';
+import { decodeBytesToUTF8 } from './transcoder-utils';
 import {
   ArrayOf,
   BinaryRecord,
@@ -7,6 +13,7 @@ import {
   ChunkBuffer,
   Enum,
   FixedBuffer,
+  instanceToType,
   Optional,
   Record,
   TransactionNonceTranscoder,
@@ -14,16 +21,7 @@ import {
   Uint8,
   Uvarint64,
   VarBuffer,
-  instanceToType,
 } from './transcoders';
-
-import {
-  DeSoInput,
-  DeSoOutput,
-  MsgDeSoTxn,
-  TransactionType,
-} from 'deso-protocol-types';
-
 export class TransactionInput extends BinaryRecord {
   @Transcode(FixedBuffer(32))
   id: Uint8Array = new Uint8Array(0);

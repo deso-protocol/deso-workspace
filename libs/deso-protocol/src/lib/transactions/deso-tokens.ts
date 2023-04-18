@@ -1,4 +1,4 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
+import { hexToBytes } from '@noble/hashes/utils';
 import {
   ConstructedTransactionResponse,
   DAOCoinLimitOrderResponse,
@@ -10,20 +10,19 @@ import {
   TransferDAOCoinRequest,
   TransferDAOCoinResponse,
   TxRequestWithOptionalFeesAndExtraData,
-} from 'deso-protocol-types';
+} from '../backend-types';
+import { PartialWithRequiredFields } from '../data';
+import {
+  bs58PublicKeyToCompressedBytes,
+  TransactionMetadataDAOCoin,
+  TransactionMetadataTransferDAOCoin,
+} from '../identity';
 import {
   constructBalanceModelTx,
   handleSignAndSubmit,
   isMaybeDeSoPublicKey,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
-import {
-  TransactionMetadataDAOCoin,
-  TransactionMetadataTransferDAOCoin,
-  bs58PublicKeyToCompressedBytes,
-} from '@deso-core/identity';
-import { hexToBytes } from '@noble/hashes/utils';
-
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/dao-transactions-api#create-deso-token-dao-coin
  */

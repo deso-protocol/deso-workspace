@@ -1,6 +1,5 @@
-import { TransactionSpendingLimitResponse } from 'deso-protocol-types';
+import { TransactionSpendingLimitResponse } from '../backend-types';
 import { TransactionSpendingLimitResponseOptions } from './types';
-
 export function compareTransactionSpendingLimits(
   expectedPermissions: any,
   actualPermissions: any

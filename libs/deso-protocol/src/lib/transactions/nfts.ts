@@ -1,4 +1,4 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
+import { hexToBytes } from '@noble/hashes/utils';
 import {
   AcceptNFTBidRequest,
   AcceptNFTBidResponse,
@@ -17,9 +17,8 @@ import {
   TxRequestWithOptionalFeesAndExtraData,
   UpdateNFTRequest,
   UpdateNFTResponse,
-} from 'deso-protocol-types';
-import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
-import { ConstructedAndSubmittedTx } from '../types';
+} from '../backend-types';
+import { PartialWithRequiredFields } from '../data';
 import {
   bs58PublicKeyToCompressedBytes,
   concatUint8Arrays,
@@ -33,9 +32,9 @@ import {
   TransactionMetadataNFTTransfer,
   TransactionMetadataUpdateNFT,
   uvarint64ToBuf,
-} from '@deso-core/identity';
-import { hexToBytes } from '@noble/hashes/utils';
-
+} from '../identity';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
+import { ConstructedAndSubmittedTx } from '../types';
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/nft-transactions-api#create-nft
  */

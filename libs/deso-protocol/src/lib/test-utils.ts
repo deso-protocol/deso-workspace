@@ -1,6 +1,6 @@
 import { webcrypto } from 'crypto';
 import { TextDecoder, TextEncoder } from 'util';
-import { APIProvider } from './types';
+import { APIProvider } from './identity';
 
 class LocalStorageFake implements Storage {
   db: Record<string, string> = {};

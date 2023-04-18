@@ -1,5 +1,6 @@
 import { keccak_256 } from '@noble/hashes/sha3';
 import { Point, utils as ecUtils } from '@noble/secp256k1';
+import { ethers } from 'ethers';
 import {
   AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
@@ -11,8 +12,7 @@ import {
   QueryETHRPCRequest,
   SubmitTransactionResponse,
   TransactionSpendingLimitResponse,
-} from 'deso-protocol-types';
-import { ethers } from 'ethers';
+} from '../backend-types';
 import { api } from './api';
 import {
   DEFAULT_IDENTITY_URI,
@@ -57,7 +57,6 @@ import {
   SubscriberNotification,
   TransactionSpendingLimitResponseOptions,
 } from './types';
-
 export class Identity {
   /**
    * @private

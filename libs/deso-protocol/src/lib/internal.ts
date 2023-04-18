@@ -1,4 +1,13 @@
-import { api, cleanURL, getAppState } from '@deso-core/data';
+import { bytesToHex } from '@noble/hashes/utils';
+import {
+  ConstructedTransactionResponse,
+  OptionalFeesAndExtraData,
+  RequestOptions,
+  SubmitTransactionResponse,
+  TransactionFee,
+  TransactionType,
+} from './backend-types';
+import { api, cleanURL, getAppState } from './data';
 import {
   bs58PublicKeyToCompressedBytes,
   encodeUTF8ToBytes,
@@ -17,17 +26,7 @@ import {
   TransactionNonce,
   TransactionOutput,
   TransactionToMsgDeSoTxn,
-} from '@deso-core/identity';
-import { bytesToHex } from '@noble/hashes/utils';
-import {
-  ConstructedTransactionResponse,
-  OptionalFeesAndExtraData,
-  RequestOptions,
-  SubmitTransactionResponse,
-  TransactionFee,
-  TransactionType,
-} from 'deso-protocol-types';
-
+} from './identity';
 ////////////////////////////////////////////////////////////////////////////////
 // This is all the stuff we don't export to consumers of the library. If
 // anything here needs to be exported, it should be moved to another file.

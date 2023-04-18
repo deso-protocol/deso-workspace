@@ -3,8 +3,7 @@ import {
   AccessGroupMemberLimitMapItem,
   AssociationLimitMapItem,
   TransactionSpendingLimitResponse,
-} from 'deso-protocol-types';
-
+} from '../backend-types';
 export type Network = 'mainnet' | 'testnet';
 
 export interface IdentityResponse {

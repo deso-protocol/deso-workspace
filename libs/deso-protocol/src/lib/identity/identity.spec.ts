@@ -1,7 +1,8 @@
 import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
-import { ChatType, NewMessageEntryResponse } from 'deso-protocol-types';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
+import { ChatType, NewMessageEntryResponse } from '../backend-types';
+import { getAPIFake, getWindowFake } from '../test-utils';
 import { APIError } from './api';
 import { DEFAULT_IDENTITY_URI, LOCAL_STORAGE_KEYS } from './constants';
 import {
@@ -11,14 +12,13 @@ import {
 } from './crypto-utils';
 import { ERROR_TYPES } from './error-types';
 import { Identity } from './identity';
-import { getAPIFake, getWindowFake } from './test-utils';
-import { APIProvider } from './types';
 import {
   Transaction,
   TransactionExtraData,
   TransactionMetadataBasicTransfer,
   TransactionNonce,
 } from './transaction-transcoders';
+import { APIProvider } from './types';
 
 function getPemEncodePublicKey(privateKey: Uint8Array): string {
   const publicKey = getPublicKey(privateKey, true);

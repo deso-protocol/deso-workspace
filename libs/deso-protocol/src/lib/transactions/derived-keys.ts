@@ -1,21 +1,20 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import {
   AuthorizeDerivedKeyRequest,
   AuthorizeDerivedKeyResponse,
   ConstructedTransactionResponse,
   RequestOptions,
   TxRequestWithOptionalFeesAndExtraData,
-} from 'deso-protocol-types';
-import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
-import { ConstructedAndSubmittedTx } from '../types';
+} from '../backend-types';
+import { PartialWithRequiredFields } from '../data';
 import {
   bs58PublicKeyToCompressedBytes,
   encodeUTF8ToBytes,
   TransactionExtraDataKV,
   TransactionMetadataAuthorizeDerivedKey,
-} from '@deso-core/identity';
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
-
+} from '../identity';
+import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
+import { ConstructedAndSubmittedTx } from '../types';
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/derived-keys-transaction-api#authorize-derived-key
  */

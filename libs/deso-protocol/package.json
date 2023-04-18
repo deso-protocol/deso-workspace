@@ -2,6 +2,7 @@
   "name": "deso-protocol",
   "version": "1.1.14",
   "module": "./src/index.js",
+  "sideEffects": false,
   "keywords": [
     "blockchain",
     "crypto",
@@ -11,8 +12,10 @@
     "web3"
   ],
   "dependencies": {
-    "@deso-core/identity": "^0.1.7",
-    "@deso-core/data": "^0.1.1",
-    "deso-protocol-types": "^0.7.3"
+    "@noble/secp256k1": "^1.7.1",
+    "@noble/hashes": "^1.2.0",
+    "bs58": "^5.0.0",
+    "ethers": "^5.6.6",
+    "reflect-metadata": "^0.1.13"
   }
 }

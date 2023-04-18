@@ -98,9 +98,8 @@ import {
   TransactionSpendingLimitResponse,
   UserAssociationQuery,
   UserAssociationsResponse,
-} from 'deso-protocol-types';
+} from '../backend-types';
 import { api, cleanURL } from './api';
-
 /**
  * Returns a type that requires the given keys to be present in the partial.
  *

@@ -7,8 +7,9 @@ module.exports = {
     },
   },
   transform: {
-    '^.+\\.[tj]sx?$': 'babel-jest',
+    '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/libs/deso-protocol',
+  setupFilesAfterEnv: ['<rootDir>/src/lib/setup-jest.ts'],
 };

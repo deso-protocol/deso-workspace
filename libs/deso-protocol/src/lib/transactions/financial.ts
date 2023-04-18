@@ -1,4 +1,3 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   BuyOrSellCreatorCoinRequest,
   BuyOrSellCreatorCoinResponse,
@@ -9,19 +8,20 @@ import {
   TransferCreatorCoinRequest,
   TransferCreatorCoinResponse,
   TxRequestWithOptionalFeesAndExtraData,
-} from 'deso-protocol-types';
+} from '../backend-types';
+import { PartialWithRequiredFields } from '../data';
+import {
+  bs58PublicKeyToCompressedBytes,
+  TransactionMetadataBasicTransfer,
+  TransactionMetadataCreatorCoinTransfer,
+  TransactionOutput,
+} from '../identity';
 import {
   constructBalanceModelTx,
   handleSignAndSubmit,
   isMaybeDeSoPublicKey,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
-import {
-  bs58PublicKeyToCompressedBytes,
-  TransactionMetadataBasicTransfer,
-  TransactionMetadataCreatorCoinTransfer,
-  TransactionOutput,
-} from '@deso-core/identity';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/financial-transactions-api#send-deso

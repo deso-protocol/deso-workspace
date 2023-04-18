@@ -1,19 +1,4 @@
-import {
-  checkPartyAccessGroups,
-  PartialWithRequiredFields,
-} from '@deso-core/data';
-import {
-  bs58PublicKeyToCompressedBytes,
-  identity,
-  encodeUTF8ToBytes,
-  TransactionExtraDataKV,
-  TransactionMetadataFollow,
-  TransactionMetadataLike,
-  TransactionMetadataNewMessage,
-  TransactionMetadataSubmitPost,
-  TransactionMetadataUpdateProfile,
-  uvarint64ToBuf,
-} from '@deso-core/identity';
+import { hexToBytes } from '@noble/hashes/utils';
 import { utils as ecUtils } from '@noble/secp256k1';
 import {
   ConstructedTransactionResponse,
@@ -30,14 +15,25 @@ import {
   SubmitPostResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
-} from 'deso-protocol-types';
+} from '../backend-types';
+import { checkPartyAccessGroups, PartialWithRequiredFields } from '../data';
+import {
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+  identity,
+  TransactionExtraDataKV,
+  TransactionMetadataFollow,
+  TransactionMetadataLike,
+  TransactionMetadataNewMessage,
+  TransactionMetadataSubmitPost,
+  TransactionMetadataUpdateProfile,
+  uvarint64ToBuf,
+} from '../identity';
 import { constructBalanceModelTx, handleSignAndSubmit } from '../internal';
 import {
   ConstructedAndSubmittedTx,
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
-import { hexToBytes } from '@noble/hashes/utils';
-
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
  */

@@ -1,5 +1,5 @@
-import { api, media } from '@deso-core/data';
-import { identity, IdentityConfiguration } from '@deso-core/identity';
+import { api, media } from './data';
+import { identity, IdentityConfiguration } from './identity';
 import { globalConfigOptions } from './internal';
 
 export type DesoProtocolConfiguration = IdentityConfiguration & {

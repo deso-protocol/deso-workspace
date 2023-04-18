@@ -2,9 +2,8 @@ import {
   GetVideoStatusRequest,
   GetVideoStatusResponse,
   LinkPreviewResponse,
-} from 'deso-protocol-types';
+} from '../backend-types';
 import { cleanURL, media } from './api';
-
 ////////////////////////////////////////////////////////////////////////////////
 // Media: All of these endpoints are hitting a separate server dedicated to
 // handling media requests (images, videos, etc.). The media server is

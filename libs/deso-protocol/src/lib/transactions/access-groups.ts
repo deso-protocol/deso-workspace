@@ -1,4 +1,3 @@
-import { PartialWithRequiredFields } from '@deso-core/data';
 import {
   AddAccessGroupMembersRequest,
   AddAccessGroupMembersResponse,
@@ -7,22 +6,22 @@ import {
   CreateAccessGroupResponse,
   RequestOptions,
   TxRequestWithOptionalFeesAndExtraData,
-} from 'deso-protocol-types';
+} from '../backend-types';
+import { PartialWithRequiredFields } from '../data';
+import {
+  AccessGroupMemberRecord,
+  bs58PublicKeyToCompressedBytes,
+  encodeUTF8ToBytes,
+  TransactionExtraData,
+  TransactionMetadataAccessGroup,
+  TransactionMetadataAccessGroupMembers,
+} from '../identity';
 import {
   constructBalanceModelTx,
   convertExtraData,
   handleSignAndSubmit,
 } from '../internal';
 import { ConstructedAndSubmittedTx } from '../types';
-import {
-  AccessGroupMemberRecord,
-  TransactionExtraData,
-  TransactionMetadataAccessGroup,
-  TransactionMetadataAccessGroupMembers,
-  bs58PublicKeyToCompressedBytes,
-  encodeUTF8ToBytes,
-} from '@deso-core/identity';
-
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/access-groups-api#create-access-group
  */

@@ -1,5 +1,4 @@
-import { SubmitTransactionResponse, TransactionFee } from 'deso-protocol-types';
-
+import { SubmitTransactionResponse, TransactionFee } from './backend-types';
 export interface OptionalFeesAndExtraData {
   MinFeeRateNanosPerKB?: number;
   TransactionFees?: TransactionFee[] | null;

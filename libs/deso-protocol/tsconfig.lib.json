@@ -7,5 +7,10 @@
     "types": []
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts", "**/*.test.ts"]
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/setup-jest.ts",
+    "**/test-utils.ts"
+  ]
 }

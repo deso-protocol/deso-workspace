@@ -16,10 +16,7 @@
     "inlineSources": true,
     "inlineSourceMap": true,
     "paths": {
-      "@deso-core/data": ["libs/data/src/index.ts"],
-      "@deso-core/identity": ["libs/identity/src/index.ts"],
-      "deso-protocol": ["libs/deso-protocol/src/index.ts"],
-      "deso-protocol-types": ["libs/deso-protocol-types/src/index.ts"]
+      "deso-protocol": ["libs/deso-protocol/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

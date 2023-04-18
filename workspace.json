@@ -1,10 +1,7 @@
 {
   "version": 2,
   "projects": {
-    "data": "libs/data",
-    "deso-protocol": "libs/deso-protocol",
-    "deso-protocol-types": "libs/deso-protocol-types",
-    "identity": "libs/identity"
+    "deso-protocol": "libs/deso-protocol"
   },
   "options": {}
 }
