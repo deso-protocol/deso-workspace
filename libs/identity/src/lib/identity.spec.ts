@@ -1,4 +1,5 @@
-import { getPublicKey, utils as ecUtils } from '@noble/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import { ChatType, NewMessageEntryResponse } from 'deso-protocol-types';
 import { verify } from 'jsonwebtoken';
 import KeyEncoder from 'key-encoder';
@@ -21,9 +22,9 @@ import {
 } from './transaction-transcoders';
 
 function getPemEncodePublicKey(privateKey: Uint8Array): string {
-  const publicKey = getPublicKey(privateKey, true);
+  const publicKey = secp256k1.getPublicKey(privateKey, true);
   return new KeyEncoder('secp256k1').encodePublic(
-    ecUtils.bytesToHex(publicKey),
+    bytesToHex(publicKey),
     'raw',
     'pem'
   );
@@ -95,7 +96,7 @@ describe('identity', () => {
             });
             const txBytes = exampleTransaction.toBytes();
             return Promise.resolve({
-              TransactionHex: ecUtils.bytesToHex(txBytes),
+              TransactionHex: bytesToHex(txBytes),
             });
           }
           return Promise.resolve(null);
@@ -362,7 +363,7 @@ describe('identity', () => {
       const jwt = await identity.jwt();
       const parsedAndVerifiedJwt = verify(
         jwt,
-        getPemEncodePublicKey(ecUtils.hexToBytes(testDerivedSeedHex)),
+        getPemEncodePublicKey(hexToBytes(testDerivedSeedHex)),
         {
           // See: https://github.com/auth0/node-jsonwebtoken/issues/862
           // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
@@ -393,7 +394,7 @@ describe('identity', () => {
       const jwt = await identity.jwt();
       let errorMessage = '';
       try {
-        verify(jwt, getPemEncodePublicKey(ecUtils.hexToBytes(badSeedHex)), {
+        verify(jwt, getPemEncodePublicKey(hexToBytes(badSeedHex)), {
           // See: https://github.com/auth0/node-jsonwebtoken/issues/862
           // tl;dr: the jsonwebtoken library doesn't support the ES256K algorithm,
           // even though this is the correct algorithm for JWTs signed
@@ -515,7 +516,7 @@ describe('identity', () => {
         'lorem ipsum dolor sit amet, consectetur adipiscing elit';
       const textEncoder = new TextEncoder();
       const bytes = textEncoder.encode(plaintextMsg);
-      const hexEncodedMsg = ecUtils.bytesToHex(new Uint8Array(bytes));
+      const hexEncodedMsg = bytesToHex(new Uint8Array(bytes));
 
       // we only need to set the active user to the recipient, since we're not
       // decrypting anything.

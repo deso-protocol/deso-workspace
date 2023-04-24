@@ -1,5 +1,6 @@
 import { keccak_256 } from '@noble/hashes/sha3';
-import { Point, utils as ecUtils } from '@noble/secp256k1';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { secp256k1 } from '@noble/curves/secp256k1';
 import {
   AccessGroupEntryResponse,
   AuthorizeDerivedKeyRequest,
@@ -984,9 +985,9 @@ export class Identity {
 
   desoAddressToEthereumAddress(address: string) {
     const desoPKBytes = bs58PublicKeyToBytes(address).slice(1);
-    const ethPKHex = ecUtils.bytesToHex(keccak_256(desoPKBytes)).slice(24);
+    const ethPKHex = bytesToHex(keccak_256(desoPKBytes)).slice(24);
     // EIP-55 requires a checksum. Reference implementation: https://eips.ethereum.org/EIPS/eip-55
-    const checksum = ecUtils.bytesToHex(keccak_256(ethPKHex));
+    const checksum = bytesToHex(keccak_256(ethPKHex));
 
     return Array.from(ethPKHex).reduce(
       (ethAddress, char, index) =>
@@ -1093,7 +1094,8 @@ export class Identity {
       );
     }
 
-    const compressedEthKey = Point.fromHex(ethereumPublicKey).toRawBytes(true);
+    const compressedEthKey =
+      secp256k1.ProjectivePoint.fromHex(ethereumPublicKey).toRawBytes(true);
     return publicKeyToBase58Check(compressedEthKey, { network: this.#network });
   }
 
@@ -1677,7 +1679,7 @@ class DeSoCoreError extends Error {
 }
 
 const unencryptedHexToPlainText = (hex: string) => {
-  const bytes = ecUtils.hexToBytes(hex);
+  const bytes = hexToBytes(hex);
   const textDecoder = new TextDecoder();
   return textDecoder.decode(bytes);
 };

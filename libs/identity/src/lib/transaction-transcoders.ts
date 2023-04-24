@@ -1,5 +1,5 @@
 import { bufToUvarint64, publicKeyToBase58Check } from './crypto-utils';
-import { decodeBytesToUTF8, encodeUTF8ToBytes } from './transcoder-utils';
+import { decodeBytesToUTF8 } from './transcoder-utils';
 import {
   ArrayOf,
   BinaryRecord,
