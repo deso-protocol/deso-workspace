@@ -1,5 +1,11 @@
 # Deso Workspace
 
+⚠️⚠️⚠️⚠️
+
+This repo is no longer maintained or supported. It has been archived and all further development will take place in our [deso-js repo](https://github.com/deso-protocol/deso-js). Please file any issues or create pull requests here https://github.com/deso-protocol/deso-js
+
+⚠️⚠️⚠️⚠️
+
 ![Deso](./deso.jpg)
 
 `deso-workspace` is a monorepo containing javascript/typescript libraries for working with the [deso blockchain](https://deso.org)
