@@ -14,7 +14,6 @@ import {
   TransactionMetadataUpdateProfile,
   uvarint64ToBuf,
 } from '@deso-core/identity';
-import { utils as ecUtils } from '@noble/secp256k1';
 import {
   ConstructedTransactionResponse,
   CreateFollowTxnStatelessRequest,
@@ -36,7 +35,7 @@ import {
   ConstructedAndSubmittedTx,
   TypeWithOptionalFeesAndExtraData,
 } from '../types';
-import { hexToBytes } from '@noble/hashes/utils';
+import { hexToBytes, bytesToHex } from '@noble/hashes/utils';
 
 /**
  * https://docs.deso.org/deso-backend/construct-transactions/social-transactions-api#update-profile
@@ -541,5 +540,5 @@ export const constructUpdateGroupChatMessageTransaction = (
 function hexEncodePlainText(plainText: string) {
   const textEncoder = new TextEncoder();
   const bytes = textEncoder.encode(plainText);
-  return ecUtils.bytesToHex(new Uint8Array(bytes));
+  return bytesToHex(new Uint8Array(bytes));
 }

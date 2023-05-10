@@ -1,4 +1,4 @@
-import * as noble from '@noble/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1';
 import * as bs58check from 'bs58check';
 import { ec as EC } from 'elliptic';
 
@@ -19,7 +19,7 @@ describe('@noble/sepc256k1 and elliptic.ec compatibility', () => {
     const ecBs58CheckPubKey = bs58check.encode(ecDesoPubKey);
 
     // noble key pair
-    const noblePubKeyCompressed = noble.getPublicKey(seedHex, true);
+    const noblePubKeyCompressed = secp256k1.getPublicKey(seedHex, true);
     const nobleDesoPubKey = new Uint8Array([
       ...desoMainNetPrefix,
       ...noblePubKeyCompressed,
